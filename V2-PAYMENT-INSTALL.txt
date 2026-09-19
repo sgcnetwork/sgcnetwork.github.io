@@ -1,0 +1,26 @@
+SGC NETWORK — V2 PAYMENT + CUSTOMER BASE ADD-ON
+
+FIX: PRODUCT BUY BUTTONS NO LONGER ROUTE TO ENQUIRY.
+
+Replace these files in the existing SGC Network website:
+- start.html
+- build.html
+- kits.html
+- payment.html (new)
+- payment-config.js (new)
+- customer.html
+- admin.html
+- customer-base.css
+- customer-base.js
+
+Payment flow:
+R20 -> payment.html -> Paystack Payment Page
+Business Kit -> choose niche -> BUY THIS KIT -> payment.html -> Paystack
+Business Kit lay-by -> choose niche -> START LAY-BY -> payment.html -> lay-by payment
+SGC Start -> payment.html -> Paystack subscription
+SGC Build -> payment.html -> Paystack subscription (create the plan/page first)
+Enquiry remains ONLY for bespoke business enquiries.
+
+IMPORTANT: The actual Paystack URLs must be pasted into payment-config.js after creating the relevant Payment Pages in Paystack Dashboard. Until those URLs are added, the buttons will show a clear message rather than sending the customer to Enquire.
+
+Paystack supports one-time and recurring Payment Pages. Do not put a Paystack secret key in these public files.

@@ -1,0 +1,11 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SGC Checkout | SGC Network</title><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="product-add-on.css"></head><body>
+<nav class="nav"><div class="container nav-inner"><a class="logo" href="index.html">SGC<small>NETWORK</small></a><div class="nav-links"><a href="index.html">Home</a><a href="start.html">Start</a><a href="kits.html">Business Kits</a><a href="customer.html">My SGC</a></div></div></nav>
+<section class="page-hero"><div class="container"><div class="eyebrow">SGC CHECKOUT</div><h1 id="title">Ready to pay.</h1><p id="desc">Your payment will be handled securely through Paystack.</p><div class="mini-art"></div></div></section>
+<section class="section soft"><div class="container"><div class="product-card featured" style="max-width:720px;margin:auto"><span class="tag">PAYMENT GATEWAY</span><h2 id="product">SGC Product</h2><div class="product-price" id="price">—</div><p>Click below to continue to the secure Paystack checkout. This is a purchase flow — it does not send you to an enquiry form.</p><button class="btn dark" id="pay">Continue to Paystack →</button><p class="buy-note">After successful payment, your SGC account and product access can be updated by the connected backend.</p></div></div></section>
+<script src="payment-config.js"></script><script>
+const q=new URLSearchParams(location.search), type=q.get('type')||'kit', name=q.get('name')||'Business Kit';
+const prices={'R20 Preview':'R20','Beauty Business Kit':'R499','Finance Business Kit':'R499','Clothing Brand Kit':'R499','Baking Business Kit':'R499','Social Media Business Kit':'R499','Cleaning Business Kit':'R499','Car Wash Business Kit':'R499','Digital Services Kit':'R499','Online Store Kit':'R499','Gaming / RP Startup Kit':'R699','Content Editing / Creative Services Kit':'R499','SGC Start':'R150 / month'};
+document.getElementById('product').textContent=name; document.getElementById('price').textContent=prices[name]||'Selected product';
+let url=''; if(type==='start') url=SGC_PAYMENTS.start; else if(type==='r20') url=SGC_PAYMENTS.r20; else if(type==='layby') url=SGC_PAYMENTS.layby; else url=SGC_PAYMENTS.kits[name]||'';
+document.getElementById('pay').onclick=()=>sgcPay(url,name);
+</script></body></html>
