@@ -1,0 +1,17 @@
+/* SGC PRODUCT ADD-ON */
+.product-section{padding:110px 0;background:linear-gradient(145deg,#fbf6ed,#f7e7ef 52%,#eee4f6)}
+.product-intro{max-width:720px;margin-bottom:48px}.product-intro h2{margin-bottom:16px}
+.product-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.product-card{background:rgba(255,253,249,.94);border:1px solid rgba(31,27,27,.1);padding:30px;min-height:330px;display:flex;flex-direction:column;box-shadow:0 18px 50px rgba(47,34,46,.07);position:relative;overflow:hidden}
+.product-card:after{content:"";position:absolute;width:130px;height:130px;border-radius:50%;right:-55px;top:-55px;background:#f6e6a8;opacity:.75}.product-card:nth-child(2):after{background:#d9c7ee}.product-card:nth-child(3):after{background:#f6dfe7}
+.product-card .tag{font-size:9px;letter-spacing:.22em;text-transform:uppercase}.product-card h3{margin:28px 0 8px;position:relative;z-index:1}.product-card p{font-size:13px;color:#6d6667;margin:0 0 20px}
+.product-price{font:500 42px var(--serif);margin-top:auto}.product-price span{font:13px var(--sans);color:#6d6667}.product-card .btn{margin-top:18px;align-self:flex-start;position:relative;z-index:2}
+.product-card.featured{background:linear-gradient(145deg,#fffdf9,#f4dfe9)}
+.kit-selector{background:rgba(255,253,249,.9);padding:34px;box-shadow:0 18px 50px rgba(47,34,46,.07);margin-top:30px}
+.kit-selector-row{display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:end}.kit-selector label{display:block}
+.kit-selector select{width:100%;border:1px solid rgba(31,27,27,.2);padding:15px;background:#fffdf9;margin-top:8px;font:14px var(--sans)}
+.kit-preview{margin-top:25px;padding:24px;background:#fbf0c9;display:none}.kit-preview.show{display:block}.kit-preview strong{font-family:var(--serif);font-size:28px;font-weight:500}
+.kit-preview p{margin:7px 0 0;color:#6d6667;font-size:13px}.network-band{padding:90px 0;background:#f7eaf0}
+.network-box{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}.network-box ul{list-style:none;padding:0;margin:25px 0}
+.network-box li{padding:11px 0;border-bottom:1px solid var(--line);font-size:14px}.network-box li:before{content:"✦";margin-right:10px}.buy-note{font-size:11px;color:#6d6667;margin-top:10px}
+@media(max-width:850px){.product-grid,.kit-selector-row,.network-box{grid-template-columns:1fr}}

@@ -1,0 +1,34 @@
+SGC NETWORK — PRODUCT ADD-ON
+
+This is an add-on/replacement pack for the existing V3 website, NOT a new website.
+
+UPLOAD/REPLACE ONLY:
+• start.html
+• build.html
+• kits.html
+• product-add-on.css
+• product-add-on.js
+
+Keep your existing index.html, business.html, enquiry.html, style.css and other files.
+
+WHAT THIS ADDS:
+• SGC Start R150/month with a clear purchase CTA.
+• SGC Build R250/month with a clear purchase CTA.
+• Foundation Business Starter Kit preview R20.
+• Foundation Business Starter Kit full R499.
+• Niche kit selector with:
+  Beauty Business Kit
+  Clothing Brand Kit
+  Baking Business Kit
+  Social Media Business Kit
+  Cleaning Business Kit
+  Car Wash Business Kit
+  Digital Services Kit
+  Online Store Kit
+  Gaming / RP Startup Kit
+  Content Editing / Creative Services Kit
+• The learning framework: Learn, Develop, Plan, Money, Market, Digital, Systems, Track, Launch.
+• Network/learning positioning around real performance, outsourcing, editors/service providers and results.
+
+PAYMENTS:
+The buttons currently route to the enquiry flow because actual Paystack Payment Page URLs have not been supplied yet. When you create the Paystack products, replace each button href with the correct Paystack Payment Page URL. Never put Paystack secret keys in GitHub.
