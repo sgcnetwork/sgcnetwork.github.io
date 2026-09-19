@@ -1,16 +1,21 @@
-# SGC Network Website V2
+# SGC Network Website V3
 
-Built for the current SGC Network model:
-- Aspiring entrepreneurs
-- SGC Start: R150/month starter membership
-- SGC Build: R250/month for Business Kit buyers with deeper lessons/community
-- R20 Business Kit previews, open to members and non-members
-- Full Business Kits: R499 once-off
-- Existing business analysis: from R1,200/month, intended as a minimum 2–3 month starting engagement
-- Strategy/implementation/automation quoted separately after findings
+This version is intentionally a multi-page site instead of one long information dump.
 
-The payment buttons are intentionally not connected yet. Add Paystack Payment Pages/checkout after the merchant account, final products, terms and refund/cancellation policy are confirmed. Never place Paystack secret keys in public GitHub files.
+Pages:
+- index.html — short, visual homepage with two main paths
+- start.html — SGC Start (R150/month)
+- build.html — SGC Build (R250/month)
+- kits.html — Business Kits (R20 preview / R499 full)
+- business.html — Existing business analysis (from R1,200/month)
+- enquiry.html — dedicated enquiry page
 
-The contact form currently opens the visitor's email app. A secure form backend can be added later.
+The enquiry form no longer uses `mailto:` or automatically opens the visitor's email app.
+It currently shows an on-page confirmation only. Connect a secure form service/backend before launch so enquiries are actually delivered to SGC.
 
-Deploy by replacing index.html, style.css and script.js in the sgcnetwork.github.io repository.
+No payment gateway is connected yet. Add Paystack only after products, terms, cancellation/refund rules and merchant setup are finalised.
+
+The design uses the same cream / blush / lavender / butter / ink direction from the SGC starter-kit reference, with a serif editorial headline and clean sans-serif supporting type. Layouts are deliberately spacious and use animated decorative shapes instead of a dense dashboard-style layout.
+
+Upload all HTML/CSS/JS files to the root of the existing GitHub Pages repo.
+Do not change your GoDaddy DNS again if the custom domain is already working.

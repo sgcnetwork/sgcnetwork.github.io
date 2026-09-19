@@ -1,1 +1,20 @@
-const menu=document.querySelector('.menu'),nav=document.querySelector('header nav');if(menu)menu.onclick=()=>nav.classList.toggle('open');document.querySelectorAll('nav a').forEach(a=>a.onclick=()=>nav.classList.remove('open'));const form=document.getElementById('form');if(form)form.onsubmit=e=>{e.preventDefault();const d=new FormData(form);const body=encodeURIComponent(`Name: ${d.get('name')}\nEmail: ${d.get('email')}\nInterest: ${d.get('interest')}\n\n${d.get('message')}`);location.href=`mailto:netsgcwork@gmail.com?subject=SGC Network enquiry&body=${body}`};
+
+function setupMenu(){
+  const btn=document.querySelector('.menu');
+  const links=document.querySelector('.nav-links');
+  if(btn) btn.addEventListener('click',()=>links.classList.toggle('open'));
+}
+function setupEnquiry(){
+  const form=document.querySelector('#enquiryForm');
+  const success=document.querySelector('#success');
+  if(!form) return;
+  form.addEventListener('submit',function(e){
+    e.preventDefault();
+    const data=new FormData(form);
+    const name=data.get('name') || 'there';
+    success.textContent=`Thank you, ${name}. Your enquiry has been captured on this page. SGC Network will be in touch using the details you provided.`;
+    success.style.display='block';
+    form.reset();
+  });
+}
+document.addEventListener('DOMContentLoaded',()=>{setupMenu();setupEnquiry();});
