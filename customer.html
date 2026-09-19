@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My SGC | Customer Dashboard</title>
+<link rel="stylesheet" href="customer-base.css">
+</head>
+<body>
+<header class="topbar"><a class="brand" href="index.html">SGC <span>NETWORK</span></a><nav><a href="index.html">Home</a><a href="kits.html">Business Kits</a><a class="active" href="customer.html">My SGC</a></nav><button class="pill" id="logoutBtn">Log out</button></header>
+<main class="wrap">
+<section class="hero"><div><p class="eyebrow">MY SGC</p><h1>Your business journey,<br><em>all in one place.</em></h1><p class="lead">Track your membership, Business Kit payments, invoices and access without having to chase anything down.</p></div><div class="hero-card"><span>Account status</span><strong>Active</strong><small id="customerName">Amina Jacobs</small></div></section>
+<section class="grid three">
+<article class="card membership"><div class="card-top"><span>SGC Start</span><b class="status">ACTIVE</b></div><h2>R150<span>/month</span></h2><p>Community, classes, Q&As and entrepreneur learning.</p><div class="mini-line"><span>Next membership payment</span><strong>—</strong></div></article>
+<article class="card kit"><div class="card-top"><span>Business Kit</span><b class="lock" id="kitStatus">LOCKED</b></div><h2 id="kitName">Beauty Business Kit</h2><p>Total: <strong id="kitTotal">R499</strong></p><div class="progress"><i id="progressBar"></i></div><div class="balance"><span>Paid <strong id="paidAmount">R300</strong></span><span>Remaining <strong id="remainingAmount">R199</strong></span></div><button class="primary" id="payBtn">Make a payment</button></article>
+<article class="card build"><div class="card-top"><span>SGC Build</span><b class="status muted">NOT ACTIVE</b></div><h2>R250<span>/month</span></h2><p>Deeper lessons, your own group and live learning.</p><button class="secondary" id="buildBtn">View Build</button></article>
+</section>
+<section class="grid two">
+<article class="panel"><div class="panel-head"><div><p class="eyebrow">PAYMENTS</p><h2>Your payment history</h2></div><button class="ghost" id="invoiceBtn">Invoices</button></div><div class="table"><div class="row head"><span>Date</span><span>Description</span><span>Amount</span><span>Status</span></div><div id="paymentRows"></div></div></article>
+<aside class="panel soft"><p class="eyebrow">YOUR NEXT STEP</p><h2 id="nextTitle">Keep building your kit.</h2><p id="nextText">You have R199 remaining on your Beauty Business Kit. Make your next payment whenever you're ready.</p><button class="primary" id="nextBtn">Pay toward kit</button></aside>
+</section>
+<section class="notice"><strong>How lay-by works</strong><span>Your SGC Start membership and Business Kit lay-by are separate. Lay-by payments build toward your selected kit. The kit unlocks automatically once the full balance has been received.</span></section>
+</main>
+<div class="toast" id="toast"></div>
+<script src="customer-base.js"></script>
+</body></html>

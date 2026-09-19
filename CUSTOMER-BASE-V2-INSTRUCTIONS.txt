@@ -1,0 +1,108 @@
+SGC NETWORK — V2 CUSTOMER BASE ADD-ON
+====================================
+
+This add-on is designed to sit alongside SGC Network Website V3.
+
+FILES
+-----
+customer.html              Customer dashboard UI
+admin.html                 Admin/customer-base UI
+customer-base.css          Shared styling
+customer-base.js           Demo interactions + UI structure
+CUSTOMER-BASE-V2-INSTRUCTIONS.txt
+
+WHAT THIS VERSION DOES
+----------------------
+- Gives customers a "My SGC" dashboard concept.
+- Shows SGC Start separately from Business Kit lay-by.
+- Shows selected kit, total price, amount paid and remaining balance.
+- Shows payment history and invoice area placeholders.
+- Gives you an SGC Admin customer-base concept with search/filtering.
+- Includes demo data so the pages can be previewed immediately.
+
+IMPORTANT: THIS IS THE FRONT-END ADD-ON, NOT THE LIVE PAYMENT/BACKEND LAYER.
+The live version needs a secure backend/database and Paystack server-side integration.
+Do NOT put a Paystack secret key in GitHub/public website files.
+
+LIVE ARCHITECTURE
+-----------------
+Customer -> SGC account -> secure backend/database -> Paystack
+Paystack successful payment webhook -> backend verifies event ->
+update customer payment record -> update kit balance -> issue invoice/receipt record ->
+when balance reaches kit total, unlock kit access.
+
+DATA TO STORE
+-------------
+Customer:
+- customer_id
+- name
+- email
+- WhatsApp/phone
+- account_created_at
+- SGC Start status
+- SGC Build status
+
+Kit order:
+- order_id
+- customer_id
+- niche
+- kit_price
+- amount_paid
+- balance_remaining
+- status (layby / paid / cancelled / refunded if applicable)
+- created_at
+- paid_at
+- access_unlocked_at
+
+Payment:
+- payment_id
+- order_id
+- Paystack reference
+- amount
+- date
+- status
+- channel
+
+Invoice/receipt:
+- invoice_id
+- customer_id
+- order_id
+- payment_id
+- amount
+- date
+- document location
+
+PAYMENT RULES TO IMPLEMENT
+--------------------------
+1. SGC Start R150/month is a separate recurring membership.
+2. Business Kit payments are separate from SGC Start.
+3. Lay-by minimum payment is R150, unless SGC changes this later.
+4. Customers can make additional kit payments.
+5. The Business Kit stays locked until the full selected kit price is paid.
+6. SGC Start remains active according to its own membership billing/status.
+7. Do not unlock based only on a browser redirect. Use verified server-side payment events/webhooks.
+8. Keep Paystack secret keys server-side only.
+
+PAYSTACK NOTES
+--------------
+Paystack's current API supports customers, transactions, recurring payments and webhooks.
+Use the official Paystack API documentation when implementing the backend.
+
+Suggested backend endpoints:
+POST /api/auth/signup
+POST /api/auth/login
+GET  /api/me
+GET  /api/me/payments
+GET  /api/me/invoices
+GET  /api/me/kits
+POST /api/kits/:kitId/payment
+POST /api/paystack/webhook
+GET  /api/admin/customers
+GET  /api/admin/customers/:id
+GET  /api/admin/payments
+
+RECOMMENDED NEXT BUILD STEP
+---------------------------
+Choose a secure backend/database (for example Supabase or another managed backend),
+then connect Paystack in TEST MODE first. Once the full payment flow is tested,
+move to live keys.
