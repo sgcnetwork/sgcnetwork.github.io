@@ -1,0 +1,3 @@
+SGC Network — Fixed Kits version.
+If you see plain Times New Roman text, you opened a different/older kits.html.
+Open THIS folder's kits.html.
