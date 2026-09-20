@@ -1,1 +1,30 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Academy | SGC Network</title><link rel="stylesheet" href="css/style.css"></head><body><main class="section"><div class="container"><a class="logo" href="dashboard.html">SGC<small>NETWORK</small></a><div class="card" style="margin-top:40px"><div class="eyebrow">MEMBER AREA</div><h1>Academy</h1><p>This section is connected to the Supabase-ready structure. Course, payment and community records will populate here once your Supabase project is connected.</p><a class="btn dark" href="dashboard.html">Back to dashboard</a></div></div></main></body></html>
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SGC Academy — SGC Network</title><style>
+:root{
+  --ink:#171516; --cream:#fbf5ea; --paper:#fffaf2; --blush:#f4dfe0;
+  --lav:#e7def4; --butter:#f4e7a8; --line:rgba(23,21,22,.12); --muted:#756e69;
+}
+*{box-sizing:border-box} body{margin:0;background:var(--cream);color:var(--ink);font-family:Inter,Arial,sans-serif}
+a{color:inherit;text-decoration:none}.wrap{width:min(1180px,calc(100% - 40px));margin:auto}
+.site-nav{display:flex;align-items:center;justify-content:space-between;padding:24px 0;border-bottom:1px solid var(--line)}
+.brand{font-family:Georgia,serif;font-size:30px;letter-spacing:.08em}.brand small{display:block;font:10px Inter,sans-serif;letter-spacing:.28em;margin-top:3px}
+.nav-links{display:flex;gap:22px;align-items:center;font-size:13px}.nav-links a{opacity:.72}.nav-links a:hover,.nav-links a.active{opacity:1}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:13px 18px;border-radius:999px;background:var(--ink);color:white;font-size:13px;border:1px solid var(--ink);cursor:pointer}.btn.alt{background:transparent;color:var(--ink)}.btn.soft{background:var(--lav);color:var(--ink);border-color:transparent}
+.hero{padding:64px 0 38px;display:grid;grid-template-columns:1.3fr .7fr;gap:40px;align-items:end}.eyebrow{text-transform:uppercase;letter-spacing:.2em;font-size:10px;color:var(--muted)}h1{font:clamp(48px,7vw,88px)/.92 Georgia,serif;margin:12px 0 18px;letter-spacing:-.04em}h2{font:34px/1 Georgia,serif;margin:0 0 12px}h3{font:20px Georgia,serif;margin:0 0 8px}.lead{font-size:17px;line-height:1.65;color:#5f5955;max-width:680px}.hero-card{background:var(--butter);border-radius:30px;padding:28px;min-height:220px;display:flex;flex-direction:column;justify-content:space-between}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;padding:20px 0 70px}.card{background:var(--paper);border:1px solid var(--line);border-radius:24px;padding:24px}.card.blush{background:var(--blush)}.card.lav{background:var(--lav)}.card.butter{background:var(--butter)}
+.metric{font:38px Georgia,serif}.muted{color:var(--muted);font-size:13px;line-height:1.6}.pill{display:inline-flex;padding:7px 10px;border-radius:999px;background:#fff8;color:var(--ink);font-size:11px;border:1px solid var(--line)}
+.progress{height:10px;border-radius:999px;background:#eee5d9;overflow:hidden}.progress>span{display:block;height:100%;background:var(--ink);border-radius:999px}
+.section{padding:30px 0}.section-head{display:flex;justify-content:space-between;gap:20px;align-items:end;margin-bottom:18px}.list{display:grid;gap:12px}.row{display:flex;justify-content:space-between;align-items:center;gap:18px;padding:18px;background:var(--paper);border:1px solid var(--line);border-radius:18px}.row strong{font-family:Georgia,serif;font-size:18px}.tag{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted)}
+.lock{display:flex;align-items:center;gap:8px}.locked{opacity:.62}.empty{padding:35px;text-align:center;border:1px dashed var(--line);border-radius:22px;color:var(--muted)}
+footer{padding:35px 0;border-top:1px solid var(--line);font-size:12px;color:var(--muted);margin-top:40px}
+@media(max-width:800px){.hero{grid-template-columns:1fr}.grid{grid-template-columns:1fr}.nav-links{display:none}.wrap{width:min(100% - 28px,1180px)}}
+</style></head>
+<body><div class="wrap"><header class="site-nav"><a class="brand" href="index.html">SGC<small>NETWORK</small></a>
+<nav class="nav-links"><a href="dashboard.html">My SGC</a><a class="active" href="academy.html">Academy</a><a href="community.html">Community</a><button class="btn alt" id="signout">Sign out</button></nav></header>
+<main><section class="hero"><div><div class="eyebrow">Private client area</div><h1>SGC Academy.</h1><p class="lead">A private learning space for people who have purchased or subscribed to SGC.</p></div>
+<div class="hero-card"><span class="tag">Your account</span><strong id="email">Checking access…</strong><span class="muted">Your available learning areas are determined by your SGC account.</span></div></section>
+<section class="section"><div class="section-head"><div><div class="eyebrow">Your learning</div><h2>Available to you</h2></div></div><div id="academy-grid" class="grid"><div class="empty">Checking your SGC access…</div></div></section>
+<section class="section"><div class="section-head"><div><div class="eyebrow">Courses</div><h2>Continue learning</h2></div></div><div id="courses" class="list"><div class="empty">Loading courses…</div></div></section></main>
+<footer>SGC Academy · Private client area · Learn • Build • Grow</footer></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="js/config.js"></script><script src="js/supabase-client.js"></script><script src="js/academy.js"></script></body></html>
