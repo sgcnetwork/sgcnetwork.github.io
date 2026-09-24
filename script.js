@@ -1,8 +1,16 @@
-
 function setupMenu(){
   const btn=document.querySelector('.menu');
   const links=document.querySelector('.nav-links');
-  if(btn) btn.addEventListener('click',()=>links.classList.toggle('open'));
+  if(!btn||!links) return;
+  btn.setAttribute('aria-expanded','false');
+  btn.addEventListener('click',()=>{
+    const open=links.classList.toggle('open');
+    btn.setAttribute('aria-expanded',String(open));
+    btn.textContent=open?'✕':'☰';
+  });
+  links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{
+    links.classList.remove('open');btn.setAttribute('aria-expanded','false');btn.textContent='☰';
+  }));
 }
 function setupEnquiry(){
   const form=document.querySelector('#enquiryForm');

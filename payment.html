@@ -10,6 +10,7 @@
 <body>
 <nav class="nav"><div class="container nav-inner">
 <a class="logo" href="index.html">SGC<small>NETWORK</small></a>
+<button class="menu" aria-label="Open menu">☰</button>
 <div class="nav-links"><a href="index.html">Home</a><a href="start.html">Start</a><a href="build.html">Build</a><a href="kits.html">Business Kits</a><a href="dashboard.html">My SGC</a></div>
 </div></nav>
 
@@ -33,69 +34,55 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/config.js"></script>
 <script src="js/supabase-client.js"></script>
+<script src="script.js"></script>
 <script>
 const FUNCTION_URL='https://bxpexanyoyubxeqqlggh.supabase.co/functions/v1/create-stitch-payment';
 const q=new URLSearchParams(location.search);
 const type=q.get('type')||'start';
 const name=q.get('name')||(type==='build'?'SGC Build':'SGC Start');
-
-const products={
+const requestedAmount=Number(q.get('amount')||0);
+const fixed={
   start:{name:'SGC Start',price:150,product:'sgc-start-foundations',display:'R150 / month'},
-  build:{name:'SGC Build',price:250,product:'sgc-build-lab',display:'R250 / month'}
+  build:{name:'SGC Build',price:250,product:'sgc-build-lab',display:'R250 / month'},
+  r20:{name:'Business Starter Preview',price:20,product:'business-starter-preview',display:'R20 once-off'}
 };
+let selected=fixed[type];
+if(type==='kit' && requestedAmount>=1) selected={name,price:requestedAmount,product:'kit',display:`R${requestedAmount} once-off`};
+if(type==='layby' && requestedAmount>=1) selected={name,price:requestedAmount,product:'layby',display:`R${requestedAmount} kit total`,flexible:true};
 
-const selected=products[type];
 document.getElementById('product').textContent=selected?.name||name;
 document.getElementById('price').textContent=selected?.display||'Selected product';
-
 const btn=document.getElementById('pay');
 const status=document.getElementById('status');
-
+const copy=document.getElementById('checkoutCopy');
+let amountInput=null;
+if(selected?.flexible){
+  copy.textContent='Choose how much you want to pay toward this kit today, then continue to Stitch.';
+  const wrap=document.createElement('div');
+  wrap.style.cssText='margin:18px 0;max-width:320px';
+  wrap.innerHTML='<label for="laybyAmount" style="display:block;font-weight:700;margin-bottom:7px">Amount to pay today</label><div style="display:flex;align-items:center;background:#fffdf9;border:1px solid #ded5ca;border-radius:14px;padding:0 14px"><strong>R</strong><input id="laybyAmount" type="number" min="1" step="1" value="50" style="width:100%;border:0;background:transparent;padding:14px 10px;font:inherit;outline:none"></div><small style="display:block;margin-top:7px;color:#6d6667">Kit total: R'+selected.price+'. You can make more payments later.</small>';
+  copy.after(wrap);amountInput=wrap.querySelector('input');
+}
 btn.onclick=async()=>{
   try{
     if(!selected) throw new Error('This product is not connected to Stitch yet.');
     if(!window.sgcSupabase) throw new Error('SGC account connection is unavailable.');
-
-    btn.disabled=true;
-    btn.textContent='Preparing secure checkout…';
-    status.textContent='Checking your SGC account…';
-
+    const amount=selected.flexible?Number(amountInput?.value):selected.price;
+    if(!Number.isFinite(amount)||amount<1) throw new Error('Enter an amount of at least R1.');
+    if(selected.flexible&&amount>selected.price) throw new Error(`This kit costs R${selected.price}. Enter R${selected.price} or less.`);
+    btn.disabled=true;btn.textContent='Preparing secure checkout…';status.textContent='Checking your SGC account…';
     const {data:{user},error:userError}=await window.sgcSupabase.auth.getUser();
     if(userError) throw userError;
-
-    if(!user){
-      const back=encodeURIComponent(location.pathname+location.search);
-      location.href='login.html?next='+back;
-      return;
-    }
-
+    if(!user){const back=encodeURIComponent(location.pathname+location.search);location.href='login.html?next='+back;return;}
     const payerName=(user.user_metadata?.full_name||user.email?.split('@')[0]||'SGC Customer').trim();
     status.textContent='Connecting to Stitch…';
-
-    const response=await fetch(FUNCTION_URL,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        amount:selected.price,
-        payerName:payerName.length>=3?payerName:'SGC Customer',
-        email:user.email,
-        userId:user.id,
-        product:selected.product
-      })
-    });
-
+    const response=await fetch(FUNCTION_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount,payerName:payerName.length>=3?payerName:'SGC Customer',email:user.email,userId:user.id,product:selected.product,productName:selected.name,kitTotal:selected.flexible?selected.price:undefined})});
     const result=await response.json();
-    if(!response.ok||!result.success||!result.checkoutUrl){
-      throw new Error(result.error||'Could not start payment.');
-    }
+    if(!response.ok||!result.success||!result.checkoutUrl) throw new Error(result.error||'Could not start payment.');
     location.href=result.checkoutUrl;
-  }catch(err){
-    console.error(err);
-    status.textContent=err?.message||'Could not start payment. Please try again.';
-    btn.disabled=false;
-    btn.textContent='Continue to Stitch →';
-  }
+  }catch(err){console.error(err);status.textContent=err?.message||'Could not start payment. Please try again.';btn.disabled=false;btn.textContent='Continue to Stitch →';}
 };
 </script>
+
 </body>
 </html>
