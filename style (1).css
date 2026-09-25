@@ -45,3 +45,14 @@ img,svg,video{max-width:100%;height:auto}
   .buttons .btn{width:100%}
   .art{min-height:300px}.art-main{height:260px}.art-copy strong{font-size:36px}
 }
+
+/* FINAL MOBILE NAV FIX */
+@media (max-width:800px){
+  .nav-inner{display:flex!important;flex-wrap:wrap!important;height:auto!important;overflow:visible!important}
+  .menu{display:block!important;order:2!important;margin-left:auto!important}
+  .nav-links{order:3!important;flex:0 0 100%!important;width:100%!important;max-width:100%!important;margin:0!important;padding:12px 0 18px!important;flex-direction:column!important;align-items:stretch!important;gap:0!important;overflow:visible!important;white-space:normal!important}
+  .nav-links:not(.open){display:none!important}
+  .nav-links.open{display:flex!important;height:auto!important;max-height:none!important}
+  .nav-links.open a{display:block!important;width:100%!important;flex:none!important;padding:12px 6px!important;margin:0!important;text-align:left!important;white-space:normal!important}
+  .nav-links.open .nav-cta{text-align:center!important;margin-top:8px!important}
+}
