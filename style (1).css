@@ -56,3 +56,49 @@ img,svg,video{max-width:100%;height:auto}
   .nav-links.open a{display:block!important;width:100%!important;flex:none!important;padding:12px 6px!important;margin:0!important;text-align:left!important;white-space:normal!important}
   .nav-links.open .nav-cta{text-align:center!important;margin-top:8px!important}
 }
+
+
+/* SGC MOBILE NAV — FORCE VERTICAL DROPDOWN */
+@media (max-width: 800px) {
+  .nav {
+    position: relative !important;
+  }
+
+  .nav-links {
+    display: none !important;
+    position: absolute !important;
+    top: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    gap: 0 !important;
+    padding: 10px 18px 18px !important;
+    box-sizing: border-box !important;
+    background: #fff8ef !important;
+    z-index: 99999 !important;
+  }
+
+  .nav-links.open {
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  .nav-links a {
+    display: block !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 14px 8px !important;
+    margin: 0 !important;
+    text-align: left !important;
+    white-space: normal !important;
+    border-bottom: 1px solid rgba(0,0,0,.08) !important;
+  }
+
+  .nav-links a:last-child {
+    border-bottom: 0 !important;
+  }
+}
