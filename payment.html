@@ -71,9 +71,14 @@ btn.onclick=async()=>{
     if(!Number.isFinite(amount)||amount<1) throw new Error('Enter an amount of at least R1.');
     if(selected.flexible&&amount>selected.price) throw new Error(`This kit costs R${selected.price}. Enter R${selected.price} or less.`);
     btn.disabled=true;btn.textContent='Preparing secure checkout…';status.textContent='Checking your SGC account…';
-    const {data:{user},error:userError}=await window.sgcSupabase.auth.getUser();
-    if(userError) throw userError;
-    if(!user){const back=encodeURIComponent(location.pathname+location.search);location.href='login.html?next='+back;return;}
+    const {data:{session},error:sessionError}=await window.sgcSupabase.auth.getSession();
+    if(sessionError) throw sessionError;
+    const user=session?.user;
+    if(!user){
+      const back=encodeURIComponent(location.pathname+location.search);
+      location.href='login.html?next='+back;
+      return;
+    }
     const payerName=(user.user_metadata?.full_name||user.email?.split('@')[0]||'SGC Customer').trim();
     status.textContent='Connecting to Stitch…';
     const response=await fetch(FUNCTION_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount,payerName:payerName.length>=3?payerName:'SGC Customer',email:user.email,userId:user.id,product:selected.product,productName:selected.name,kitTotal:selected.flexible?selected.price:undefined})});

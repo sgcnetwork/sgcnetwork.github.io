@@ -2,16 +2,37 @@ function setupMenu(){
   const btn=document.querySelector('.menu');
   const links=document.querySelector('.nav-links');
   if(!btn||!links) return;
+
+  const isMobile=()=>window.matchMedia('(max-width:800px)').matches;
+
+  function closeMenu(){
+    links.classList.remove('open');
+    links.style.removeProperty('display');
+    btn.setAttribute('aria-expanded','false');
+    btn.textContent='☰';
+  }
+
   btn.setAttribute('aria-expanded','false');
+
   btn.addEventListener('click',()=>{
-    const open=links.classList.toggle('open');
-    btn.setAttribute('aria-expanded',String(open));
-    btn.textContent=open?'✕':'☰';
+    const opening=!links.classList.contains('open');
+    if(opening){
+      links.classList.add('open');
+      if(isMobile()) links.style.setProperty('display','flex','important');
+      btn.setAttribute('aria-expanded','true');
+      btn.textContent='✕';
+    }else{
+      closeMenu();
+    }
   });
-  links.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{
-    links.classList.remove('open');btn.setAttribute('aria-expanded','false');btn.textContent='☰';
-  }));
+
+  links.querySelectorAll('a').forEach(a=>a.addEventListener('click',closeMenu));
+
+  window.addEventListener('resize',()=>{
+    if(!isMobile()) closeMenu();
+  });
 }
+
 function setupEnquiry(){
   const form=document.querySelector('#enquiryForm');
   const success=document.querySelector('#success');
@@ -25,4 +46,8 @@ function setupEnquiry(){
     form.reset();
   });
 }
-document.addEventListener('DOMContentLoaded',()=>{setupMenu();setupEnquiry();});
+
+document.addEventListener('DOMContentLoaded',()=>{
+  setupMenu();
+  setupEnquiry();
+});
