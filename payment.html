@@ -44,11 +44,11 @@ const requestedAmount=Number(q.get('amount')||0);
 const fixed={
   start:{name:'SGC Start',price:150,product:'sgc-start-foundations',display:'R150 / month'},
   build:{name:'SGC Build',price:250,product:'sgc-build-lab',display:'R250 / month'},
-  r20:{name:'Business Starter Preview',price:20,product:'business-starter-preview',display:'R20 once-off'}
+  r20:{name:'Business Starter Preview',price:20,product:'preview',display:'R20 once-off'}
 };
 let selected=fixed[type];
-if(type==='kit' && requestedAmount>=1) selected={name,price:requestedAmount,product:'kit',display:`R${requestedAmount} once-off`};
-if(type==='layby' && requestedAmount>=1) selected={name,price:requestedAmount,product:'layby',display:`R${requestedAmount} kit total`,flexible:true};
+if(type==='kit'){const kitPrice=/gaming/i.test(name)?699:499;selected={name,price:kitPrice,product:/gaming/i.test(name)?'gaming-kit':'business-kit',display:`R${kitPrice} once-off`};}
+if(type==='layby'){const kitPrice=/gaming/i.test(name)?699:499;selected={name,price:kitPrice,product:'kit-layby',display:`R${kitPrice} kit total`,flexible:true};}
 
 document.getElementById('product').textContent=selected?.name||name;
 document.getElementById('price').textContent=selected?.display||'Selected product';
