@@ -1,0 +1,8 @@
+1. GITHUB: Replace your existing join-academy/index.html with index.html from this ZIP and commit.
+2. SUPABASE: Edge Functions > Create function named join-waitlist.
+3. Delete its default code. Paste ALL code from SUPABASE-join-waitlist-FULL-CODE.ts.
+4. Deploy.
+5. Do NOT turn off your normal Supabase Confirm Email setting.
+6. Test with a NEW email address.
+
+This waitlist function creates the Auth user server-side with email_confirm=true, so Supabase's normal noreply confirmation email is not sent for this waitlist signup. The separate Resend email is sent from waitlist@sgcnetwork.co.za.
