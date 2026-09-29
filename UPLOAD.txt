@@ -1,0 +1,15 @@
+SGC WAITLIST WELCOME - UPLOAD PACKAGE
+
+1. Upload join-academy/welcome.html to your GitHub repository so it is:
+   join-academy/welcome.html
+
+2. In Supabase Edge Functions, open confirm-waitlist.
+   Delete all existing code.
+   Paste the ENTIRE contents of:
+   SUPABASE-confirm-waitlist-FULL-REPLACEMENT.ts
+   Then Deploy.
+
+This changes the successful confirmation destination to:
+https://sgcnetwork.co.za/join-academy/welcome.html
+
+It does not replace your existing /join-academy/ signup page.
