@@ -1,0 +1,14 @@
+UPLOAD THESE FILES/FOLDER TO THE ROOT OF YOUR EXISTING GITHUB REPOSITORY:
+
+join-academy/
+  index.html
+  waitlist.css
+  waitlist.js
+
+Do NOT replace your existing js/config.js. The new page uses the Supabase configuration already in your repository.
+
+After commit, open:
+https://sgcnetwork.co.za/join-academy/
+
+IMPORTANT:
+The ZIP you sent currently has the waitlist starter content in the ROOT index.html. That means your homepage appears to have been replaced by the starter page. This package intentionally does NOT overwrite index.html.

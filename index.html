@@ -1,43 +1,81 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SGC Network Academy</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Join SGC Academy Waitlist | SGC Network</title>
+  <meta name="description" content="Join the SGC Academy waitlist and be first to know when SGC Academy launches.">
+  <link rel="stylesheet" href="waitlist.css">
 </head>
 <body>
-<header><div class="logo">SGC<small>NETWORK</small></div><nav>Home　 About　 Academy　 Contact</nav></header>
+<header class="site-header">
+  <a class="brand" href="../index.html"><b>SGC</b><small>NETWORK</small></a>
+  <a class="back" href="../index.html">Back to SGC Network</a>
+</header>
 
+<main>
 <section class="hero">
-<div>
-<p class="eyebrow">SGC NETWORK ACADEMY</p>
-<h1>Build Your Business.<br><span>Not Just Your Idea.</span></h1>
-<p>A guided business-building platform designed for people who want to turn ideas into real businesses.</p>
-<p class="tag">LEARN • PLAN • IMPLEMENT • GROW</p>
-<button>JOIN THE ACADEMY WAITLIST →</button>
-</div>
-<div class="visual">SGC ACADEMY<br>WORKSPACE IMAGE</div>
+  <div class="hero-copy">
+    <p class="eyebrow">SGC NETWORK ACADEMY</p>
+    <h1>Build Your Business.<br><em>Not Just Your Idea.</em></h1>
+    <p class="lead">A guided business-building platform for people ready to turn ideas into real, operating businesses.</p>
+    <p class="journey">LEARN • PLAN • IMPLEMENT • GROW</p>
+    <a class="button" href="#join">JOIN THE ACADEMY WAITLIST →</a>
+  </div>
+  <div class="hero-art">
+    <div class="desk-card">
+      <span>SGC ACADEMY</span>
+      <strong>Your next chapter<br>starts here.</strong>
+      <i>Business Builder • Community • Implementation</i>
+    </div>
+  </div>
 </section>
 
 <section class="about">
-<h2>Where Ideas Become Businesses.</h2>
-<p>SGC Network helps aspiring entrepreneurs move from ideas to implementation through structured education, tools, community and support.</p>
+  <p class="eyebrow">ABOUT SGC NETWORK</p>
+  <h2>Where Ideas Become Businesses.</h2>
+  <p>SGC Network was created for aspiring entrepreneurs and business owners who want to build smarter. We bring business education, practical tools, community and implementation together so you have a clearer path from idea to action.</p>
 </section>
 
-<section>
-<h2 class="center">WHAT YOU WILL FIND INSIDE SGC ACADEMY</h2>
-<div class="cards">
-<div>Learn</div><div>Build</div><div>Connect</div><div>Grow</div>
-</div>
+<section class="pillars">
+  <p class="eyebrow center">INSIDE SGC ACADEMY</p>
+  <h2 class="center">Learn it. Build it. Grow it.</h2>
+  <div class="grid">
+    <article class="butter"><b>01</b><h3>Learn</h3><p>Structured business lessons that guide you step-by-step.</p></article>
+    <article class="blush"><b>02</b><h3>Build</h3><p>Implementation tasks, workbooks, templates and practical tools.</p></article>
+    <article class="lav"><b>03</b><h3>Connect</h3><p>A community of people building, learning and growing together.</p></article>
+    <article class="sage"><b>04</b><h3>Grow</h3><p>Systems, AI, automation and strategies to move your business forward.</p></article>
+  </div>
 </section>
 
-<section class="dark"><h2>Our Mission</h2><h1>Idea → Implementation → Growth.</h1></section>
-
-<section class="wait">
-<h2>Be the first to know when SGC Academy launches.</h2>
-<input placeholder="Email Address"><input placeholder="Password">
-<button>JOIN ACADEMY WAITLIST →</button>
+<section class="mission">
+  <p class="eyebrow">OUR MISSION</p>
+  <h2>Idea → Implementation → Growth.</h2>
+  <p>Knowledge gives you the map. SGC Academy is designed to help you actually walk the path.</p>
 </section>
+
+<section class="join" id="join">
+  <div class="join-copy">
+    <p class="eyebrow">JOIN THE WAITLIST</p>
+    <h2>Be first to know when SGC Academy launches.</h2>
+    <p>Create your SGC account now for early Academy launch updates.</p>
+  </div>
+  <form id="waitlistForm" class="join-card">
+    <label>Email Address</label>
+    <input id="email" type="email" autocomplete="email" required placeholder="you@example.com">
+    <label>Password</label>
+    <input id="password" type="password" autocomplete="new-password" minlength="8" required placeholder="Minimum 8 characters">
+    <button id="submitBtn" type="submit">JOIN ACADEMY WAITLIST →</button>
+    <p id="formMessage" class="message" role="status"></p>
+  </form>
+</section>
+</main>
+
+<footer><div class="brand"><b>SGC</b><small>NETWORK</small></div><p>LEARN • PLAN • IMPLEMENT • GROW</p></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/config.js"></script>
+<script src="../js/supabase-client.js"></script>
+<script src="waitlist.js"></script>
 </body>
 </html>
