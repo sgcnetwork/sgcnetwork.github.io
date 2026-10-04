@@ -1,27 +1,126 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>R1 Stitch Test | SGC Network</title>
-<link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="product-add-on.css">
+<style>
+:root{--cream:#fbf4eb;--blush:#f3d9d6;--lav:#ddd7ef;--butter:#f4e5a8;--ink:#1f1c22;--white:#fffdf9;--muted:#746d72;--line:#ded5ca}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:Arial,sans-serif;color:var(--ink);background:linear-gradient(135deg,var(--cream),var(--white) 55%,var(--butter))}
+header{padding:22px 7%;border-bottom:1px solid var(--line);background:rgba(255,253,249,.9)}
+.logo{font:700 30px Georgia,serif;letter-spacing:5px;color:var(--ink);text-decoration:none}.logo small{display:block;font:600 9px Arial;letter-spacing:6px}
+main{width:min(950px,90%);margin:auto;min-height:calc(100vh - 85px);display:grid;grid-template-columns:1fr 460px;gap:60px;align-items:center;padding:55px 0}
+.eyebrow{display:inline-block;background:var(--lav);padding:8px 13px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:2px}
+h1{font:500 clamp(44px,6vw,70px)/1 Georgia,serif;margin:20px 0}.lead{color:var(--muted);line-height:1.7;max-width:500px}
+.card{background:var(--white);padding:36px;border:1px solid var(--line);border-radius:24px;box-shadow:0 20px 55px rgba(31,28,34,.12)}
+.test{font-size:11px;font-weight:700;letter-spacing:2px}.card h2{font:500 31px Georgia,serif;margin:10px 0}
+.price{font:500 56px Georgia,serif;margin:20px 0 8px}.price span{font-size:25px}.price small{font:13px Arial;color:var(--muted)}
+.note,#status{color:var(--muted);font-size:13px;line-height:1.55}
+label{display:block;font-size:12px;font-weight:700;margin:16px 0 7px}
+input{width:100%;padding:14px;border:1px solid var(--line);border-radius:12px;background:var(--cream);font-size:15px;outline:none}
+input:focus{border-color:var(--ink)}
+button{width:100%;margin-top:22px;padding:16px;border:0;border-radius:12px;background:var(--ink);color:#fff;font-weight:700;cursor:pointer}
+button:disabled{opacity:.55}
+#status{text-align:center;min-height:20px;margin-top:14px}.secure{text-align:center;color:var(--muted);font-size:11px;margin-top:15px}
+@media(max-width:800px){main{grid-template-columns:1fr;gap:32px;padding:40px 0}.card{padding:27px}}
+</style>
 </head>
 <body>
-<nav class="nav"><div class="container nav-inner"><a class="logo" href="index.html">SGC<small>NETWORK</small></a><button class="menu" aria-label="Open menu">☰</button><div class="nav-links"><a href="index.html">Home</a><a href="start.html">Start</a><a href="build.html">Build</a><a href="kits.html">Business Kits</a><a href="dashboard.html">My SGC</a></div></div></nav>
-<section class="page-hero"><div class="container"><div class="eyebrow">STITCH TEST CHECKOUT</div><h1>R1 test payment.</h1><p>This page is only for completing the Stitch test payment.</p><div class="mini-art"></div></div></section>
-<section class="section soft"><div class="container"><div class="product-card featured" style="max-width:720px;margin:auto"><span class="tag">TEST PAYMENT</span><h2>Stitch Test Payment</h2><div class="product-price">R1.00</div><p>Continue to the secure Stitch test checkout.</p><button class="btn dark" id="pay">Continue to Stitch →</button><p class="buy-note" id="status">Separate R1 test — your R20 product is untouched.</p></div></div></section>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="js/config.js"></script><script src="js/supabase-client.js"></script><script src="script.js"></script>
+<header><a class="logo" href="/">SGC<small>NETWORK</small></a></header>
+
+<main>
+<section>
+  <div class="eyebrow">SGC NETWORK × STITCH</div>
+  <h1>R1 payment test.</h1>
+  <p class="lead">Public Stitch Express test checkout. No SGC login, signup, account or authentication is used on this page.</p>
+</section>
+
+<section class="card">
+  <div class="test">TEST TRANSACTION</div>
+  <h2>Stitch Payment Test</h2>
+  <div class="price">R1<span>.00</span> <small>ZAR</small></div>
+  <p class="note">Enter test payer details and continue directly to the Stitch-hosted payment checkout.</p>
+
+  <label for="name">NAME</label>
+  <input id="name" type="text" placeholder="Test Customer" autocomplete="name">
+
+  <label for="email">EMAIL ADDRESS</label>
+  <input id="email" type="email" placeholder="test@example.com" autocomplete="email">
+
+  <button id="pay">PAY R1 WITH STITCH →</button>
+  <p id="status">No sign-in required.</p>
+  <div class="secure">🔒 Payment handled securely by Stitch</div>
+</section>
+</main>
+
 <script>
-const FUNCTION_URL='https://bxpexanyoyubxeqqlggh.supabase.co/functions/v1/create-stitch-payment';
-const btn=document.getElementById('pay'),status=document.getElementById('status');
-btn.onclick=async()=>{try{
-if(!window.sgcSupabase)throw new Error('SGC account connection is unavailable.');
-btn.disabled=true;btn.textContent='Preparing secure checkout…';status.textContent='Checking your SGC account…';
-const {data:{session},error}=await window.sgcSupabase.auth.getSession();if(error)throw error;
-const user=session?.user;if(!user){location.href='login.html?next='+encodeURIComponent(location.pathname);return;}
-const payerName=(user.user_metadata?.full_name||user.email?.split('@')[0]||'SGC Customer').trim();
-status.textContent='Connecting to Stitch…';
-const response=await fetch(FUNCTION_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount:1,payerName:payerName.length>=3?payerName:'SGC Customer',email:user.email,userId:user.id,product:'preview',productName:'Stitch R1 Test Payment'})});
-const result=await response.json();if(!response.ok||!result.success||!result.checkoutUrl)throw new Error(result.error||'Could not start test payment.');
-location.href=result.checkoutUrl;
-}catch(err){console.error(err);status.textContent=err?.message||'Could not start test payment.';btn.disabled=false;btn.textContent='Continue to Stitch →';}};
-</script></body></html>
+const FUNCTION_URL =
+  "https://bxpexanyoyubxeqqlggh.supabase.co/functions/v1/create-stitch-payment";
+
+const pay = document.getElementById("pay");
+const statusEl = document.getElementById("status");
+const nameEl = document.getElementById("name");
+const emailEl = document.getElementById("email");
+
+pay.addEventListener("click", async () => {
+  const payerName = nameEl.value.trim();
+  const email = emailEl.value.trim();
+
+  if (payerName.length < 3) {
+    statusEl.textContent = "Please enter a name.";
+    nameEl.focus();
+    return;
+  }
+  if (!email || !emailEl.checkValidity()) {
+    statusEl.textContent = "Please enter a valid email address.";
+    emailEl.focus();
+    return;
+  }
+
+  pay.disabled = true;
+  pay.textContent = "CONNECTING TO STITCH…";
+  statusEl.textContent = "Opening secure Stitch checkout…";
+
+  try {
+    /*
+      Intentionally uses text/plain instead of application/json.
+      The body is still valid JSON and the Edge Function can read it with req.json().
+      This avoids the browser's application/json CORS preflight.
+      No Supabase Auth, login session, API key or SGC redirect is used.
+    */
+    const response = await fetch(FUNCTION_URL, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=UTF-8" },
+      body: JSON.stringify({
+        amount: 1,
+        payerName,
+        email,
+        userId: crypto.randomUUID(),
+        product: "stitch-r1-test",
+        productName: "Stitch R1 Test Payment"
+      })
+    });
+
+    const raw = await response.text();
+    let result;
+    try { result = JSON.parse(raw); }
+    catch { throw new Error("The payment service returned an invalid response."); }
+
+    if (!response.ok || !result.success || !result.checkoutUrl) {
+      throw new Error(result.error || "Could not create the R1 Stitch checkout.");
+    }
+
+    // The ONLY redirect performed by this test page:
+    window.location.assign(result.checkoutUrl);
+
+  } catch (error) {
+    console.error(error);
+    statusEl.textContent = error.message || "Could not connect to Stitch.";
+    pay.disabled = false;
+    pay.textContent = "PAY R1 WITH STITCH →";
+  }
+});
+</script>
+</body>
+</html>
