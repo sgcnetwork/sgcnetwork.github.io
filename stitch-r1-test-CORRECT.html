@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>R1 Stitch Test | SGC Network</title>
+<link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="product-add-on.css">
+</head>
+<body>
+<nav class="nav"><div class="container nav-inner"><a class="logo" href="index.html">SGC<small>NETWORK</small></a><button class="menu" aria-label="Open menu">☰</button><div class="nav-links"><a href="index.html">Home</a><a href="start.html">Start</a><a href="build.html">Build</a><a href="kits.html">Business Kits</a><a href="dashboard.html">My SGC</a></div></div></nav>
+<section class="page-hero"><div class="container"><div class="eyebrow">STITCH TEST CHECKOUT</div><h1>R1 test payment.</h1><p>This page is only for completing the Stitch test payment.</p><div class="mini-art"></div></div></section>
+<section class="section soft"><div class="container"><div class="product-card featured" style="max-width:720px;margin:auto"><span class="tag">TEST PAYMENT</span><h2>Stitch Test Payment</h2><div class="product-price">R1.00</div><p>Enter test details and continue directly to the secure Stitch checkout. No SGC login is required.</p>
+<div style="max-width:460px;margin:20px auto;text-align:left">
+  <label for="payerName" style="display:block;margin:10px 0 6px;font-weight:700">Name</label>
+  <input id="payerName" type="text" value="Stitch Test" style="width:100%;padding:12px;border:1px solid #ccc;border-radius:8px">
+  <label for="payerEmail" style="display:block;margin:14px 0 6px;font-weight:700">Email</label>
+  <input id="payerEmail" type="email" placeholder="test@example.com" style="width:100%;padding:12px;border:1px solid #ccc;border-radius:8px">
+</div>
+<button class="btn dark" id="pay">Continue to Stitch →</button><p class="buy-note" id="status">Separate R1 test — your R20 product is untouched.</p></div></div></section>
+<script src="script.js"></script>
+<script>
+const FUNCTION_URL='https://bxpexanyoyubxeqqlggh.supabase.co/functions/v1/create-stitch-payment';
+const btn=document.getElementById('pay');
+const status=document.getElementById('status');
+const payerNameInput=document.getElementById('payerName');
+const payerEmailInput=document.getElementById('payerEmail');
+
+btn.onclick=async()=>{try{
+  const payerName=payerNameInput.value.trim();
+  const email=payerEmailInput.value.trim();
+
+  if(payerName.length<3){payerNameInput.focus();throw new Error('Please enter a name.');}
+  if(!email||!payerEmailInput.checkValidity()){payerEmailInput.focus();throw new Error('Please enter a valid email address.');}
+
+  btn.disabled=true;
+  btn.textContent='Preparing secure checkout…';
+  status.textContent='Connecting to Stitch…';
+
+  const response=await fetch(FUNCTION_URL,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      amount:1,
+      payerName,
+      email,
+      userId:crypto.randomUUID(),
+      product:'stitch-r1-test',
+      productName:'Stitch R1 Test Payment'
+    })
+  });
+
+  const result=await response.json();
+  if(!response.ok||!result.success||!result.checkoutUrl)
+    throw new Error(result.error||'Could not start test payment.');
+
+  window.location.href=result.checkoutUrl;
+}catch(err){
+  console.error(err);
+  status.textContent=err?.message||'Could not start test payment.';
+  btn.disabled=false;
+  btn.textContent='Continue to Stitch →';
+}};
+</script></body></html>
