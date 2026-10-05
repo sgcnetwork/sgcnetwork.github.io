@@ -12,4 +12,3 @@ This is the complete replacement website. It includes the full V3 site, customer
 
 ## Paystack
 payment-config.js contains placeholders for your real Paystack Payment Page URLs. Do NOT put a Paystack secret key in this public GitHub Pages site. Paystack Payment Pages can handle one-time and recurring payments.
- 
