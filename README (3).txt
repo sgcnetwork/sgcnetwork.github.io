@@ -1,0 +1,1 @@
+SGC Academy Waitlist landing page. Replace visual placeholders with final SGC images.
