@@ -1,53 +1,38 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>SGC Admin Login</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script src="supabase-client.js"></script>
 <style>
-*{box-sizing:border-box}body{margin:0;min-height:100vh;background:#090909;color:#f7f1e7;font-family:Arial,Helvetica,sans-serif}.wrap{width:min(1120px,calc(100% - 32px));margin:auto;padding:58px 0}.eyebrow{color:#d6ad55;font-size:15px;text-transform:uppercase;margin-bottom:12px}h1{font-family:Georgia,'Times New Roman',serif;font-size:clamp(48px,7vw,78px);line-height:.95;margin:0 0 16px}.sub{color:#aaa;max-width:560px;line-height:1.6;margin:0 0 28px}.card{max-width:520px;background:#141414;border:1px solid #303030;border-radius:18px;padding:28px}.field{margin-bottom:18px}label{display:block;color:#d6ad55;font-size:12px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px}input{width:100%;border:1px solid #404040;background:#0b0b0b;color:#fff;border-radius:10px;padding:14px 15px;font-size:16px;outline:none}input:focus{border-color:#d6ad55}.btn{border:0;border-radius:999px;background:#d6ad55;color:#090909;font-weight:700;padding:13px 22px;font-size:15px;cursor:pointer}.btn:disabled{opacity:.55;cursor:wait}#msg{min-height:24px;margin-top:18px;color:#ccc;line-height:1.45}.error{color:#ff9b9b!important}.success{color:#d6ad55!important}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:#090909;color:#f7f1e7;font-family:Arial,Helvetica,sans-serif}.page{max-width:1200px;padding:60px 24px}.eyebrow{color:#d5aa50;font-size:16px;margin-bottom:12px}h1{margin:0 0 12px;font-family:Georgia,"Times New Roman",serif;font-size:clamp(48px,7vw,82px);line-height:.95}.subtitle{color:#aaa;margin-bottom:32px}.card{max-width:520px;padding:30px;background:#141414;border:1px solid #303030;border-radius:18px}.field{margin-bottom:20px}label{display:block;margin-bottom:8px;color:#d5aa50;font-size:13px;text-transform:uppercase;letter-spacing:.08em}input{width:100%;padding:15px 16px;border-radius:10px;border:1px solid #444;background:#0c0c0c;color:#fff;font-size:16px;outline:none}input:focus{border-color:#d5aa50}button{border:0;background:#d5aa50;color:#090909;padding:14px 24px;border-radius:999px;font-weight:700;font-size:15px;cursor:pointer}button:disabled{opacity:.55;cursor:wait}#msg{margin-top:20px;min-height:24px;color:#ddd}.error{color:#ff8f8f!important}.success{color:#d5aa50!important}
 </style>
 </head>
 <body>
-<main class="wrap">
-<div class="eyebrow">Private Back Office</div>
-<h1>Admin login.</h1>
-<p class="sub">SGC Network administration and Academy management.</p>
-<section class="card">
-<form id="adminLoginForm">
+<div class="page">
+<div class="eyebrow">PRIVATE BACK OFFICE</div><h1>Admin login.</h1>
+<p class="subtitle">SGC Network administration and Academy management.</p>
+<div class="card"><form id="adminLoginForm">
 <div class="field"><label for="email">Email</label><input id="email" type="email" autocomplete="email" required></div>
 <div class="field"><label for="password">Password</label><input id="password" type="password" autocomplete="current-password" required></div>
-<button class="btn" id="loginButton" type="submit">Enter Admin</button>
-<div id="msg"></div>
-</form>
-</section>
-</main>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/config.js"></script>
-<script src="js/supabase-client.js"></script>
+<button id="loginButton" type="submit">Enter Admin</button><div id="msg"></div>
+</form></div></div>
 <script>
-const form=document.getElementById('adminLoginForm');
-const email=document.getElementById('email');
-const password=document.getElementById('password');
-const button=document.getElementById('loginButton');
-const msg=document.getElementById('msg');
-function show(t,c=''){msg.textContent=t;msg.className=c}
+const form=document.getElementById('adminLoginForm'),emailInput=document.getElementById('email'),passwordInput=document.getElementById('password'),loginButton=document.getElementById('loginButton'),msg=document.getElementById('msg');
+function showMessage(t,c=''){msg.textContent=t;msg.className=c}
 form.addEventListener('submit',async e=>{
- e.preventDefault();button.disabled=true;show('Checking...');
- try{
-  if(!window.sgcSupabase) throw new Error('Supabase connection failed.');
-  const {data,error}=await sgcSupabase.auth.signInWithPassword({email:email.value.trim(),password:password.value});
-  if(error) throw error;
-  if(!data?.user) throw new Error('Login failed.');
-  const {data:profile,error:profileError}=await sgcSupabase.from('profiles').select('role').eq('id',data.user.id).single();
-  if(profileError) throw profileError;
-  if(profile?.role!=='admin'){
-   await sgcSupabase.auth.signOut();show('Access denied. This account is not an SGC administrator.','error');button.disabled=false;return;
-  }
-  show('Access granted. Opening Admin...','success');
-  location.href='admin-dashboard.html';
- }catch(err){console.error(err);show(err?.message||'Unable to log in.','error');button.disabled=false}
+e.preventDefault();loginButton.disabled=true;showMessage('Checking...');
+try{
+if(!window.sgcSupabase)throw new Error('Supabase connection failed.');
+const {data:a,error:ae}=await window.sgcSupabase.auth.signInWithPassword({email:emailInput.value.trim(),password:passwordInput.value});
+if(ae)throw ae;if(!a?.user)throw new Error('Login failed.');
+const {data:p,error:pe}=await window.sgcSupabase.from('profiles').select('role').eq('id',a.user.id).single();
+if(pe)throw pe;
+if(p?.role!=='admin'){await window.sgcSupabase.auth.signOut();throw new Error('Access denied. This account is not an SGC administrator.');}
+showMessage('Access granted. Opening Admin...','success');location.href='admin-dashboard.html';
+}catch(err){console.error(err);showMessage(err?.message||'Unable to log in.','error');loginButton.disabled=false;}
 });
 </script>
-</body>
-</html>
+</body></html>
