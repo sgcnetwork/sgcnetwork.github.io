@@ -1051,6 +1051,15 @@ async function studentDetails(student) {
     await tableView(p, source, rows,
       source === "student_answers" || source === "sgc_access_grants");
   }
+  p.append(n("h3","Meeting booking history"));
+  const bookings=[];
+  for(let page=0;;page++){const rows=check(await sb.from('sgc_bookings').select('*').eq('user_id',student.id).order('created_at',{ascending:false}).order('id').range(page*100,page*100+99));bookings.push(...rows);if(rows.length<100)break;}
+  if(!bookings.length)p.append(n('p','No meeting bookings yet.'));
+  for(const b of bookings){
+    const card=n('div',undefined,'panel');
+    card.append(n('h4',b.name),n('p','Booked on: '+new Date(b.created_at).toLocaleString('en-ZA',{timeZone:'Africa/Johannesburg'})),n('p','Appointment: '+new Date(b.starts_at).toLocaleString('en-ZA',{timeZone:'Africa/Johannesburg'})),n('p','Duration: '+Math.round((Date.parse(b.ends_at)-Date.parse(b.starts_at))/60000)+' minutes · R'+Number(b.amount_zar).toFixed(2)),n('p','Booking: '+b.status+' · Payment: '+b.payment_status));
+    p.append(card);
+  }
   p.scrollIntoView();
 }
 
@@ -2424,7 +2433,7 @@ function renderEditor() {
 
   const price = number(
     form,
-    'Price in ZAR — hourly rate for appointments, product price otherwise',
+    'Price in ZAR — total price for the selected session duration',
     'price',p.price_zar ?? 0,0,1000000
   );
   price.step = '.01';
@@ -2765,12 +2774,28 @@ async function calendarView() {
   ));
 }
 
+async function meetingProductsView() {
+  dirty=false;await reload();
+  const root=$('content');root.replaceChildren();
+  const section=n('section');section.append(n('h2','Meeting products'));
+  section.append(button('Bookings',bookingsView));
+  section.append(button('Add meeting product',async()=>{
+    editing={settings:{category:'coaching',product_type:'meeting',delivery:'appointment',duration_minutes:60}};
+    renderEditor();
+  }));
+  for(const product of products.filter(p=>p.settings?.delivery==='appointment')){
+    const card=n('section');card.append(n('h3',product.name),n('p','R'+Number(product.price_zar).toFixed(2)+' / '+product.settings.duration_minutes+' minutes'),button('Edit meeting product',async()=>{editing=product;renderEditor();}));section.append(card);
+  }
+  if(!products.some(p=>p.settings?.delivery==='appointment'))section.append(n('p','No meeting products yet.'));
+  root.append(section);
+}
+
 async function bookingsView() {
   dirty = false;
   const rows = await admin('bookings');
   const root = $('content');
   root.replaceChildren();
-  root.append(button('Refresh bookings',bookingsView));
+  root.append(button('Back to meeting products',meetingProductsView),button('Refresh bookings',bookingsView));
 
   for(const b of rows) {
     const section = n('section');
@@ -2778,6 +2803,8 @@ async function bookingsView() {
     section.append(
       n('h3',b.name),
       n('p',b.email),
+      n('p','Booked on: '+new Date(b.created_at).toLocaleString('en-ZA',{timeZone:'Africa/Johannesburg'})),
+      n('p','Session duration: '+Math.round((Date.parse(b.ends_at)-Date.parse(b.starts_at))/60000)+' minutes'),
       n('p',
         new Date(b.starts_at).toLocaleString('en-ZA',{
           timeZone:'Africa/Johannesburg'
@@ -2872,7 +2899,7 @@ return {
   const intro=n('section');intro.append(n('h2','Products, add-ons & appointments'),n('p','Edit your shop categories, pricing, private files and appointment availability here.'));
   const nav=n('nav');const status=n('p');status.id='sgcp-status';status.className='notice';status.setAttribute('role','status');
   const content=n('div');content.id='sgcp-content';
-  for(const [label,fn]of [['Products & add-ons',productsView],['Calendar connection',calendarView],['Bookings',bookingsView],['Student tasks',tasksView]]){
+  for(const [label,fn]of [['Products & add-ons',productsView],['Calendar connection',calendarView],['Meeting products',meetingProductsView],['Student tasks',tasksView]]){
    nav.append(button(label,async()=>{if(guard()){dirty=false;await fn();}}));
   }
   shell.append(intro,nav,status,content);root.append(shell);
