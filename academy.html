@@ -1,30 +1,805 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SGC Academy — SGC Network</title><style>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SGC Academy | Classroom</title>
+
+<style>
 :root{
-  --ink:#171516; --cream:#fbf5ea; --paper:#fffaf2; --blush:#f4dfe0;
-  --lav:#e7def4; --butter:#f4e7a8; --line:rgba(23,21,22,.12); --muted:#756e69;
+  --bg:#090909;
+  --panel:#111110;
+  --gold:#c6a354;
+  --text:#f5efe1;
+  --muted:#a39d91;
+  --line:#2c2a24;
 }
-*{box-sizing:border-box} body{margin:0;background:var(--cream);color:var(--ink);font-family:Inter,Arial,sans-serif}
-a{color:inherit;text-decoration:none}.wrap{width:min(1180px,calc(100% - 40px));margin:auto}
-.site-nav{display:flex;align-items:center;justify-content:space-between;padding:24px 0;border-bottom:1px solid var(--line)}
-.brand{font-family:Georgia,serif;font-size:30px;letter-spacing:.08em}.brand small{display:block;font:10px Inter,sans-serif;letter-spacing:.28em;margin-top:3px}
-.nav-links{display:flex;gap:22px;align-items:center;font-size:13px}.nav-links a{opacity:.72}.nav-links a:hover,.nav-links a.active{opacity:1}
-.btn{display:inline-flex;align-items:center;justify-content:center;padding:13px 18px;border-radius:999px;background:var(--ink);color:white;font-size:13px;border:1px solid var(--ink);cursor:pointer}.btn.alt{background:transparent;color:var(--ink)}.btn.soft{background:var(--lav);color:var(--ink);border-color:transparent}
-.hero{padding:64px 0 38px;display:grid;grid-template-columns:1.3fr .7fr;gap:40px;align-items:end}.eyebrow{text-transform:uppercase;letter-spacing:.2em;font-size:10px;color:var(--muted)}h1{font:clamp(48px,7vw,88px)/.92 Georgia,serif;margin:12px 0 18px;letter-spacing:-.04em}h2{font:34px/1 Georgia,serif;margin:0 0 12px}h3{font:20px Georgia,serif;margin:0 0 8px}.lead{font-size:17px;line-height:1.65;color:#5f5955;max-width:680px}.hero-card{background:var(--butter);border-radius:30px;padding:28px;min-height:220px;display:flex;flex-direction:column;justify-content:space-between}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;padding:20px 0 70px}.card{background:var(--paper);border:1px solid var(--line);border-radius:24px;padding:24px}.card.blush{background:var(--blush)}.card.lav{background:var(--lav)}.card.butter{background:var(--butter)}
-.metric{font:38px Georgia,serif}.muted{color:var(--muted);font-size:13px;line-height:1.6}.pill{display:inline-flex;padding:7px 10px;border-radius:999px;background:#fff8;color:var(--ink);font-size:11px;border:1px solid var(--line)}
-.progress{height:10px;border-radius:999px;background:#eee5d9;overflow:hidden}.progress>span{display:block;height:100%;background:var(--ink);border-radius:999px}
-.section{padding:30px 0}.section-head{display:flex;justify-content:space-between;gap:20px;align-items:end;margin-bottom:18px}.list{display:grid;gap:12px}.row{display:flex;justify-content:space-between;align-items:center;gap:18px;padding:18px;background:var(--paper);border:1px solid var(--line);border-radius:18px}.row strong{font-family:Georgia,serif;font-size:18px}.tag{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted)}
-.lock{display:flex;align-items:center;gap:8px}.locked{opacity:.62}.empty{padding:35px;text-align:center;border:1px dashed var(--line);border-radius:22px;color:var(--muted)}
-footer{padding:35px 0;border-top:1px solid var(--line);font-size:12px;color:var(--muted);margin-top:40px}
-@media(max-width:800px){.hero{grid-template-columns:1fr}.grid{grid-template-columns:1fr}.nav-links{display:none}.wrap{width:min(100% - 28px,1180px)}}
-</style></head>
-<body><div class="wrap"><header class="site-nav"><a class="brand" href="index.html">SGC<small>NETWORK</small></a>
-<nav class="nav-links"><a href="dashboard.html">My SGC</a><a class="active" href="academy.html">Academy</a><a href="community.html">Community</a><button class="btn alt" id="signout">Sign out</button></nav></header>
-<main><section class="hero"><div><div class="eyebrow">Private client area</div><h1>SGC Academy.</h1><p class="lead">A private learning space for people who have purchased or subscribed to SGC.</p></div>
-<div class="hero-card"><span class="tag">Your account</span><strong id="email">Checking access…</strong><span class="muted">Your available learning areas are determined by your SGC account.</span></div></section>
-<section class="section"><div class="section-head"><div><div class="eyebrow">Your learning</div><h2>Available to you</h2></div></div><div id="academy-grid" class="grid"><div class="empty">Checking your SGC access…</div></div></section>
-<section class="section"><div class="section-head"><div><div class="eyebrow">Courses</div><h2>Continue learning</h2></div></div><div id="courses" class="list"><div class="empty">Loading courses…</div></div></section></main>
-<footer>SGC Academy · Private client area · Learn • Build • Grow</footer></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="js/config.js"></script><script src="js/supabase-client.js"></script><script src="js/academy.js"></script></body></html>
+*{box-sizing:border-box}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:Arial,sans-serif;font-size:14px;
+}
+button,input,textarea{font:inherit}
+a{color:inherit;text-decoration:none}
+button{cursor:pointer}
+button:disabled{opacity:.45;cursor:wait}
+[hidden]{display:none!important}
+.sidebar{
+  position:fixed;inset:0 auto 0 0;width:245px;
+  padding:28px 20px;border-right:1px solid var(--line);
+  overflow:auto;background:#0b0b0a;
+}
+.brand{
+  display:block;color:var(--gold);font:28px Georgia,serif;
+  letter-spacing:.12em;
+}
+.brand small{
+  display:block;margin-top:8px;font:9px Arial,sans-serif;
+  letter-spacing:.4em;
+}
+.back{display:block;margin:30px 0;color:var(--muted);font-size:12px}
+.eyebrow{
+  color:var(--gold);font-size:10px;
+  letter-spacing:.18em;text-transform:uppercase;
+}
+.account{
+  margin-top:28px;padding-top:20px;border-top:1px solid var(--line);
+  font-size:11px;color:var(--muted);overflow-wrap:anywhere;
+}
+.account p{line-height:1.7}
+.module-heading{
+  margin:26px 0 12px;color:var(--gold);
+  font-size:10px;letter-spacing:.15em;text-transform:uppercase;
+}
+.lesson-button{
+  display:flex;align-items:flex-start;gap:11px;
+  width:100%;padding:13px 8px;text-align:left;
+  border:1px solid transparent;background:none;color:var(--muted);
+  border-radius:5px;
+}
+.lesson-button:hover{background:#15140f}
+.lesson-button.active{
+  border-color:#554628;background:#1a170f;color:var(--text);
+}
+.number{
+  display:flex;align-items:center;justify-content:center;
+  width:23px;height:23px;flex-shrink:0;border-radius:50%;
+  border:1px solid #554b34;color:var(--gold);font-size:10px;
+}
+.active .number,.done .number{
+  background:var(--gold);color:#090909;border-color:var(--gold);
+}
+.lesson-button strong{display:block;font-size:12px;line-height:1.5}
+.lesson-button small{display:block;font-size:10px;margin-top:4px}
+main{margin-left:245px;padding:24px 30px 50px}
+.topbar{
+  display:flex;justify-content:space-between;align-items:center;
+  gap:20px;margin-bottom:22px;
+}
+.progress-area{display:flex;align-items:center;gap:12px}
+.progress-label{font-size:10px;color:var(--muted);white-space:nowrap}
+.track{width:150px;height:4px;background:var(--line)}
+.track span{display:block;height:100%;width:0;background:var(--gold)}
+.controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+.small-button{
+  display:inline-block;background:none;border:1px solid var(--line);
+  color:var(--muted);padding:9px 12px;font-size:11px;
+}
+.small-button:hover{color:var(--gold);border-color:var(--gold)}
+.classroom{
+  display:grid;grid-template-columns:minmax(0,2.1fr) minmax(300px,1fr);
+  gap:22px;align-items:start;
+}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:3px}
+.video-stage{
+  aspect-ratio:16/9;position:relative;display:flex;
+  align-items:center;justify-content:center;overflow:hidden;
+  background:radial-gradient(ellipse at center,#211e16 0%,#0b0b0a 70%);
+}
+.video-stage video{width:100%;height:100%;object-fit:contain;background:#000}
+.video-empty{text-align:center;padding:30px}
+.watermark{font:clamp(45px,7vw,95px) Georgia,serif;color:#39301b;letter-spacing:.15em}
+.video-empty p{color:var(--muted);font-size:12px;line-height:1.8}
+.video-select{padding:12px 18px;border-top:1px solid var(--line)}
+.video-select button{margin:4px 8px 4px 0}
+.lesson-heading{padding:22px;border-top:1px solid var(--line)}
+h1{font:28px/1.2 Georgia,serif;margin:8px 0 12px}
+h2{font:25px/1.25 Georgia,serif;margin:12px 0}
+h3{font:19px Georgia,serif;margin:12px 0}
+.description{font-size:12px;line-height:1.8;color:var(--muted)}
+.tabs{display:flex;border-bottom:1px solid var(--line)}
+.tab{
+  background:none;color:var(--muted);border:none;
+  border-bottom:2px solid transparent;padding:16px 22px;font-size:12px;
+}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.tab-content{padding:24px}
+.lesson-body{white-space:pre-wrap;line-height:1.9;color:#d7d1c4;font-size:14px}
+.resources{display:grid;gap:12px}
+.resource{
+  display:flex;justify-content:space-between;gap:14px;padding:16px;
+  border:1px solid var(--line);color:var(--gold);font-size:12px;
+}
+.reflection{padding:25px;position:sticky;top:24px}
+.reflection p{font-size:12px;line-height:1.8;color:var(--muted)}
+.prompt{white-space:pre-wrap;font-size:13px;line-height:1.8;margin:22px 0 15px}
+textarea{
+  display:block;width:100%;min-height:200px;resize:vertical;
+  background:#090909;color:var(--text);border:1px solid var(--line);
+  padding:15px;font-size:13px;line-height:1.7;
+}
+textarea:focus{outline:1px solid var(--gold)}
+.field-label{display:block;color:var(--muted);font-size:11px;margin:12px 0}
+.action{
+  display:block;width:100%;padding:15px;margin-top:15px;
+  background:var(--gold);color:#111;border:1px solid var(--gold);
+  font-size:12px;font-weight:bold;letter-spacing:.05em;
+}
+.action.secondary{background:transparent;color:var(--gold)}
+.check{display:flex;align-items:center;gap:9px;margin-top:16px;font-size:12px}
+.check input{accent-color:var(--gold)}
+.save-status{min-height:20px;white-space:pre-wrap}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:20px}
+.step{border:1px solid var(--line);padding:18px}
+.step span{color:var(--gold);font:20px Georgia,serif}
+.step p{font-size:11px;line-height:1.8;color:var(--muted)}
+.notice{color:var(--muted);line-height:1.8;font-size:12px;white-space:pre-wrap;overflow-wrap:anywhere}
+.empty{padding:35px;border:1px solid var(--line);line-height:1.8;color:var(--muted)}
+@media(min-width:1700px){main{max-width:1800px}}
+@media(max-width:1100px){
+  .classroom{grid-template-columns:1fr}
+  .reflection{position:static}
+}
+@media(max-width:720px){
+  .sidebar{position:static;width:100%;border-right:none;border-bottom:1px solid var(--line);padding:20px}
+  .brand{font-size:23px}
+  .back{margin:18px 0}
+  #lesson-list{max-height:230px;overflow:auto}
+  .account{margin-top:15px;padding-top:12px}
+  main{margin-left:0;padding:20px 16px}
+  .track{width:80px}
+  .steps{grid-template-columns:1fr}
+  .reflection{padding:20px}
+  h1{font-size:25px}
+}
+</style>
+</head>
+
+<body>
+<aside class="sidebar">
+  <a class="brand" href="index.html">
+    SGC<br>NETWORK<small>ACADEMY</small>
+  </a>
+
+  <a class="back" href="dashboard.html">← Back to My SGC</a>
+
+  <div class="eyebrow">Your classroom</div>
+  <h3>Learn. Apply.<br>Implement.</h3>
+
+  <nav id="lesson-list" aria-label="Modules and lessons">
+    <p class="notice">Loading your lessons…</p>
+  </nav>
+
+  <div class="account">
+    <span id="account-email">Checking login…</span>
+    <p id="account-access"></p>
+    <a id="admin-link" class="small-button"
+       href="sgc-academy-extra/admin.html" hidden>Admin dashboard</a>
+    <button id="signout" class="small-button" type="button">Sign out</button>
+  </div>
+</aside>
+
+<main>
+  <header class="topbar">
+    <span id="part-label" class="eyebrow">SGC Academy</span>
+    <div class="progress-area">
+      <span id="progress-label" class="progress-label">0% COMPLETE</span>
+      <div class="track"><span id="progress-bar"></span></div>
+    </div>
+  </header>
+
+  <div class="controls">
+    <button id="refresh" class="small-button" type="button">Refresh lessons</button>
+    <button id="previous" class="small-button" type="button" disabled>← Previous</button>
+    <button id="next" class="small-button" type="button" disabled>Next lesson →</button>
+  </div>
+
+  <p id="status" class="notice" role="status" aria-live="polite"></p>
+
+  <div id="empty" class="empty">Checking your Academy access…</div>
+
+  <div id="classroom" class="classroom" hidden>
+    <div>
+      <section class="panel">
+        <div id="video-stage" class="video-stage"></div>
+        <div id="video-select" class="video-select" hidden></div>
+
+        <div class="lesson-heading">
+          <span id="module-label" class="eyebrow"></span>
+          <h1 id="lesson-title"></h1>
+          <p class="description">
+            Watch the teaching, review the lesson notes and apply what
+            you learn in the reflection panel.
+          </p>
+        </div>
+
+        <div class="tabs" role="tablist" aria-label="Lesson material">
+          <button id="notes-tab" class="tab active" type="button"
+            role="tab" aria-selected="true" aria-controls="notes-panel">
+            Lesson notes
+          </button>
+          <button id="resources-tab" class="tab" type="button"
+            role="tab" aria-selected="false" aria-controls="resources-panel">
+            Workbooks & resources
+          </button>
+        </div>
+
+        <section id="notes-panel" class="tab-content"
+          role="tabpanel" aria-labelledby="notes-tab">
+          <div id="lesson-body" class="lesson-body"></div>
+        </section>
+
+        <section id="resources-panel" class="tab-content" hidden
+          role="tabpanel" aria-labelledby="resources-tab">
+          <div id="resources" class="resources"></div>
+        </section>
+      </section>
+
+      <div class="steps">
+        <div class="step">
+          <span>01</span>
+          <h3>Learn</h3>
+          <p>Watch the teaching and work through the lesson notes.</p>
+        </div>
+        <div class="step">
+          <span>02</span>
+          <h3>Apply</h3>
+          <p>Connect the lesson to your own business and write your response.</p>
+        </div>
+        <div class="step">
+          <span>03</span>
+          <h3>Continue</h3>
+          <p>Save your work and move to your next available lesson.</p>
+        </div>
+      </div>
+    </div>
+
+    <aside class="panel reflection">
+      <span class="eyebrow">Implement · Reflection</span>
+      <h2>Before we continue…</h2>
+      <p>
+        Knowing something is the first step.
+        Use this space to decide how you will implement it.
+      </p>
+
+      <div id="prompt" class="prompt"></div>
+
+      <form id="response-form">
+        <label for="answer" class="field-label">Your reflection & personal notes</label>
+        <textarea id="answer"
+          placeholder="Write your reflection, practical answer or notes here…"></textarea>
+
+        <label class="check">
+          <input id="completed" type="checkbox">
+          <span>Mark lesson completed</span>
+        </label>
+
+        <button id="save" class="action secondary" type="submit">
+          SAVE MY WORK
+        </button>
+
+        <button id="continue" class="action" type="button">
+          SAVE & CONTINUE →
+        </button>
+
+        <p id="save-status" class="notice save-status"
+          role="status" aria-live="polite"></p>
+      </form>
+    </aside>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+  "use strict";
+
+  const URL = "https://bxpexanyoyubxeqqlggh.supabase.co";
+  const KEY = "sb_publishable_Z0_Y-Bj_G5qw4hMgDbQlgA__jj8rGGq";
+  const $ = id => document.getElementById(id);
+
+  let sb, user;
+  let lessons = [];
+  let responses = new Map();
+  let current = null;
+  let loading = false;
+  let opening = false;
+  let saving = false;
+  let dirty = false;
+
+  function node(tag,text,cls){
+    const el = document.createElement(tag);
+    if(text !== undefined) el.textContent = text;
+    if(cls) el.className = cls;
+    return el;
+  }
+
+  function checked(result){
+    if(result.error) throw result.error;
+    return result.data;
+  }
+
+  function error(err){
+    $("status").textContent =
+      "Academy error: " + (err.message || String(err));
+  }
+
+  function index(){
+    return lessons.findIndex(l => l.id === current);
+  }
+
+  function updateControls(){
+    const busy = loading || opening || saving;
+    const i = index();
+
+    $("refresh").disabled = busy;
+    $("previous").disabled = busy || i <= 0;
+    $("next").disabled = busy || i < 0 || i >= lessons.length - 1;
+    $("save").disabled = busy || !current;
+    $("continue").disabled = busy || !current;
+    $("answer").disabled = busy;
+    $("completed").disabled = busy;
+    $("signout").disabled = busy;
+
+    document.querySelectorAll(".lesson-button").forEach(b => {
+      b.disabled = busy;
+    });
+  }
+
+  function progress(){
+    const done = lessons.filter(l => responses.get(l.id)?.completed).length;
+    const percentage = lessons.length
+      ? Math.round(done / lessons.length * 100)
+      : 0;
+
+    $("progress-label").textContent = percentage + "% COMPLETE";
+    $("progress-bar").style.width = percentage + "%";
+  }
+
+  function renderSidebar(){
+    $("lesson-list").replaceChildren();
+    let module = null;
+
+    for(const lesson of lessons){
+      if(module !== lesson.module_no){
+        module = lesson.module_no;
+        $("lesson-list").append(
+          node("div","Module " + module,"module-heading")
+        );
+      }
+
+      const done = responses.get(lesson.id)?.completed === true;
+      const button = node(
+        "button",
+        undefined,
+        "lesson-button" +
+          (lesson.id === current ? " active" : "") +
+          (done ? " done" : "")
+      );
+
+      button.type = "button";
+      if(lesson.id === current) button.setAttribute("aria-current","step");
+
+      const details = node("span");
+      details.append(
+        node("strong",lesson.title),
+        node("small",done ? "Completed" : "Learn + reflect")
+      );
+
+      button.append(
+        node("span",done ? "✓" : String(lesson.position),"number"),
+        details
+      );
+
+      button.onclick = () => openLesson(lesson.id).catch(error);
+      $("lesson-list").append(button);
+    }
+
+    if(!lessons.length){
+      $("lesson-list").append(
+        node("p","No available lessons yet.","notice")
+      );
+    }
+
+    progress();
+    updateControls();
+  }
+
+  async function login(){
+    const existing = await sb.auth.getUser();
+    if(!existing.error && existing.data.user) return existing.data.user;
+
+    const raw = sessionStorage.getItem("sgc-extra-session");
+    if(!raw) return null;
+
+    let session;
+    try{
+      session = JSON.parse(raw);
+    }catch{
+      sessionStorage.removeItem("sgc-extra-session");
+      return null;
+    }
+
+    if(!session.access_token || !session.refresh_token) return null;
+
+    checked(await sb.auth.setSession({
+      access_token:session.access_token,
+      refresh_token:session.refresh_token
+    }));
+
+    return checked(await sb.auth.getUser()).user;
+  }
+
+  async function load(){
+    if(loading || opening || saving) return;
+
+    if(dirty){
+      $("status").textContent =
+        "Save your reflection before refreshing lessons.";
+      return;
+    }
+
+    loading = true;
+    updateControls();
+    $("status").textContent = "Loading published lessons…";
+
+    try{
+      const demo = checked(await sb.rpc("sgc_extra_is_demo")) === true;
+
+      // Supabase RLS enforces paid levels and release dates.
+      lessons = checked(
+        await sb.from("sgc_extra_lessons")
+          .select("id,title,module_no,position")
+          .eq("published",true)
+          .order("module_no",{ascending:true})
+          .order("position",{ascending:true})
+      ) || [];
+
+      const saved = checked(
+        await sb.from("sgc_extra_responses")
+          .select("lesson_id,answer,completed")
+          .eq("user_id",user.id)
+      ) || [];
+
+      responses = new Map(saved.map(r => [r.lesson_id,r]));
+
+      $("account-access").textContent = demo
+        ? "Full student demo · All published lessons"
+        : "Your purchased levels · Available published lessons";
+
+      renderSidebar();
+
+      if(!lessons.length){
+        current = null;
+        $("classroom").hidden = true;
+        $("empty").hidden = false;
+        $("empty").textContent = demo
+          ? "No published lessons were returned. Publish a lesson in the admin dashboard, then refresh."
+          : "No lessons are available for your current purchases and release dates.";
+        $("status").textContent = "";
+      }else{
+        $("empty").hidden = true;
+        $("status").textContent = "";
+      }
+    }finally{
+      loading = false;
+      updateControls();
+    }
+
+    if(lessons.length){
+      const preferred = lessons.some(l => l.id === current)
+        ? current
+        : (lessons.find(l => !responses.get(l.id)?.completed) || lessons[0]).id;
+
+      await openLesson(preferred);
+    }
+  }
+
+  function showVideo(url){
+    const video = node("video");
+    video.controls = true;
+    video.preload = "metadata";
+    video.playsInline = true;
+    video.src = url;
+    video.setAttribute("aria-label","Lesson teaching video");
+    $("video-stage").replaceChildren(video);
+  }
+
+  function setTab(which){
+    const notes = which === "notes";
+    $("notes-panel").hidden = !notes;
+    $("resources-panel").hidden = notes;
+    $("notes-tab").classList.toggle("active",notes);
+    $("resources-tab").classList.toggle("active",!notes);
+    $("notes-tab").setAttribute("aria-selected",String(notes));
+    $("resources-tab").setAttribute("aria-selected",String(!notes));
+  }
+
+  async function openLesson(id){
+    if(loading || opening || saving) return;
+
+    if(dirty && id !== current){
+      $("status").textContent =
+        "Save your reflection before moving to another lesson.";
+      return;
+    }
+    if(dirty) return;
+
+    opening = true;
+    $("classroom").hidden = true;
+    $("status").textContent = "Opening lesson…";
+    updateControls();
+
+    try{
+      // Access is checked again before revealing lesson content.
+      const lesson = checked(
+        await sb.from("sgc_extra_lessons")
+          .select("id,title,body,prompt,module_no,position")
+          .eq("id",id)
+          .eq("published",true)
+          .single()
+      );
+
+      const resources = checked(
+        await sb.from("sgc_extra_resources")
+          .select("title,path,kind")
+          .eq("lesson_id",id)
+          .neq("kind","admin")
+      ) || [];
+
+      const response = checked(
+        await sb.from("sgc_extra_responses")
+          .select("answer,completed")
+          .eq("user_id",user.id)
+          .eq("lesson_id",id)
+          .maybeSingle()
+      );
+
+      $("video-stage").replaceChildren();
+      $("video-select").replaceChildren();
+      $("resources").replaceChildren();
+
+      const videos = [];
+      let failures = 0;
+
+      for(const resource of resources){
+        try{
+          const signed = checked(
+            await sb.storage.from("sgc-academy-extra")
+              .createSignedUrl(resource.path,3600)
+          );
+
+          if(resource.kind === "video"){
+            videos.push({
+              title:resource.title || "Teaching video",
+              url:signed.signedUrl
+            });
+          }else{
+            const link = node("a",undefined,"resource");
+            link.href = signed.signedUrl;
+            link.target = "_blank";
+            link.rel = "noopener";
+            link.append(
+              node("span",resource.title || "Lesson resource"),
+              node("span","Open ↗")
+            );
+            $("resources").append(link);
+          }
+        }catch{
+          failures++;
+        }
+      }
+
+      if(videos.length){
+        showVideo(videos[0].url);
+
+        for(const video of videos){
+          const button = node("button",video.title,"small-button");
+          button.type = "button";
+          button.onclick = () => showVideo(video.url);
+          $("video-select").append(button);
+        }
+      }else{
+        const placeholder = node("div",undefined,"video-empty");
+        placeholder.append(
+          node("div","SGC","watermark"),
+          node(
+            "p",
+            failures
+              ? "The teaching video could not be loaded."
+              : "A teaching video has not been added to this lesson yet."
+          )
+        );
+        $("video-stage").append(placeholder);
+      }
+
+      $("video-select").hidden = videos.length < 2;
+
+      if(!$("resources").children.length){
+        $("resources").append(
+          node("p","No downloadable resources are available for this lesson.","notice")
+        );
+      }
+
+      current = lesson.id;
+      if(response) responses.set(id,response);
+      else responses.delete(id);
+
+      const moduleLessons = lessons.filter(
+        l => l.module_no === lesson.module_no
+      );
+      const part = moduleLessons.findIndex(l => l.id === id) + 1;
+
+      $("part-label").textContent =
+        "Module " + lesson.module_no +
+        " · Part " + part + " of " + moduleLessons.length;
+
+      $("module-label").textContent =
+        "Module " + lesson.module_no + " · Section " + lesson.position;
+      $("lesson-title").textContent = lesson.title;
+      $("lesson-body").textContent =
+        lesson.body || "Lesson notes will appear here when added by your facilitator.";
+      $("prompt").textContent =
+        lesson.prompt || "What will you implement from this lesson in your own business?";
+      $("answer").value = response?.answer || "";
+      $("completed").checked = response?.completed === true;
+      $("save-status").textContent = "";
+
+      dirty = false;
+      setTab("notes");
+      $("empty").hidden = true;
+      $("classroom").hidden = false;
+      $("status").textContent = failures
+        ? failures + " resources could not load. Check their files and storage permissions."
+        : "";
+
+      renderSidebar();
+    }finally{
+      opening = false;
+      updateControls();
+    }
+  }
+
+  async function saveWork(advance){
+    if(!current || saving || opening || loading) return;
+
+    saving = true;
+    updateControls();
+
+    const lessonId = current;
+    const answer = $("answer").value;
+    const completed = advance || $("completed").checked;
+    $("save-status").textContent = "Saving your work…";
+
+    let success = false;
+
+    try{
+      checked(
+        await sb.from("sgc_extra_responses").upsert(
+          {
+            user_id:user.id,
+            lesson_id:lessonId,
+            answer,
+            completed,
+            updated_at:new Date().toISOString()
+          },
+          {onConflict:"user_id,lesson_id"}
+        )
+      );
+
+      responses.set(lessonId,{answer,completed});
+      $("completed").checked = completed;
+      dirty = false;
+      success = true;
+      $("save-status").textContent = "Your work is saved.";
+      renderSidebar();
+    }catch(err){
+      $("save-status").textContent =
+        "Could not save: " + (err.message || String(err));
+    }finally{
+      saving = false;
+      updateControls();
+    }
+
+    if(success && advance){
+      const nextLesson = lessons[index() + 1];
+      if(nextLesson){
+        await openLesson(nextLesson.id);
+      }else{
+        $("save-status").textContent =
+          "Saved. You have reached the end of your currently available lessons.";
+      }
+    }
+  }
+
+  $("notes-tab").onclick = () => setTab("notes");
+  $("resources-tab").onclick = () => setTab("resources");
+
+  $("answer").oninput = () => { dirty = true; };
+  $("completed").onchange = () => { dirty = true; };
+
+  $("response-form").onsubmit = event => {
+    event.preventDefault();
+    saveWork(false).catch(error);
+  };
+
+  $("continue").onclick = () => saveWork(true).catch(error);
+  $("refresh").onclick = () => load().catch(error);
+
+  $("previous").onclick = () => {
+    const lesson = lessons[index() - 1];
+    if(lesson) openLesson(lesson.id).catch(error);
+  };
+
+  $("next").onclick = () => {
+    const lesson = lessons[index() + 1];
+    if(lesson) openLesson(lesson.id).catch(error);
+  };
+
+  $("signout").onclick = async () => {
+    if(!sb || saving || opening || loading) return;
+    if(dirty){
+      $("status").textContent = "Save your reflection before signing out.";
+      return;
+    }
+    try{
+      checked(await sb.auth.signOut());
+      sessionStorage.removeItem("sgc-extra-session");
+      location.href = "login.html";
+    }catch(err){
+      error(err);
+    }
+  };
+
+  window.addEventListener("beforeunload",event => {
+    if(!dirty) return;
+    event.preventDefault();
+    event.returnValue = "";
+  });
+
+  async function start(){
+    if(!window.supabase){
+      throw new Error("The Supabase login library could not load.");
+    }
+
+    sb = window.supabase.createClient(URL,KEY,{
+      auth:{
+        persistSession:true,
+        autoRefreshToken:true,
+        detectSessionInUrl:true
+      }
+    });
+
+    user = await login();
+
+    if(!user){
+      location.href = "login.html";
+      return;
+    }
+
+    $("account-email").textContent = user.email || "Your SGC account";
+    await load();
+
+    const role = await sb.from("sgc_extra_admins")
+      .select("user_id")
+      .eq("user_id",user.id)
+      .maybeSingle();
+
+    $("admin-link").hidden = !!role.error || !role.data;
+  }
+
+  start().catch(error);
+})();
+</script>
+</body>
+</html>
