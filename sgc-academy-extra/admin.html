@@ -1,1 +1,1300 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SGC Business Admin</title>
+<style>
+:root{
+  --bg:#0b0b0b;
+  --panel:#151513;
+  --gold:#c6a354;
+  --line:#333027;
+  --text:#f5efe1;
+  --muted:#aaa394;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font:14px Arial,sans-serif;
+}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+button:disabled{opacity:.5;cursor:wait}
+a{color:var(--gold)}
+[hidden]{display:none!important}
+aside{
+  position:fixed;
+  width:230px;
+  inset:0 auto 0 0;
+  background:#10100e;
+  border-right:1px solid var(--line);
+  padding:24px;
+  overflow:auto;
+}
+h1,h2,h3{font-family:Georgia,serif}
+h1{font-size:34px}
+h2{font-size:26px}
+.brand{
+  font:25px Georgia,serif;
+  color:var(--gold);
+  letter-spacing:.12em;
+}
+.muted{
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.7;
+}
+.nav{
+  display:block;
+  width:100%;
+  background:none;
+  border:0;
+  color:var(--muted);
+  text-align:left;
+  padding:13px 0;
+}
+.nav.active{color:var(--gold)}
+main{
+  margin-left:230px;
+  padding:28px;
+  max-width:1700px;
+}
+.panel{
+  background:var(--panel);
+  border:1px solid var(--line);
+  padding:24px;
+  margin-bottom:20px;
+}
+.row{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  flex-wrap:wrap;
+}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+  gap:16px;
+}
+.btn{
+  padding:11px 16px;
+  background:var(--gold);
+  border:1px solid var(--gold);
+  color:#111;
+}
+.btn.alt{background:none;color:var(--gold)}
+label{
+  display:block;
+  color:var(--muted);
+  font-size:12px;
+  margin:15px 0 7px;
+}
+input,textarea,select{
+  width:100%;
+  background:#0c0c0b;
+  color:var(--text);
+  padding:12px;
+  border:1px solid var(--line);
+}
+input[type=checkbox]{width:20px}
+textarea{min-height:100px;line-height:1.6}
+table{border-collapse:collapse;width:100%;font-size:12px}
+th,td{
+  padding:12px;
+  text-align:left;
+  border-bottom:1px solid var(--line);
+  vertical-align:top;
+}
+td{max-width:330px;overflow-wrap:anywhere}
+pre{white-space:pre-wrap;overflow-wrap:anywhere}
+.table-wrap{overflow:auto}
+dialog{
+  width:min(760px,95vw);
+  max-height:90vh;
+  overflow:auto;
+  background:var(--panel);
+  color:var(--text);
+  border:1px solid var(--gold);
+}
+dialog::backdrop{background:#000b}
+#status{white-space:pre-wrap;overflow-wrap:anywhere}
+.module{
+  min-height:140px;
+  text-align:left;
+  background:var(--panel);
+  color:var(--text);
+  border:1px solid var(--line);
+  padding:22px;
+}
+.module strong{
+  display:block;
+  font:23px Georgia,serif;
+  margin:12px 0;
+}
+.pill{color:var(--gold);font-size:11px}
+#login{max-width:460px;margin:80px auto}
+#ai-result{min-height:200px}
+@media(max-width:750px){
+  aside{position:static;width:100%}
+  #menu{display:flex;flex-wrap:wrap;gap:12px}
+  .nav{width:auto}
+  main{margin:0;padding:16px}
+}
+</style>
+</head>
+<body>
 
+<section id="login" class="panel">
+  <div class="brand">SGC NETWORK</div>
+  <h1>Business admin.</h1>
+  <form id="login-form">
+    <label for="email">Email</label>
+    <input id="email" type="email" autocomplete="username" required>
+    <label for="password">Password</label>
+    <input id="password" type="password"
+           autocomplete="current-password" required>
+    <button class="btn" style="margin-top:18px">Sign in</button>
+  </form>
+  <p id="login-status" class="muted" role="status"></p>
+</section>
+
+<div id="app" hidden>
+  <aside>
+    <div class="brand">SGC NETWORK</div>
+    <p class="muted">Business control centre</p>
+    <nav id="menu"></nav>
+    <a href="../academy.html">Open student Academy ↗</a>
+    <p id="admin-email" class="muted"></p>
+    <button id="logout" class="btn alt">Sign out</button>
+  </aside>
+  <main>
+    <h1 id="heading">Overview</h1>
+    <p id="status" class="muted" role="status"></p>
+    <div id="content"></div>
+  </main>
+</div>
+
+<dialog id="editor">
+  <h2 id="editor-title"></h2>
+  <form id="edit-form">
+    <div id="fields"></div>
+    <div class="row" style="margin-top:20px">
+      <button class="btn">Save</button>
+      <button id="cancel" class="btn alt" type="button">Cancel</button>
+    </div>
+    <p id="edit-status" class="muted" role="status"></p>
+  </form>
+</dialog>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+'use strict';
+
+const $ = id => document.getElementById(id);
+
+const sb = window.supabase?.createClient(
+  'https://bxpexanyoyubxeqqlggh.supabase.co',
+  'sb_publishable_Z0_Y-Bj_G5qw4hMgDbQlgA__jj8rGGq'
+);
+
+let user;
+let section = 'Overview';
+let moduleNo = null;
+let offset = 0;
+let busy = false;
+let editContext = null;
+
+const sections = [
+  'Overview',
+  'Modules & lessons',
+  'Students',
+  'Purchases & payments',
+  'Submissions',
+  'Website & quotes',
+  'Products & files',
+  'Community',
+  'Waitlist',
+  'Email campaigns',
+  'AI assistant',
+  'Audit history'
+];
+
+const schema = {
+  sgc_console_modules: {
+    module_no:'number',
+    title:'text',
+    description:'area'
+  },
+  sgc_extra_lessons: {
+    module_no:'number',
+    position:'number',
+    title:'text',
+    body:'area',
+    prompt:'area',
+    published:'bool',
+    access_level:'text'
+  },
+  sgc_quiz_questions: {
+    lesson_id:'uuid',
+    prompt:'area',
+    options:'json',
+    correct_index:'number',
+    points:'number',
+    sort_order:'number'
+  },
+  sgc_access_grants: {
+    user_id:'uuid',
+    access_level:'text',
+    starts_at:'text',
+    ends_at:'nullable',
+    active:'bool',
+    reason:'text'
+  },
+  profiles: {
+    full_name:'text',
+    phone:'nullable'
+  },
+  site_content: {
+    content_key:'text',
+    content_value:'area',
+    content_type:'text'
+  },
+  academy_messages: {
+    message_type:'text',
+    trigger_event:'text',
+    title:'text',
+    body:'area',
+    button_label:'nullable',
+    button_url:'nullable',
+    active:'bool',
+    show_once:'bool',
+    sort_order:'number'
+  },
+  sgc_products: {
+    name:'text',
+    slug:'text',
+    description:'area',
+    price_zar:'number',
+    billing:['once','monthly'],
+    access_level:'text',
+    provider_code:'text',
+    active:'bool',
+    payment_method_ids:'json'
+  },
+  sgc_payment_methods: {
+    name:'text',
+    provider:['stitch','eft'],
+    instructions:'area',
+    active:'bool'
+  },
+  kits: {
+    name:'text',
+    slug:'text',
+    price_zar:'number',
+    description:'area',
+    active:'bool'
+  },
+  sgc_groups: {
+    name:'text',
+    description:'area',
+    access_level:'text',
+    active:'bool'
+  },
+  community_posts: {
+    body:'area',
+    group_id:'nullable'
+  },
+  community_comments: {
+    body:'area'
+  },
+  academy_waitlist: {
+    status:'text'
+  },
+  sgc_academy_waitlist: {
+    status:'text'
+  },
+  student_answers: {
+    reviewed:'bool',
+    admin_feedback:'area'
+  },
+  sgc_email_campaigns: {
+    subject:'text',
+    body:'area',
+    category:['student','marketing'],
+    audience:['students','waitlist','all']
+  }
+};
+
+function n(tag, text, cls) {
+  const element = document.createElement(tag);
+  if (text !== undefined) element.textContent = text;
+  if (cls) element.className = cls;
+  return element;
+}
+
+function check(result) {
+  if (result.error) throw result.error;
+  return result.data;
+}
+
+function say(text) {
+  $('status').textContent = text;
+}
+
+function safe(fn) {
+  return async (...args) => {
+    try {
+      await fn(...args);
+    } catch (error) {
+      say(error.message || String(error));
+    }
+  };
+}
+
+async function rpc(
+  table,
+  action = 'list',
+  record = {},
+  id = null,
+  start = 0
+) {
+  return check(await sb.rpc('sgc_console', {
+    p_table:table,
+    p_action:action,
+    p_record:record,
+    p_id:id,
+    p_offset:start
+  }));
+}
+
+async function all(table) {
+  const records = [];
+  let page;
+  do {
+    page = await rpc(table, 'list', {}, null, records.length);
+    records.push(...page);
+  } while (page.length === 200);
+  return records;
+}
+
+function button(text, fn, alt = false) {
+  const element = n('button', text, 'btn' + (alt ? ' alt' : ''));
+  element.type = 'button';
+  element.onclick = safe(fn);
+  return element;
+}
+
+function panel(title) {
+  const element = n('section', undefined, 'panel');
+  element.append(n('h2', title));
+  $('content').append(element);
+  return element;
+}
+
+async function openEditor(table, record = {}, defaults = {}) {
+  editContext = {table, record, defaults};
+  $('fields').replaceChildren();
+  $('edit-status').textContent = '';
+  $('editor-title').textContent =
+    (record.id ? 'Edit ' : 'Add ') + table.replaceAll('_', ' ');
+
+  for (const [key, type] of Object.entries(schema[table])) {
+    const id = 'field-' + key;
+    const label = n('label', key.replaceAll('_', ' '));
+    label.htmlFor = id;
+
+    const tag =
+      Array.isArray(type) ||
+      key === 'correct_index' ||
+      key === 'payment_method_ids'
+        ? 'select'
+        : type === 'area' || type === 'json'
+          ? 'textarea'
+          : 'input';
+
+    const input = n(tag);
+    input.id = id;
+    input.name = key;
+
+    const value =
+      record[key] ??
+      defaults[key] ??
+      (type === 'bool'
+        ? false
+        : type === 'number'
+          ? 1
+          : type === 'json'
+            ? []
+            : '');
+
+    if (key === 'correct_index') {
+      const options = record.options || defaults.options || [];
+      options.forEach((text, index) => {
+        const option = n('option', (index + 1) + '. ' + text);
+        option.value = String(index);
+        input.append(option);
+      });
+      input.value = String(value);
+    } else if (key === 'payment_method_ids') {
+      input.multiple = true;
+      input.size = 5;
+      for (const method of await all('sgc_payment_methods')) {
+        const option = n(
+          'option',
+          method.name + (method.active ? '' : ' (inactive)')
+        );
+        option.value = method.id;
+        option.selected = value.includes(method.id);
+        input.append(option);
+      }
+    } else if (Array.isArray(type)) {
+      for (const item of type) {
+        const option = n('option', item);
+        option.value = item;
+        input.append(option);
+      }
+      input.value = value || type[0];
+    } else if (type === 'bool') {
+      input.type = 'checkbox';
+      input.checked = !!value;
+    } else {
+      if (input.tagName === 'INPUT') {
+        input.type = type === 'number' ? 'number' : 'text';
+      }
+      if (type === 'number') {
+        input.step = key === 'price_zar' ? '0.01' : '1';
+        input.required = true;
+      }
+
+      input.value =
+        key === 'options'
+          ? value.join('\n')
+          : type === 'json'
+            ? JSON.stringify(value, null, 2)
+            : value;
+    }
+
+    $('fields').append(label, input);
+
+    if (key === 'access_level') {
+      $('fields').append(n(
+        'p',
+        'Use start, build, or kit: followed by the exact kit name in lowercase.',
+        'muted'
+      ));
+    }
+
+    if (key === 'correct_index') {
+      $('fields').append(n(
+        'p',
+        'Choose the correct answer from the list.',
+        'muted'
+      ));
+    }
+
+    if (key === 'options') {
+      $('fields').append(n(
+        'p',
+        'Enter 2–8 answers, one per line.',
+        'muted'
+      ));
+
+      input.oninput = () => {
+        const target = $('field-correct_index');
+        if (!target) return;
+        const selected = target.value;
+        target.replaceChildren();
+
+        input.value
+          .split('\n')
+          .filter(text => text.trim())
+          .forEach((text, index) => {
+            const option = n('option', (index + 1) + '. ' + text);
+            option.value = String(index);
+            target.append(option);
+          });
+
+        target.value = selected;
+      };
+    }
+
+    if (key === 'payment_method_ids') {
+      $('fields').append(n(
+        'p',
+        'Select the payment methods available for this product. Hold Ctrl to select more than one.',
+        'muted'
+      ));
+    }
+  }
+
+  $('editor').showModal();
+}
+
+$('cancel').onclick = () => $('editor').close();
+
+$('edit-form').onsubmit = async event => {
+  event.preventDefault();
+  if (busy) return;
+  busy = true;
+  const context = editContext;
+
+  try {
+    const data = {};
+
+    for (const [key, type] of Object.entries(schema[context.table])) {
+      const input = $('field-' + key);
+
+      data[key] =
+        key === 'options'
+          ? input.value.split('\n').map(text => text.trim()).filter(Boolean)
+          : key === 'payment_method_ids'
+            ? [...input.selectedOptions].map(option => option.value)
+            : type === 'bool'
+              ? input.checked
+              : type === 'number'
+                ? Number(input.value)
+                : type === 'json'
+                  ? JSON.parse(input.value)
+                  : type === 'nullable'
+                    ? input.value.trim() || null
+                    : input.value;
+
+      if (type === 'number' && !Number.isFinite(data[key])) {
+        throw Error('Invalid ' + key);
+      }
+    }
+
+    if (context.table === 'sgc_quiz_questions') {
+      if (data.options.length < 2 || data.options.length > 8) {
+        throw Error('Enter 2–8 answers, one per line.');
+      }
+
+      if (
+        !Number.isInteger(data.correct_index) ||
+        data.correct_index < 0 ||
+        data.correct_index >= data.options.length
+      ) {
+        throw Error('Select the correct answer.');
+      }
+
+      if (!Number.isInteger(data.points) || data.points < 1) {
+        throw Error('Points must be a positive whole number.');
+      }
+    }
+
+    await rpc(
+      context.table,
+      context.record.id ? 'update' : 'insert',
+      data,
+      context.record.id || null
+    );
+
+    $('editor').close();
+    await show();
+    say('Saved. Connected student pages load published updates on refresh.');
+  } catch (error) {
+    $('edit-status').textContent = error.message;
+  } finally {
+    busy = false;
+  }
+};
+
+async function tableView(parent, table, rows, editable = true, extra) {
+  const wrap = n('div', undefined, 'table-wrap');
+  const element = n('table');
+  const head = n('tr');
+  const keys = rows.length ? Object.keys(rows[0]) : [];
+
+  for (const key of keys) {
+    head.append(n('th', key.replaceAll('_', ' ')));
+  }
+  head.append(n('th', 'Actions'));
+  element.append(head);
+
+  for (const row of rows) {
+    const tr = n('tr');
+
+    for (const key of keys) {
+      const value =
+        typeof row[key] === 'object' && row[key] !== null
+          ? JSON.stringify(row[key])
+          : String(row[key] ?? '');
+
+      tr.append(n(
+        'td',
+        value.length > 250 ? value.slice(0, 250) + '…' : value
+      ));
+    }
+
+    const actions = n('td');
+
+    actions.append(button('View', () => {
+      const details = panel('Record details');
+      details.append(n('pre', JSON.stringify(row, null, 2)));
+      details.scrollIntoView();
+    }, true));
+
+    if (editable && schema[table]) {
+      actions.append(button('Edit', () => openEditor(table, row), true));
+    }
+
+    const deletable = [
+      'sgc_console_modules',
+      'sgc_extra_lessons',
+      'sgc_quiz_questions',
+      'sgc_products',
+      'sgc_payment_methods',
+      'sgc_groups',
+      'community_posts',
+      'community_comments',
+      'academy_messages'
+    ];
+
+    if (editable && deletable.includes(table)) {
+      actions.append(button('Delete', async () => {
+        if (!confirm(
+          'Delete this record? Lesson deletion also removes its linked quiz and submissions.'
+        )) return;
+
+        await rpc(table, 'delete', {}, row.id);
+        await show();
+      }, true));
+    }
+
+    if (extra) extra(actions, row);
+    tr.append(actions);
+    element.append(tr);
+  }
+
+  wrap.append(element);
+  parent.append(wrap);
+
+  if (!rows.length) {
+    parent.append(n('p', 'No records yet.', 'muted'));
+  }
+}
+
+async function listPanel(title, table, create = true, extra) {
+  const element = panel(title);
+
+  if (create && schema[table]) {
+    element.append(button('Add', () => openEditor(table)));
+  }
+
+  await tableView(
+    element,
+    table,
+    await rpc(table, 'list', {}, null, offset),
+    true,
+    extra
+  );
+
+  return element;
+}
+
+async function studentDetails(student) {
+  const element = panel(student.email || 'Student');
+
+  element.append(
+    n('p', student.id, 'muted'),
+    button('Grant learning access', () => openEditor(
+      'sgc_access_grants',
+      {},
+      {
+        user_id:student.id,
+        access_level:'start',
+        active:true,
+        starts_at:new Date().toISOString(),
+        reason:'Admin-granted access'
+      }
+    ))
+  );
+
+  const sources = [
+    'memberships',
+    'customer_kits',
+    'payments',
+    'sgc_extra_responses',
+    'sgc_quiz_submissions',
+    'student_answers',
+    'sgc_access_grants'
+  ];
+
+  for (const source of sources) {
+    element.append(n('h3', source.replaceAll('_', ' ')));
+    const rows = (await all(source))
+      .filter(record => record.user_id === student.id);
+
+    await tableView(
+      element,
+      source,
+      rows,
+      source === 'student_answers' || source === 'sgc_access_grants'
+    );
+  }
+
+  element.scrollIntoView();
+}
+
+async function upload(parentId, isProduct) {
+  const input = n('input');
+  input.type = 'file';
+  input.accept = '.pdf,.mp4,.txt';
+
+  const title = prompt('Resource title');
+  if (!title) return;
+
+  input.onchange = safe(async () => {
+    const file = input.files[0];
+    if (!file) return;
+
+    if (file.size > 52428800) {
+      throw Error('Maximum upload size is 50 MB.');
+    }
+
+    const kind =
+      file.type === 'video/mp4'
+        ? 'video'
+        : file.type === 'application/pdf'
+          ? 'pdf'
+          : file.type === 'text/plain'
+            ? 'text'
+            : null;
+
+    if (!kind) throw Error('Choose a PDF, MP4 or text file.');
+
+    if (!isProduct && kind === 'text') {
+      throw Error('Put lesson text in its body field.');
+    }
+
+    const bucket = isProduct ? 'sgc-products' : 'sgc-academy-extra';
+    const extension = {video:'mp4', pdf:'pdf', text:'txt'}[kind];
+    const path = parentId + '/' + crypto.randomUUID() + '.' + extension;
+
+    say('Uploading…');
+    check(await sb.storage.from(bucket).upload(path, file));
+
+    try {
+      await rpc(
+        isProduct ? 'sgc_product_files' : 'sgc_extra_resources',
+        'insert',
+        isProduct
+          ? {product_id:parentId, title, path, kind}
+          : {
+              lesson_id:parentId,
+              title,
+              path,
+              kind:kind === 'pdf' ? 'download' : 'video'
+            }
+      );
+    } catch (error) {
+      await sb.storage.from(bucket).remove([path]);
+      throw error;
+    }
+
+    await show();
+    say('Uploaded and attached.');
+  });
+
+  input.click();
+}
+
+async function manageResources(parentId, isProduct) {
+  const table = isProduct ? 'sgc_product_files' : 'sgc_extra_resources';
+  const bucket = isProduct ? 'sgc-products' : 'sgc-academy-extra';
+  const element = panel('Attached files');
+
+  element.append(button('Upload file', () => upload(parentId, isProduct)));
+
+  const rows = (await all(table)).filter(record =>
+    (isProduct ? record.product_id : record.lesson_id) === parentId
+  );
+
+  await tableView(element, table, rows, false, (cell, record) => {
+    cell.append(button('Open', async () => {
+      const signed = check(
+        await sb.storage.from(bucket).createSignedUrl(record.path, 3600)
+      );
+
+      const link = n('a', 'Open file ↗');
+      link.href = signed.signedUrl;
+      link.target = '_blank';
+      link.rel = 'noopener';
+      element.append(link);
+    }, true));
+
+    cell.append(button('Remove', async () => {
+      if (!confirm('Remove this resource?')) return;
+
+      check(await sb.storage.from(bucket).remove([record.path]));
+      await rpc(table, 'delete', {}, record.id);
+      await show();
+    }, true));
+  });
+
+  element.scrollIntoView();
+}
+
+async function quizzes(lesson) {
+  const element = panel('Multiple-choice quiz: ' + lesson.title);
+
+  element.append(button('Add question', () => openEditor(
+    'sgc_quiz_questions',
+    {},
+    {
+      lesson_id:lesson.id,
+      options:['Option A','Option B'],
+      correct_index:0,
+      points:1,
+      sort_order:1
+    }
+  )));
+
+  await tableView(
+    element,
+    'sgc_quiz_questions',
+    (await all('sgc_quiz_questions'))
+      .filter(question => question.lesson_id === lesson.id)
+  );
+
+  element.scrollIntoView();
+}
+
+async function modules() {
+  const moduleRecords = await all('sgc_console_modules');
+  const lessons = await all('sgc_extra_lessons');
+
+  if (moduleNo === null) {
+    const element = panel('Selection of modules');
+
+    element.append(button(
+      'Add module',
+      () => openEditor('sgc_console_modules')
+    ));
+
+    const grid = n('div', undefined, 'grid');
+
+    for (const module of moduleRecords.sort(
+      (a, b) => a.module_no - b.module_no
+    )) {
+      const item = n('button', undefined, 'module');
+
+      item.append(
+        n('span', 'MODULE ' + module.module_no, 'pill'),
+        n('strong', module.title),
+        n(
+          'span',
+          lessons.filter(lesson => lesson.module_no === module.module_no)
+            .length + ' lessons'
+        )
+      );
+
+      item.onclick = safe(async () => {
+        moduleNo = module.module_no;
+        await show();
+      });
+
+      grid.append(item);
+    }
+
+    element.append(grid);
+    return;
+  }
+
+  const module = moduleRecords.find(record => record.module_no === moduleNo);
+  const element = panel(module?.title || 'Module ' + moduleNo);
+
+  element.append(button('← All modules', async () => {
+    moduleNo = null;
+    await show();
+  }, true));
+
+  if (module) {
+    element.append(button(
+      'Edit module',
+      () => openEditor('sgc_console_modules', module),
+      true
+    ));
+  }
+
+  element.append(button('Add lesson', () => openEditor(
+    'sgc_extra_lessons',
+    {},
+    {
+      module_no:moduleNo,
+      position:lessons.filter(lesson => lesson.module_no === moduleNo)
+        .length + 1,
+      access_level:'build'
+    }
+  )));
+
+  await tableView(
+    element,
+    'sgc_extra_lessons',
+    lessons
+      .filter(lesson => lesson.module_no === moduleNo)
+      .sort((a, b) => a.position - b.position),
+    true,
+    (cell, lesson) => {
+      cell.append(
+        button('Quiz', () => quizzes(lesson), true),
+        button('Files', () => manageResources(lesson.id, false), true)
+      );
+    }
+  );
+}
+
+async function invoke(body) {
+  const {data, error} = await sb.functions.invoke('sgc-business', {body});
+
+  if (error) {
+    let message = error.message;
+
+    try {
+      const response = await error.context.json();
+      message = response.error || message;
+    } catch {}
+
+    throw Error(message);
+  }
+
+  if (data?.error) throw Error(data.error);
+  return data;
+}
+
+async function campaignPreview(campaign) {
+  const recipients = check(await sb.rpc('sgc_campaign_recipients', {
+    p_campaign:campaign.id
+  }));
+
+  const element = panel('Review campaign before sending');
+
+  element.append(
+    n('h3', campaign.subject),
+    n('pre', campaign.body),
+    n(
+      'p',
+      recipients.length +
+        ' eligible recipients. Marketing requires opted-in recipients.',
+      'muted'
+    )
+  );
+
+  const emails = n('details');
+  emails.append(
+    n('summary', 'Show recipients'),
+    n('pre', recipients.map(recipient => recipient.email).join('\n'))
+  );
+  element.append(emails);
+
+  let cursor = 0;
+
+  const send = button('Send next batch (up to 10)', async () => {
+    if (!confirm('Send this campaign to the next eligible batch?')) return;
+
+    send.disabled = true;
+
+    try {
+      const result = await invoke({
+        action:'send_campaign',
+        campaign_id:campaign.id,
+        offset:cursor
+      });
+
+      cursor = result.next_offset;
+      element.append(n('pre', JSON.stringify(result, null, 2)));
+
+      if (result.done) {
+        send.disabled = true;
+        send.textContent = 'Campaign batches processed';
+      }
+    } finally {
+      if (send.textContent !== 'Campaign batches processed') {
+        send.disabled = false;
+      }
+    }
+  });
+
+  element.append(send);
+  element.scrollIntoView();
+}
+
+async function show() {
+  $('heading').textContent = section;
+  $('content').replaceChildren();
+  say('');
+
+  for (const item of $('menu').children) {
+    item.classList.toggle('active', item.textContent === section);
+  }
+
+  if (section === 'Overview') {
+    const element = panel('Your SGC business');
+
+    element.append(n(
+      'p',
+      'Manage learning, customer access, products and communication here. Published lessons flow to the connected Academy.',
+      'muted'
+    ));
+
+    const grid = n('div', undefined, 'grid');
+
+    for (const item of sections.slice(1)) {
+      grid.append(button(item, async () => {
+        section = item;
+        offset = 0;
+        await show();
+      }, true));
+    }
+
+    element.append(grid);
+    element.append(n(
+      'p',
+      'Payment rows are read-only. Grant access separately rather than recording a payment that did not happen.',
+      'muted'
+    ));
+  }
+
+  if (section === 'Modules & lessons') {
+    await modules();
+  }
+
+  if (section === 'Students') {
+    await listPanel('Students', 'students', false, (cell, student) => {
+      cell.append(button(
+        'Full details',
+        () => studentDetails(student),
+        true
+      ));
+    });
+
+    await listPanel('Manual learning grants', 'sgc_access_grants');
+  }
+
+  if (section === 'Purchases & payments') {
+    for (const [title, table] of [
+      ['Memberships and start dates', 'memberships'],
+      ['Kit balances', 'customer_kits'],
+      ['Payment history', 'payments']
+    ]) {
+      await listPanel(title, table, false);
+    }
+  }
+
+  if (section === 'Submissions') {
+    for (const table of [
+      'sgc_extra_responses',
+      'sgc_quiz_submissions',
+      'student_answers'
+    ]) {
+      await listPanel(table.replaceAll('_', ' '), table, false);
+    }
+  }
+
+  if (section === 'Website & quotes') {
+    await listPanel('Site content', 'site_content');
+    await listPanel('Academy quotes and messages', 'academy_messages');
+
+    panel('Website connection').append(n(
+      'p',
+      'Site text changes appear on pages that load site_content by content_key. The supplied site-content.js connects elements using data-sgc-content. Existing unconnected hardcoded text requires that one-time connection.',
+      'muted'
+    ));
+  }
+
+  if (section === 'Products & files') {
+    await listPanel('Products', 'sgc_products', true, (cell, product) => {
+      cell.append(button(
+        'Files',
+        () => manageResources(product.id, true),
+        true
+      ));
+    });
+
+    await listPanel('Payment methods', 'sgc_payment_methods');
+    await listPanel('Existing business kits', 'kits');
+
+    panel('Checkout connection').append(n(
+      'p',
+      'The supplied shop.html uses the configured product prices. Existing homepage buy buttons need to point to that shop. Stitch provider_code values must be supported by your existing create-stitch-payment function. Price changes apply to new orders; recurring amounts require provider-side support.',
+      'muted'
+    ));
+  }
+
+  if (section === 'Community') {
+    await listPanel('FAQ and niche groups', 'sgc_groups');
+    await listPanel('Posts', 'community_posts', false);
+    await listPanel('Comments', 'community_comments', false);
+  }
+
+  if (section === 'Waitlist') {
+    for (const table of ['sgc_academy_waitlist', 'academy_waitlist']) {
+      await listPanel(table, table, false, (cell, member) => {
+        cell.append(button('Grant access', () => {
+          if (!member.user_id) {
+            throw Error(
+              'This member needs a registered, confirmed Auth account first.'
+            );
+          }
+
+          return openEditor('sgc_access_grants', {}, {
+            user_id:member.user_id,
+            access_level:'start',
+            active:true,
+            starts_at:new Date().toISOString(),
+            reason:'Waitlist access'
+          });
+        }, true));
+      });
+    }
+  }
+
+  if (section === 'Email campaigns') {
+    await listPanel(
+      'Campaign drafts',
+      'sgc_email_campaigns',
+      true,
+      (cell, campaign) => {
+        cell.append(button(
+          'Preview & send',
+          () => campaignPreview(campaign),
+          true
+        ));
+      }
+    );
+
+    await listPanel('Delivery log', 'sgc_email_deliveries', false);
+  }
+
+  if (section === 'AI assistant') {
+    const element = panel('AI content assistant');
+
+    element.append(n(
+      'p',
+      'Draft lessons, quizzes, descriptions, quotes or emails. Review the output before copying it into an editor. Requests use your separately billed AI account.',
+      'muted'
+    ));
+
+    const prompt = n('textarea');
+    prompt.placeholder = 'What should the AI draft?';
+
+    const output = n('textarea');
+    output.id = 'ai-result';
+    output.readOnly = true;
+
+    element.append(
+      prompt,
+      button('Generate draft', async () => {
+        if (!prompt.value.trim()) return;
+
+        output.value = 'Generating…';
+
+        try {
+          const result = await invoke({
+            action:'ai',
+            prompt:prompt.value
+          });
+          output.value = result.text;
+        } catch (error) {
+          output.value = 'Draft could not be generated: ' + error.message;
+          throw error;
+        }
+      }),
+      output
+    );
+  }
+
+  if (section === 'Audit history') {
+    await listPanel('Admin changes', 'sgc_console_audit', false);
+  }
+
+  if (!['Overview', 'Modules & lessons', 'AI assistant'].includes(section)) {
+    const navigation = n('div', undefined, 'row');
+
+    navigation.append(
+      button('← Previous records', async () => {
+        offset = Math.max(0, offset - 200);
+        await show();
+      }, true),
+      n('span', 'Records ' + (offset + 1) + '–' + (offset + 200), 'muted'),
+      button('Next records →', async () => {
+        offset += 200;
+        await show();
+      }, true)
+    );
+
+    $('content').append(navigation);
+  }
+}
+
+async function ready() {
+  const session = check(await sb.auth.getSession());
+  if (!session.session) return;
+
+  const auth = check(await sb.auth.getUser());
+  user = auth.user;
+  if (!user) return;
+
+  const isAdmin = check(await sb.rpc('sgc_extra_is_admin'));
+
+  if (!isAdmin) {
+    throw Error('This account does not have admin access.');
+  }
+
+  $('login').hidden = true;
+  $('app').hidden = false;
+  $('admin-email').textContent = user.email;
+
+  await show();
+}
+
+for (const item of sections) {
+  const navigation = n('button', item, 'nav');
+
+  navigation.onclick = safe(async () => {
+    section = item;
+    offset = 0;
+    moduleNo = null;
+    await show();
+  });
+
+  $('menu').append(navigation);
+}
+
+$('login-form').onsubmit = async event => {
+  event.preventDefault();
+
+  try {
+    if (!sb) throw Error('Supabase library could not load.');
+
+    check(await sb.auth.signInWithPassword({
+      email:$('email').value.trim(),
+      password:$('password').value
+    }));
+
+    $('password').value = '';
+    await ready();
+  } catch (error) {
+    $('login-status').textContent = error.message;
+  }
+};
+
+$('logout').onclick = safe(async () => {
+  check(await sb.auth.signOut());
+  sessionStorage.removeItem('sgc-extra-session');
+  location.reload();
+});
+
+if (sb) {
+  ready().catch(error => {
+    $('login-status').textContent = error.message;
+  });
+} else {
+  $('login-status').textContent = 'Supabase library could not load.';
+}
+</script>
+</body>
+</html>
