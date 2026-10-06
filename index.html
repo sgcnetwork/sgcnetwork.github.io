@@ -1,63 +1,33 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>SGC Academy Waitlist | SGC Network</title>
-<style>
-:root{--ink:#171515;--cream:#FFF9F2;--paper:#FFFDF9;--butter:#F5E5A6;--blush:#F2D5D9;--lav:#DCD4EF;--sage:#DDE5D2;--gold:#B7904B;--muted:#756E69;--line:rgba(23,21,21,.12)}
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--cream);color:var(--ink);font-family:Arial,Helvetica,sans-serif}
-header{min-height:88px;padding:18px 7vw;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}
-.logo{text-decoration:none;color:var(--ink)}.logo strong{display:block;font:700 39px/.8 Georgia,serif;letter-spacing:-2px}.logo span{display:block;font-size:8px;letter-spacing:5px;margin-top:8px}
-nav{display:flex;gap:28px;align-items:center}nav a{text-decoration:none;color:var(--ink);font-size:11px;letter-spacing:1px}.nav-cta{background:var(--ink);color:#fff!important;padding:12px 17px;border-radius:999px}
-.hero{padding:72px 7vw 88px;display:grid;grid-template-columns:1.05fr .95fr;gap:6vw;align-items:center}.eyebrow{font-size:10px;font-weight:bold;letter-spacing:3px;color:var(--muted);margin:0 0 18px}
-h1,h2,h3{font-family:Georgia,"Times New Roman",serif}h1{font-size:clamp(50px,6.2vw,88px);line-height:.94;letter-spacing:-3px;margin:0}h1 em{font-style:normal;color:#C58F91}.lead{font-size:17px;line-height:1.75;color:var(--muted);max-width:610px;margin:27px 0}.journey{font-size:10px;font-weight:bold;letter-spacing:3px;margin:30px 0}.btn{display:inline-block;background:var(--ink);color:#fff;text-decoration:none;padding:17px 25px;border-radius:999px;font-size:11px;font-weight:bold}
-.visual{min-height:510px;border-radius:32px;padding:34px;display:flex;align-items:flex-end;background:linear-gradient(145deg,#f0dfe0,#d7c6b5 50%,#8f7b67);box-shadow:0 25px 65px rgba(23,21,21,.13)}.visual-card{width:82%;padding:30px;border-radius:22px;background:rgba(255,249,242,.93);box-shadow:0 15px 45px rgba(23,21,21,.18)}.visual-card small{font-size:9px;letter-spacing:3px}.visual-card h3{font-size:36px;line-height:1;margin:15px 0}.visual-card p{font-size:11px;color:var(--muted);margin:0}
-.about{padding:105px 12vw;background:#fff}.about-inner{max-width:1050px;margin:auto}h2{font-size:clamp(43px,5vw,62px);line-height:1;margin:0 0 24px;letter-spacing:-2px}.about p:last-child{font-size:17px;line-height:1.8;color:var(--muted);max-width:850px}
-.pillars{padding:90px 7vw 115px}.center{text-align:center}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;max-width:1200px;margin:45px auto 0}.card{min-height:245px;border-radius:24px;padding:28px}.card:nth-child(1){background:var(--butter)}.card:nth-child(2){background:var(--blush)}.card:nth-child(3){background:var(--lav)}.card:nth-child(4){background:var(--sage)}.card h3{font-size:35px;margin:50px 0 10px}.card p{font-size:13px;line-height:1.7;color:#514c48}
-.join{padding:115px 9vw;display:grid;grid-template-columns:1fr 460px;gap:8vw;align-items:center}.join-copy p:last-child{color:var(--muted);line-height:1.7}.form-card{background:var(--paper);border:1px solid var(--line);border-radius:26px;padding:32px;box-shadow:0 22px 60px rgba(23,21,21,.08)}label{display:block;font-size:11px;font-weight:bold;margin:13px 0 7px}input{width:100%;height:52px;border:1px solid var(--line);border-radius:12px;padding:0 15px;background:#fff;font-size:14px}button{width:100%;margin-top:20px;border:0;border-radius:999px;background:var(--ink);color:#fff;padding:17px 20px;font-size:11px;font-weight:bold;cursor:pointer}button:disabled{opacity:.55}.message{font-size:12px;line-height:1.55;margin:15px 2px 0;min-height:18px}.success{color:#3F6742}.error{color:#9B3838}
-footer{padding:42px 7vw;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:flex-end}footer p{font-size:9px;letter-spacing:2px;color:var(--muted)}
-@media(max-width:850px){nav a:not(.nav-cta){display:none}.hero,.join{grid-template-columns:1fr}.cards{grid-template-columns:1fr 1fr}.visual{min-height:380px}}@media(max-width:520px){.hero{padding:48px 6vw}.cards{grid-template-columns:1fr}.about,.pillars,.join{padding-left:7vw;padding-right:7vw}footer{display:block}}
-</style>
-</head>
-<body>
-<header><a class="logo" href="/"><strong>SGC</strong><span>NETWORK</span></a><nav><a href="/">HOME</a><a href="#about">ABOUT</a><a href="#academy">ACADEMY</a><a class="nav-cta" href="#join">JOIN WAITLIST</a></nav></header>
-<main>
-<section class="hero"><div><p class="eyebrow">SGC NETWORK ACADEMY</p><h1>Build Your Business.<br><em>Not Just Your Idea.</em></h1><p class="lead">A guided business-building platform designed for people who want to turn ideas into real businesses.</p><p class="journey">LEARN • PLAN • IMPLEMENT • GROW</p><a class="btn" href="#join">JOIN THE ACADEMY WAITLIST →</a></div><div class="visual"><div class="visual-card"><small>SGC ACADEMY</small><h3>Your next chapter<br>starts here.</h3><p>Business Builder • Community • Implementation</p></div></div></section>
-<section class="about" id="about"><div class="about-inner"><p class="eyebrow">ABOUT SGC NETWORK</p><h2>Where Ideas Become Businesses.</h2><p>SGC Network was created for aspiring entrepreneurs and business owners who want to build smarter. We provide structure, tools and support to help turn ideas into real, sustainable businesses.</p></div></section>
-<section class="pillars" id="academy"><p class="eyebrow center">INSIDE SGC ACADEMY</p><h2 class="center">Learn it. Build it. Grow it.</h2><div class="cards"><article class="card"><h3>Learn</h3><p>Structured business lessons designed to guide you step-by-step.</p></article><article class="card"><h3>Build</h3><p>Implementation tasks, workbooks and templates that turn knowledge into action.</p></article><article class="card"><h3>Connect</h3><p>A community of people building, learning and growing together.</p></article><article class="card"><h3>Grow</h3><p>Systems, AI tools, automation and strategies to help your business evolve.</p></article></div></section>
-<section class="join" id="join"><div class="join-copy"><p class="eyebrow">JOIN THE SGC ACADEMY WAITLIST</p><h2>Be the first to know when SGC Academy launches.</h2><p>Enter your details below. We'll email you a private confirmation link from the SGC Network Waitlist.</p></div><form class="form-card" id="waitlistForm"><label>Email Address</label><input id="email" type="email" autocomplete="email" required placeholder="you@example.com"><label>Password</label><input id="password" type="password" minlength="8" autocomplete="new-password" required placeholder="Minimum 8 characters"><button id="submitBtn" type="submit">JOIN ACADEMY WAITLIST →</button><p id="message" class="message"></p></form></section>
-</main>
-<footer><div class="logo"><strong>SGC</strong><span>NETWORK</span></div><p>LEARN • PLAN • IMPLEMENT • GROW</p></footer>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-const SUPABASE_URL="https://bxpexanyoyubxeqqlggh.supabase.co";
-const SUPABASE_KEY="sb_publishable_Z0_Y-Bj_G5qw4hMgDbQlgA__jj8rGGq";
-const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-const form=document.getElementById("waitlistForm"),button=document.getElementById("submitBtn"),message=document.getElementById("message");
-
-form.addEventListener("submit",async(e)=>{
- e.preventDefault(); message.textContent=""; message.className="message"; button.disabled=true; button.textContent="JOINING...";
- const email=document.getElementById("email").value.trim().toLowerCase();
- const password=document.getElementById("password").value;
- try{
-   const r=await fetch(`${SUPABASE_URL}/functions/v1/join-waitlist`,{
-     method:"POST",
-     headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY,"Authorization":`Bearer ${SUPABASE_KEY}`},
-     body:JSON.stringify({email,password})
-   });
-   const result=await r.json();
-   if(!r.ok||!result.success) throw new Error(result.error||"Could not join waitlist");
-   form.reset();
-   message.textContent="You're almost in. Check your email for your SGC Academy Waitlist confirmation.";
-   message.className="message success";
- }catch(err){
-   message.textContent=err.message||"Something went wrong. Please try again.";
-   message.className="message error";
- }finally{
-   button.disabled=false; button.textContent="JOIN ACADEMY WAITLIST →";
- }
-});
-</script>
-</body></html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Build smarter. Start stronger. | SGC Network</title><meta name="description" content="SGC Network — business growth, starter kits, business analysis and practical systems.">
+<link rel="stylesheet" href="css/style.css"></head><body><nav class="nav"><div class="container nav-inner">
+<a class="logo" href="index.html">SGC<small>NETWORK</small></a>
+<button class="menu" aria-label="Open menu">☰</button>
+<div class="nav-links"><a href="index.html" class="">Home</a><a href="start.html" class="">Start</a><a href="build.html" class="">Build</a><a href="kits.html" class="">Business Kits</a><a href="business.html" class="">For Businesses</a><a href="enquiry.html">Enquire</a><a href="login.html" class="nav-cta">Academy Login</a></div>
+</div></nav>
+<section class="hero"><div class="container hero-grid">
+<div>
+<div class="kicker">SGC Network · South Africa + beyond</div>
+<h1>Build something that actually works.</h1>
+<p class="lede">A practical space for people starting businesses and businesses ready to become more organised, efficient and intentional.</p>
+<div class="buttons"><a class="btn dark" href="start.html">I'm starting a business</a><a class="btn soft" href="business.html">I already have a business</a></div>
+</div>
+<div class="art"><div class="art-card art-main"><div class="art-copy"><span>Automate · Streamline · Grow</span><strong>your next<br>chapter.</strong></div></div><div class="art-card float one">pretty strategy, real action.</div><div class="art-card float two">Plan → Build → Grow</div></div>
+</div></section>
+<section class="section soft"><div class="container">
+<div class="section-head"><div><div class="eyebrow">Choose your path</div><h2>Where are you<br>right now?</h2></div><p>You don't need to figure out everything at once. Start with the part of SGC Network that fits where you are.</p></div>
+<div class="cards">
+<a class="card" href="start.html"><span class="number">01 · SGC START</span><h3>I'm exploring a business idea.</h3><p>Learn, ask questions, meet other people building and get practical guidance without needing a Business Kit.</p><span class="link">Explore SGC Start →</span></a>
+<a class="card" href="build.html"><span class="number">02 · SGC BUILD</span><h3>I'm ready to build properly.</h3><p>Go deeper with Business Kit-based learning, pre-recorded lessons, live sessions and a focused community.</p><span class="link">Explore SGC Build →</span></a>
+<a class="card" href="business.html"><span class="number">03 · EXISTING BUSINESS</span><h3>My business needs a better system.</h3><p>Start with business analysis, identify the gaps and build a practical improvement plan before implementation.</p><span class="link">For existing businesses →</span></a>
+</div></div></section>
+<section class="section"><div class="container split"><div class="visual"><div class="blob a"></div><div class="blob b"></div><div class="blob c"></div><div class="visual-copy"><div class="eyebrow">The SGC approach</div><p>Less chaos. More clarity. More room to grow.</p></div></div>
+<div><div class="eyebrow">What you'll find here</div><h2>Business support without the information dump.</h2><div class="list">
+<div><span class="check">✓</span><span>Business Starter Kits designed to turn ideas into action.</span></div>
+<div><span class="check">✓</span><span>Membership spaces for learning, questions and community.</span></div>
+<div><span class="check">✓</span><span>Business analysis for existing businesses before recommending implementation.</span></div>
+</div><div class="buttons"><a class="btn dark" href="kits.html">View Business Kits</a><a class="btn soft" href="enquiry.html">Let's talk</a></div></div></div></section>
+<footer class="footer"><div class="container footer-inner">
+<div><div class="logo">SGC<small>NETWORK</small></div><p>Automate • Streamline • Grow</p></div>
+<div><p>netsgcwork@gmail.com · WhatsApp 064 426 9349 · 078 145 8415</p><p>© 2026 SGC Network. All rights reserved.</p></div>
+</div></footer><script src="script.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="js/config.js"></script><script src="js/supabase-client.js"></script></body></html>
