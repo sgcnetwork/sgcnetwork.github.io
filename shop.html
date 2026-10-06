@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SGC Products</title>
+<style>
+:root{--gold:#c6a354;--text:#f5efe1;--muted:#aaa394;--line:#333027}
+*{box-sizing:border-box}
+body{margin:0;background:#0b0b0b;color:var(--text);font:14px Arial,sans-serif}
+main{max-width:1180px;margin:auto;padding:30px 20px}
+h1,h2{font-family:Georgia,serif}
+h1{font-size:48px}
+a{color:var(--gold)}
+button{font:inherit;cursor:pointer;padding:13px 18px;background:var(--gold);border:1px solid var(--gold);color:#111;margin:5px 8px 5px 0}
+button:disabled{opacity:.5}
+header{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:20px}
+.card{padding:25px;background:#151513;border:1px solid var(--line)}
+.muted{color:var(--muted);line-height:1.8;font-size:13px}
+.price{font-size:28px;color:var(--gold)}
+.notice{white-space:pre-wrap;overflow-wrap:anywhere}
+dialog{width:min(650px,95vw);max-height:90vh;overflow:auto;background:#151513;color:var(--text);border:1px solid var(--gold)}
+dialog::backdrop{background:#000b}
+.file{display:block;margin:15px 0;padding:14px;border:1px solid var(--line)}
+video{width:100%}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main>
+<header>
+<a href="index.html">SGC NETWORK</a>
+<nav>
+<a href="academy.html">Academy</a> ·
+<a href="community.html">Community</a> ·
+<a href="dashboard.html">My SGC</a>
+</nav>
+</header>
+<h1>Build your next chapter.</h1>
+<p class="muted">SGC memberships, kits and implementation resources.</p>
+<p id="status" class="muted notice" role="status"></p>
+<div id="products" class="grid"></div>
+<h2>Your purchased resources</h2>
+<div id="owned" class="grid"></div>
+</main>
+
+<dialog id="checkout">
+<h2 id="checkout-title"></h2>
+<div id="methods"></div>
+<p id="checkout-status" class="muted notice"></p>
+<button id="close" type="button">Close</button>
+</dialog>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const sb=window.supabase?.createClient(
+ 'https://bxpexanyoyubxeqqlggh.supabase.co',
+ 'sb_publishable_Z0_Y-Bj_G5qw4hMgDbQlgA__jj8rGGq'
+);
+let user;
+
+function n(tag,text,cls){
+ const e=document.createElement(tag);
+ if(text!==undefined)e.textContent=text;
+ if(cls)e.className=cls;
+ return e;
+}
+function check(r){if(r.error)throw r.error;return r.data;}
+
+async function invoke(body){
+ const result=await sb.functions.invoke('sgc-business',{body});
+ if(result.error){
+  let message=result.error.message;
+  try{message=(await result.error.context.json()).error||message;}catch{}
+  throw Error(message);
+ }
+ if(result.data?.error)throw Error(result.data.error);
+ return result.data;
+}
+
+async function checkout(product){
+ $('checkout-title').textContent=product.name;
+ $('methods').replaceChildren();
+ $('checkout-status').textContent='';
+ $('checkout').showModal();
+
+ if(!user){
+  const a=n('a','Sign in to purchase');
+  a.href='login.html';
+  $('methods').append(a);
+  return;
+ }
+
+ const methods=check(await sb.from('sgc_payment_methods')
+  .select('*').eq('active',true));
+
+ const assigned=methods.filter(m=>
+  (product.payment_method_ids||[]).includes(m.id)
+ );
+
+ if(!assigned.length){
+  $('checkout-status').textContent=
+   'No active payment method has been assigned to this product.';
+ }
+
+ for(const method of assigned){
+  const button=n('button',method.name);
+  button.type='button';
+  button.onclick=async()=>{
+   button.disabled=true;
+   $('checkout-status').textContent='Preparing payment…';
+   try{
+    const result=await invoke({
+     action:'checkout',
+     product_id:product.id,
+     method_id:method.id
+    });
+
+    if(result.checkoutUrl){
+     const destination=new URL(result.checkoutUrl);
+     if(destination.protocol!=='https:')throw Error('Invalid checkout link.');
+     location.href=destination.href;
+     return;
+    }
+
+    $('checkout-status').textContent=
+     'Amount: R'+Number(result.amount_zar).toFixed(2)+
+     '\nReference: '+result.reference+
+     '\n\n'+result.instructions+
+     '\n\nAccess unlocks after payment is verified or an admin grants access.';
+   }catch(e){
+    $('checkout-status').textContent=e.message;
+   }finally{button.disabled=false;}
+  };
+  $('methods').append(button);
+ }
+}
+
+$('close').onclick=()=>$('checkout').close();
+
+async function start(){
+ if(!sb)throw Error('Supabase library could not load.');
+ const auth=await sb.auth.getUser();
+ user=auth.data.user;
+
+ const products=check(await sb.from('sgc_products')
+  .select('*').eq('active',true).order('created_at'));
+
+ for(const product of products){
+  const card=n('article',undefined,'card');
+  const buy=n('button','View payment options');
+  buy.onclick=()=>checkout(product).catch(e=>{
+   $('status').textContent=e.message;
+  });
+
+  card.append(
+   n('h2',product.name),
+   n('p',product.description,'muted'),
+   n('p','R'+Number(product.price_zar).toFixed(2)+
+    (product.billing==='monthly'?' / month':' once-off'),'price'),
+   buy
+  );
+  $('products').append(card);
+ }
+
+ if(!products.length){
+  $('products').append(n('p',
+   'Products will appear here when published in admin.','muted'));
+ }
+
+ if(!user){
+  $('owned').append(n('p','Sign in to view purchased resources.','muted'));
+  return;
+ }
+
+ const files=check(await sb.from('sgc_product_files').select('*'));
+
+ for(const product of products){
+  const owned=files.filter(f=>f.product_id===product.id);
+  if(!owned.length)continue;
+  const card=n('section',undefined,'card');
+  card.append(n('h2',product.name));
+
+  for(const file of owned){
+   try{
+    const signed=check(await sb.storage.from('sgc-products')
+     .createSignedUrl(file.path,3600));
+    if(file.kind==='video'){
+     card.append(n('h3',file.title));
+     const v=n('video');
+     v.controls=true;v.preload='metadata';v.src=signed.signedUrl;
+     card.append(v);
+    }else{
+     const a=n('a',file.title,'file');
+     a.href=signed.signedUrl;
+     a.target='_blank';a.rel='noopener';
+     card.append(a);
+    }
+   }catch(e){
+    card.append(n('p',file.title+': '+e.message,'muted'));
+   }
+  }
+  $('owned').append(card);
+ }
+
+ if(!$('owned').children.length){
+  $('owned').append(n('p',
+   'No purchased product files are available yet.','muted'));
+ }
+}
+
+start().catch(e=>{$('status').textContent=e.message;});
+</script>
+</body>
+</html>
