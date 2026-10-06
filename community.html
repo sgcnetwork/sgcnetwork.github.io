@@ -3,13 +3,608 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>SGC Community</title>
-<meta http-equiv="refresh" content="0;url=academy.html#community">
+<title>Community — SGC Network</title>
+<style>
+:root{
+ --ink:#171516;
+ --cream:#fbf5ea;
+ --paper:#fffaf2;
+ --pink:#f4dfe0;
+ --lav:#e7def4;
+ --butter:#f4e7a8;
+ --line:#17151620;
+ --muted:#756e69
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--cream);color:var(--ink);font:14px Arial,sans-serif}
+a{color:inherit;text-decoration:none}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+button:disabled{opacity:.5;cursor:wait}
+.wrap{width:min(1180px,calc(100% - 32px));margin:auto}
+header{display:flex;justify-content:space-between;gap:24px;align-items:center;padding:25px 0;border-bottom:1px solid var(--line)}
+.brand{font:30px Georgia,serif;letter-spacing:.08em}
+.brand small{display:block;font:10px Arial;letter-spacing:.28em;margin-top:5px}
+nav{display:flex;gap:18px;align-items:center;flex-wrap:wrap;font-size:13px}
+nav a.active{border-bottom:1px solid var(--ink);padding-bottom:5px}
+.btn{background:var(--ink);color:white;border:1px solid var(--ink);padding:12px 18px;border-radius:25px}
+.btn.alt{background:transparent;color:var(--ink)}
+.btn.soft{background:var(--lav);border-color:transparent;color:var(--ink)}
+h1,h2,h3{font-family:Georgia,serif;font-weight:normal}
+h1{font-size:clamp(40px,6vw,68px);margin:14px 0}
+h2{font-size:27px;margin:0 0 12px}
+h3{font-size:21px}
+.muted{font-size:12px;color:var(--muted);line-height:1.7}
+.eyebrow{text-transform:uppercase;letter-spacing:.16em;font-size:10px}
+.hero{padding:35px 0 20px}
+.layout{display:grid;grid-template-columns:280px minmax(0,1fr);gap:25px;align-items:start;padding-bottom:60px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:23px;padding:24px;margin-bottom:18px}
+.sticky{background:#f2c9d6;border-radius:3px;transform:rotate(-1deg);box-shadow:3px 4px 0 #0002;margin:8px 0 24px;padding:25px}
+.sticky blockquote{font:25px/1.4 Georgia,serif;margin:18px 0}
+.lav{background:var(--lav)}
+.butter{background:var(--butter)}
+label{display:block;font-size:12px;color:var(--muted);margin:16px 0 7px}
+input,select,textarea{width:100%;padding:13px;border:1px solid var(--line);border-radius:12px;background:#ffffff90;color:var(--ink)}
+textarea{min-height:100px;resize:vertical;line-height:1.7}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.person{display:flex;gap:12px;align-items:center}
+.avatar{width:42px;height:42px;border-radius:50%;background:var(--lav);display:grid;place-items:center;font:23px Georgia;flex-shrink:0}
+.post-body{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.8;margin:18px 0}
+.photos{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.photos img{width:100%;max-height:430px;object-fit:contain;background:#f3ece2;border-radius:15px}
+.feed-actions{border-top:1px solid var(--line);padding-top:16px}
+.comment{background:var(--lav);border-radius:16px;padding:14px 17px;margin:12px 0}
+.comment p{white-space:pre-wrap;overflow-wrap:anywhere;margin:8px 0}
+.pill{background:#fff8;border:1px solid var(--line);border-radius:30px;padding:8px 13px;font-size:11px}
+#status{white-space:pre-wrap;overflow-wrap:anywhere}
+.suggestion{border-top:1px solid var(--line);padding:18px 0}
+.suggestion p{white-space:pre-wrap}
+footer{border-top:1px solid var(--line);padding:25px 0;color:var(--muted);font-size:12px}
+@media(max-width:800px){
+ .layout{grid-template-columns:1fr}
+ .left{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:15px}
+ .sticky{margin:0 0 18px}
+ header{flex-wrap:wrap}
+ nav{gap:12px}
+ .hero{padding-top:24px}
+}
+</style>
 </head>
 <body>
-<p><a href="academy.html#community">Open your SGC community</a></p>
+<div class="wrap">
+<header>
+<a class="brand" href="index.html">SGC<small>NETWORK</small></a>
+<nav>
+<a href="kits.html">Shop</a>
+<a href="dashboard.html">My SGC</a>
+<a href="academy.html">Academy</a>
+<a class="active" href="community.html">Community</a>
+<button id="signout" class="btn alt">Sign out</button>
+</nav>
+</header>
+
+<section class="hero">
+<span class="eyebrow">A little support. A lot of possibility.</span>
+<h1>Your community.</h1>
+<p class="muted">Share a win, ask a question, find your people. We’re building together.</p>
+<p id="status" class="muted" role="status" aria-live="polite">Loading your community…</p>
+</section>
+
+<div class="layout" id="app" hidden>
+<aside class="left">
+
+<section class="sticky">
+<span class="eyebrow">Quote for the day</span>
+<blockquote id="quote">Your next move changes everything.</blockquote>
+<small id="quote-author">SGC Network</small>
+</section>
+
+<section class="card">
+<h2>Pass on some inspiration.</h2>
+<p class="muted">Suggest a quote for the day. SGC Network will review it and may feature it later.</p>
+<form id="suggest-form">
+<label for="suggest-text">Your quote</label>
+<textarea id="suggest-text" maxlength="1000" required placeholder="Something someone needs to hear today…"></textarea>
+<label for="suggest-author">Quote author / credit</label>
+<input id="suggest-author" maxlength="120" placeholder="Author’s name, or your own">
+<button class="btn" style="margin-top:15px">Suggest a quote</button>
+<p id="suggest-status" class="muted" role="status"></p>
+</form>
+</section>
+
+<section class="card lav">
+<span class="eyebrow">Community promise</span>
+<h3>Support. Share. Grow.</h3>
+<p class="muted">Celebrate progress, be kind when someone is struggling, and share practical help. Ask before sharing another person’s photo.</p>
+<p id="signed-in" class="muted"></p>
+</section>
+</aside>
+
+<main>
+<section class="card butter">
+<div class="row">
+<span class="pill">Your spaces</span>
+<button id="refresh" class="btn alt">Refresh feed ↻</button>
+</div>
+
+<label for="category">Where would you like to connect?</label>
+<select id="category">
+<option value="faq">FAQs & assistance</option>
+<option value="niche">Niche community</option>
+<option value="academy" selected>General community</option>
+</select>
+
+<label for="group">Choose a community</label>
+<select id="group"></select>
+<p id="group-description" class="muted"></p>
+</section>
+
+<section id="composer-card" class="card" hidden>
+<div class="person">
+<span class="avatar">S</span>
+<div>
+<strong>A small update can inspire someone.</strong>
+<p class="muted">Progress, questions, wins or struggles—there’s room for all of it.</p>
+</div>
+</div>
+
+<form id="post-form">
+<label for="post-body">Your update</label>
+<textarea id="post-body" maxlength="10000" required placeholder="What’s happening in your business journey?"></textarea>
+
+<label for="post-photos">Add pictures · up to 5 · JPG, PNG or WebP · 5 MB each</label>
+<input id="post-photos" type="file" accept="image/jpeg,image/png,image/webp" multiple>
+
+<div id="previews" class="photos" style="margin:15px 0"></div>
+<button class="btn">Share with community →</button>
+<p id="post-status" class="muted" role="status"></p>
+</form>
+</section>
+
+<div id="feed"></div>
+
+<section id="review-card" class="card lav" hidden>
+<h2>SGC · Quote suggestions</h2>
+<p class="muted">Only SGC admins see these suggestions. Publishing replaces the current daily quote on the connected pages.</p>
+<div id="review-list"></div>
+</section>
+</main>
+</div>
+
+<footer>SGC Network · Ideas into implementation.</footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-location.replace('academy.html#community');
+'use strict';
+
+const $=id=>document.getElementById(id);
+const sb=window.supabase?.createClient(
+ 'https://bxpexanyoyubxeqqlggh.supabase.co',
+ 'sb_publishable_Z0_Y-Bj_G5qw4hMgDbQlgA__jj8rGGq'
+);
+
+let user,groups=[],categories={},activeGroup=null;
+let isAdmin=false,working=false,previewURLs=[];
+
+function el(tag,text,cls){
+ const e=document.createElement(tag);
+ if(text!==undefined)e.textContent=text;
+ if(cls)e.className=cls;
+ return e;
+}
+
+function check(r){
+ if(r.error)throw r.error;
+ return r.data;
+}
+
+function say(text){$('status').textContent=text;}
+
+function action(fn){
+ return async event=>{
+  event?.preventDefault();
+  if(working)return;
+  working=true;
+
+  const controls=[...document.querySelectorAll(
+   'button,input,select,textarea'
+  )].filter(e=>!e.disabled);
+
+  controls.forEach(e=>e.disabled=true);
+
+  try{await fn();}
+  catch(e){say(e.message||String(e));}
+  finally{
+   controls.forEach(e=>{if(e.isConnected)e.disabled=false;});
+   working=false;
+  }
+ };
+}
+
+function button(text,fn){
+ const b=el('button',text,'btn soft');
+ b.type='button';
+ b.onclick=action(fn);
+ return b;
+}
+
+async function setting(key){
+ const rows=check(await sb.from('site_content')
+  .select('content_value').eq('content_key',key).limit(1));
+ try{return JSON.parse(rows[0]?.content_value||'{}');}
+ catch{return {};}
+}
+
+async function quote(){
+ const q=await setting('sgc.quote.daily');
+ const today=new Intl.DateTimeFormat('en-CA',{
+  timeZone:'Africa/Johannesburg'
+ }).format(new Date());
+
+ const show=q.text&&(!q.date||q.date<=today);
+ $('quote').textContent=show?q.text:'Your next move changes everything.';
+ $('quote-author').textContent=show?q.author||'SGC Network':'SGC Network';
+}
+
+function discard(){
+ return !(
+  $('post-body').value.trim()||$('post-photos').files.length
+ )||confirm('Leave this unsent post?');
+}
+
+function clearPost(){
+ previewURLs.forEach(u=>URL.revokeObjectURL(u));
+ previewURLs=[];
+ $('post-form').reset();
+ $('previews').replaceChildren();
+ $('post-status').textContent='';
+}
+
+async function chooseGroups(preferred){
+ const matches=groups.filter(g=>
+  (categories[g.id]||'niche')===$('category').value
+ );
+
+ $('group').replaceChildren();
+
+ for(const g of matches){
+  const o=el('option',g.name);
+  o.value=g.id;
+  $('group').append(o);
+ }
+
+ if(matches.some(g=>g.id===preferred))$('group').value=preferred;
+
+ activeGroup=matches.find(g=>g.id===$('group').value)||null;
+ await feed();
+}
+
+async function refresh(){
+ const wanted=activeGroup?.id;
+ groups=check(await sb.rpc('sgc_community',{}));
+ categories=await setting('sgc.community.categories');
+ await quote();
+ await chooseGroups(wanted);
+ if(isAdmin)await review();
+}
+
+async function photoElement(path,parent){
+ try{
+  const signed=check(await sb.storage.from('sgc-community')
+   .createSignedUrl(path,3600));
+
+  const img=el('img');
+  img.src=signed.signedUrl;
+  img.alt='Member’s community update';
+  img.loading='lazy';
+  parent.append(img);
+ }catch{
+  parent.append(el('p','Photo unavailable.','muted'));
+ }
+}
+
+async function feed(){
+ say('');
+ $('feed').replaceChildren();
+ $('composer-card').hidden=!activeGroup;
+ $('group-description').textContent=activeGroup?.description||
+  'No communities in this category are available for your current access.';
+
+ if(!activeGroup){
+  const box=el('section',undefined,'card');
+  box.append(
+   el('h2','Your next conversation is coming.'),
+   el('p','Your eligible community spaces will appear here when SGC opens them.','muted')
+  );
+  $('feed').append(box);
+  return;
+ }
+
+ const posts=check(await sb.rpc('sgc_community',{
+  p_group:activeGroup.id
+ }));
+
+ let images=[];
+ if(posts.length){
+  const r=await sb.from('sgc_post_images')
+   .select('post_id,path').in('post_id',posts.map(p=>p.id));
+
+  if(r.error)say('Photos could not load: '+r.error.message);
+  else images=r.data;
+ }
+
+ if(!posts.length){
+  const box=el('section',undefined,'card');
+  box.append(
+   el('h2','Be the first to say hello.'),
+   el('p','Introduce yourself or share what you’re working on.','muted')
+  );
+  $('feed').append(box);
+ }
+
+ for(const post of posts){
+  const card=el('article',undefined,'card');
+  const person=el('div',undefined,'person');
+  const details=el('div');
+
+  details.append(
+   el('strong',post.author||'SGC member'),
+   el('div',new Date(post.created_at).toLocaleString('en-ZA'),'muted')
+  );
+
+  person.append(
+   el('span',(post.author||'S').slice(0,1).toUpperCase(),'avatar'),
+   details
+  );
+
+  card.append(person,el('div',post.body,'post-body'));
+
+  const gallery=el('div',undefined,'photos');
+  for(const im of images.filter(i=>i.post_id===post.id)){
+   await photoElement(im.path,gallery);
+  }
+  card.append(gallery);
+
+  const row=el('div',undefined,'row feed-actions');
+  const comments=el('div');
+  comments.hidden=true;
+
+  row.append(button('💬 Comments & encouragement',async()=>{
+   if(!comments.hidden){comments.hidden=true;return;}
+   await renderComments(post.id,comments);
+   comments.hidden=false;
+  }));
+
+  card.append(row,comments);
+  $('feed').append(card);
+ }
+}
+
+async function renderComments(postId,root){
+ root.replaceChildren();
+ const comments=check(await sb.rpc('sgc_community',{
+  p_post:postId
+ }));
+
+ if(!comments.length)root.append(el('p','Start the conversation.','muted'));
+
+ for(const c of comments){
+  const box=el('div',undefined,'comment');
+  box.append(
+   el('strong',c.author||'SGC member'),
+   el('p',c.body)
+  );
+  root.append(box);
+ }
+
+ const form=el('form');
+ const label=el('label','Leave a comment');
+ const input=el('textarea');
+
+ input.maxLength=10000;
+ input.required=true;
+ input.placeholder='A helpful thought, a question, or a little encouragement…';
+ label.append(input);
+
+ const submit=el('button','Post comment','btn');
+ form.append(label,submit);
+
+ form.onsubmit=action(async()=>{
+  if(!input.value.trim())throw Error('Write your comment first.');
+  check(await sb.rpc('sgc_community',{
+   p_post:postId,p_body:input.value
+  }));
+  await renderComments(postId,root);
+ });
+
+ root.append(form);
+}
+
+$('post-photos').onchange=()=>{
+ previewURLs.forEach(u=>URL.revokeObjectURL(u));
+ previewURLs=[];
+ $('previews').replaceChildren();
+
+ for(const f of [...$('post-photos').files].slice(0,5)){
+  if(!['image/jpeg','image/png','image/webp'].includes(f.type))continue;
+  const img=el('img');
+  img.src=URL.createObjectURL(f);
+  previewURLs.push(img.src);
+  img.alt='Selected photo';
+  $('previews').append(img);
+ }
+};
+
+$('post-form').onsubmit=action(async()=>{
+ if(!activeGroup)throw Error('Choose a community first.');
+
+ const body=$('post-body').value.trim();
+ const files=[...$('post-photos').files];
+
+ if(!body)throw Error('Write your update first.');
+ if(files.length>5)throw Error('Choose up to five photographs.');
+
+ for(const f of files){
+  if(f.size>5242880||!['image/jpeg','image/png','image/webp'].includes(f.type)){
+   throw Error('Pictures must be JPG, PNG or WebP and 5 MB or smaller.');
+  }
+ }
+
+ const paths=[];
+ let saved=false;
+
+ try{
+  for(const f of files){
+   $('post-status').textContent='Uploading photographs…';
+   const ext={
+    'image/jpeg':'jpg','image/png':'png','image/webp':'webp'
+   }[f.type];
+
+   const path=user.id+'/'+crypto.randomUUID()+'.'+ext;
+
+   check(await sb.storage.from('sgc-community')
+    .upload(path,f,{contentType:f.type}));
+
+   paths.push(path);
+  }
+
+  check(await sb.rpc('sgc_student_post',{
+   p_group:activeGroup.id,p_body:body,p_paths:paths
+  }));
+
+  saved=true;
+  clearPost();
+ }catch(e){
+  if(!saved&&paths.length){
+   await sb.storage.from('sgc-community').remove(paths);
+  }
+  $('post-status').textContent='Could not publish: '+e.message;
+  throw e;
+ }
+
+ await feed();
+ say('Your update is posted.');
+});
+
+$('suggest-form').onsubmit=action(async()=>{
+ const text=$('suggest-text').value.trim();
+ if(!text)throw Error('Enter your suggested quote.');
+
+ try{
+  check(await sb.rpc('sgc_suggest_quote',{
+   p_quote:text,
+   p_author:$('suggest-author').value.trim()||'SGC member'
+  }));
+
+  $('suggest-form').reset();
+  $('suggest-status').textContent=
+   'Thank you! Your quote is waiting for SGC Network’s review.';
+
+  if(isAdmin)await review();
+ }catch(e){
+  $('suggest-status').textContent=e.message;
+  throw e;
+ }
+});
+
+async function review(){
+ $('review-card').hidden=!isAdmin;
+ if(!isAdmin)return;
+
+ const rows=check(await sb.rpc('sgc_quote_review',{
+  p_action:'list'
+ }));
+
+ $('review-list').replaceChildren();
+
+ if(!rows.length){
+  $('review-list').append(el('p','No quotes waiting for review.','muted'));
+ }
+
+ for(const q of rows){
+  const box=el('div',undefined,'suggestion');
+  box.append(el('p',q.quote),el('small','Credit: '+q.author));
+
+  const row=el('div',undefined,'row');
+
+  row.append(
+   button('Publish as today’s quote',async()=>{
+    if(!confirm('Replace today’s quote with this suggestion?'))return;
+    check(await sb.rpc('sgc_quote_review',{
+     p_id:q.id,p_action:'approve'
+    }));
+    await quote();
+    await review();
+    say('Daily quote published. Refresh My SGC to see it there too.');
+   }),
+   button('Decline',async()=>{
+    check(await sb.rpc('sgc_quote_review',{
+     p_id:q.id,p_action:'decline'
+    }));
+    await review();
+   })
+  );
+
+  box.append(row);
+  $('review-list').append(box);
+ }
+}
+
+$('category').onchange=action(async()=>{
+ if(!discard()){
+  $('category').value=activeGroup?
+   categories[activeGroup.id]||'niche':'academy';
+  return;
+ }
+ clearPost();
+ await chooseGroups();
+});
+
+$('group').onchange=action(async()=>{
+ if(!discard()){
+  $('group').value=activeGroup?.id||'';
+  return;
+ }
+ clearPost();
+ activeGroup=groups.find(g=>g.id===$('group').value)||null;
+ await feed();
+});
+
+$('refresh').onclick=action(refresh);
+
+$('signout').onclick=action(async()=>{
+ if(!discard())return;
+ check(await sb.auth.signOut());
+ sessionStorage.removeItem('sgc-extra-session');
+ location.href='login.html';
+});
+
+window.addEventListener('beforeunload',e=>{
+ if(
+  $('post-body').value.trim()||
+  $('post-photos').files.length||
+  $('suggest-text').value.trim()
+ ){
+  e.preventDefault();
+  e.returnValue='';
+ }
+});
+
+async function start(){
+ if(!sb)throw Error('Supabase library could not load.');
+
+ user=check(await sb.auth.getUser()).user;
+ if(!user){location.href='login.html';return;}
+
+ isAdmin=check(await sb.rpc('sgc_extra_is_admin'));
+ $('signed-in').textContent='Signed in as '+user.email;
+ $('app').hidden=false;
+ await refresh();
+}
+
+start().catch(e=>say(e.message));
 </script>
 </body>
 </html>
