@@ -16,12 +16,10 @@
 }
 *{box-sizing:border-box}
 body{
-  margin:0;
-  background:var(--cream);
-  color:var(--ink);
-  font:15px Arial,sans-serif;
+  margin:0;background:var(--cream);
+  color:var(--ink);font:15px Arial,sans-serif;
 }
-main{max-width:1200px;margin:auto;padding:25px 22px 60px}
+main{max-width:1150px;margin:auto;padding:25px 22px 60px}
 header{
   display:flex;align-items:center;justify-content:space-between;
   gap:20px;flex-wrap:wrap;padding-bottom:24px;
@@ -34,48 +32,67 @@ nav a{text-decoration:none}
   text-decoration:none;letter-spacing:2px;
 }
 .hero{
-  background:var(--pink);
-  border-radius:24px;padding:38px;margin-bottom:28px;
+  background:var(--pink);border-radius:24px;
+  padding:36px;margin-bottom:28px;
 }
 h1,h2,h3{font-family:Georgia,serif}
-h1{font-size:clamp(32px,5vw,52px);margin:10px 0}
+h1{font-size:clamp(32px,5vw,48px);margin:10px 0}
 h2{font-size:28px}
-h3{font-size:22px;margin-top:14px}
+h3{font-size:24px;margin:14px 0}
 .eyebrow{letter-spacing:2px;font-size:12px;font-weight:bold}
 .muted{color:var(--muted);line-height:1.7}
-.shortcuts{display:flex;gap:10px;flex-wrap:wrap;margin:22px 0}
-.shortcuts a{
-  background:white;border:1px solid var(--line);
-  border-radius:30px;padding:10px 15px;text-decoration:none;
+label{display:block;margin:16px 0 8px}
+select,input,textarea{
+  font:inherit;width:100%;padding:14px;
+  border:1px solid var(--line);border-radius:12px;
+  background:white;color:var(--ink);
 }
-.section{margin:32px 0;scroll-margin-top:20px}
+textarea{min-height:130px;resize:vertical}
+.menu{max-width:500px;margin-bottom:28px}
 .grid{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
-  gap:18px;
+  grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+  gap:20px;
 }
 .card{
-  background:white;border:1px solid var(--line);
-  border-radius:20px;padding:24px;
+  background:var(--yellow);border:1px solid var(--line);
+  border-radius:24px;padding:28px;
 }
-.section:nth-of-type(3n+1) .card{background:var(--lavender)}
-.section:nth-of-type(3n+2) .card{background:var(--yellow)}
-.section:nth-of-type(3n) .card{background:var(--pink)}
-.price{font-size:27px;font-weight:bold}
+.grid .card:nth-child(3n+2){background:var(--lavender)}
+.grid .card:nth-child(3n){background:var(--pink)}
+.card p{white-space:pre-wrap;line-height:1.7}
+.detail{max-width:800px;margin:15px auto 30px}
+.detail h1{font-size:clamp(30px,4vw,44px)}
+.price{font-size:29px;font-weight:bold}
 .badge{
-  display:inline-block;background:#ffffffb8;
-  padding:6px 10px;border-radius:20px;font-size:12px;
+  display:inline-block;background:#ffffff80;
+  border:1px solid #40374418;
+  padding:7px 12px;border-radius:24px;
+  font-size:11px;letter-spacing:1px;text-transform:uppercase;
 }
-button{
-  font:inherit;cursor:pointer;background:var(--ink);color:white;
-  border:0;border-radius:12px;padding:13px 18px;
-  margin:5px 8px 5px 0;
+button,.product-link{
+  display:inline-block;font:inherit;cursor:pointer;
+  background:var(--ink);color:white;border:0;
+  border-radius:28px;padding:13px 20px;
+  margin:6px 8px 6px 0;text-decoration:none;
 }
 button:disabled{opacity:.5;cursor:wait}
 .notice{white-space:pre-wrap;overflow-wrap:anywhere}
 .empty{
-  background:#ffffff99;border:1px dashed var(--line);
-  border-radius:16px;padding:20px;color:var(--muted);
+  background:var(--yellow);border-radius:20px;
+  padding:28px;line-height:1.8;
+}
+.request{
+  background:var(--lavender);padding:28px;
+  border-radius:24px;margin:35px 0;
+}
+.request .card{margin:15px 0;background:white}
+.back{display:inline-block;margin:12px 0}
+.resources{margin-top:40px}
+.resources .card{background:white}
+.file{
+  display:block;margin:12px 0;padding:14px;
+  background:var(--lavender);border-radius:12px;
 }
 dialog{
   width:min(620px,95vw);max-height:90vh;overflow:auto;
@@ -83,15 +100,11 @@ dialog{
   border:1px solid var(--line);border-radius:22px;padding:26px;
 }
 dialog::backdrop{background:#40374480}
-.file{
-  display:block;margin:12px 0;padding:14px;
-  background:var(--lavender);border-radius:12px;
-}
 video{width:100%;border-radius:12px}
 [hidden]{display:none!important}
 @media(max-width:600px){
   main{padding:20px 15px}
-  .hero{padding:25px}
+  .hero,.request,.card{padding:24px}
   .grid{grid-template-columns:1fr}
 }
 </style>
@@ -109,7 +122,7 @@ video{width:100%;border-radius:12px}
 
   <div class="hero">
     <span class="eyebrow">THE SGC SHOP</span>
-    <h1>A little support. A bigger next step.</h1>
+    <h1>Your dream. Your next step.</h1>
     <p>Learning material, practical tools and personal support for your business journey.</p>
     <p id="account" class="muted"></p>
   </div>
@@ -118,15 +131,44 @@ video{width:100%;border-radius:12px}
     Loading the shop…
   </p>
 
-  <h2>Explore the shop</h2>
-  <div id="shortcuts" class="shortcuts"></div>
+  <div class="menu">
+    <label for="category-menu"><strong>Explore the shop</strong></label>
+    <select id="category-menu"></select>
+  </div>
+
   <div id="catalogue"></div>
 
-  <section class="section">
+  <section class="request">
+    <h2>What would help you move forward?</h2>
+    <p>Request a product, learning material or assistance you would love SGC to offer.</p>
+
+    <form id="request-form">
+      <label for="request-category">Type of support</label>
+      <select id="request-category"></select>
+
+      <label for="request-body">Your request</label>
+      <textarea
+        id="request-body"
+        required
+        minlength="10"
+        maxlength="2000"
+        placeholder="Tell us what you need help with…"
+      ></textarea>
+
+      <button id="request-send" type="submit">Send my request</button>
+      <p id="request-status" role="status" aria-live="polite"></p>
+    </form>
+  </section>
+
+  <section id="admin-requests" class="request" hidden>
+    <h2>Student product requests</h2>
+    <button id="requests-refresh" type="button">Refresh requests</button>
+    <div id="requests-list"></div>
+  </section>
+
+  <section class="resources">
     <h2>Your purchased resources</h2>
-    <p class="muted">
-      Your available videos, manuals and files appear here after access is granted.
-    </p>
+    <p class="muted">Your available videos, manuals and files appear here after access is granted.</p>
     <div id="owned" class="grid"></div>
   </section>
 </main>
@@ -151,22 +193,18 @@ const sb = window.supabase?.createClient(
 );
 
 const sections = [
-  ['memberships','Memberships & kits',
-   'Your access to learning and implementation.'],
-  ['extras','Extras',
-   'Useful extras for your next step.'],
-  ['addons','Add-ons',
-   'Add more tools and support to your journey.'],
-  ['assistance','Assistance',
-   'Practical help when you need a hand.'],
-  ['coaching','Personal Coaching',
-   'Dedicated support for you and your business.'],
-  ['manuals','Manuals',
-   'Step-by-step implementation guides.'],
-  ['textbooks','Textbooks',
-   'Learning material to build your knowledge.']
+  ['memberships','Memberships & kits','Your access to learning and implementation.'],
+  ['extras','Extras','Useful extras for your next step.'],
+  ['addons','Add-ons','Add more tools and support to your journey.'],
+  ['assistance','Assistance','Practical help when you need a hand.'],
+  ['coaching','Personal Coaching','Dedicated support for you and your business.'],
+  ['manuals','Manuals','Step-by-step implementation guides.'],
+  ['textbooks','Textbooks','Learning material to build your knowledge.']
 ];
 
+const params = new URLSearchParams(location.search);
+
+let selected = params.get('category') || '';
 let user = null;
 let paymentBusy = false;
 
@@ -198,12 +236,51 @@ function category(product){
   if(/assistance|support/.test(text)) return 'assistance';
   if(/add[\s_-]*on/.test(text)) return 'addons';
   if(/extra/.test(text)) return 'extras';
+
   if(
     product.billing === 'monthly' ||
     /membership|\bkit\b/.test(text)
   ) return 'memberships';
 
   return 'extras';
+}
+
+function shopLink(categoryId,productId){
+  const query = new URLSearchParams();
+  if(categoryId) query.set('category',categoryId);
+  if(productId) query.set('product',productId);
+  const text = query.toString();
+  return 'shop.html' + (text ? '?' + text : '');
+}
+
+function productCard(product,detail=false){
+  const card = node(
+    'article',undefined,'card' + (detail ? ' detail' : '')
+  );
+
+  const title = sections.find(
+    section => section[0] === category(product)
+  )?.[1] || 'Extras';
+
+  card.append(
+    node('span',title,'badge'),
+    node(detail ? 'h1' : 'h3',product.name),
+    node('p',product.description || ''),
+    node('p',price(product),'price')
+  );
+
+  if(detail){
+    const button = node('button','View payment options →');
+    button.type = 'button';
+    button.onclick = () => checkout(product);
+    card.append(button);
+  }else{
+    const link = node('a','View product →','product-link');
+    link.href = shopLink(category(product),product.id);
+    card.append(link);
+  }
+
+  return card;
 }
 
 async function invoke(body){
@@ -219,7 +296,6 @@ async function invoke(body){
 
   if(!result.data) throw Error('No payment response was received.');
   if(result.data.error) throw Error(result.data.error);
-
   return result.data;
 }
 
@@ -245,8 +321,7 @@ async function checkout(product){
   try{
     const methods = check(
       await sb.from('sgc_payment_methods')
-        .select('*')
-        .eq('active',true)
+        .select('*').eq('active',true)
     );
 
     const ids = Array.isArray(product.payment_method_ids)
@@ -280,11 +355,9 @@ async function checkout(product){
 
           if(result.checkoutUrl){
             const url = new URL(result.checkoutUrl);
-
             if(url.protocol !== 'https:'){
               throw Error('Payment provider returned an invalid link.');
             }
-
             location.assign(url.href);
             return;
           }
@@ -340,9 +413,7 @@ async function loadResources(products){
       const product = products.find(item => item.id === id);
       const card = node('section',undefined,'card');
 
-      card.append(
-        node('h3',product?.name || 'Your learning resources')
-      );
+      card.append(node('h3',product?.name || 'Your learning resources'));
 
       for(const file of resources){
         try{
@@ -353,7 +424,6 @@ async function loadResources(products){
 
           if(file.kind === 'video'){
             card.append(node('h3',file.title));
-
             const video = node('video');
             video.controls = true;
             video.preload = 'metadata';
@@ -363,7 +433,6 @@ async function loadResources(products){
             const link = node(
               'a',file.title || 'Open resource','file'
             );
-
             link.href = signed.signedUrl;
             link.target = '_blank';
             link.rel = 'noopener';
@@ -385,23 +454,99 @@ async function loadResources(products){
 
     if(!files.length){
       $('owned').append(
-        node(
-          'p',
-          'Your available purchased files will appear here.',
-          'empty'
-        )
+        node('p','Your available purchased files will appear here.','empty')
       );
     }
   }catch(error){
     $('owned').append(
-      node(
-        'p',
-        'Unable to load your resources: ' + error.message,
-        'empty'
-      )
+      node('p','Unable to load your resources: ' + error.message,'empty')
     );
   }
 }
+
+async function reviewRequests(){
+  const list = $('requests-list');
+  list.textContent = 'Loading requests…';
+
+  try{
+    const rows = check(
+      await sb.rpc('sgc_shop_requests',{p_action:'list'})
+    );
+
+    list.replaceChildren();
+
+    for(const row of rows){
+      const categoryName = sections.find(
+        section => section[0] === row.category
+      )?.[1] || row.category;
+
+      const card = node('article',undefined,'card');
+
+      card.append(
+        node('h3',categoryName),
+        node('p',row.body,'notice'),
+        node(
+          'p',
+          (row.email || 'Student') + ' · ' +
+          new Date(row.created_at).toLocaleString('en-ZA'),
+          'muted'
+        )
+      );
+
+      list.append(card);
+    }
+
+    if(!rows.length) list.append(node('p','No requests yet.'));
+  }catch(error){
+    list.textContent = error.message;
+  }
+}
+
+$('requests-refresh').onclick = reviewRequests;
+
+$('request-form').onsubmit = async event => {
+  event.preventDefault();
+
+  if(!user){
+    $('request-status').textContent =
+      'Please sign in before sending your request.';
+    return;
+  }
+
+  const body = $('request-body').value.trim();
+
+  if(body.length < 10){
+    $('request-status').textContent =
+      'Please add at least 10 characters.';
+    return;
+  }
+
+  $('request-send').disabled = true;
+  $('request-status').textContent = 'Sending…';
+
+  try{
+    check(
+      await sb.rpc('sgc_shop_requests',{
+        p_action:'submit',
+        p_category:$('request-category').value,
+        p_body:body
+      })
+    );
+
+    $('request-body').value = '';
+    $('request-status').textContent =
+      'Thank you! Your request has been saved for SGC to review.';
+  }catch(error){
+    $('request-status').textContent =
+      'Your request was not sent: ' + error.message;
+  }finally{
+    $('request-send').disabled = false;
+  }
+};
+
+$('category-menu').onchange = () => {
+  location.assign(shopLink($('category-menu').value));
+};
 
 async function start(){
   if(!sb){
@@ -415,64 +560,113 @@ async function start(){
     ? 'Signed in as ' + user.email
     : 'Browse the shop, then sign in when you are ready to purchase.';
 
+  if(selected && !sections.some(section => section[0] === selected)){
+    selected = '';
+  }
+
+  const menu = $('category-menu');
+  const home = node('option','Choose a category');
+  home.value = '';
+  menu.append(home);
+
+  for(const [id,title] of sections){
+    const option = node('option',title);
+    option.value = id;
+    menu.append(option);
+
+    const requestOption = node('option',title);
+    requestOption.value = id;
+    $('request-category').append(requestOption);
+  }
+
+  menu.value = selected;
+  $('request-category').value = selected || 'assistance';
+
   const products = check(
     await sb.from('sgc_products')
-      .select('*')
-      .eq('active',true)
-      .order('created_at')
+      .select('*').eq('active',true).order('created_at')
   );
 
-  for(const [id,title,description] of sections){
-    const link = node('a',title);
-    link.href = '#' + id;
-    $('shortcuts').append(link);
+  const productId = params.get('product');
+  const currentProduct = products.find(product => product.id === productId);
+  const catalogue = $('catalogue');
 
-    const section = node('section',undefined,'section');
-    section.id = id;
+  if(productId){
+    const back = node('a','← Back to category','back');
+    back.href = shopLink(
+      currentProduct ? category(currentProduct) : selected
+    );
+    catalogue.append(back);
 
-    section.append(
-      node('h2',title),
-      node('p',description,'muted')
+    if(currentProduct){
+      menu.value = category(currentProduct);
+      $('request-category').value = category(currentProduct);
+      document.title = currentProduct.name + ' | SGC Network';
+      catalogue.append(productCard(currentProduct,true));
+    }else{
+      catalogue.append(
+        node(
+          'p',
+          'This product is currently unavailable. Please choose a category.',
+          'empty'
+        )
+      );
+    }
+
+  }else if(selected){
+    const section = sections.find(item => item[0] === selected);
+    document.title = section[1] + ' | SGC Network';
+
+    catalogue.append(
+      node('h2',section[1]),
+      node('p',section[2],'muted')
     );
 
     const grid = node('div',undefined,'grid');
-    const items = products.filter(product => category(product) === id);
+    const items = products.filter(
+      product => category(product) === selected
+    );
 
     for(const product of items){
-      const card = node('article',undefined,'card');
-      const button = node('button','View payment options');
-
-      button.type = 'button';
-      button.onclick = () => checkout(product);
-
-      card.append(
-        node('span',title,'badge'),
-        node('h3',product.name),
-        node('p',product.description || '','muted'),
-        node('p',price(product),'price'),
-        button
-      );
-
-      grid.append(card);
+      grid.append(productCard(product));
     }
 
     if(!items.length){
       grid.append(
         node(
           'p',
-          'New ' + title.toLowerCase() +
-          ' will appear here when published.',
+          'More assistance is coming to help you achieve your dream. ' +
+          'Leave a request below and tell us what you need.',
           'empty'
         )
       );
     }
 
-    section.append(grid);
-    $('catalogue').append(section);
+    catalogue.append(grid);
+
+  }else{
+    catalogue.append(
+      node('h2','Find support for your next step.'),
+      node(
+        'p',
+        'Choose a category from the dropdown to explore its products. ' +
+        'Each product opens on its own page.',
+        'muted'
+      )
+    );
   }
 
   $('status').textContent = '';
   await loadResources(products);
+
+  if(user){
+    const admin = await sb.rpc('sgc_extra_is_admin');
+
+    if(!admin.error && admin.data === true){
+      $('admin-requests').hidden = false;
+      await reviewRequests();
+    }
+  }
 }
 
 start().catch(error => {
