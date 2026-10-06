@@ -36,8 +36,6 @@ main{margin-left:245px;padding:25px 30px 50px}
 .video{aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse,#211e16,#0b0b0a);text-align:center}
 .video iframe{width:100%;height:100%;border:0}
 .video video{width:100%;height:100%;object-fit:contain;background:#000}
-.photo{max-width:100%;max-height:400px;object-fit:contain;display:block;margin:14px 0}
-.photo-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
 .sticky{background:#f2c9d6;color:#39272f;padding:18px;margin:18px 0;transform:rotate(-1deg);box-shadow:3px 4px 0 #0003}
 .sticky p{font:20px/1.5 Georgia,serif;margin:12px 0}
 .sticky small{font-size:10px;letter-spacing:.1em}
@@ -59,8 +57,6 @@ legend{line-height:1.7;font-weight:bold}
 textarea{display:block;width:100%;background:#090909;color:var(--text);border:1px solid var(--line);padding:15px;margin:12px 0;min-height:130px;line-height:1.7}
 label{line-height:1.7}
 .row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.post{border:1px solid var(--line);padding:18px;margin:15px 0}
-.comments{padding-left:20px}
 #quiz-submit{width:100%;margin-top:18px}
 .resource{display:block;padding:14px;border:1px solid var(--line);margin:10px 0}
 .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
@@ -129,9 +125,7 @@ label{line-height:1.7}
 <button id="save-notes" class="btn alt">Save notes</button>
 <p id="notes-status" class="muted" role="status"></p>
 </section>
-<section id="files-panel" class="inside" hidden>
-<div id="files"></div>
-</section>
+<section id="files-panel" class="inside" hidden><div id="files"></div></section>
 </section>
 <div class="steps">
 <div><span>01</span><h3>Learn</h3><p class="muted">Watch and review the lesson.</p></div>
@@ -163,10 +157,9 @@ const sb=window.supabase?.createClient(
  'https://bxpexanyoyubxeqqlggh.supabase.co',
  'sb_publishable_Z0_Y-Bj_G5qw4hMgDbQlgA__jj8rGGq'
 );
-
 let user,lessons=[],responses=new Map(),current=null,questions=[];
-let busy=false,dirty=false,quizDirty=false,view='learn';
-let moduleNames=new Map(),communityCategory='faq';
+let busy=false,dirty=false,quizDirty=false;
+let moduleNames=new Map();
 
 function n(tag,text,cls){
  const e=document.createElement(tag);
@@ -176,7 +169,6 @@ function n(tag,text,cls){
 }
 function check(r){if(r.error)throw r.error;return r.data;}
 function say(t){$('status').textContent=t;}
-
 function safe(fn){
  return async(...args)=>{
   const b=args[0]?.currentTarget;
@@ -187,44 +179,37 @@ function safe(fn){
   finally{if(b?.isConnected)b.disabled=false;}
  };
 }
-
 function btn(text,fn){
  const b=n('button',text,'btn alt small');
- b.type='button';
- b.onclick=safe(fn);
+ b.type='button';b.onclick=safe(fn);
  return b;
 }
 function index(){return lessons.findIndex(l=>l.id===current);}
-
 function controls(){
  for(const id of [
-  'refresh','save-notes','quiz-submit','continue','logout',
-  'notes','learn','connect','preferences'
+  'refresh','save-notes','quiz-submit','continue',
+  'logout','notes','learn','connect','preferences'
  ])$(id).disabled=busy;
  $('previous').disabled=busy||index()<=0;
  $('next').disabled=busy||index()<0||index()>=lessons.length-1;
  document.querySelectorAll('.lesson').forEach(b=>b.disabled=busy);
  document.querySelectorAll('#questions input').forEach(b=>b.disabled=busy);
 }
-
 function guard(){
  if(dirty){say('Save your personal notes before changing lessons.');return false;}
  if(quizDirty){say('Submit your selected quiz answers before changing lessons.');return false;}
  return true;
 }
-
 function sidebar(){
- const list=$('lesson-list');
- list.replaceChildren();
+ const list=$('lesson-list');list.replaceChildren();
  let module=null;
  for(const l of lessons){
   if(module!==l.module_no){
    module=l.module_no;
    list.append(n('div',moduleNames.get(module)||'Module '+module,'module'));
   }
-  const done=responses.get(l.id)?.completed;
-  const b=n('button',(done?'✓ ':'')+l.position+'. '+l.title,
-   'lesson'+(l.id===current?' active':''));
+  const b=n('button',(responses.get(l.id)?.completed?'✓ ':'')+
+   l.position+'. '+l.title,'lesson'+(l.id===current?' active':''));
   b.onclick=safe(()=>open(l.id));
   list.append(b);
  }
@@ -234,49 +219,12 @@ function sidebar(){
  $('bar').style.width=percent+'%';
  controls();
 }
-
-async function load(){
- if(busy||!guard())return;
- busy=true;controls();say('Loading lessons…');
- try{
-  const demo=check(await sb.rpc('sgc_extra_is_demo'));
-  const mods=check(await sb.from('sgc_console_modules').select('module_no,title'));
-  moduleNames=new Map(mods.map(m=>[m.module_no,m.title]));
-
-  lessons=check(await sb.from('sgc_extra_lessons')
-   .select('id,title,module_no,position')
-   .eq('published',true).order('module_no').order('position'))||[];
-
-  const saved=check(await sb.from('sgc_extra_responses')
-   .select('lesson_id,answer,completed').eq('user_id',user.id))||[];
-
-  responses=new Map(saved.map(r=>[r.lesson_id,r]));
-  $('access').textContent=demo?
-   'Full student demo · All published lessons':
-   'Your purchased levels and available modules';
-
-  sidebar();
-  $('empty').hidden=!!lessons.length;
-  $('empty').textContent=demo?
-   'No published lessons yet. Publish a lesson in admin and refresh.':
-   'No published lessons are available for your purchases and release dates.';
-  say('');
- }finally{busy=false;controls();}
-
- if(lessons.length){
-  await open(lessons.some(l=>l.id===current)?current:
-   (lessons.find(l=>!responses.get(l.id)?.completed)||lessons[0]).id);
- }else $('classroom').hidden=true;
- await loadQuote();
-}
-
 async function setting(key){
  const rows=check(await sb.from('site_content')
   .select('content_value').eq('content_key',key).limit(1));
  try{return JSON.parse(rows[0]?.content_value||'{}');}
  catch{return {};}
 }
-
 async function loadQuote(){
  const q=await setting('sgc.quote.daily');
  const today=new Intl.DateTimeFormat('en-CA',{
@@ -284,22 +232,48 @@ async function loadQuote(){
  }).format(new Date());
  $('daily-quote').hidden=!q.text||(q.date&&q.date>today);
  $('daily-quote').replaceChildren(
-  n('small','QUOTE FOR THE DAY'),n('p',q.text||''),
-  n('small',q.author||'SGC Network')
+  n('small','QUOTE FOR THE DAY'),
+  n('p',q.text||''),n('small',q.author||'SGC Network')
  );
 }
-
+async function load(){
+ if(busy||!guard())return;
+ busy=true;controls();say('Loading lessons…');
+ try{
+  const demo=check(await sb.rpc('sgc_extra_is_demo'));
+  const mods=check(await sb.from('sgc_console_modules').select('module_no,title'));
+  moduleNames=new Map(mods.map(m=>[m.module_no,m.title]));
+  lessons=check(await sb.from('sgc_extra_lessons')
+   .select('id,title,module_no,position').eq('published',true)
+   .order('module_no').order('position'))||[];
+  const saved=check(await sb.from('sgc_extra_responses')
+   .select('lesson_id,answer,completed').eq('user_id',user.id))||[];
+  responses=new Map(saved.map(r=>[r.lesson_id,r]));
+  $('access').textContent=demo?
+   'Full student demo · All published lessons':
+   'Your purchased levels and available modules';
+  sidebar();
+  $('empty').hidden=!!lessons.length;
+  $('empty').textContent=demo?
+   'No published lessons yet. Publish a lesson in admin and refresh.':
+   'No published lessons are available for your purchases and release dates.';
+  say('');
+ }finally{busy=false;controls();}
+ if(lessons.length){
+  await open(lessons.some(l=>l.id===current)?current:
+   (lessons.find(l=>!responses.get(l.id)?.completed)||lessons[0]).id);
+ }else $('classroom').hidden=true;
+ await loadQuote();
+}
 function showVideo(url){
  const v=n('video');
  v.controls=true;v.preload='metadata';v.playsInline=true;v.src=url;
  $('video').replaceChildren(v);
 }
-
 function externalVideo(url){
  const u=new URL(url);
  if(u.protocol!=='https:')throw Error('Video links must use HTTPS');
  let embed;
-
  if(['youtu.be','youtube.com','www.youtube.com','www.youtube-nocookie.com']
   .includes(u.hostname)){
   const id=u.hostname==='youtu.be'?u.pathname.slice(1):
@@ -310,57 +284,41 @@ function externalVideo(url){
   const id=u.pathname.split('/').filter(Boolean).pop();
   if(!/^\d+$/.test(id))throw Error('Invalid Vimeo link');
   embed='https://player.vimeo.com/video/'+id;
- }else{return showVideo(url);}
-
+ }else return showVideo(url);
  const f=n('iframe');
  f.title='Teaching video';f.src=embed;f.allowFullscreen=true;
  $('video').replaceChildren(f);
 }
-
 async function mediaFile(r){
  const url=check(await sb.storage.from('sgc-academy-extra')
   .createSignedUrl(r.path,3600)).signedUrl;
-
  if(/\.pdf$/i.test(r.path)){
-  const f=n('iframe');
-  f.src=url;f.title=r.title;
+  const f=n('iframe');f.src=url;f.title=r.title;
   $('video').replaceChildren(f);
  }else if(r.kind==='presentation'){
   const box=n('div');
   box.append(n('div','SGC','watermark'),n('p',r.title,'muted'));
   const a=n('a','Open PowerPoint presentation ↗','btn alt');
   a.href=url;a.target='_blank';a.rel='noopener';
-  box.append(a);
-  $('video').replaceChildren(box);
+  box.append(a);$('video').replaceChildren(box);
  }else showVideo(url);
 }
-
 async function open(id){
  if(busy||!guard())return;
- busy=true;controls();
- $('classroom').hidden=true;
- say('Opening lesson…');
-
+ busy=true;controls();$('classroom').hidden=true;say('Opening lesson…');
  try{
   const lesson=check(await sb.from('sgc_extra_lessons')
    .select('*').eq('id',id).eq('published',true).single());
-
-  questions=check(await sb.rpc('sgc_quiz',{
-   p_lesson:id,p_answers:null
-  }));
-
+  questions=check(await sb.rpc('sgc_quiz',{p_lesson:id,p_answers:null}));
   const saved=check(await sb.from('sgc_extra_responses')
    .select('answer,completed').eq('user_id',user.id)
    .eq('lesson_id',id).maybeSingle());
-
   const resources=check(await sb.from('sgc_extra_resources')
    .select('title,path,kind').eq('lesson_id',id).neq('kind','admin'))||[];
-
   const config=await setting('sgc.lesson.'+id);
   $('reflection-title').textContent=config.reflection_title||'Before we continue…';
   $('reflection-intro').textContent=config.reflection_intro||
    'Choose your answers and apply what you learn.';
-
   $('video').replaceChildren();
   $('videos').replaceChildren();
   $('files').replaceChildren();
@@ -409,11 +367,9 @@ async function open(id){
   $('title').textContent=lesson.title;
   $('module').textContent=(moduleNames.get(lesson.module_no)||
    'Module '+lesson.module_no)+' · Lesson '+lesson.position;
-
   const moduleLessons=lessons.filter(l=>l.module_no===lesson.module_no);
   $('part').textContent='Module '+lesson.module_no+' · Part '+
    (moduleLessons.findIndex(l=>l.id===id)+1)+' of '+moduleLessons.length;
-
   $('body').textContent=lesson.body||'Lesson notes will appear here.';
   $('prompt').textContent=lesson.prompt||'Choose one answer for each question below.';
   $('notes').value=saved?.answer||'';
@@ -425,13 +381,11 @@ async function open(id){
    const field=n('fieldset');
    field.append(n('legend',q.prompt));
    q.options.forEach((option,i)=>{
-    const label=n('label',undefined,'choice');
-    const radio=n('input');
+    const label=n('label',undefined,'choice'),radio=n('input');
     radio.type='radio';radio.name='q-'+q.id;
     radio.value=String(i);radio.required=true;
     radio.onchange=()=>{quizDirty=true;};
-    label.append(radio,n('span',option));
-    field.append(label);
+    label.append(radio,n('span',option));field.append(label);
    });
    $('questions').append(field);
   }
@@ -440,18 +394,13 @@ async function open(id){
   $('quiz-status').textContent=!questions.length?
    'Your facilitator has not added a quiz yet.':
    saved?.completed?'You have completed this lesson. You can submit another attempt.':'';
-
   $('continue').hidden=!saved?.completed;
-  dirty=false;quizDirty=false;view='learn';
-  $('other').hidden=true;
-  $('classroom').hidden=false;
-  $('empty').hidden=true;
-  showTab('notes');
-  sidebar();
+  dirty=false;quizDirty=false;
+  $('other').hidden=true;$('classroom').hidden=false;$('empty').hidden=true;
+  showTab('notes');sidebar();
   say(failures?failures+' resources could not load.':'');
  }finally{busy=false;controls();}
 }
-
 function showTab(tab){
  $('notes-panel').hidden=tab!=='notes';
  $('files-panel').hidden=tab!=='files';
@@ -467,8 +416,7 @@ $('save-notes').onclick=safe(async()=>{
   const answer=$('notes').value;
   check(await sb.rpc('sgc_save_notes',{p_lesson:current,p_notes:answer}));
   responses.set(current,{...responses.get(current),answer});
-  dirty=false;
-  $('notes-status').textContent='Your notes are saved.';
+  dirty=false;$('notes-status').textContent='Your notes are saved.';
  }finally{busy=false;controls();}
 });
 
@@ -483,14 +431,11 @@ $('quiz-form').onsubmit=async e=>{
    if(!selected)throw Error('Select an answer for every question.');
    answers[q.id]=Number(selected.value);
   }
-  const grade=check(await sb.rpc('sgc_quiz',{
-   p_lesson:current,p_answers:answers
-  }));
+  const grade=check(await sb.rpc('sgc_quiz',{p_lesson:current,p_answers:answers}));
   responses.set(current,{...responses.get(current),completed:true});
   quizDirty=false;
   $('quiz-status').textContent='Submitted. Score: '+grade.score+' / '+grade.maximum+'.';
-  $('continue').hidden=false;
-  sidebar();
+  $('continue').hidden=false;sidebar();
  }catch(err){$('quiz-status').textContent=err.message;}
  finally{busy=false;controls();}
 };
@@ -509,217 +454,27 @@ $('next').onclick=safe(()=>{
 $('refresh').onclick=safe(load);
 $('learn').onclick=safe(load);
 
+$('connect').onclick=safe(()=>{
+ if(guard())location.href='community.html';
+});
+
 function other(title){
- $('classroom').hidden=true;
- $('empty').hidden=true;
- $('other').hidden=false;
+ $('classroom').hidden=true;$('empty').hidden=true;$('other').hidden=false;
  $('other').replaceChildren(n('h1',title));
  return $('other');
 }
-
-async function community(group=null){
- if(busy||!guard())return;
- busy=true;controls();
- try{
-  view='community';
-  const root=other('Your community');
-
-  if(!group){
-   const groups=check(await sb.rpc('sgc_community',{}));
-   const categories=await setting('sgc.community.categories');
-   const tabs=n('div',undefined,'row');
-   const area=n('div');
-   root.append(tabs,area);
-
-   function category(key){
-    communityCategory=key;
-    area.replaceChildren();
-    const matches=groups.filter(g=>(categories[g.id]||'niche')===key);
-    if(!matches.length){
-     area.append(n('p',
-      'No spaces in this category are available for your access yet.','muted'));
-    }
-    for(const g of matches){
-     const p=n('section',undefined,'panel');
-     p.append(n('h2',g.name),n('p',g.description,'muted'),
-      btn(key==='niche'?'Enter niche community':'Open discussion',()=>community(g)));
-     area.append(p);
-    }
-   }
-
-   for(const [key,label] of [
-    ['faq','FAQs & assistance'],
-    ['niche','Niche groups'],
-    ['academy','Academy progress & struggles']
-   ])tabs.append(btn(label,()=>category(key)));
-
-   category(communityCategory);
-   return;
-  }
-
-  root.append(btn('← All community spaces',()=>community()),
-   n('h2',group.name),n('p',group.description,'muted'));
-
-  const posts=check(await sb.rpc('sgc_community',{p_group:group.id}));
-  const compose=n('textarea');
-  compose.placeholder='Share your progress, struggles or question…';
-  compose.maxLength=10000;
-
-  const photos=n('input');
-  photos.type='file';
-  photos.accept='image/jpeg,image/png,image/webp';
-  photos.multiple=true;
-
-  const label=n('label','Add up to five photographs (5 MB each)');
-  label.append(photos);
-
-  const previews=n('div',undefined,'photo-grid');
-  let previewURLs=[];
-
-  photos.onchange=()=>{
-   previewURLs.forEach(u=>URL.revokeObjectURL(u));
-   previewURLs=[];
-   previews.replaceChildren();
-   for(const file of [...photos.files].slice(0,5)){
-    if(!file.type.startsWith('image/'))continue;
-    const img=n('img');
-    img.src=URL.createObjectURL(file);
-    previewURLs.push(img.src);
-    img.alt='Selected photograph';img.className='photo';
-    previews.append(img);
-   }
-  };
-
-  const local=n('p','','muted');
-
-  const postButton=btn('Publish post',async()=>{
-   if(busy)return;
-   const files=[...photos.files];
-
-   if(!compose.value.trim())throw Error('Write a message for your post');
-   if(files.length>5)throw Error('Select no more than five photographs');
-
-   for(const f of files){
-    if(f.size>5242880||!['image/jpeg','image/png','image/webp'].includes(f.type)){
-     throw Error('Use JPG, PNG or WebP images below 5 MB');
-    }
-   }
-
-   busy=true;controls();
-   compose.disabled=photos.disabled=postButton.disabled=true;
-   const paths=[];
-   let saved=false;
-
-   try{
-    for(const f of files){
-     const ext={'image/jpeg':'jpg','image/png':'png','image/webp':'webp'}[f.type];
-     const path=user.id+'/'+crypto.randomUUID()+'.'+ext;
-     local.textContent='Uploading photographs…';
-     check(await sb.storage.from('sgc-community')
-      .upload(path,f,{contentType:f.type}));
-     paths.push(path);
-    }
-
-    local.textContent='Saving post…';
-    check(await sb.rpc('sgc_student_post',{
-     p_group:group.id,p_body:compose.value,p_paths:paths
-    }));
-    saved=true;
-    previewURLs.forEach(u=>URL.revokeObjectURL(u));
-    local.textContent='Post published.';
-   }catch(e){
-    if(!saved&&paths.length)await sb.storage.from('sgc-community').remove(paths);
-    local.textContent='Could not publish: '+e.message;
-    throw e;
-   }finally{
-    busy=false;controls();
-    compose.disabled=photos.disabled=postButton.disabled=false;
-   }
-
-   if(saved)await community(group);
-  });
-
-  root.append(compose,label,previews,postButton,local);
-
-  let images=[];
-  if(posts.length){
-   const r=await sb.from('sgc_post_images').select('post_id,path')
-    .in('post_id',posts.map(p=>p.id));
-   if(r.error)say('Photo connection unavailable. Install the admin Setup database upgrade.');
-   else images=r.data;
-  }
-
-  for(const post of posts){
-   const p=n('article',undefined,'post');
-   p.append(
-    n('strong',post.author),
-    n('p',new Date(post.created_at).toLocaleString('en-ZA'),'muted'),
-    n('div',post.body,'content')
-   );
-
-   for(const im of images.filter(x=>x.post_id===post.id)){
-    try{
-     const signed=check(await sb.storage.from('sgc-community')
-      .createSignedUrl(im.path,3600));
-     const img=n('img');
-     img.src=signed.signedUrl;
-     img.alt='Community progress photograph';
-     img.className='photo';img.loading='lazy';
-     p.append(img);
-    }catch{p.append(n('p','Photograph unavailable.','muted'));}
-   }
-
-   p.append(btn('View comments / reply',async()=>{
-    let comments=p.querySelector('.comments');
-    if(comments){comments.remove();return;}
-
-    comments=n('div',undefined,'comments');
-    const rows=check(await sb.rpc('sgc_community',{p_post:post.id}));
-    for(const c of rows)comments.append(n('p',c.author+': '+c.body));
-
-    const input=n('textarea');
-    input.placeholder='Write a supportive comment…';
-    input.maxLength=10000;
-
-    comments.append(input,btn('Post comment',async()=>{
-     if(!input.value.trim())throw Error('Enter a comment');
-     input.disabled=true;
-     try{
-      check(await sb.rpc('sgc_community',{
-       p_post:post.id,p_body:input.value
-      }));
-      await community(group);
-     }finally{input.disabled=false;}
-    }));
-    p.append(comments);
-   }));
-   root.append(p);
-  }
- }finally{busy=false;controls();}
-}
-
-$('connect').onclick=safe(()=>community());
-
 async function preferences(){
  if(busy||!guard())return;
- view='preferences';
  const root=other('Email preferences');
-
  const existing=check(await sb.from('sgc_email_preferences')
   .select('*').eq('user_id',user.id).maybeSingle());
-
  const marketing=n('input');
- marketing.type='checkbox';
- marketing.checked=existing?.marketing_opt_in||false;
-
+ marketing.type='checkbox';marketing.checked=existing?.marketing_opt_in||false;
  const unsub=n('input');
- unsub.type='checkbox';
- unsub.checked=existing?.unsubscribed||false;
-
+ unsub.type='checkbox';unsub.checked=existing?.unsubscribed||false;
  const a=n('label'),b=n('label');
  a.append(marketing,document.createTextNode(' I would like SGC marketing emails.'));
  b.append(unsub,document.createTextNode(' Unsubscribe from SGC broadcasts.'));
-
  const p=n('section',undefined,'panel');
  p.append(a,n('br'),b,n('p',
   'Account confirmation and essential account emails are managed separately.','muted'),
@@ -739,7 +494,6 @@ $('logout').onclick=safe(async()=>{
  sessionStorage.removeItem('sgc-extra-session');
  location.href='login.html';
 });
-
 window.addEventListener('beforeunload',e=>{
  if(dirty||quizDirty){e.preventDefault();e.returnValue='';}
 });
@@ -748,7 +502,6 @@ async function start(){
  if(!sb)throw Error('Supabase library could not load.');
  const existing=await sb.auth.getUser();
  user=existing.data.user;
-
  if(!user){
   const raw=sessionStorage.getItem('sgc-extra-session');
   if(raw){
@@ -761,17 +514,15 @@ async function start(){
    user=check(await sb.auth.getUser()).user;
   }
  }
-
  if(!user){location.href='login.html';return;}
+ if(location.hash==='#community'){
+  location.replace('community.html');return;
+ }
  $('email').textContent=user.email;
  await load();
- const admin=check(await sb.rpc('sgc_extra_is_admin'));
- $('admin').hidden=!admin;
-
+ $('admin').hidden=!check(await sb.rpc('sgc_extra_is_admin'));
  if(location.hash==='#email-preferences')await preferences();
- else if(location.hash==='#community')await community();
 }
-
 start().catch(e=>say(e.message));
 </script>
 </body>
