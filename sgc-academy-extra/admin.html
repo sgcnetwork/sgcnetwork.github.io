@@ -661,7 +661,7 @@ let workingV2 = false, dirtyV2 = false, upgradeV2 = false;
 let plansV2, productsV2 = [], contentV2 = [], groupsV2 = {};
 
 const sections = [
-  "Overview", "Modules & lessons", "Students", "Memberships",
+  "Overview", "Reports", "Modules & lessons", "Students", "Memberships",
   "Purchases & payments", "Submissions", "Website & quotes",
   "Products & files", "Community", "Waitlist", "Email campaigns",
   "AI assistant", "Audit history", "Setup"
@@ -976,6 +976,163 @@ async function openEditor(table, record = {}, defaults = {}) {
   $("editor").showModal();
 }
 
+
+// SGC REPORTS CENTRE — reporting only; existing booking/payment workflows unchanged.
+const SGC_REPORT_CONFIG = {
+  'Meeting Bookings': {sources:['sgc_bookings'], date:['created_at','booked_at'], fields:['id','name','email','user_id','created_at','starts_at','ends_at','amount_zar','status','payment_status','payment_method','notes']},
+  'Payment History': {sources:['payments'], date:['created_at','paid_at','payment_date','updated_at'], fields:['id','user_id','amount','amount_zar','payment_method','payment_type','payment_status','status','provider','transaction_id','created_at','paid_at']},
+  'Academy Students': {sources:['students'], date:['created_at','registered_at','email_confirmed_at'], fields:['id','email','full_name','created_at','email_confirmed_at','last_sign_in_at']},
+  'Memberships & Enrolments': {sources:['memberships','sgc_access_grants'], date:['starts_at','start_date','created_at','joined_at'], fields:['id','user_id','membership_type','access_level','status','active','starts_at','ends_at','created_at','reason']},
+  'Course Progress': {sources:['lesson_progress','sgc_extra_responses'], date:['completed_at','updated_at','created_at'], fields:['id','user_id','lesson_id','module_id','completed','completed_at','created_at','updated_at']},
+  'Assessment Results': {sources:['sgc_quiz_submissions','student_answers'], date:['submitted_at','created_at','updated_at'], fields:['id','user_id','lesson_id','score','total_points','passed','reviewed','created_at','submitted_at','admin_feedback']},
+  'Shop Orders': {sources:['customer_kits'], date:['created_at','purchased_at','updated_at'], fields:['id','user_id','kit_id','status','total_price_zar','amount_paid_zar','created_at','updated_at']},
+  'Waitlist': {sources:['sgc_academy_waitlist','academy_waitlist'], date:['created_at','joined_at','signup_date'], fields:['id','email','user_id','status','created_at','joined_at']},
+  'Recording History': {sources:['sgc_meeting_recordings'], date:['published_at','created_at'], fields:['id','booking_id','title','published_at','student_expires_at','published_by','drive_file_id']}
+};
+let sgcReportRows=[], sgcReportColumns=[];
+function sgcReportLocalDate(value){
+  if(!value)return null;
+  const d=new Date(value);
+  if(!Number.isFinite(d.getTime()))return null;
+  const p=new Intl.DateTimeFormat('en-CA',{timeZone:'Africa/Johannesburg',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(d);
+  const get=t=>p.find(x=>x.type===t)?.value||'';
+  return get('year')+'-'+get('month')+'-'+get('day');
+}
+function sgcReportStatus(row){
+  return String(row.status??row.payment_status??(row.active===true?'active':row.active===false?'inactive':'')).toLowerCase();
+}
+async function sgcReportFetch(source){
+  // Students is a virtual source served by the existing admin console RPC.
+  if(source==='students')return await all('students');
+  // SQL RPC pages at 200; keep reading until all matching records are fetched.
+  const rows=[];
+  for(let start=0;;start+=200){
+    const page=check(await sb.rpc('sgc_reports_read',{p_source:source,p_offset:start,p_limit:200}));
+    if(!Array.isArray(page))throw Error('Unexpected response for '+source);
+    rows.push(...page);
+    if(page.length<200)break;
+    if(start>=1000000)throw Error('Too many rows for browser export. Narrow the date range.');
+  }
+  return rows;
+}
+async function sgcReportsView(){
+  const root=$('content');root.replaceChildren();
+  const p=panel('Reports Centre');
+  p.append(n('p','Choose a report, date range and status, then generate a preview or download a CSV. Dates use Johannesburg time. Only admin accounts can access reporting data.','muted'));
+  const form=n('form');form.autocomplete='off';
+  const grid=n('div',undefined,'grid');
+  const types=n('select');
+  for(const key of Object.keys(SGC_REPORT_CONFIG)){const opt=n('option',key);opt.value=key;types.append(opt);}
+  types.value='Meeting Bookings';
+  const reportType=n('div');reportType.append(n('label','Report type'),types);
+  const fromWrap=n('div'),toWrap=n('div'),statusWrap=n('div');
+  const from=n('input');from.type='date';from.value='2026-10-01';
+  const to=n('input');to.type='date';to.value='2026-10-31';
+  const status=n('select');
+  for(const [value,label] of [['all','All records'],['active','Active / Confirmed / Paid'],['archived','Archived / Cancelled / Inactive']]){
+    const o=n('option',label);o.value=value;status.append(o);
+  }
+  fromWrap.append(n('label','From date'),from);toWrap.append(n('label','To date'),to);
+  statusWrap.append(n('label','Status'),status);
+  grid.append(reportType,fromWrap,toWrap,statusWrap);
+  const actions=n('div',undefined,'row');
+  const generate=button('Generate report',()=>form.requestSubmit());generate.type='submit';
+  const download=button('Download CSV',()=>{
+    if(!sgcReportRows.length)return alert('Generate a report with matching records first.');
+    const label=types.value.toLowerCase().replace(/[^a-z0-9]+/g,'_');
+    sgcDownloadCSV('SGC_'+label+'_'+from.value+'_to_'+to.value+'.csv',sgcReportRows);
+  },true);download.disabled=true;
+  actions.append(generate,download);
+  const summary=n('p','Choose filters and click Generate report.','muted');summary.setAttribute('role','status');
+  const results=n('div');
+  const tableStyle=n('style');tableStyle.textContent='.sgc-reports-table{min-width:900px}.sgc-reports-table th{white-space:nowrap;color:#e9ce8a;background:#28231c;position:sticky;top:0}.sgc-reports-table td{max-width:290px;white-space:pre-wrap;overflow-wrap:anywhere}.sgc-report-scroll{overflow:auto;max-height:65vh;border:1px solid #393329;border-radius:10px}';
+  p.append(form,summary,results,tableStyle);
+  form.append(grid,actions);
+  let reportVersion=0;
+  const renderPreview=()=>{
+    results.replaceChildren();
+    if(!sgcReportRows.length){results.append(n('p','No records match this report and date range.','muted'));return;}
+    const scroller=n('div',undefined,'sgc-report-scroll'),t=n('table',undefined,'sgc-reports-table'),head=n('tr');
+    sgcReportColumns.forEach(c=>head.append(n('th',c.replaceAll('_',' '))));
+    const thead=n('thead');thead.append(head);t.append(thead);
+    const body=n('tbody');
+    for(const r of sgcReportRows.slice(0,100)){
+      const tr=n('tr');
+      for(const c of sgcReportColumns){const v=r[c];const s=v==null?'':typeof v==='object'?JSON.stringify(v):String(v);tr.append(n('td',s.length>350?s.slice(0,350)+'…':s));}
+      body.append(tr);
+    }
+    t.append(body);scroller.append(t);results.append(scroller);
+    if(sgcReportRows.length>100)results.append(n('p','Showing the first 100 rows in the preview. The CSV includes all '+sgcReportRows.length+' matching rows.','muted'));
+  };
+  form.addEventListener('submit',async e=>{
+    e.preventDefault();
+    if(!from.value||!to.value||from.value>to.value)return alert('Select a valid date range.');
+    const version=++reportVersion;
+    generate.disabled=true;download.disabled=true;sgcReportRows=[];sgcReportColumns=[];
+    results.replaceChildren();summary.textContent='Generating report…';
+    try{
+      const cfg=SGC_REPORT_CONFIG[types.value];
+      const sets=await Promise.all(cfg.sources.map(async source=>({source,rows:await sgcReportFetch(source)})));
+      if(version!==reportVersion)return;
+      let missingDate=0;
+      const allRows=[];
+      for(const set of sets){
+        for(const row of set.rows){
+          const dateField=cfg.date.find(f=>row[f]!=null&&row[f]!=='');
+          if(!dateField){missingDate++;continue;}
+          const day=sgcReportLocalDate(row[dateField]);
+          if(!day||day<from.value||day>to.value)continue;
+          const s=sgcReportStatus(row);
+          const archived=(s==='cancelled'||s==='canceled'||s==='expired'||s==='inactive'||s==='archived'||s==='failed');
+          const active=(s==='active'||s==='confirmed'||s==='paid'||s==='completed'||s==='success'||s==='successful');
+          if(types.value!=='Meeting Bookings'){
+            if(status.value==='archived'&&!archived)continue;
+            if(status.value==='active'&&!active)continue;
+          }
+          allRows.push({...row,report_source:set.source});
+        }
+      }
+      // Include archived bookings in status filtering using the existing archive RPC.
+      if(types.value==='Meeting Bookings'){
+        const ids=check(await sb.rpc('sgc_admin_booking_archive',{p_action:'list'}))||[];
+        const archived=new Set(ids.map(x=>typeof x==='string'?x:x.booking_id));
+        for(const row of allRows)row.archived_in_admin=archived.has(row.id);
+        if(status.value==='archived')sgcReportRows=allRows.filter(r=>r.archived_in_admin||['cancelled','expired'].includes(sgcReportStatus(r)));
+        else if(status.value==='active')sgcReportRows=allRows.filter(r=>!r.archived_in_admin&&['confirmed','paid','active','completed'].includes(sgcReportStatus(r)));
+        else sgcReportRows=allRows;
+      } else sgcReportRows=allRows;
+      sgcReportColumns=[...new Set([...cfg.fields.filter(k=>sgcReportRows.some(r=>Object.prototype.hasOwnProperty.call(r,k))),...sgcReportRows.flatMap(r=>Object.keys(r))])];
+      summary.textContent=sgcReportRows.length+' matching records · '+types.value+' · '+from.value+' to '+to.value+(missingDate?' · '+missingDate+' records had no usable report date and were excluded':'');
+      download.disabled=!sgcReportRows.length;renderPreview();
+    }catch(err){summary.textContent='Report failed: '+err.message;results.replaceChildren();console.error(err);}
+    finally{generate.disabled=false;}
+  });
+}
+
+// CSV exports use full admin-authorized datasets, not just visible table pages.
+function sgcDownloadCSV(filename, rows) {
+  if (!Array.isArray(rows) || !rows.length) { alert('No records available to export.'); return; }
+  const columns = [...new Set(rows.flatMap(r => Object.keys(r || {})))];
+  const cell = value => {
+    let str = value == null ? '' : typeof value === 'object' ? JSON.stringify(value) : String(value);
+    // Prevent CSV formula injection when opened in Excel or other spreadsheet software.
+    if (/^[\s\u0000-\u001f]*[=+@-]/.test(str)) str = "'" + str;
+    return '"' + str.replace(/"/g, '""') + '"';
+  };
+  const csv = '\uFEFF' + [columns.map(cell).join(','), ...rows.map(row => columns.map(k => cell(row[k])).join(','))].join('\r\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download=filename.replace(/[^a-zA-Z0-9_.-]/g,'_');
+  document.body.append(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+function sgcExportButton(table) {
+  return button('Download all ' + table.replaceAll('_',' ') + ' CSV', async () => {
+    const rows = await all(table);
+    sgcDownloadCSV('SGC_' + table + '_' + new Date().toISOString().slice(0,10) + '.csv', rows);
+  }, true);
+}
+
 async function tableView(parent, table, rows, editable = true, extra) {
   const wrap = n("div", undefined, "table-wrap");
   const t = n("table");
@@ -1030,6 +1187,7 @@ async function tableView(parent, table, rows, editable = true, extra) {
 async function listPanel(title, table, create = true, extra) {
   const p = panel(title);
   if (create && schema[table]) p.append(button("Add", () => openEditor(table)));
+  p.append(sgcExportButton(table));
   await tableView(p, table, await rpc(table, "list", {}, null, offset), true, extra);
   return p;
 }
@@ -1995,6 +2153,7 @@ async function show() {
   say("");
   for (const b of $("menu").children) b.classList.toggle("active", b.textContent === section);
 
+  if (section === "Reports") return sgcReportsView();
   if (section === "Modules & lessons") return moduleCardsV2();
   if (section === "Memberships") return membershipsV2();
   if (section === "Website & quotes") return websiteV2();
@@ -2818,6 +2977,7 @@ async function recordingLibraryView(){
  root.append(button('Back to meeting products',meetingProductsView));
  const rows=check(await sb.rpc('sgc_recordings_admin',{p_booking:null}));
  root.append(n('h2','SGC bookings recordings'));
+  root.append(button('Download recordings CSV',()=>sgcDownloadCSV('SGC_recordings_'+new Date().toISOString().slice(0,10)+'.csv',rows)));
  if(!rows.length)root.append(n('p','No recordings attached yet. Record your call, upload it to Google Drive, then attach it under Bookings.'));
  for(const r of rows){
   const card=n('section');
@@ -2849,6 +3009,22 @@ async function bookingsView() {
   const root = $('content');
   root.replaceChildren();
   root.append(button('Back to meeting products',meetingProductsView),button('Refresh bookings',bookingsView));
+  root.append(button('Download ALL bookings CSV',async()=>{
+    const allBookings=await admin('bookings');
+    const archiveRows=check(await sb.rpc('sgc_admin_booking_archive',{p_action:'list'}))||[];
+    const archivedIds=new Set(archiveRows.map(x=>typeof x==='string'?x:x.booking_id));
+    sgcDownloadCSV('SGC_all_bookings_'+new Date().toISOString().slice(0,10)+'.csv',allBookings.map(b=>({...b,archived_in_admin:archivedIds.has(b.id)})));
+  }));
+  const archivedRows=check(await sb.rpc('sgc_admin_booking_archive',{p_action:'list'}))||[];
+  const archivedIds=new Set(archivedRows.map(x=>typeof x==='string'?x:x.booking_id));
+  let showArchived=false;
+  const toggleArchive=button('Show archived bookings',()=>{
+    showArchived=!showArchived;
+    for(const entry of archiveEntries)entry.tr.hidden=showArchived?!entry.archived:entry.archived;
+    toggleArchive.textContent=showArchived?'Show active bookings':'Show archived bookings';
+  });
+  root.append(toggleArchive);
+  const archiveEntries=[];
   root.append(n('h2','Meeting bookings'));
   const styleId='sgc-bookings-table-styles';
   if(!document.getElementById(styleId)) {
@@ -2870,6 +3046,9 @@ async function bookingsView() {
   const completed=new Set(completedIds.map(x=>typeof x==='string'?x:x.booking_id));
   for(const b of rows){
     const tr=n('tr');
+    const isArchived=archivedIds.has(b.id);
+    tr.hidden=isArchived;
+    archiveEntries.push({tr,archived:isArchived});
     const add=(value,cls)=>{const td=n('td',String(value??'—'));if(cls)td.className=cls;tr.append(td);return td;};
     add(b.name||'—');
     // The booking API currently returns email but not a separate student username.
@@ -2885,6 +3064,20 @@ async function bookingsView() {
     const notes=add(b.notes||'—','sgc-comment');
     if(b.last_error)notes.append(n('span','Error: '+b.last_error,'sgc-sub'));
     const actions=n('td');const actionBox=n('div');actionBox.className='sgc-actions';actions.append(actionBox);tr.append(actions);
+    if(isArchived){
+      actionBox.append(button('Restore booking',async()=>{
+        if(!confirm('Restore this booking to the active admin list?'))return;
+        check(await sb.rpc('sgc_admin_booking_archive',{p_action:'restore',p_booking:b.id}));
+        await bookingsView();say('Booking restored in admin list.');
+      }));
+    } else {
+      actionBox.append(button('Archive booking',async()=>{
+        if(!confirm('Archive this booking from the active admin list?\n\nThis does NOT cancel the meeting, refund a payment, remove student access, or delete any recordings.'))return;
+        check(await sb.rpc('sgc_admin_booking_archive',{p_action:'archive',p_booking:b.id}));
+        await bookingsView();say('Booking archived. It is preserved under Show archived bookings.');
+      }));
+    }
+
     if(b.payment_status==='pending'&&b.status==='hold'){
       actionBox.append(button('Verify payment',async()=>{
         const note=prompt('Record how you verified the actual payment.');if(!note)return;
