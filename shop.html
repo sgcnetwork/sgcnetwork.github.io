@@ -48,10 +48,35 @@ async function showNamedMemberships(){
   const grid=node('div',undefined,'grid');section.append(grid);
   const response=await sb.from('sgc_named_membership_plans').select('id,name,price_zar,billing,description,features').eq('state','published').order('created_at');
   if(response.error){section.append(node('p','Membership catalogue is temporarily unavailable.','muted'));host.append(section);return;}
+  let featureNames=new Map([
+    ['business_classes','Business classes'],['qa','Q&As'],['community','Academy community'],
+    ['recorded_lessons','Recorded lessons'],['live_discussions','Live discussions']
+  ]);
+  const featureResult=await sb.rpc('sgc_public_membership_features');
+  if(!featureResult.error && Array.isArray(featureResult.data)){
+    featureNames=new Map(featureResult.data.map(f=>[f.key,f.label]));
+  }
   for(const p of response.data||[]){
     const card=node('article',undefined,'card');
     card.append(node('h3',p.name),node('p','R'+Number(p.price_zar).toFixed(2)+(p.billing==='monthly'?' / month':' once-off'),'price'),node('p',p.description||''));
-    const note=node('p','Enrolment opening soon — contact SGC Network for access.','muted');card.append(note);grid.append(card);
+    card.append(node('h4',"What's included"));
+    const benefits=Array.isArray(p.features)?p.features:[];
+    if(benefits.length){
+      const ul=node('ul');ul.style.cssText='padding-left:20px;line-height:1.8';
+      for(const key of benefits){ul.append(node('li','✓ '+(featureNames.get(key)||key.replaceAll('_',' '))));}
+      card.append(ul);
+    }else{card.append(node('p','Benefits will be confirmed by SGC Network.','muted'));}
+    const enquire=node('button','Enquire about purchasing');enquire.type='button';
+    enquire.onclick=()=>{
+      const form=$('request-form');
+      if(!user){location.assign('login.html');return;}
+      $('request-category').value='memberships';
+      $('request-body').value='I would like to purchase the membership "'+p.name+'" (R'+Number(p.price_zar).toFixed(2)+(p.billing==='monthly'?' monthly':' once-off')+'). Please send me payment and activation details.';
+      form.scrollIntoView({behavior:'smooth',block:'center'});
+      $('request-body').focus();
+    };
+    card.append(enquire,node('p','Secure online checkout for these new plans is not connected yet. No payment is taken by this button.','muted'));
+    grid.append(card);
   }
   host.append(section);
 }
