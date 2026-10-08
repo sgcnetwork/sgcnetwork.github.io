@@ -1770,6 +1770,12 @@ async function membershipsV2() {
   editor.append(button('Save draft',async()=>save(false)),button('Publish',async()=>save(true)),button('Preview on site',()=>preview(formData()),true),button('Clear',reset,true));
   const list=panel('All Existing Memberships');
   const rows=await rpc('list');
+  // Existing membership products stay in their original database table.
+  const existing=check(await sb.from('sgc_products').select('*').in('slug',['sgc-start','sgc-build']).order('created_at'));
+  for(const p of existing){
+    if(!rows.some(x=>x.name===p.name))rows.push({id:p.id,name:p.name,price_zar:p.price_zar,billing:p.billing,description:p.description||'',features:[],state:p.active?'published':'deactivated',_existing:true});
+  }
+
   const scroll=n('div');scroll.style.cssText='overflow-x:auto;width:100%';
   const table=n('table');table.style.cssText='width:100%;border-collapse:collapse;min-width:1050px';
   const head=n('thead');const hr=n('tr');
@@ -1782,6 +1788,7 @@ async function membershipsV2() {
     cell(d.state);const actions=cell('');
     actions.style.minWidth='350px';
     const add=(label,handler)=>actions.append(button(label,handler,true));
+    if(d._existing){actions.append(n('span','Existing product — manage in Shop Products. Existing subscriber billing is unchanged.'));body.append(tr);continue;}
     add('Edit',()=>{editing=d.id;heading.textContent='Edit: '+d.name;name.value=d.name;price.value=d.price_zar;billing.value=d.billing;description.value=d.description||'';drawAccess(d.features||[]);editor.scrollIntoView({behavior:'smooth',block:'start'});});
     add('Preview on site',()=>preview(d));
     add('Save',async()=>{await rpc('save',d.id,{...d,state:'draft'});await show();});
