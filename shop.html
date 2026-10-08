@@ -66,18 +66,9 @@ async function showNamedMemberships(){
       for(const key of benefits){ul.append(node('li','✓ '+(featureNames.get(key)||key.replaceAll('_',' '))));}
       card.append(ul);
     }else{card.append(node('p','Benefits will be confirmed by SGC Network.','muted'));}
-    const enquire=node('button','Pay Now');enquire.type='button';
-    enquire.onclick=()=>{
-      const proceed=confirm('Online payment for '+p.name+' is coming soon. No payment will be taken yet.\n\nWould you like to send a purchase request instead?');
-      if(!proceed)return;
-      const form=$('request-form');
-      if(!user){location.assign('login.html');return;}
-      $('request-category').value='memberships';
-      $('request-body').value='I would like to purchase the membership "'+p.name+'" (R'+Number(p.price_zar).toFixed(2)+(p.billing==='monthly'?' monthly':' once-off')+'). Please send me payment and activation details.';
-      form.scrollIntoView({behavior:'smooth',block:'center'});
-      $('request-body').focus();
-    };
-    card.append(enquire,node('p','Online payments coming soon. Pay Now currently offers a purchase request; no payment is taken.','muted'));
+    const pay=node('button','Pay Now');pay.type='button';
+    pay.onclick=()=>{location.assign('payment.html?membershipId='+encodeURIComponent(p.id));};
+    card.append(pay,node('p','Secure checkout via Stitch. Payment verification and membership activation are handled separately.','muted'));
     grid.append(card);
   }
   host.append(section);
