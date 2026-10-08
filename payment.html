@@ -38,6 +38,8 @@
 <script>
 const FUNCTION_URL='https://bxpexanyoyubxeqqlggh.supabase.co/functions/v1/create-stitch-payment';
 const q=new URLSearchParams(location.search);
+const membershipId=q.get('membershipId');
+const productId=q.get('productId');
 const type=q.get('type')||'start';
 const name=q.get('name')||(type==='build'?'SGC Build':'SGC Start');
 const requestedAmount=Number(q.get('amount')||0);
@@ -50,8 +52,26 @@ let selected=fixed[type];
 if(type==='kit'){const kitPrice=/gaming/i.test(name)?699:499;selected={name,price:kitPrice,product:/gaming/i.test(name)?'gaming-kit':'business-kit',display:`R${kitPrice} once-off`};}
 if(type==='layby'){const kitPrice=/gaming/i.test(name)?699:499;selected={name,price:kitPrice,product:'kit-layby',display:`R${kitPrice} kit total`,flexible:true};}
 
-document.getElementById('product').textContent=selected?.name||name;
-document.getElementById('price').textContent=selected?.display||'Selected product';
+// Dynamic membership/product: price comes from Supabase, never from the URL.
+const dynamicId=membershipId||productId;
+let dynamicReady=Promise.resolve();
+if(dynamicId){
+  selected=null;
+  dynamicReady=async()=>{
+    if(!window.sgcSupabase)throw Error('SGC account connection is unavailable.');
+    const table=membershipId?'sgc_named_membership_plans':'sgc_products';
+    const query=window.sgcSupabase.from(table).select('id,name,price_zar,billing'+(membershipId?',state':',active')).eq('id',dynamicId);
+    const {data,error}=await query.single();
+    if(error||!data||(membershipId?data.state!=='published':!data.active))throw Error('This product is not available for purchase.');
+    selected={name:data.name,price:Number(data.price_zar),display:'R'+Number(data.price_zar).toFixed(2)+(data.billing==='monthly'?' / month':' once-off'),dynamic:true};
+    document.getElementById('product').textContent=selected.name;
+    document.getElementById('price').textContent=selected.display;
+  };
+  document.getElementById('product').textContent='Loading selected product…';
+  document.getElementById('price').textContent='Price verified at checkout';
+}
+if(!dynamicId)document.getElementById('product').textContent=selected?.name||name;
+if(!dynamicId)document.getElementById('price').textContent=selected?.display||'Selected product';
 const btn=document.getElementById('pay');
 const status=document.getElementById('status');
 const copy=document.getElementById('checkoutCopy');
@@ -65,6 +85,7 @@ if(selected?.flexible){
 }
 btn.onclick=async()=>{
   try{
+    await (typeof dynamicReady==='function'?dynamicReady():dynamicReady);
     if(!selected) throw new Error('This product is not connected to Stitch yet.');
     if(!window.sgcSupabase) throw new Error('SGC account connection is unavailable.');
     const amount=selected.flexible?Number(amountInput?.value):selected.price;
@@ -81,7 +102,7 @@ btn.onclick=async()=>{
     }
     const payerName=(user.user_metadata?.full_name||user.email?.split('@')[0]||'SGC Customer').trim();
     status.textContent='Connecting to Stitch…';
-    const response=await fetch(FUNCTION_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({amount,payerName:payerName.length>=3?payerName:'SGC Customer',email:user.email,userId:user.id,product:selected.product,productName:selected.name,kitTotal:selected.flexible?selected.price:undefined})});
+    const response=await fetch(FUNCTION_URL,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},body:JSON.stringify({amount,payerName:payerName.length>=3?payerName:'SGC Customer',email:user.email,userId:user.id,...(membershipId?{membershipId}:productId?{productId}:{product:selected.product}),productName:selected.name,kitTotal:selected.flexible?selected.price:undefined})});
     const result=await response.json();
     if(!response.ok||!result.success||!result.checkoutUrl) throw new Error(result.error||'Could not start payment.');
     location.href=result.checkoutUrl;
