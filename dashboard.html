@@ -1,83 +1,365 @@
+
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>My SGC — SGC Network</title><link rel="stylesheet" href="css/style.css"><style>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My SGC — SGC Network</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
 :root{
   --ink:#171516; --cream:#fbf5ea; --paper:#fffaf2; --blush:#f4dfe0;
   --lav:#e7def4; --butter:#f4e7a8; --line:rgba(23,21,22,.12); --muted:#756e69;
 }
-*{box-sizing:border-box} body{margin:0;background:var(--cream);color:var(--ink);font-family:Inter,Arial,sans-serif}
-a{color:inherit;text-decoration:none}.wrap{width:min(1180px,calc(100% - 40px));margin:auto}
+*{box-sizing:border-box}
+body{margin:0;background:var(--cream);color:var(--ink);font-family:Inter,Arial,sans-serif}
+a{color:inherit;text-decoration:none}
+.wrap{width:min(1180px,calc(100% - 40px));margin:auto}
 .site-nav{display:flex;align-items:center;justify-content:space-between;padding:24px 0;border-bottom:1px solid var(--line)}
-.brand{font-family:Georgia,serif;font-size:30px;letter-spacing:.08em}.brand small{display:block;font:10px Inter,sans-serif;letter-spacing:.28em;margin-top:3px}
-.nav-links{display:flex;gap:22px;align-items:center;font-size:13px}.nav-links a{opacity:.72}.nav-links a:hover,.nav-links a.active{opacity:1}
-.btn{display:inline-flex;align-items:center;justify-content:center;padding:13px 18px;border-radius:999px;background:var(--ink);color:white;font-size:13px;border:1px solid var(--ink);cursor:pointer}.btn.alt{background:transparent;color:var(--ink)}.btn.soft{background:var(--lav);color:var(--ink);border-color:transparent}
-.hero{padding:64px 0 38px;display:grid;grid-template-columns:1.3fr .7fr;gap:40px;align-items:end}.eyebrow{text-transform:uppercase;letter-spacing:.2em;font-size:10px;color:var(--muted)}h1{font:clamp(48px,7vw,88px)/.92 Georgia,serif;margin:12px 0 18px;letter-spacing:-.04em}h2{font:34px/1 Georgia,serif;margin:0 0 12px}h3{font:20px Georgia,serif;margin:0 0 8px}.lead{font-size:17px;line-height:1.65;color:#5f5955;max-width:680px}.hero-card{background:var(--butter);border-radius:30px;padding:28px;min-height:220px;display:flex;flex-direction:column;justify-content:space-between}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;padding:20px 0 70px}.card{background:var(--paper);border:1px solid var(--line);border-radius:24px;padding:24px}.card.blush{background:var(--blush)}.card.lav{background:var(--lav)}.card.butter{background:var(--butter)}
-.metric{font:38px Georgia,serif}.muted{color:var(--muted);font-size:13px;line-height:1.6}.pill{display:inline-flex;padding:7px 10px;border-radius:999px;background:#fff8;color:var(--ink);font-size:11px;border:1px solid var(--line)}
-.progress{height:10px;border-radius:999px;background:#eee5d9;overflow:hidden}.progress>span{display:block;height:100%;background:var(--ink);border-radius:999px}
-.section{padding:30px 0}.section-head{display:flex;justify-content:space-between;gap:20px;align-items:end;margin-bottom:18px}.list{display:grid;gap:12px}.row{display:flex;justify-content:space-between;align-items:center;gap:18px;padding:18px;background:var(--paper);border:1px solid var(--line);border-radius:18px}.row strong{font-family:Georgia,serif;font-size:18px}.tag{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted)}
-.lock{display:flex;align-items:center;gap:8px}.locked{opacity:.62}.empty{padding:35px;text-align:center;border:1px dashed var(--line);border-radius:22px;color:var(--muted)}
+.brand{font-family:Georgia,serif;font-size:30px;letter-spacing:.08em}
+.brand small{display:block;font:10px Inter,sans-serif;letter-spacing:.28em;margin-top:3px}
+.nav-links{display:flex;gap:22px;align-items:center;font-size:13px}
+.nav-links a{opacity:.72}
+.nav-links a:hover,.nav-links a.active{opacity:1}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:13px 18px;border-radius:999px;background:var(--ink);color:white;font-size:13px;border:1px solid var(--ink);cursor:pointer}
+.btn.alt{background:transparent;color:var(--ink)}
+.btn.soft{background:var(--lav);color:var(--ink);border-color:transparent}
+.hero{padding:64px 0 38px;display:grid;grid-template-columns:1.3fr .7fr;gap:40px;align-items:end}
+.eyebrow{text-transform:uppercase;letter-spacing:.2em;font-size:10px;color:var(--muted)}
+h1{font:clamp(48px,7vw,88px)/.92 Georgia,serif;margin:12px 0 18px;letter-spacing:-.04em}
+h2{font:34px/1 Georgia,serif;margin:0 0 12px}
+h3{font:20px Georgia,serif;margin:0 0 8px}
+.lead{font-size:17px;line-height:1.65;color:#5f5955;max-width:680px}
+.hero-card{background:var(--butter);border-radius:30px;padding:28px;min-height:220px;display:flex;flex-direction:column;justify-content:space-between}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;padding:20px 0 70px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:24px;padding:24px}
+.card.blush{background:var(--blush)}
+.card.lav{background:var(--lav)}
+.card.butter{background:var(--butter}
+.metric{font:38px Georgia,serif}
+.muted{color:var(--muted);font-size:13px;line-height:1.6}
+.pill{display:inline-flex;padding:7px 10px;border-radius:999px;background:#fff8;color:var(--ink);font-size:11px;border:1px solid var(--line)}
+.progress{height:10px;border-radius:999px;background:#eee5d9;overflow:hidden}
+.progress>span{display:block;height:100%;background:var(--ink);border-radius:999px}
+.section{padding:30px 0}
+.section-head{display:flex;justify-content:space-between;gap:20px;align-items:end;margin-bottom:18px}
+.list{display:grid;gap:12px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:18px;padding:18px;background:var(--paper);border:1px solid var(--line);border-radius:18px}
+.row strong{font-family:Georgia,serif;font-size:18px}
+.tag{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted)}
+.lock{display:flex;align-items:center;gap:8px}
+.locked{opacity:.62}
+.empty{padding:35px;text-align:center;border:1px dashed var(--line);border-radius:22px;color:var(--muted)}
 footer{padding:35px 0;border-top:1px solid var(--line);font-size:12px;color:var(--muted);margin-top:40px}
-@media(max-width:800px){.hero{grid-template-columns:1fr}.grid{grid-template-columns:1fr}.nav-links{display:none}.wrap{width:min(100% - 28px,1180px)}}
-.daily-sticky{background:#f2c9d6;padding:24px;margin:0 0 22px;transform:rotate(-1deg);box-shadow:3px 4px 0 #0002;color:#39272f}.daily-sticky p{font:24px/1.4 Georgia,serif;margin:12px 0}.daily-sticky small{font-size:10px;letter-spacing:.12em}@media(max-width:800px){.nav-links{display:flex;flex-wrap:wrap;gap:10px}}
+.daily-sticky{background:#f2c9d6;padding:24px;margin:0 0 22px;transform:rotate(-1deg);box-shadow:3px 4px 0 #0002;color:#39272f}
+.daily-sticky p{font:24px/1.4 Georgia,serif;margin:12px 0}
+.daily-sticky small{font-size:10px;letter-spacing:.12em}
 .recording-block{margin-top:20px;padding-top:20px;border-top:1px solid var(--line)}
-@media(max-width:800px){.site-nav{gap:16px;flex-wrap:wrap}.section-head{flex-wrap:wrap}}
-</style></head>
-<body><div class="wrap">
-<header class="site-nav"><a class="brand" href="index.html">SGC<small>NETWORK</small></a>
-<nav class="nav-links"><a href="shop.html">Shop</a><a class="active" href="dashboard.html">My SGC</a><a href="academy.html">Academy</a><a href="community.html">Community</a><button class="btn alt" id="signout">Sign out</button></nav></header>
+@media(max-width:800px){
+ .hero{grid-template-columns:1fr}
+ .grid{grid-template-columns:1fr}
+ .nav-links{display:flex;flex-wrap:wrap;gap:10px}
+ .wrap{width:min(100% - 28px,1180px)}
+ .site-nav{gap:16px;flex-wrap:wrap}
+ .section-head{flex-wrap:wrap}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="site-nav">
+<a class="brand" href="index.html">SGC<small>NETWORK</small></a>
+<nav class="nav-links">
+<a href="shop.html">Shop</a>
+<a class="active" href="dashboard.html">My SGC</a>
+<a href="academy.html">Academy</a>
+<a href="community.html">Community</a>
+<button class="btn alt" id="signout">Sign out</button>
+</nav>
+</header>
 <main>
-<section class="hero"><div><div class="eyebrow">Your private account</div><h1>My SGC.</h1><p class="lead">Your purchases, memberships, payments, meetings and Academy access — all in one place.</p></div>
-<div><section id="sgc-daily-quote" class="daily-sticky" hidden></section><div class="hero-card"><span class="tag">Signed in as</span><strong id="email">Loading…</strong><span class="muted">Your access is controlled by your SGC account.</span><a class="btn" href="academy.html">Enter Academy →</a></div></div></section>
-<section class="section"><div class="section-head"><div><div class="eyebrow">Overview</div><h2>Your SGC access</h2></div></div>
-<div class="grid">
-<div class="card blush"><span class="pill">Membership</span><h3 id="membership-title">No active membership</h3><p class="muted" id="membership-copy">Choose SGC Start or SGC Build from the public site.</p><a class="btn alt" href="start.html">Explore memberships</a></div>
-<div class="card lav"><span class="pill">Business kits</span><h3 id="kit-title">No kit yet</h3><p class="muted" id="kit-copy">Your purchased kits and lay-by balances will appear here.</p><a class="btn alt" href="kits.html">Browse kits</a></div>
-<div class="card butter"><span class="pill">Academy</span><h3>Private learning area</h3><p class="muted">Only content your account is entitled to see will be shown.</p><a class="btn" href="academy.html">Open Academy</a></div>
-</div></section>
-<section class="section"><div class="section-head"><div><div class="eyebrow">Purchases & balances</div><h2>Your kits</h2></div><a class="btn alt" href="payments.html">Payment history</a></div><div id="kits-list" class="list"><div class="empty">Loading your purchases…</div></div></section>
-<section class="section">
- <div class="section-head"><div><div class="eyebrow">Appointments & recordings</div><h2>Your meetings</h2></div><button class="btn alt" id="meetings-refresh">Refresh</button></div>
- <p class="muted">Recordings are available for seven days after SGC publishes them. All appointment times are in South African time.</p>
- <p id="meetings-status" class="muted" role="status" aria-live="polite"></p>
- <div id="meetings-list" class="list"><div class="empty">Loading your meetings…</div></div>
+<section class="hero">
+<div>
+<div class="eyebrow">Your private account</div>
+<h1>My SGC.</h1>
+<p class="lead">Your purchases, memberships, payments, meetings and Academy access — all in one place.</p>
+</div>
+<div>
+<section id="sgc-daily-quote" class="daily-sticky" hidden></section>
+<div class="hero-card">
+<span class="tag">Signed in as</span>
+<strong id="email">Loading…</strong>
+<span class="muted">Your access is controlled by your SGC account.</span>
+<a class="btn" href="academy.html">Enter Academy →</a>
+</div>
+</div>
 </section>
-</main><footer>SGC Network · Learn • Build • Grow</footer></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="js/config.js"></script><script src="js/supabase-client.js"></script><script src="js/demo-access.js?v=demo2"></script><script src="js/account.js?v=demo2"></script><script>
-(async()=>{const box=document.getElementById('sgc-daily-quote');try{const client=window.sgcSupabase||window.supabase.createClient('https://bxpexanyoyubxeqqlggh.supabase.co','sb_publishable_Z0_Y-Bj_G5qw4hMgDbQlgA__jj8rGGq');const r=await client.from('site_content').select('content_value').eq('content_key','sgc.quote.daily').limit(1);if(r.error)throw r.error;const q=JSON.parse(r.data[0]?.content_value||'{}');const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Africa/Johannesburg'}).format(new Date());if(!q.text||(q.date&&q.date>today))return;const tag=document.createElement('small'),text=document.createElement('p'),author=document.createElement('small');tag.textContent='QUOTE FOR THE DAY';text.textContent=q.text;author.textContent=q.author||'SGC Network';box.replaceChildren(tag,text,author);box.hidden=false;}catch(e){console.warn('Daily quote could not load:',e.message);}})();
-</script><script>(()=>{
- const $=id=>document.getElementById(id);
- const client=window.sgcSupabase||window.supabase.createClient('https://bxpexanyoyubxeqqlggh.supabase.co','sb_publishable_Z0_Y-Bj_G5qw4hMgDbQlgA__jj8rGGq');
- function node(tag,text,cls){const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(cls)e.className=cls;return e;}
- const date=value=>new Date(value).toLocaleString('en-ZA',{timeZone:'Africa/Johannesburg'});
- async function api(body){const r=await client.functions.invoke('sgc-recordings',{body});if(r.error){let msg=r.error.message;try{msg=(await r.error.context.json()).error||msg;}catch{}throw Error(msg);}if(r.data?.error)throw Error(r.data.error);return r.data;}
- let loading=false,expiryTimer;
- async function load(){
-  if(loading)return;loading=true;$('meetings-refresh').disabled=true;
-  try{
-   const auth=await client.auth.getUser();if(auth.error)throw auth.error;
-   if(!auth.data.user){$('meetings-list').replaceChildren(node('p','Sign in to see your appointments.','empty'));return;}
-   const rows=[];for(let offset=0;;offset+=100){const r=await client.rpc('sgc_meetings_profile',{p_offset:offset});if(r.error)throw r.error;rows.push(...r.data);if(r.data.length<100)break;}
-   const list=$('meetings-list');list.replaceChildren();let soonest=Infinity;
-   for(const b of rows){
-    const card=node('article',undefined,'card');card.append(node('h3',b.name),node('p','Booked on: '+date(b.created_at),'muted'),node('p','Appointment: '+date(b.starts_at)+' (South African time)'),node('p',Math.round((Date.parse(b.ends_at)-Date.parse(b.starts_at))/60000)+' minutes · R'+Number(b.amount_zar).toFixed(2)),node('span',b.status==='hold'&&Date.parse(b.hold_expires_at)<=Date.now()?'expired':b.status.replaceAll('_',' '),'pill'),node('p','Payment: '+b.payment_status.replaceAll('_',' '),'muted'));
-    if(b.status==='confirmed'&&b.meeting_url){try{const u=new URL(b.meeting_url);if(u.protocol==='https:'&&u.hostname==='meet.google.com'){const a=node('a','Join meeting','btn soft');a.href=u.href;a.target='_blank';a.rel='noopener';card.append(a);}}catch{}}
-    for(const recording of b.recordings||[]){
-     const expires=Date.parse(recording.student_expires_at);if(expires<=Date.now())continue;soonest=Math.min(soonest,expires);
-     const block=node('div',undefined,'recording-block');block.append(node('h3',recording.title),node('p','Available until '+date(expires)+' (South African time)','muted'));
-     const watch=node('button','Watch recording','btn');const message=node('p',undefined,'muted');let video;
-     watch.onclick=async()=>{watch.disabled=true;message.textContent='Opening your recording…';try{const r=await api({action:'play',recording_id:recording.id});if(!video){video=node('video');video.controls=true;video.preload='metadata';video.style.width='100%';block.append(video);}video.src=r.url;message.textContent='';video.play().catch(()=>{});}catch(e){message.textContent=e.message;}finally{watch.disabled=false;}};
-     block.append(watch,message);card.append(block);
-    }
-    list.append(card);
-   }
-   if(!rows.length)list.append(node('p','Your meeting bookings will appear here.','empty'));
-   clearTimeout(expiryTimer);if(Number.isFinite(soonest))expiryTimer=setTimeout(()=>{document.querySelectorAll('#meetings-list video').forEach(v=>{v.pause();v.removeAttribute('src');v.load();});load();},Math.max(50,Math.min(soonest-Date.now()+100,2147483647)));
-   $('meetings-status').textContent='';
-  }catch(e){$('meetings-status').textContent=e.message;}finally{loading=false;$('meetings-refresh').disabled=false;}
+
+<section class="section">
+<div class="section-head">
+<div><div class="eyebrow">Overview</div><h2>Your SGC access</h2></div>
+</div>
+<div class="grid">
+<div class="card blush">
+<span class="pill">Membership</span>
+<h3 id="membership-title">No active membership</h3>
+<p class="muted" id="membership-copy">Choose SGC Start or SGC Build from the public site.</p>
+<a class="btn alt" href="start.html">Explore memberships</a>
+</div>
+<div class="card lav">
+<span class="pill">Business kits</span>
+<h3 id="kit-title">No kit yet</h3>
+<p class="muted" id="kit-copy">Your purchased kits and lay-by balances will appear here.</p>
+<a class="btn alt" href="kits.html">Browse kits</a>
+</div>
+<div class="card butter">
+<span class="pill">Academy</span>
+<h3>Private learning area</h3>
+<p class="muted">Only content your account is entitled to see will be shown.</p>
+<a class="btn" href="academy.html">Open Academy</a>
+</div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-head">
+<div><div class="eyebrow">Purchases & balances</div><h2>Your kits</h2></div>
+<a class="btn alt" href="payments.html">Payment history</a>
+</div>
+<div id="kits-list" class="list">
+<div class="empty">Loading your purchases…</div>
+</div>
+</section>
+
+<section class="section">
+<div class="section-head">
+<div>
+<div class="eyebrow">Appointments & recordings</div>
+<h2>Your meetings</h2>
+</div>
+<button class="btn alt" id="meetings-refresh">Refresh</button>
+</div>
+<p class="muted">Recordings are available for seven days after SGC publishes them. All appointment times are in South African time.</p>
+<p id="meetings-status" class="muted" role="status" aria-live="polite"></p>
+<div id="meetings-list" class="list">
+<div class="empty">Loading your meetings…</div>
+</div>
+</section>
+</main>
+<footer>SGC Network · Learn • Build • Grow</footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/supabase-client.js"></script>
+<script src="js/demo-access.js?v=demo2"></script>
+<script src="js/account.js?v=demo2"></script>
+
+<script>
+(async()=>{
+ const box=document.getElementById('sgc-daily-quote');
+ try{
+  const client=window.sgcSupabase||window.supabase.createClient(
+   'https://bxpexanyoyubxeqqlggh.supabase.co',
+   'sb_publishable_Z0_Y-Bj_G5qw4hMgDbQlgA__jj8rGGq'
+  );
+  const r=await client.from('site_content').select('content_value').eq('content_key','sgc.quote.daily').limit(1);
+  if(r.error)throw r.error;
+  const q=JSON.parse(r.data[0]?.content_value||'{}');
+  const today=new Intl.DateTimeFormat('en-CA',{timeZone:'Africa/Johannesburg'}).format(new Date());
+  if(!q.text||(q.date&&q.date>today))return;
+  const tag=document.createElement('small');
+  const text=document.createElement('p');
+  const author=document.createElement('small');
+  tag.textContent='QUOTE FOR THE DAY';
+  text.textContent=q.text;
+  author.textContent=q.author||'SGC Network';
+  box.replaceChildren(tag,text,author);
+  box.hidden=false;
+ }catch(e){
+  console.warn('Daily quote could not load:',e.message);
  }
- $('meetings-refresh').onclick=load;load();
- client.auth.onAuthStateChange((event)=>{if(event==='SIGNED_OUT'){document.querySelectorAll('#meetings-list video').forEach(v=>v.pause());$('meetings-list').replaceChildren();}else if(event==='SIGNED_IN')setTimeout(load,0);});
 })();
 </script>
-</body></html>
+
+<script>
+(()=>{
+ const $=id=>document.getElementById(id);
+ const client=window.sgcSupabase||window.supabase.createClient(
+  'https://bxpexanyoyubxeqqlggh.supabase.co',
+  'sb_publishable_Z0_Y-Bj_G5qw4hMgDbQlgA__jj8rGGq'
+ );
+
+ function node(tag,text,cls){
+  const e=document.createElement(tag);
+  if(text!==undefined)e.textContent=text;
+  if(cls)e.className=cls;
+  return e;
+ }
+
+ const date=value=>new Date(value).toLocaleString('en-ZA',{
+  timeZone:'Africa/Johannesburg'
+ });
+
+ async function api(body){
+  const r=await client.functions.invoke('sgc-recordings',{body});
+  if(r.error){
+   let msg=r.error.message;
+   try{msg=(await r.error.context.json()).error||msg;}catch{}
+   throw Error(msg);
+  }
+  if(r.data?.error)throw Error(r.data.error);
+  return r.data;
+ }
+
+ let loading=false;
+ let expiryTimer;
+
+ async function load(){
+  if(loading)return;
+  loading=true;
+  $('meetings-refresh').disabled=true;
+
+  try{
+   const auth=await client.auth.getUser();
+   if(auth.error)throw auth.error;
+
+   if(!auth.data.user){
+    $('meetings-list').replaceChildren(
+     node('p','Sign in to see your appointments.','empty')
+    );
+    return;
+   }
+
+   const rows=[];
+   for(let offset=0;;offset+=100){
+    const r=await client.rpc('sgc_meetings_profile',{p_offset:offset});
+    if(r.error)throw r.error;
+    rows.push(...r.data);
+    if(r.data.length<100)break;
+   }
+
+   const list=$('meetings-list');
+   list.replaceChildren();
+   let soonest=Infinity;
+
+   for(const b of rows){
+    const card=node('article',undefined,'card');
+
+    card.append(
+     node('h3',b.name),
+     node('p','Booked on: '+date(b.created_at),'muted'),
+     node('p','Appointment: '+date(b.starts_at)+' (South African time)'),
+     node('p',Math.round((Date.parse(b.ends_at)-Date.parse(b.starts_at))/60000)+' minutes · R'+Number(b.amount_zar).toFixed(2)),
+     node('span',b.status==='hold'&&Date.parse(b.hold_expires_at)<=Date.now()?'expired':b.status.replaceAll('_',' '),'pill'),
+     node('p','Payment: '+b.payment_status.replaceAll('_',' '),'muted')
+    );
+
+    if(b.status==='confirmed'&&b.meeting_url){
+     try{
+      const u=new URL(b.meeting_url);
+      if(u.protocol==='https:'&&u.hostname==='meet.google.com'){
+       const a=node('a','Join meeting','btn soft');
+       a.href=u.href;
+       a.target='_blank';
+       a.rel='noopener';
+       card.append(a);
+      }
+     }catch{}
+    }
+
+    for(const recording of b.recordings||[]){
+     const expires=Date.parse(recording.student_expires_at);
+     if(expires<=Date.now())continue;
+
+     soonest=Math.min(soonest,expires);
+
+     const block=node('div',undefined,'recording-block');
+     block.append(
+      node('h3',recording.title),
+      node('p','Available until '+date(expires)+' (South African time)','muted')
+     );
+
+     const watch=node('button','Watch recording','btn');
+     const message=node('p',undefined,'muted');
+
+     watch.onclick=async()=>{
+      watch.disabled=true;
+      message.textContent='Opening your recording…';
+
+      // Open immediately to avoid popup blockers.
+      const tab=window.open('about:blank','_blank');
+
+      try{
+       const r=await api({
+        action:'play',
+        recording_id:recording.id
+       });
+
+       const u=new URL(r.url);
+       if(
+        u.protocol!=='https:' ||
+        u.hostname!=='drive.google.com'
+       ){
+        throw Error('Invalid recording link.');
+       }
+
+       if(tab){
+        tab.opener=null;
+        tab.location.replace(u.href);
+       }else{
+        // Fallback if the browser blocks a new tab.
+        window.location.assign(u.href);
+       }
+
+       message.textContent='';
+      }catch(e){
+       if(tab)tab.close();
+       message.textContent=e.message;
+      }finally{
+       watch.disabled=false;
+      }
+     };
+
+     block.append(watch,message);
+     card.append(block);
+    }
+
+    list.append(card);
+   }
+
+   if(!rows.length){
+    list.append(node('p','Your meeting bookings will appear here.','empty'));
+   }
+
+   clearTimeout(expiryTimer);
+
+   if(Number.isFinite(soonest)){
+    expiryTimer=setTimeout(()=>{
+     load();
+    },Math.max(50,Math.min(soonest-Date.now()+100,2147483647)));
+   }
+
+   $('meetings-status').textContent='';
+  }catch(e){
+   $('meetings-status').textContent=e.message;
+  }finally{
+   loading=false;
+   $('meetings-refresh').disabled=false;
+  }
+ }
+
+ $('meetings-refresh').onclick=load;
+ load();
+
+ client.auth.onAuthStateChange(event=>{
+  if(event==='SIGNED_OUT'){
+   $('meetings-list').replaceChildren();
+  }else if(event==='SIGNED_IN'){
+   setTimeout(load,0);
+  }
+ });
+})();
+</script>
+</body>
+</html>
