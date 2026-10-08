@@ -41,7 +41,7 @@ $('request-form').onsubmit=async event=>{event.preventDefault();if(!user){$('req
 $('category-menu').onchange=()=>location.assign(shopLink($('category-menu').value));
 
 async function showNamedMemberships(){
-  const categorySelected=selected==='memberships' || (!selected && params.get('membership'));
+  const categorySelected=!params.get('product') && (selected==='memberships' || !selected);
   if(!categorySelected)return;
   const host=$('catalogue');
   const section=node('section',undefined,'section');section.append(node('h2','SGC Memberships'));
