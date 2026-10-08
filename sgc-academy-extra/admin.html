@@ -1717,143 +1717,85 @@ async function lessonWorkspaceV2(module, lessons, chosen) {
 }
 
 async function membershipsV2() {
-  const p = panel("Memberships & access");
-  p.append(n("p",
-    "Build can include the Start benefits. Tick the permissions for each membership. Assign a lesson or group to a Feature access option to enforce that permission. Prices apply to the connected product catalogue; existing subscriptions need a matching change at the payment provider.",
-    "muted"));
-
-  const grid = n("div", undefined, "grid");
-  p.append(grid);
-  const fields = {};
-
-  for (const key of ["start", "build"]) {
-    const box = n("div", undefined, "panel");
-    grid.append(box);
-    box.append(n("h3", key === "start" ? "Start membership" : "Build membership"));
-    const plan = plansV2[key];
-    fields[key] = {
-      name: fieldV2(box, "Membership name", plan.name),
-      price: fieldV2(box, "Monthly price (ZAR)", plan.price_zar, "number"),
-      description: fieldV2(box, "Description", plan.description, "area"),
-      active: tickV2(box, "Available in shop", plan.active),
-      features: {}
-    };
-    fields[key].price.min = "0";
-    fields[key].price.step = "0.01";
-    if (key === "build") {
-      fields[key].inherits = tickV2(box,
-        "Include all Start membership benefits", plan.inherits_start !== false);
-    }
-    for (const f of plansV2.features) {
-      fields[key].features[f.key] = tickV2(box, f.label, plan.features.includes(f.key));
-    }
-  }
-
-  p.append(button("Save memberships & access", async () => {
-    const cfg = structuredClone(plansV2);
-    for (const key of ["start", "build"]) {
-      const f = fields[key];
-      if (!f.name.value.trim() || f.price.value === "" ||
-          !Number.isFinite(Number(f.price.value)) || Number(f.price.value) < 0) {
-        throw Error("Enter membership names and valid prices");
-      }
-      cfg[key] = {
-        ...cfg[key], name: f.name.value.trim(), price_zar: Number(f.price.value),
-        description: f.description.value, active: f.active.checked,
-        features: Object.entries(f.features).filter(([k, i]) => i.checked).map(([k]) => k)
-      };
-      if (key === "build") cfg[key].inherits_start = f.inherits.checked;
-    }
-    await v2("save_memberships", cfg);
-    await show();
-    say("Membership settings and catalogue prices saved. Existing customer billing amounts were not changed.");
-  }));
-
-  const featurePanel = panel("Types of access");
-  for (const f of plansV2.features) {
-    const row = n("div", undefined, "resource-row");
-    const input = n("input");
-    input.value = f.label;
-    row.append(n("span", f.key), input, button("Rename", async () => {
-      if (!input.value.trim()) throw Error("Enter a name");
-      const cfg = structuredClone(plansV2);
-      cfg.features.find(x => x.key === f.key).label = input.value.trim();
-      await v2("save_memberships", cfg);
-      await show();
-    }, true));
-    featurePanel.append(row);
-  }
-
-  const name = fieldV2(featurePanel, "New access type (for example Beauty support)");
-  featurePanel.append(button("Add access type", async () => {
-    const label = name.value.trim();
-    const key = label.toLowerCase().replace(/[^a-z0-9]+/g, "_").replace(/^_|_$/g, "");
-    if (!key || plansV2.features.some(x => x.key === key)) {
-      throw Error("Enter a new, unique access name");
-    }
-    const cfg = structuredClone(plansV2);
-    cfg.features.push({ key, label });
-    await v2("save_memberships", cfg);
-    await show();
-  }));
-
-  // Independent membership-product management. Existing Start/Build controls above remain unchanged.
-  const mp = panel("Membership products — Add / Edit / Archive / Delete");
-  mp.append(n("p", "Manage purchasable membership products. Archiving hides a plan from new purchases; existing billing and access remain unchanged.", "muted"));
-  const editor = n("div", undefined, "panel");
-  mp.append(editor);
-  editor.append(n("h3", "Add new membership"));
-  const mf = {
-    name: fieldV2(editor,"Membership name"),
-    description: fieldV2(editor,"Description","","area"),
-    price: fieldV2(editor,"Price (ZAR)","0","number"),
-    slug: fieldV2(editor,"Unique slug (leave blank to generate)"),
+  const p=panel('Membership Management');
+  p.append(n('p','Create your own plans, select benefits, save drafts and publish when ready. Existing Start/Build student subscriptions and payment history are not changed by editing these products.','muted'));
+  const editor=n('div',undefined,'panel');p.append(editor);
+  const title=n('h3','Add new membership');editor.append(title);
+  const mf={
+    name:fieldV2(editor,'Membership name'),
+    price:fieldV2(editor,'Price (ZAR)','0','number'),
+    description:fieldV2(editor,'Description','','area')
   };
-  mf.price.min="0"; mf.price.step="0.01";
-  editor.append(n("label","Billing frequency"));
-  mf.billing=selectV2([["monthly","Monthly"],["once","Once-off"]],"monthly");editor.append(mf.billing);
-  editor.append(n("label","Access level"));
-  mf.access=selectV2([["start","Start"],["build","Build"]],"start");editor.append(mf.access);
-  const permissionsPanel=n("div",undefined,"panel");
-  permissionsPanel.append(n("h3","Membership access permissions"));
-  permissionsPanel.append(n("p","Tick the benefits included in this membership. These are saved per product; existing Start/Build tier access rules remain unchanged until entitlement enforcement is migrated.","muted"));
+  mf.price.min='0';mf.price.step='0.01';
+  editor.append(n('label','Billing frequency'));
+  mf.billing=selectV2([['monthly','Per month'],['once','Once-off']],'monthly');editor.append(mf.billing);
+  editor.append(n('label','Legacy access tier (used by existing student access rules)'));
+  mf.access=selectV2([['start','Start'],['build','Build']],'start');editor.append(mf.access);
+  const permissionPanel=n('div',undefined,'panel');editor.append(permissionPanel);
+  permissionPanel.append(n('h3','Membership access — tick all benefits included'));
   const permissionBoxes={};
-  for(const f of plansV2.features){
-    permissionBoxes[f.key]=tickV2(permissionsPanel,f.label,false);
+  function drawPermissions(values=[]) {
+    permissionPanel.replaceChildren(n('h3','Membership access — tick all benefits included'));
+    for(const feature of plansV2.features){
+      permissionBoxes[feature.key]=tickV2(permissionPanel,feature.label,values.includes(feature.key));
+    }
   }
-  editor.append(permissionsPanel);
-  mf.active=tickV2(editor,"Available for new purchases",true);
+  drawPermissions();
+  const newAccess=fieldV2(editor,'Add new access type (available for every membership)');
+  editor.append(button('Add access type',async()=>{
+    const label=newAccess.value.trim();
+    const key=label.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'');
+    if(!key||plansV2.features.some(f=>f.key===key))throw Error('Enter a unique access type');
+    const current=Object.keys(permissionBoxes).filter(k=>permissionBoxes[k].checked);
+    const cfg=structuredClone(plansV2);cfg.features.push({key,label});
+    await v2('save_memberships',cfg);plansV2=cfg;
+    drawPermissions([...current,key]);newAccess.value='';say('Access type added to the master list.');
+  },true));
   let editingId=null;
-  const saveButton=button("Add new membership",async()=>{
-    const name=mf.name.value.trim();const price=Number(mf.price.value);
-    if(!name || !Number.isFinite(price) || price<0)throw Error("Enter a name and valid price");
-    const data={name,description:mf.description.value,price_zar:price,slug:mf.slug.value.trim(),billing:mf.billing.value,access_level:mf.access.value,active:mf.active.checked,features:Object.keys(permissionBoxes).filter(k=>permissionBoxes[k].checked)};
-    await check(await sb.rpc("sgc_admin_membership_products",{p_action:editingId?"save":"create",p_id:editingId,p_data:data}));
-    await show();say("Membership product saved. Existing customer subscriptions were not changed.");
-  });
-  editor.append(saveButton,button("Clear form",async()=>{editingId=null;mf.name.value="";mf.description.value="";mf.price.value="0";mf.slug.value="";mf.billing.value="monthly";mf.access.value="start";mf.active.checked=true;Object.values(permissionBoxes).forEach(x=>x.checked=false);saveButton.textContent="Add new membership";},true));
-  const rows=check(await sb.rpc("sgc_admin_membership_products",{p_action:"list",p_id:null,p_data:{}}));
-  for(const product of rows){
-    const r=n("div",undefined,"resource-row");
-    r.append(n("span",`${product.name} · R${Number(product.price_zar).toFixed(2)} · ${product.billing} · ${product.access_level} · ${(product.features||[]).length} permissions · ${product.active?"Active":"Archived"}`));
-    r.append(button("Edit",async()=>{editingId=product.id;mf.name.value=product.name;mf.description.value=product.description||"";mf.price.value=product.price_zar;mf.slug.value=product.slug;mf.billing.value=product.billing;mf.access.value=product.access_level;mf.active.checked=product.active;Object.entries(permissionBoxes).forEach(([k,x])=>x.checked=(product.features||[]).includes(k));saveButton.textContent="Save changes";editor.scrollIntoView({behavior:"smooth",block:"start"});},true));
-    r.append(button(product.active?"Archive":"Restore",async()=>{if(!confirm(`${product.active?"Archive":"Restore"} ${product.name}?`))return;await check(await sb.rpc("sgc_admin_membership_products",{p_action:product.active?"archive":"restore",p_id:product.id,p_data:{}}));await show();},true));
-    r.append(button("Delete",async()=>{if(!confirm(`Permanently delete unused membership product ${product.name}? This cannot be undone. Products with membership or payment history must be archived instead.`))return;await check(await sb.rpc("sgc_admin_membership_products",{p_action:"delete",p_id:product.id,p_data:{}}));await show();},true));
-    mp.append(r);
+  function reset(){editingId=null;title.textContent='Add new membership';mf.name.value='';mf.price.value='0';mf.description.value='';mf.billing.value='monthly';mf.access.value='start';drawPermissions();}
+  function values(){
+    const name=mf.name.value.trim(),price=Number(mf.price.value);
+    if(!name||mf.price.value===''||!Number.isFinite(price)||price<0)throw Error('Enter a name and valid price');
+    return {name,price_zar:price,description:mf.description.value,billing:mf.billing.value,access_level:mf.access.value,features:Object.keys(permissionBoxes).filter(k=>permissionBoxes[k].checked)};
   }
-
-  await listPanel("Current customer memberships", "memberships", false, (cell, m) => {
-    const type = selectV2([
-      ["start", plansV2.start.name], ["build", plansV2.build.name]
-    ], m.membership_type);
-    cell.append(type, button("Save access", async () => {
-      await v2("change_membership_access", { id: m.id, membership_type: type.value });
-      await show();
-      say("Membership access changed. The payment provider billing amount remains unchanged.");
-    }, true));
+  async function save(publish){
+    const data={...values(),active:publish};
+    await check(await sb.rpc('sgc_admin_membership_products',{p_action:editingId?'save':'create',p_id:editingId,p_data:data}));
+    await show();say(publish?'Membership published in product catalogue. Confirm storefront checkout integration before selling.':'Membership saved as draft.');
+  }
+  editor.append(button('Save draft',async()=>save(false)),button('Publish to site',async()=>save(true)),button('Clear form',async()=>reset(),true));
+  const list=panel('Existing membership products');
+  const rows=check(await sb.rpc('sgc_admin_membership_products',{p_action:'list',p_id:null,p_data:{}}));
+  for(const product of rows){
+    const r=n('div',undefined,'resource-row');
+    const state=product.sgc_state|| (product.active?'published':'archived');
+    r.append(n('span',`${product.name} · R${Number(product.price_zar).toFixed(2)} · ${product.billing} · ${state} · ${(product.features||[]).length} benefits`));
+    r.append(button('Edit',async()=>{
+      editingId=product.id;title.textContent='Edit membership: '+product.name;
+      mf.name.value=product.name;mf.price.value=product.price_zar;
+      mf.description.value=product.description||'';mf.billing.value=product.billing;mf.access.value=product.access_level;
+      drawPermissions(product.features||[]);editor.scrollIntoView({behavior:'smooth',block:'start'});
+    },true));
+    for(const [label,action] of [['Publish','publish'],['Archive','archive'],['Deactivate','deactivate']]){
+      r.append(button(label,async()=>{
+        if(!confirm(`${label} ${product.name}? Existing payment records will be preserved.`))return;
+        await check(await sb.rpc('sgc_admin_membership_products',{p_action:action,p_id:product.id,p_data:{}}));await show();
+      },true));
+    }
+    r.append(button('Delete',async()=>{
+      if(!confirm(`Permanently delete ${product.name}? Only unused products can be deleted. This cannot be undone.`))return;
+      await check(await sb.rpc('sgc_admin_membership_products',{p_action:'delete',p_id:product.id,p_data:{}}));await show();
+    },true));
+    list.append(r);
+  }
+  await listPanel('Current customer memberships','memberships',false,(cell,m)=>{
+    const type=selectV2([['start',plansV2.start.name],['build',plansV2.build.name]],m.membership_type);
+    cell.append(type,button('Save access',async()=>{
+      await v2('change_membership_access',{id:m.id,membership_type:type.value});await show();
+      say('Access tier updated. Payment provider billing remains unchanged.');
+    },true));
   });
-
-  await listPanel("Individual access grants", "sgc_access_grants");
+  await listPanel('Individual access grants','sgc_access_grants');
 }
 
 async function websiteV2() {
