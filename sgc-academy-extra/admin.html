@@ -1718,84 +1718,81 @@ async function lessonWorkspaceV2(module, lessons, chosen) {
 
 async function membershipsV2() {
   const p=panel('Membership Management');
-  p.append(n('p','Create your own plans, select benefits, save drafts and publish when ready. Existing Start/Build student subscriptions and payment history are not changed by editing these products.','muted'));
+  p.append(n('p','Create memberships with any name, select benefits, preview and publish. No Start/Build tier selection. New plans do not automatically change existing subscribers or checkout integrations.','muted'));
   const editor=n('div',undefined,'panel');p.append(editor);
-  const title=n('h3','Add new membership');editor.append(title);
-  const mf={
-    name:fieldV2(editor,'Membership name'),
-    price:fieldV2(editor,'Price (ZAR)','0','number'),
-    description:fieldV2(editor,'Description','','area')
-  };
-  mf.price.min='0';mf.price.step='0.01';
-  editor.append(n('label','Billing frequency'));
-  mf.billing=selectV2([['monthly','Per month'],['once','Once-off']],'monthly');editor.append(mf.billing);
-  editor.append(n('label','Legacy access tier (used by existing student access rules)'));
-  mf.access=selectV2([['start','Start'],['build','Build']],'start');editor.append(mf.access);
-  const permissionPanel=n('div',undefined,'panel');editor.append(permissionPanel);
-  permissionPanel.append(n('h3','Membership access — tick all benefits included'));
-  const permissionBoxes={};
-  function drawPermissions(values=[]) {
-    permissionPanel.replaceChildren(n('h3','Membership access — tick all benefits included'));
-    for(const feature of plansV2.features){
-      permissionBoxes[feature.key]=tickV2(permissionPanel,feature.label,values.includes(feature.key));
-    }
+  const heading=n('h3','Add New Membership');editor.append(heading);
+  const name=fieldV2(editor,'Membership name');
+  const price=fieldV2(editor,'Price (R)','0','number');price.min='0';price.step='0.01';
+  editor.append(n('label','Billing'));
+  const billing=selectV2([['monthly','Per month'],['once','Once-off']],'monthly');editor.append(billing);
+  const description=fieldV2(editor,'Description','','area');
+  const accessPanel=n('div',undefined,'panel');editor.append(accessPanel);
+  const addAccess=fieldV2(editor,'Add new access type');
+  let editing=null,features=[],checkboxes={};
+  const rpc=async(action,id=null,data={})=>check(await sb.rpc('sgc_named_membership_admin',{p_action:action,p_id:id,p_data:data}));
+  async function loadFeatures(){features=await rpc('features');}
+  function drawAccess(selected=[]){
+    accessPanel.replaceChildren(n('h3','Access permissions — tick included benefits'));
+    checkboxes={};
+    for(const f of features)checkboxes[f.key]=tickV2(accessPanel,f.label,selected.includes(f.key));
   }
-  drawPermissions();
-  const newAccess=fieldV2(editor,'Add new access type (available for every membership)');
-  editor.append(button('Add access type',async()=>{
-    const label=newAccess.value.trim();
-    const key=label.toLowerCase().replace(/[^a-z0-9]+/g,'_').replace(/^_|_$/g,'');
-    if(!key||plansV2.features.some(f=>f.key===key))throw Error('Enter a unique access type');
-    const current=Object.keys(permissionBoxes).filter(k=>permissionBoxes[k].checked);
-    const cfg=structuredClone(plansV2);cfg.features.push({key,label});
-    await v2('save_memberships',cfg);plansV2=cfg;
-    drawPermissions([...current,key]);newAccess.value='';say('Access type added to the master list.');
+  await loadFeatures();drawAccess();
+  editor.append(button('Add access to master list',async()=>{
+    const label=addAccess.value.trim();
+    if(!label)throw Error('Enter an access name');
+    const current=Object.keys(checkboxes).filter(k=>checkboxes[k].checked);
+    await rpc('add_feature',null,{label});
+    await loadFeatures();
+    const created=features.find(f=>f.label.toLowerCase()===label.toLowerCase());
+    drawAccess(created?[...current,created.key]:current);
+    addAccess.value='';say('Access type added for all membership editors.');
   },true));
-  let editingId=null;
-  function reset(){editingId=null;title.textContent='Add new membership';mf.name.value='';mf.price.value='0';mf.description.value='';mf.billing.value='monthly';mf.access.value='start';drawPermissions();}
-  function values(){
-    const name=mf.name.value.trim(),price=Number(mf.price.value);
-    if(!name||mf.price.value===''||!Number.isFinite(price)||price<0)throw Error('Enter a name and valid price');
-    return {name,price_zar:price,description:mf.description.value,billing:mf.billing.value,access_level:mf.access.value,features:Object.keys(permissionBoxes).filter(k=>permissionBoxes[k].checked)};
+  function formData(){
+    const amount=Number(price.value);
+    if(!name.value.trim()||price.value===''||!Number.isFinite(amount)||amount<0)throw Error('Enter a membership name and valid price');
+    return {name:name.value.trim(),price_zar:amount,billing:billing.value,description:description.value,features:Object.keys(checkboxes).filter(k=>checkboxes[k].checked)};
   }
-  async function save(publish){
-    const data={...values(),active:publish};
-    await check(await sb.rpc('sgc_admin_membership_products',{p_action:editingId?'save':'create',p_id:editingId,p_data:data}));
-    await show();say(publish?'Membership published in product catalogue. Confirm storefront checkout integration before selling.':'Membership saved as draft.');
+  function reset(){editing=null;heading.textContent='Add New Membership';name.value='';price.value='0';billing.value='monthly';description.value='';drawAccess();}
+  function preview(d){
+    const overlay=n('div');overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:99999;display:grid;place-items:center;padding:16px';
+    const card=n('div',undefined,'panel');card.style.cssText='max-width:440px;width:100%;background:#fff;color:#171516;padding:26px;border-radius:18px;max-height:90vh;overflow:auto';
+    card.append(n('small','SGC NETWORK · WEBSITE MEMBERSHIP PREVIEW'),n('h2',d.name),n('h1',`R${Number(d.price_zar).toFixed(2)} ${d.billing==='monthly'?'/ month':'once-off'}`),n('p',d.description||''));
+    const ul=n('ul');for(const key of (d.features||[])){const f=features.find(x=>x.key===key);if(f)ul.append(n('li','✓ '+f.label));}card.append(ul);
+    card.append(n('p','Preview only — checkout is not connected.','muted'));
+    card.append(button('Close preview',()=>overlay.remove(),true));overlay.append(card);overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove()});document.body.append(overlay);
   }
-  editor.append(button('Save draft',async()=>save(false)),button('Publish to site',async()=>save(true)),button('Clear form',async()=>reset(),true));
-  const list=panel('Existing membership products');
-  const rows=check(await sb.rpc('sgc_admin_membership_products',{p_action:'list',p_id:null,p_data:{}}));
-  for(const product of rows){
-    const r=n('div',undefined,'resource-row');
-    const state=product.sgc_state|| (product.active?'published':'archived');
-    r.append(n('span',`${product.name} · R${Number(product.price_zar).toFixed(2)} · ${product.billing} · ${state} · ${(product.features||[]).length} benefits`));
-    r.append(button('Edit',async()=>{
-      editingId=product.id;title.textContent='Edit membership: '+product.name;
-      mf.name.value=product.name;mf.price.value=product.price_zar;
-      mf.description.value=product.description||'';mf.billing.value=product.billing;mf.access.value=product.access_level;
-      drawPermissions(product.features||[]);editor.scrollIntoView({behavior:'smooth',block:'start'});
-    },true));
-    for(const [label,action] of [['Publish','publish'],['Archive','archive'],['Deactivate','deactivate']]){
-      r.append(button(label,async()=>{
-        if(!confirm(`${label} ${product.name}? Existing payment records will be preserved.`))return;
-        await check(await sb.rpc('sgc_admin_membership_products',{p_action:action,p_id:product.id,p_data:{}}));await show();
-      },true));
+  async function save(publish=false){
+    const result=await rpc(editing?'save':'create',editing,{...formData(),state:publish?'published':'draft'});
+    if(publish)say('Membership marked published in catalogue. Public site checkout requires separate integration.');
+    else say('Membership saved.');
+    await show();
+  }
+  editor.append(button('Save draft',async()=>save(false)),button('Publish',async()=>save(true)),button('Preview on site',()=>preview(formData()),true),button('Clear',reset,true));
+  const list=panel('All Existing Memberships');
+  const rows=await rpc('list');
+  const scroll=n('div');scroll.style.cssText='overflow-x:auto;width:100%';
+  const table=n('table');table.style.cssText='width:100%;border-collapse:collapse;min-width:1050px';
+  const head=n('thead');const hr=n('tr');
+  for(const label of ['Membership name','Price','Billing','Description','Access','Status','Actions']){const th=n('th',label);th.style.cssText='text-align:left;padding:12px;border-bottom:1px solid #aaa';hr.append(th);}
+  head.append(hr);table.append(head);const body=n('tbody');
+  for(const d of rows){
+    const tr=n('tr');const cell=(text)=>{const td=n('td',text);td.style.cssText='padding:10px;border-bottom:1px solid #ddd;vertical-align:top';tr.append(td);return td};
+    cell(d.name);cell('R'+Number(d.price_zar).toFixed(2));cell(d.billing==='monthly'?'Per month':'Once-off');
+    cell(d.description||'—');cell((d.features||[]).map(k=>features.find(f=>f.key===k)?.label||k).join(', ')||'None');
+    cell(d.state);const actions=cell('');
+    actions.style.minWidth='350px';
+    const add=(label,handler)=>actions.append(button(label,handler,true));
+    add('Edit',()=>{editing=d.id;heading.textContent='Edit: '+d.name;name.value=d.name;price.value=d.price_zar;billing.value=d.billing;description.value=d.description||'';drawAccess(d.features||[]);editor.scrollIntoView({behavior:'smooth',block:'start'});});
+    add('Preview on site',()=>preview(d));
+    add('Save',async()=>{await rpc('save',d.id,{...d,state:'draft'});await show();});
+    for(const [label,state] of [['Publish','published'],['Archive','archived'],['Deactivate','deactivated']]){
+      add(label,async()=>{if(!confirm(`${label} "${d.name}"?`))return;await rpc('state',d.id,{state});await show();});
     }
-    r.append(button('Delete',async()=>{
-      if(!confirm(`Permanently delete ${product.name}? Only unused products can be deleted. This cannot be undone.`))return;
-      await check(await sb.rpc('sgc_admin_membership_products',{p_action:'delete',p_id:product.id,p_data:{}}));await show();
-    },true));
-    list.append(r);
+    add('Delete',async()=>{if(!confirm(`Delete "${d.name}"? Only never-published drafts can be deleted.`))return;await rpc('delete',d.id,{});await show();});
+    body.append(tr);
   }
-  await listPanel('Current customer memberships','memberships',false,(cell,m)=>{
-    const type=selectV2([['start',plansV2.start.name],['build',plansV2.build.name]],m.membership_type);
-    cell.append(type,button('Save access',async()=>{
-      await v2('change_membership_access',{id:m.id,membership_type:type.value});await show();
-      say('Access tier updated. Payment provider billing remains unchanged.');
-    },true));
-  });
-  await listPanel('Individual access grants','sgc_access_grants');
+  table.append(body);scroll.append(table);list.append(scroll);
+  list.append(n('p','Existing customer subscriptions and access grants remain unchanged. Published plans require storefront/payment integration before accepting orders.','muted'));
 }
 
 async function websiteV2() {
