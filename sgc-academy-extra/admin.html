@@ -1797,6 +1797,43 @@ async function membershipsV2() {
     await show();
   }));
 
+  // Independent membership-product management. Existing Start/Build controls above remain unchanged.
+  const mp = panel("Membership products — Add / Edit / Archive / Delete");
+  mp.append(n("p", "Manage purchasable membership products. Archiving hides a plan from new purchases; existing billing and access remain unchanged.", "muted"));
+  const editor = n("div", undefined, "panel");
+  mp.append(editor);
+  editor.append(n("h3", "Add new membership"));
+  const mf = {
+    name: fieldV2(editor,"Membership name"),
+    description: fieldV2(editor,"Description","","area"),
+    price: fieldV2(editor,"Price (ZAR)","0","number"),
+    slug: fieldV2(editor,"Unique slug (leave blank to generate)"),
+  };
+  mf.price.min="0"; mf.price.step="0.01";
+  editor.append(n("label","Billing frequency"));
+  mf.billing=selectV2([["monthly","Monthly"],["once","Once-off"]],"monthly");editor.append(mf.billing);
+  editor.append(n("label","Access level"));
+  mf.access=selectV2([["start","Start"],["build","Build"]],"start");editor.append(mf.access);
+  mf.active=tickV2(editor,"Available for new purchases",true);
+  let editingId=null;
+  const saveButton=button("Add new membership",async()=>{
+    const name=mf.name.value.trim();const price=Number(mf.price.value);
+    if(!name || !Number.isFinite(price) || price<0)throw Error("Enter a name and valid price");
+    const data={name,description:mf.description.value,price_zar:price,slug:mf.slug.value.trim(),billing:mf.billing.value,access_level:mf.access.value,active:mf.active.checked};
+    await check(await sb.rpc("sgc_admin_membership_products",{p_action:editingId?"save":"create",p_id:editingId,p_data:data}));
+    await show();say("Membership product saved. Existing customer subscriptions were not changed.");
+  });
+  editor.append(saveButton,button("Clear form",async()=>{editingId=null;mf.name.value="";mf.description.value="";mf.price.value="0";mf.slug.value="";mf.billing.value="monthly";mf.access.value="start";mf.active.checked=true;saveButton.textContent="Add new membership";},true));
+  const rows=check(await sb.rpc("sgc_admin_membership_products",{p_action:"list",p_id:null,p_data:{}}));
+  for(const product of rows){
+    const r=n("div",undefined,"resource-row");
+    r.append(n("span",`${product.name} · R${Number(product.price_zar).toFixed(2)} · ${product.billing} · ${product.access_level} · ${product.active?"Active":"Archived"}`));
+    r.append(button("Edit",async()=>{editingId=product.id;mf.name.value=product.name;mf.description.value=product.description||"";mf.price.value=product.price_zar;mf.slug.value=product.slug;mf.billing.value=product.billing;mf.access.value=product.access_level;mf.active.checked=product.active;saveButton.textContent="Save changes";editor.scrollIntoView({behavior:"smooth",block:"start"});},true));
+    r.append(button(product.active?"Archive":"Restore",async()=>{if(!confirm(`${product.active?"Archive":"Restore"} ${product.name}?`))return;await check(await sb.rpc("sgc_admin_membership_products",{p_action:product.active?"archive":"restore",p_id:product.id,p_data:{}}));await show();},true));
+    r.append(button("Delete",async()=>{if(!confirm(`Permanently delete unused membership product ${product.name}? This cannot be undone. Products with membership or payment history must be archived instead.`))return;await check(await sb.rpc("sgc_admin_membership_products",{p_action:"delete",p_id:product.id,p_data:{}}));await show();},true));
+    mp.append(r);
+  }
+
   await listPanel("Current customer memberships", "memberships", false, (cell, m) => {
     const type = selectV2([
       ["start", plansV2.start.name], ["build", plansV2.build.name]
