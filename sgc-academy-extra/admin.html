@@ -2849,61 +2849,84 @@ async function bookingsView() {
   const root = $('content');
   root.replaceChildren();
   root.append(button('Back to meeting products',meetingProductsView),button('Refresh bookings',bookingsView));
-
-  for(const b of rows) {
-    const section = n('section');
-
-    section.append(
-      n('h3',b.name),
-      n('p',b.email),
-      n('p','Booked on: '+new Date(b.created_at).toLocaleString('en-ZA',{timeZone:'Africa/Johannesburg'})),
-      n('p','Session duration: '+Math.round((Date.parse(b.ends_at)-Date.parse(b.starts_at))/60000)+' minutes'),
-      n('p',
-        new Date(b.starts_at).toLocaleString('en-ZA',{
-          timeZone:'Africa/Johannesburg'
-        }) + ' · R' + Number(b.amount_zar).toFixed(2)
-      ),
-      n('p','Booking: ' + b.status + ' · Payment: ' + b.payment_status),
-      n('p',b.notes || '','notice')
-    );
-
-    if(b.last_error) section.append(n('p',b.last_error,'notice'));
-
-    if(b.payment_status === 'pending' && b.status === 'hold') {
-      section.append(button('Verify received payment',async () => {
-        const note = prompt('Record how you verified the actual payment.');
-        if(!note) return;
-        await api({
-          action:'admin_confirm',
-          booking_id:b.id,
-          note
-        });
-        await bookingsView();
-        $('status').textContent =
-          'Payment recorded. Check the booking status below.';
-      }));
-    }
-
-    if(['paid_pending_calendar','cancel_pending'].includes(b.status)) {
-      section.append(button('Retry calendar update',async () => {
-        await api({action:'retry',booking_id:b.id});
-        await bookingsView();
-      }));
-    }
-
-    if(!['cancelled','expired'].includes(b.status)) {
-      section.append(button('Cancel booking',async () => {
-        if(!confirm('Cancel this booking? Any refund must be handled separately.')) return;
-        await api({action:'cancel',booking_id:b.id});
-        await bookingsView();
-      }));
-    }
-
-    await recordingControls(section,b);
-    root.append(section);
+  root.append(n('h2','Meeting bookings'));
+  const styleId='sgc-bookings-table-styles';
+  if(!document.getElementById(styleId)) {
+    const st=n('style');st.id=styleId;
+    st.textContent=`.sgc-bookings-wrap{width:100%;overflow-x:auto;margin-top:18px;border:1px solid #665a43;border-radius:12px}.sgc-bookings-table{width:100%;min-width:1420px;border-collapse:collapse;background:#111;color:#f7f1e6;font:13px/1.5 Arial,sans-serif}.sgc-bookings-table th{background:#28231c;color:#e9ce8a;text-align:left;white-space:nowrap;padding:13px 12px;position:sticky;top:0}.sgc-bookings-table td{padding:13px 12px;border-top:1px solid #413a30;vertical-align:top;max-width:240px;overflow-wrap:anywhere}.sgc-bookings-table tr:hover td{background:#1e1a16}.sgc-bookings-table .sgc-sub{display:block;font-size:11px;color:#b8b1a4;margin-top:4px}.sgc-bookings-table .sgc-actions{display:flex;flex-wrap:wrap;gap:6px;min-width:200px}.sgc-bookings-table .sgc-actions button{font-size:11px;padding:6px 9px;border-radius:5px;cursor:pointer;white-space:nowrap}.sgc-bookings-table .sgc-complete{color:#a9e7bd;font-weight:bold}.sgc-bookings-table .sgc-comment{white-space:pre-wrap;max-width:240px}`;
+    document.head.append(st);
   }
-
-  if(!rows.length) root.append(n('section','No bookings yet.'));
+  if(!rows.length){root.append(n('section','No bookings yet.'));return;}
+  const fmtDate=value=>value?new Date(value).toLocaleString('en-ZA',{timeZone:'Africa/Johannesburg'}):'—';
+  const wrap=n('div');wrap.className='sgc-bookings-wrap';
+  const table=n('table');table.className='sgc-bookings-table';
+  const thead=n('thead'),head=n('tr');
+  ['Meeting name','Client / username','Email','Booked on','Duration','Scheduled for','Amount','Booking status','Payment / method','Comment','Actions'].forEach(label=>head.append(n('th',label)));
+  thead.append(head);table.append(thead);
+  const tbody=n('tbody');table.append(tbody);wrap.append(table);root.append(wrap);
+  let completedIds=[];
+  try { completedIds=check(await sb.rpc('sgc_admin_completed_meetings',{p_action:'list'}))||[]; }
+  catch(err){ console.warn('Meeting completion tracking not yet enabled:',err); }
+  const completed=new Set(completedIds.map(x=>typeof x==='string'?x:x.booking_id));
+  for(const b of rows){
+    const tr=n('tr');
+    const add=(value,cls)=>{const td=n('td',String(value??'—'));if(cls)td.className=cls;tr.append(td);return td;};
+    add(b.name||'—');
+    // The booking API currently returns email but not a separate student username.
+    add(b.username||b.client_username||b.client_name||'Not provided');
+    add(b.email||'—');
+    add(fmtDate(b.created_at));
+    add(b.starts_at&&b.ends_at?Math.round((Date.parse(b.ends_at)-Date.parse(b.starts_at))/60000)+' min':'—');
+    add(fmtDate(b.starts_at));
+    add('R'+Number(b.amount_zar||0).toFixed(2));
+    const status=add(b.status||'—');
+    if(completed.has(b.id)){const sub=n('span','Meeting held ✓','sgc-sub sgc-complete');status.append(sub);}
+    add((b.payment_status||'—')+(b.payment_method?' · '+b.payment_method:''));
+    const notes=add(b.notes||'—','sgc-comment');
+    if(b.last_error)notes.append(n('span','Error: '+b.last_error,'sgc-sub'));
+    const actions=n('td');const actionBox=n('div');actionBox.className='sgc-actions';actions.append(actionBox);tr.append(actions);
+    if(b.payment_status==='pending'&&b.status==='hold'){
+      actionBox.append(button('Verify payment',async()=>{
+        const note=prompt('Record how you verified the actual payment.');if(!note)return;
+        await api({action:'admin_confirm',booking_id:b.id,note});await bookingsView();
+        $('status').textContent='Payment recorded. Check the booking status below.';
+      }));
+    }
+    if(['paid_pending_calendar','cancel_pending'].includes(b.status)){
+      actionBox.append(button('Retry calendar',async()=>{await api({action:'retry',booking_id:b.id});await bookingsView();}));
+    }
+    if(!['cancelled','expired'].includes(b.status)){
+      actionBox.append(button('Cancel booking',async()=>{
+        if(!confirm('Cancel this booking? Any refund must be handled separately.'))return;
+        await api({action:'cancel',booking_id:b.id});await bookingsView();
+      }));
+    }
+    if(b.status==='confirmed'){
+      actionBox.append(button('Attach recording',async()=>{
+        const drive_link=prompt('Paste the Google Drive video file link.');if(!drive_link)return;
+        const title=prompt('Recording title',b.name+' recording');if(!title)return;
+        const saved=await recordingApi({action:'publish',booking_id:b.id,drive_link,title});
+        say('Published. Student access ends '+fmtDate(saved.student_expires_at)+'.');await bookingsView();
+      }));
+    }
+    try{
+      const recordings=check(await sb.rpc('sgc_recordings_admin',{p_booking:b.id}))||[];
+      for(const r of recordings){
+        actionBox.append(button('Watch recording',()=>openAdminRecording(r.id)));
+        actionBox.append(button('Delete recording',()=>deleteAdminRecording(r.id,r.title,bookingsView)));
+      }
+    }catch(err){console.error('Unable to load recordings for booking',b.id,err);actionBox.append(n('span','Recordings unavailable','sgc-sub'));}
+    if(completed.has(b.id)){
+      actionBox.append(n('span','✓ Completed','sgc-complete'));
+    }else if(b.status==='confirmed'){
+      actionBox.append(button('Completed — meeting held',async()=>{
+        if(!confirm('Mark this meeting as completed and held? This does not change the payment or cancel the booking.'))return;
+        check(await sb.rpc('sgc_admin_completed_meetings',{p_action:'complete',p_booking:b.id}));
+        await bookingsView();say('Meeting marked as held.');
+      }));
+    }
+    tbody.append(tr);
+  }
 }
 
 async function tasksView() {
