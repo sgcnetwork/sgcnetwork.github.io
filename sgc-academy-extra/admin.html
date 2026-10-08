@@ -2780,26 +2780,52 @@ async function recordingApi(body){
  if(r.error){let msg=r.error.message;try{msg=(await r.error.context.json()).error||msg;}catch{}throw Error(msg);}
  if(r.data?.error)throw Error(r.data.error);return r.data;
 }
+async function openAdminRecording(recordingId){
+ const data=await recordingApi({action:'play',recording_id:recordingId});
+ const url=new URL(data.url);
+ if(url.protocol!=='https:'||url.hostname!=='drive.google.com')throw Error('Invalid Google Drive recording link.');
+ const link=n('a','Open recording in Google Drive ↗');
+ link.href=url.href;link.target='_blank';link.rel='noopener noreferrer';
+ link.click();
+}
+async function deleteAdminRecording(recordingId,title,refresh){
+ if(!confirm('Delete "'+title+'" from SGC?\n\nThe student will lose access through their SGC dashboard immediately. The original Google Drive video will NOT be deleted.'))return;
+ check(await sb.rpc('sgc_delete_meeting_recording',{p_recording:recordingId}));
+ say('Recording deleted from SGC. Original Google Drive video unchanged.');
+ await refresh();
+}
 async function recordingControls(card,booking){
  const rows=check(await sb.rpc('sgc_recordings_admin',{p_booking:booking.id}));
  if(booking.status==='confirmed')card.append(button('Attach Drive recording',async()=>{
-  const drive_link=prompt('Paste the video file link from your private SGC bookings recordings folder.');if(!drive_link)return;
+  const drive_link=prompt('Paste the Google Drive video file link.');if(!drive_link)return;
   const title=prompt('Recording title',booking.name+' recording');if(!title)return;
   const saved=await recordingApi({action:'publish',booking_id:booking.id,drive_link,title});
-  $('status').textContent='Published. Student access ends '+new Date(saved.student_expires_at).toLocaleString('en-ZA',{timeZone:'Africa/Johannesburg'})+'.';
+  say('Published. Student access ends '+new Date(saved.student_expires_at).toLocaleString('en-ZA',{timeZone:'Africa/Johannesburg'})+'.');
   card.append(n('p',saved.title+' — recording attached. Refresh this view to watch.'));
  }));
  for(const r of rows){
-  const block=n('div');block.append(n('p',r.title+' · Student access '+(Date.parse(r.student_expires_at)>Date.now()?'until '+new Date(r.student_expires_at).toLocaleString('en-ZA',{timeZone:'Africa/Johannesburg'}):'expired')+' · Admin access retained'));
-  block.append(button('Watch recording',async()=>{const data=await recordingApi({action:'play',recording_id:r.id});const video=n('video');video.controls=true;video.preload='metadata';video.style.width='100%';video.src=data.url;block.append(video);}));card.append(block);
+  const block=n('div');
+  block.append(n('p',r.title+' · Student access '+(Date.parse(r.student_expires_at)>Date.now()?'until '+new Date(r.student_expires_at).toLocaleString('en-ZA',{timeZone:'Africa/Johannesburg'}):'expired')+' · Admin access retained'));
+  block.append(button('Watch recording',()=>openAdminRecording(r.id),true));
+  block.append(button('Delete recording',()=>deleteAdminRecording(r.id,r.title,async()=>{
+   block.remove();
+  }),true));
+  card.append(block);
  }
 }
 async function recordingLibraryView(){
- dirty=false;const root=$('content');root.replaceChildren();root.append(button('Back to meeting products',meetingProductsView));
+ dirty=false;const root=$('content');root.replaceChildren();
+ root.append(button('Back to meeting products',meetingProductsView));
  const rows=check(await sb.rpc('sgc_recordings_admin',{p_booking:null}));
  root.append(n('h2','SGC bookings recordings'));
- if(!rows.length)root.append(n('p','No recordings attached yet. Record your call, upload it to the private Drive folder, then attach it under Bookings.'));
- for(const r of rows){const card=n('section');card.append(n('h3',r.title),n('p',r.booking_name),n('p','Student visibility ends: '+new Date(r.student_expires_at).toLocaleString('en-ZA',{timeZone:'Africa/Johannesburg'})),button('Watch recording',async()=>{const data=await recordingApi({action:'play',recording_id:r.id});const video=n('video');video.controls=true;video.style.width='100%';video.src=data.url;card.append(video);}));root.append(card);}
+ if(!rows.length)root.append(n('p','No recordings attached yet. Record your call, upload it to Google Drive, then attach it under Bookings.'));
+ for(const r of rows){
+  const card=n('section');
+  card.append(n('h3',r.title),n('p',r.booking_name),n('p','Student visibility ends: '+new Date(r.student_expires_at).toLocaleString('en-ZA',{timeZone:'Africa/Johannesburg'})));
+  card.append(button('Watch recording',()=>openAdminRecording(r.id),true));
+  card.append(button('Delete recording',()=>deleteAdminRecording(r.id,r.title,recordingLibraryView),true));
+  root.append(card);
+ }
 }
 async function meetingProductsView() {
   dirty=false;await reload();
