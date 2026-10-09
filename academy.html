@@ -213,7 +213,7 @@ function sidebar(){
   }
   const b=n('button',(responses.get(l.id)?.completed?'✓ ':'')+
    l.position+'. '+l.title,'lesson'+(l.id===current?' active':''));
-  b.onclick=safe(()=>{if(current&&lessons.findIndex(x=>x.id===l.id)>index()&&!requireQuiz())return;return open(l.id)});
+  b.onclick=safe(()=>open(l.id));
   list.append(b);
  }
  const percent=lessons.length?
@@ -309,6 +309,8 @@ async function mediaFile(r){
 }
 async function open(id){
  if(busy||!guard())return;
+ const targetIndex=lessons.findIndex(l=>l.id===id);
+ if(current&&targetIndex>index()&&!requireQuiz())return;
  busy=true;controls();$('classroom').hidden=true;say('Opening lesson…');
  try{
   const lesson=check(await sb.from('sgc_extra_lessons')
