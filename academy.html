@@ -90,7 +90,7 @@ html[data-academy-theme="light"] .sticky{background:#f5dfe8}
 .academy-appearance button[aria-pressed="true"]{background:var(--gold);border-color:var(--gold);color:var(--bg);font-weight:700}
 html[data-academy-theme="light"] .academy-appearance button[aria-pressed="true"]{color:#fff}
 .academy-appearance button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
-</style>
+.quiz-count{display:inline-block;margin:4px 0 15px;padding:9px 13px;background:var(--panel);border:1px solid var(--gold);color:var(--gold);border-radius:10px;font-size:12px;font-weight:700}.reflection fieldset{border:1px solid var(--line);padding:15px;border-radius:12px;margin:16px 0}.reflection legend{font-size:15px;color:var(--text);padding:0 7px}.reflection .choice{border-radius:10px}.reflection #quiz-submit{border-radius:10px;font-weight:700}html[data-academy-theme="light"] .quiz-count{background:#f5eaf6;color:#654368}</style>
 </head>
 <body>
 <aside class="sidebar">
@@ -162,7 +162,7 @@ html[data-academy-theme="light"] .academy-appearance button[aria-pressed="true"]
 
 <aside class="panel reflection">
 <span class="eyebrow">Implement · Knowledge check</span>
-<h2 id="reflection-title">Before we continue…</h2>
+<h2 id="reflection-title">Before we continue…</h2><div id="quiz-count" class="quiz-count" hidden></div>
 <p id="reflection-intro" class="prompt muted"></p>
 <p id="prompt" class="prompt muted"></p>
 <form id="quiz-form">
@@ -435,6 +435,8 @@ async function open(id){
    $('questions').append(field);
   }
 
+  $('quiz-count').hidden=!questions.length;
+  $('quiz-count').textContent=questions.length?questions.length+' question'+(questions.length===1?'':'s')+' · Answer and submit before continuing':'';
   $('quiz-form').hidden=!questions.length;
   $('quiz-status').textContent=!questions.length?
    'Your facilitator has not added a quiz yet.':
