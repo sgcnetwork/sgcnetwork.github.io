@@ -159,6 +159,8 @@ const sb=window.supabase?.createClient(
 );
 let user,lessons=[],responses=new Map(),current=null,questions=[];
 let busy=false,dirty=false,quizDirty=false;
+function quizGate(){return !!(current&&questions.length&&!responses.get(current)?.completed)}
+function requireQuiz(){if(quizGate()){say('Complete and submit this lesson quiz before moving to the next lesson.');return false}return true}
 let moduleNames=new Map();
 
 function n(tag,text,cls){
@@ -191,7 +193,7 @@ function controls(){
   'logout','notes','learn','connect','preferences'
  ])$(id).disabled=busy;
  $('previous').disabled=busy||index()<=0;
- $('next').disabled=busy||index()<0||index()>=lessons.length-1;
+ $('next').disabled=busy||index()<0||index()>=lessons.length-1||quizGate();
  document.querySelectorAll('.lesson').forEach(b=>b.disabled=busy);
  document.querySelectorAll('#questions input').forEach(b=>b.disabled=busy);
 }
@@ -211,7 +213,7 @@ function sidebar(){
   }
   const b=n('button',(responses.get(l.id)?.completed?'✓ ':'')+
    l.position+'. '+l.title,'lesson'+(l.id===current?' active':''));
-  b.onclick=safe(()=>open(l.id));
+  b.onclick=safe(()=>{if(current&&lessons.findIndex(x=>x.id===l.id)>index()&&!requireQuiz())return;return open(l.id)});
   list.append(b);
  }
  const percent=lessons.length?
@@ -443,6 +445,7 @@ $('quiz-form').onsubmit=async e=>{
 };
 
 $('continue').onclick=safe(async()=>{
+ if(!requireQuiz())return;
  const l=lessons[index()+1];
  if(l)await open(l.id);
  else say('You have reached the end of your currently available lessons.');
@@ -451,6 +454,7 @@ $('previous').onclick=safe(()=>{
  const l=lessons[index()-1];if(l)return open(l.id);
 });
 $('next').onclick=safe(()=>{
+ if(!requireQuiz())return;
  const l=lessons[index()+1];if(l)return open(l.id);
 });
 $('refresh').onclick=safe(load);
