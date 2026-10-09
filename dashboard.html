@@ -63,6 +63,24 @@ footer{padding:35px 0;border-top:1px solid var(--line);font-size:12px;color:var(
  .site-nav{gap:16px;flex-wrap:wrap}
  .section-head{flex-wrap:wrap}
 }
+
+/* Student learning portfolio */
+.learning-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:20px 0}
+.learning-stat{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:20px}
+.learning-stat strong{display:block;font:32px Georgia,serif;margin-top:7px}
+.learning-module{border:1px solid var(--line);border-radius:20px;background:var(--paper);margin:13px 0;overflow:hidden}
+.learning-module>summary{list-style:none;cursor:pointer;padding:22px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.learning-module>summary::-webkit-details-marker{display:none}
+.learning-module>summary h3{margin:5px 0 8px}
+.learning-track{height:7px;border-radius:9px;background:#e7e1d8;overflow:hidden;margin-top:12px}
+.learning-track>span{height:100%;display:block;background:#7b6a8f}
+.learning-lesson{border-top:1px solid var(--line);padding:15px 22px}
+.learning-lesson summary{cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;font-weight:600}
+.learning-detail{padding:14px 0 4px;white-space:pre-wrap;overflow-wrap:anywhere}
+.learning-detail h4{font-size:13px;margin:12px 0 6px}
+.learning-detail p{margin:4px 0 12px;line-height:1.6}
+.learning-empty{padding:22px;border:1px dashed var(--line);border-radius:18px}
+@media(max-width:650px){.learning-summary{grid-template-columns:1fr}.learning-module>summary{align-items:flex-start;flex-direction:column}}
 </style>
 </head>
 <body>
@@ -121,6 +139,17 @@ footer{padding:35px 0;border-top:1px solid var(--line);font-size:12px;color:var(
 </div>
 </section>
 
+
+<section class="section" id="my-learning">
+<div class="section-head">
+<div><div class="eyebrow">Your personal learning record</div><h2>My Learning Portfolio</h2>
+<p class="muted">Your completed lessons, saved notes and submitted quizzes, organised by module. Only you can view your learning record.</p></div>
+<a class="btn alt" href="academy.html">Continue learning →</a>
+</div>
+<div class="learning-summary" id="learning-summary" aria-live="polite"></div>
+<p class="muted" id="learning-status" role="status">Loading your learning portfolio…</p>
+<div id="learning-modules"></div>
+</section>
 <section class="section">
 <div class="section-head">
 <div><div class="eyebrow">Purchases & balances</div><h2>Your kits</h2></div>
@@ -359,6 +388,78 @@ footer{padding:35px 0;border-top:1px solid var(--line);font-size:12px;color:var(
    setTimeout(load,0);
   }
  });
+})();
+</script>
+
+<script>
+(()=>{
+ const $=id=>document.getElementById(id);
+ const client=window.sgcSupabase||window.supabase?.createClient('https://bxpexanyoyubxeqqlggh.supabase.co','sb_publishable_Z0_Y-Bj_G5qw4hMgDbQlgA__jj8rGGq');
+ const el=(tag,content,cls)=>{const n=document.createElement(tag);if(content!==undefined)n.textContent=content;if(cls)n.className=cls;return n;};
+ const date=d=>d?new Date(d).toLocaleDateString('en-ZA',{year:'numeric',month:'short',day:'numeric'}):'';
+ const required=async promise=>{const r=await promise;if(r.error)throw r.error;return r.data||[];};
+ async function loadPortfolio(){
+  const root=$('learning-modules'),status=$('learning-status'),summary=$('learning-summary');
+  if(!client){status.textContent='Unable to connect to your account. Refresh to retry.';return;}
+  try{
+   const auth=await client.auth.getUser();if(auth.error)throw auth.error;
+   const user=auth.data.user;
+   if(!user){status.textContent='Sign in to see your learning portfolio.';return;}
+   const [modules,lessons,notes,quizzes,locked]=await Promise.all([
+    required(client.from('sgc_console_modules').select('module_no,title').order('module_no')),
+    required(client.from('sgc_extra_lessons').select('id,title,module_no,position').eq('published',true).order('module_no').order('position')),
+    required(client.from('sgc_extra_responses').select('lesson_id,answer,completed,updated_at').eq('user_id',user.id)),
+    required(client.rpc('sgc_my_learning_quizzes')),
+    required(client.rpc('sgc_academy_locked_modules'))
+   ]);
+   const demo=await required(client.rpc('sgc_extra_is_demo'));
+   const denied=new Set(demo?[]:locked);
+   const visible=lessons.filter(l=>!denied.has(l.module_no));
+   const saved=new Map(notes.map(n=>[n.lesson_id,n]));
+   const quiz=new Map(quizzes.map(q=>[q.lesson_id,q]));
+   const names=new Map(modules.map(m=>[m.module_no,m.title]));
+   const groups=new Map();
+   for(const lesson of visible){if(!groups.has(lesson.module_no))groups.set(lesson.module_no,[]);groups.get(lesson.module_no).push(lesson);}
+   const completed=visible.filter(l=>saved.get(l.id)?.completed).length;
+   const finished=[...groups.values()].filter(group=>group.every(l=>saved.get(l.id)?.completed)).length;
+   summary.replaceChildren();
+   for(const [label,value] of [['Lessons completed',completed+' / '+visible.length],['Modules completed',finished+' / '+groups.size],['Quiz submissions',quizzes.filter(q=>visible.some(l=>l.id===q.lesson_id)).length]]){
+    const card=el('div',undefined,'learning-stat');card.append(el('span',label,'muted'),el('strong',value));summary.append(card);
+   }
+   root.replaceChildren();
+   if(!groups.size){root.append(el('p','Your available Academy modules will appear here once access is granted.','learning-empty'));status.textContent='';return;}
+   for(const [number,items] of groups){
+    const done=items.filter(l=>saved.get(l.id)?.completed).length;
+    const pct=Math.round(done/items.length*100);
+    const module=el('details',undefined,'learning-module');
+    const header=el('summary');
+    const left=el('div');left.style.flex='1';
+    left.append(el('span','MODULE '+number,'eyebrow'),el('h3',names.get(number)||'Module '+number),el('p',done+' of '+items.length+' lessons completed','muted'));
+    const track=el('div',undefined,'learning-track'),fill=el('span');fill.style.width=pct+'%';track.append(fill);left.append(track);
+    header.append(left,el('span',pct===100?'✓ Completed':pct+'% complete','pill'));module.append(header);
+    for(const l of items){
+     const n=saved.get(l.id),q=quiz.get(l.id);
+     const row=el('details',undefined,'learning-lesson');
+     const title=el('summary');title.append(el('span',(n?.completed?'✓ ':'○ ')+l.position+'. '+l.title),el('span',n?.completed?'Completed':'In progress','muted'));row.append(title);
+     const detail=el('div',undefined,'learning-detail');
+     detail.append(el('h4','Your lesson notes'));
+     detail.append(el('p',n?.answer?.trim()||'No personal notes saved for this lesson.','muted'));
+     if(n?.updated_at)detail.append(el('p','Last updated '+date(n.updated_at),'muted'));
+     detail.append(el('h4','Quiz / assessment'));
+     if(q){
+      detail.append(el('p','Latest submitted quiz: '+q.score+' / '+q.maximum+(q.maximum?' ('+Math.round(q.score/q.maximum*100)+'%)':'')+' · '+date(q.submitted_at)));
+      detail.append(el('p','Your answers have been submitted and saved.','muted'));
+     }else detail.append(el('p','No submitted quiz for this lesson.','muted'));
+     const link=el('a','Open in Academy →','btn alt');link.href='academy.html';detail.append(link);
+     row.append(detail);module.append(row);
+    }
+    root.append(module);
+   }
+   status.textContent='Select a module to see its lessons, notes and quiz results.';
+  }catch(e){status.textContent='Your portfolio could not load: '+(e.message||String(e));}
+ }
+ loadPortfolio();
+ client?.auth.onAuthStateChange(event=>{if(event==='SIGNED_IN')setTimeout(loadPortfolio,0);});
 })();
 </script>
 </body>
