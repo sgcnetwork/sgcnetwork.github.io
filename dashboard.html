@@ -150,6 +150,11 @@ footer{padding:35px 0;border-top:1px solid var(--line);font-size:12px;color:var(
 <p class="muted" id="learning-status" role="status">Loading your learning portfolio…</p>
 <div id="learning-modules"></div>
 </section>
+
+<section class="section" id="quiz-results">
+<div class="section-head"><div><div class="eyebrow">Private assessment history</div><h2>Quiz Results</h2><p class="muted">Review your submitted answers and the correct answers, grouped by module and lesson.</p></div></div>
+<div id="quiz-review-list"><p class="muted">Loading quiz results…</p></div>
+</section>
 <section class="section">
 <div class="section-head">
 <div><div class="eyebrow">Purchases & balances</div><h2>Your kits</h2></div>
@@ -409,7 +414,7 @@ footer{padding:35px 0;border-top:1px solid var(--line);font-size:12px;color:var(
     required(client.from('sgc_console_modules').select('module_no,title').order('module_no')),
     required(client.from('sgc_extra_lessons').select('id,title,module_no,position').eq('published',true).order('module_no').order('position')),
     required(client.from('sgc_extra_responses').select('lesson_id,answer,completed,updated_at').eq('user_id',user.id)),
-    required(client.rpc('sgc_my_learning_quizzes')),
+    required(client.rpc('sgc_my_quiz_reviews')),
     required(client.rpc('sgc_academy_locked_modules'))
    ]);
    const demo=await required(client.rpc('sgc_extra_is_demo'));
@@ -448,12 +453,35 @@ footer{padding:35px 0;border-top:1px solid var(--line);font-size:12px;color:var(
      detail.append(el('h4','Quiz / assessment'));
      if(q){
       detail.append(el('p','Latest submitted quiz: '+q.score+' / '+q.maximum+(q.maximum?' ('+Math.round(q.score/q.maximum*100)+'%)':'')+' · '+date(q.submitted_at)));
-      detail.append(el('p','Your answers have been submitted and saved.','muted'));
+      detail.append(el('p','Your answers have been submitted and saved. See Quiz Results below for your question-by-question review.','muted'));
      }else detail.append(el('p','No submitted quiz for this lesson.','muted'));
      const link=el('a','Open in Academy →','btn alt');link.href='academy.html';detail.append(link);
      row.append(detail);module.append(row);
     }
     root.append(module);
+   }
+   const reviewRoot=$('quiz-review-list');reviewRoot.replaceChildren();
+   const byModule=new Map();
+   for(const l of visible){const result=quiz.get(l.id);if(!result)continue;if(!byModule.has(l.module_no))byModule.set(l.module_no,[]);byModule.get(l.module_no).push({lesson:l,result});}
+   if(!byModule.size)reviewRoot.append(el('p','Your submitted quizzes will appear here after you complete them.','learning-empty'));
+   for(const [number,entries] of byModule){
+    const group=el('details',undefined,'learning-module');
+    const head=el('summary');head.append(el('h3','Module '+number+' · '+(names.get(number)||'Learning results')),el('span',entries.length+' submitted','pill'));group.append(head);
+    for(const entry of entries){
+     const r=entry.result,lesson=entry.lesson;
+     const detail=el('details',undefined,'learning-lesson');
+     const heading=el('summary');heading.append(el('span','Lesson '+lesson.position+': '+lesson.title),el('span',r.score+' / '+r.maximum,'pill'));detail.append(heading);
+     const body=el('div',undefined,'learning-detail');body.append(el('p','Submitted '+date(r.submitted_at)+' · Score '+r.score+' / '+r.maximum,'muted'));
+     for(const [i,item] of (r.questions||[]).entries()){
+      const card=el('div',undefined,'learning-stat');card.style.marginBottom='12px';
+      card.append(el('h4','Question '+(i+1)+': '+item.question));
+      const chosen=el('p','Your answer: '+(item.your_answer??'Not recorded'));card.append(chosen);
+      const correct=el('p','Correct answer: '+(item.correct_answer??'Not available'));card.append(correct);
+      card.append(el('span',item.is_correct?'✓ Correct':'✕ Incorrect','pill'));body.append(card);
+     }
+     detail.append(body);group.append(detail);
+    }
+    reviewRoot.append(group);
    }
    status.textContent='Select a module to see its lessons, notes and quiz results.';
   }catch(e){status.textContent='Your portfolio could not load: '+(e.message||String(e));}
