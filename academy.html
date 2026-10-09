@@ -509,7 +509,7 @@ $('continue').onclick=safe(async()=>{
 $('previous').onclick=safe(()=>{
  const l=lessons[index()-1];if(l)return open(l.id);
 });
-$('next').onclick=safe(()=>{
+$('next').onclick=safe(async()=>{
  if(!requireQuiz())return;
  await finishQuizlessLesson();
  const l=lessons[index()+1];if(l)return open(l.id);
