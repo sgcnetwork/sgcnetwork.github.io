@@ -64,6 +64,32 @@ label{line-height:1.7}
 .steps span{color:var(--gold);font:20px Georgia,serif}
 @media(max-width:1100px){.classroom{grid-template-columns:1fr}.reflection{position:static}}
 @media(max-width:720px){aside.sidebar{position:static;width:100%;border-bottom:1px solid var(--line)}#lesson-list{max-height:230px;overflow:auto}main{margin:0;padding:20px 16px}.steps{grid-template-columns:1fr}}
+
+/* Student-selectable Academy appearance */
+html{color-scheme:dark}
+html[data-academy-theme="light"]{color-scheme:light;--bg:#fffaf5;--panel:#fffdfd;--gold:#755878;--text:#322734;--muted:#796b79;--line:#e9dce7}
+html[data-academy-theme="light"] body{background:linear-gradient(135deg,#fffaf5 0%,#f9f2fa 65%,#fff8ed 100%)}
+html[data-academy-theme="light"] aside.sidebar{background:#fffdfc;border-right-color:#e9dce7}
+html[data-academy-theme="light"] .brand{color:#4a3049}
+html[data-academy-theme="light"] .btn:not(.alt){background:#4c354d;border-color:#4c354d;color:#fff}
+html[data-academy-theme="light"] .btn.alt{background:#fff9fd;border-color:#e4d2e1;color:#533d55;border-radius:10px}
+html[data-academy-theme="light"] .panel{border-radius:18px;box-shadow:0 10px 35px rgba(72,40,65,.06)}
+html[data-academy-theme="light"] .lesson{border-radius:10px}
+html[data-academy-theme="light"] .lesson.active{background:#f1e5f4;border-color:#d7b9df;color:#37283b}
+html[data-academy-theme="light"] .module,html[data-academy-theme="light"] .eyebrow{color:#845d83}
+html[data-academy-theme="light"] .video{background:radial-gradient(ellipse,#f2e7f1,#e9e0ed)}
+html[data-academy-theme="light"] .watermark{color:#a17b9c}
+html[data-academy-theme="light"] .content{color:#544754}
+html[data-academy-theme="light"] .choice:has(input:checked){background:#f4e9f6;border-color:#ae8cb9}
+html[data-academy-theme="light"] textarea{background:#fff;color:#342835;border:1px solid #decde0;border-radius:10px}
+html[data-academy-theme="light"] .track{background:#ebdce9}
+html[data-academy-theme="light"] .sticky{background:#f5dfe8}
+.academy-appearance{display:flex;align-items:center;gap:7px;flex-wrap:wrap;padding:12px;margin:12px 0 18px;border:1px solid var(--line);border-radius:13px;background:var(--panel)}
+.academy-appearance .theme-label{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);width:100%;font-weight:700}
+.academy-appearance button{flex:1;min-width:70px;border:1px solid var(--line);background:transparent;color:var(--text);border-radius:9px;padding:10px 7px;font-size:12px;cursor:pointer}
+.academy-appearance button[aria-pressed="true"]{background:var(--gold);border-color:var(--gold);color:var(--bg);font-weight:700}
+html[data-academy-theme="light"] .academy-appearance button[aria-pressed="true"]{color:#fff}
+.academy-appearance button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 </style>
 </head>
 <body>
@@ -76,7 +102,7 @@ label{line-height:1.7}
 <a href="shop.html" class="btn alt small">Products</a>
 <button id="preferences" class="btn alt small">Email settings</button>
 </nav>
-<div id="lesson-list"></div>
+<div class="academy-appearance" role="group" aria-label="Academy appearance"><span class="theme-label">Your classroom theme</span><button id="academy-theme-dark" type="button" aria-pressed="true">✦ Dark & gold</button><button id="academy-theme-light" type="button" aria-pressed="false">☀ Light</button></div><div id="lesson-list"></div>
 <div class="account">
 <div id="daily-quote" class="sticky" hidden></div>
 <p id="email"></p>
@@ -157,6 +183,18 @@ const sb=window.supabase?.createClient(
  'https://bxpexanyoyubxeqqlggh.supabase.co',
  'sb_publishable_Z0_Y-Bj_G5qw4hMgDbQlgA__jj8rGGq'
 );
+
+function applyAcademyTheme(mode){
+ const selected=mode==='light'?'light':'dark';
+ document.documentElement.dataset.academyTheme=selected;
+ try{localStorage.setItem('sgc-academy-student-theme',selected)}catch(_){}
+ $('academy-theme-dark').setAttribute('aria-pressed',String(selected==='dark'));
+ $('academy-theme-light').setAttribute('aria-pressed',String(selected==='light'));
+}
+$('academy-theme-dark').onclick=()=>applyAcademyTheme('dark');
+$('academy-theme-light').onclick=()=>applyAcademyTheme('light');
+try{applyAcademyTheme(localStorage.getItem('sgc-academy-student-theme')||'dark')}catch(_){applyAcademyTheme('dark')}
+
 let user,lessons=[],responses=new Map(),current=null,questions=[];
 let busy=false,dirty=false,quizDirty=false;
 function quizGate(){return !!(current&&questions.length&&!responses.get(current)?.completed)}
