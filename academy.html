@@ -311,8 +311,7 @@ async function load(){
   say('');
  }finally{busy=false;controls();}
  if(lessons.length){
-  await open(lessons.some(l=>l.id===current)?current:
-   (lessons.find(l=>!responses.get(l.id)?.completed)||lessons[0]).id);
+  try{await open((lessons.find(l=>!responses.get(l.id)?.completed)||lessons[0]).id);}catch(e){$('empty').hidden=false;$('empty').textContent='Unable to open lesson: '+(e.message||String(e));say('Lesson loading failed. Please refresh.');}
  }else $('classroom').hidden=true;
  await loadQuote();
 }
@@ -587,7 +586,7 @@ async function start(){
  $('admin').hidden=!check(await sb.rpc('sgc_extra_is_admin'));
  if(location.hash==='#email-preferences')await preferences();
 }
-start().catch(e=>say(e.message));
+start().catch(e=>{say('Academy could not load: '+(e.message||String(e)));$('empty').hidden=false;$('empty').textContent='We could not open your lessons. '+(e.message||String(e))+' Please refresh or contact SGC support.';});
 </script>
 </body>
 </html>
