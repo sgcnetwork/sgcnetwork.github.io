@@ -246,6 +246,7 @@ async function load(){
   lessons=check(await sb.from('sgc_extra_lessons')
    .select('id,title,module_no,position').eq('published',true)
    .order('module_no').order('position'))||[];
+  if(!demo){const locked=check(await sb.rpc('sgc_academy_locked_modules'))||[];const denied=new Set(locked);lessons=lessons.filter(l=>!denied.has(l.module_no));}
   const saved=check(await sb.from('sgc_extra_responses')
    .select('lesson_id,answer,completed').eq('user_id',user.id))||[];
   responses=new Map(saved.map(r=>[r.lesson_id,r]));
