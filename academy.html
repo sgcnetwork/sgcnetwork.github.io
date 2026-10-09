@@ -198,6 +198,12 @@ try{applyAcademyTheme(localStorage.getItem('sgc-academy-student-theme')||'dark')
 let user,lessons=[],responses=new Map(),current=null,questions=[];
 let busy=false,dirty=false,quizDirty=false;
 function quizGate(){return !!(current&&questions.length&&!responses.get(current)?.completed)}
+async function finishQuizlessLesson(){
+ if(!current||questions.length||responses.get(current)?.completed)return;
+ check(await sb.rpc('sgc_complete_quizless_lesson',{p_lesson:current}));
+ responses.set(current,{...responses.get(current),completed:true});
+ sidebar();
+}
 function requireQuiz(){if(quizGate()){say('Complete and submit this lesson quiz before moving to the next lesson.');return false}return true}
 let moduleNames=new Map();
 
@@ -251,7 +257,10 @@ function sidebar(){
   }
   const b=n('button',(responses.get(l.id)?.completed?'✓ ':'')+
    l.position+'. '+l.title,'lesson'+(l.id===current?' active':''));
-  b.onclick=safe(()=>open(l.id));
+  b.onclick=safe(async()=>{
+   if(current&&lessons.findIndex(x=>x.id===l.id)>index())await finishQuizlessLesson();
+   await open(l.id);
+  });
   list.append(b);
  }
  const percent=lessons.length?
@@ -349,6 +358,9 @@ async function open(id){
  if(busy||!guard())return;
  const targetIndex=lessons.findIndex(l=>l.id===id);
  if(current&&targetIndex>index()&&!requireQuiz())return;
+ if(targetIndex>0&&lessons.slice(0,targetIndex).some(l=>!responses.get(l.id)?.completed)){
+  say('Complete the earlier lessons in order before opening this lesson.');return;
+ }
  if(current&&targetIndex>index()+1){say('Continue one lesson at a time. Complete each knowledge check as you go.');return;}
  busy=true;controls();$('classroom').hidden=true;say('Opening lesson…');
  try{
@@ -439,9 +451,10 @@ async function open(id){
   $('quiz-count').textContent=questions.length?questions.length+' question'+(questions.length===1?'':'s')+' · Answer and submit before continuing':'';
   $('quiz-form').hidden=!questions.length;
   $('quiz-status').textContent=!questions.length?
-   'Your facilitator has not added a quiz yet.':
+   'No quiz for this lesson. Continue learning when you are ready.':
    saved?.completed?'You have completed this lesson. You can submit another attempt.':'';
-  $('continue').hidden=!saved?.completed;
+  $('continue').hidden=!!questions.length&&!saved?.completed;
+  $('continue').textContent=questions.length?'Continue to next lesson →':'Complete lesson & continue →';
   dirty=false;quizDirty=false;
   $('other').hidden=true;$('classroom').hidden=false;$('empty').hidden=true;
   showTab('notes');sidebar();
@@ -489,6 +502,7 @@ $('quiz-form').onsubmit=async e=>{
 
 $('continue').onclick=safe(async()=>{
  if(!requireQuiz())return;
+ await finishQuizlessLesson();
  const l=lessons[index()+1];
  if(l)await open(l.id);
  else say('You have reached the end of your currently available lessons.');
@@ -498,6 +512,7 @@ $('previous').onclick=safe(()=>{
 });
 $('next').onclick=safe(()=>{
  if(!requireQuiz())return;
+ await finishQuizlessLesson();
  const l=lessons[index()+1];if(l)return open(l.id);
 });
 $('refresh').onclick=safe(load);
