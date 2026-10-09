@@ -493,7 +493,7 @@ $('quiz-form').onsubmit=async e=>{
   const grade=check(await sb.rpc('sgc_quiz',{p_lesson:current,p_answers:answers}));
   responses.set(current,{...responses.get(current),completed:true});
   quizDirty=false;
-  $('quiz-status').textContent='Submitted. Score: '+grade.score+' / '+grade.maximum+'.';
+  $('quiz-status').textContent='Your quiz has been submitted successfully. View your answers and results in My SGC → Quiz Results.';
   $('continue').hidden=false;sidebar();
  }catch(err){$('quiz-status').textContent=err.message;}
  finally{busy=false;controls();}
