@@ -311,6 +311,7 @@ async function open(id){
  if(busy||!guard())return;
  const targetIndex=lessons.findIndex(l=>l.id===id);
  if(current&&targetIndex>index()&&!requireQuiz())return;
+ if(current&&targetIndex>index()+1){say('Continue one lesson at a time. Complete each knowledge check as you go.');return;}
  busy=true;controls();$('classroom').hidden=true;say('Opening lesson…');
  try{
   const lesson=check(await sb.from('sgc_extra_lessons')
