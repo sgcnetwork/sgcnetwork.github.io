@@ -61,6 +61,13 @@ dialog::backdrop{background:#000b}
 @media(max-width:1250px){.classroom{grid-template-columns:140px 1fr}.classroom>section:last-child{grid-column:2}}
 @media(max-width:800px){.classroom{display:block}.lesson-list .btn{width:auto;display:inline-block}.classroom .panel{margin:15px 0}}
 @media(max-width:750px){aside{position:static;width:100%}#menu{display:flex;flex-wrap:wrap;gap:12px}.nav{width:auto}main{margin:0;padding:16px}}
+
+/* SGC Academy focused navigation & illustrated operations guide */
+aside{background:linear-gradient(160deg,#12100f,#191514 60%,#211b17);border-right:1px solid #5d4830}
+.nav{padding:13px 15px;border-radius:11px;margin:5px 0;transition:background .18s,color .18s}.nav:hover{background:#29251d;color:#f5dfb4}.nav.active{background:#30271c;color:#f0d398;border-left:3px solid #c6a354}
+.setup-hero{background:radial-gradient(circle at 90% 20%,#b8904935,transparent 42%),linear-gradient(120deg,#28211a,#151311);border:1px solid #59452e;border-radius:22px;padding:35px;margin-bottom:24px}
+.setup-hero h2{font:500 clamp(28px,3.2vw,42px) Georgia,serif;max-width:660px;margin:12px 0;color:#f9e9cc}.setup-hero p{max-width:740px;color:#cbbfac;line-height:1.7}.setup-eyebrow{font-size:10px;letter-spacing:3px;color:#dfbf7c;font-weight:700}
+.setup-cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(285px,1fr));gap:18px}.setup-card{border:1px solid #51422f;background:linear-gradient(145deg,#1e1b19,#151412);border-radius:18px;padding:25px;display:flex;flex-direction:column;gap:8px;box-shadow:0 12px 30px #0002}.setup-icon{width:49px;height:49px;border-radius:14px;display:grid;place-items:center;background:#433421;color:#efcc83;font-size:24px}.setup-kicker{color:#d7b77d;font-size:11px;letter-spacing:.8px;margin:10px 0 0}.setup-card h3{font:500 25px Georgia,serif;color:#fff1d8;margin:0}.setup-about{color:#c5bcb0;line-height:1.7;flex:1}.setup-card details{border-top:1px solid #493c30;padding-top:13px;color:#dfd2bd}.setup-card summary,.setup-technical summary{cursor:pointer;color:#e7c988;font-weight:700}.setup-card li{margin:9px 0;line-height:1.5}.setup-links{display:flex;flex-wrap:wrap;gap:9px;margin-top:12px}.setup-links .setup-link{border:1px solid #9a7b43;background:#32291f;color:#f5ddb2;padding:10px 12px;border-radius:10px;text-decoration:none;font-size:12px}.setup-links .setup-link:hover{background:#5b452a}.setup-technical{border:1px solid #51422f;border-radius:14px;padding:20px;margin:24px 0;background:#191715}.setup-technical .panel{margin-top:15px}@media(max-width:750px){.setup-hero{padding:23px}.setup-cards{grid-template-columns:1fr}}
 </style>
 <style>
 #sgcp-manager section{border:1px solid #393329;padding:22px;margin:20px 0;border-radius:14px}
@@ -661,12 +668,7 @@ let busy = false, editContext = null;
 let workingV2 = false, dirtyV2 = false, upgradeV2 = false;
 let plansV2, productsV2 = [], contentV2 = [], groupsV2 = {};
 
-const sections = [
-  "Overview", "Reports", "Modules & lessons", "Students", "Memberships",
-  "Purchases & payments", "Submissions", "Website & quotes",
-  "Products & files", "Community", "Waitlist", "Email campaigns",
-  "AI assistant", "Audit history", "Setup"
-];
+const sections = ["Reports","Modules & lessons","Website & quotes","Community","Waitlist","Audit history","Setup"];
 
 const defaultsV2 = {
   features: [
@@ -2103,7 +2105,7 @@ async function broadcastPreviewV2(campaign) {
   p.scrollIntoView();
 }
 
-function setupV2() {
+function technicalSetupV2() {
   const p = panel("One-time connections");
   p.append(n("p", upgradeV2 ? "Database upgrade connected." :
     "Database upgrade not installed. Copy the full SQL below into Supabase → SQL Editor and run it once.",
@@ -2137,6 +2139,32 @@ function setupV2() {
     "muted"));
 }
 
+
+function setupV2(){
+ const root=$('content');root.replaceChildren();
+ const intro=n('section',undefined,'setup-hero');
+ intro.innerHTML='<span class="setup-eyebrow">SGC NETWORK · OPERATIONS GUIDE</span><h2>Every part of SGC, beautifully organised.</h2><p>Explore what each area does, where it lives, and how to use it. Your quick-reference guide to running SGC Network.</p>';
+ root.append(intro);
+ const areas=[
+ {icon:'◫',title:'Reports',sub:'Business intelligence & meeting records',about:'Generate date-filtered reports for meeting bookings, payments, Academy students, enrolments, course progress, assessment results, shop orders, waitlist and recording history. Preview results and export CSV files.',steps:['Open Reports.','Choose the report type, date range and status.','Generate a preview and download the CSV if needed.'],links:[['Open Reports','Reports'],['Meeting bookings','Reports']]},
+ {icon:'▦',title:'Modules & lessons',sub:'Academy learning content',about:'Create and maintain Academy modules, lessons, quizzes, resources and publishing settings. Published lessons are intended for the student Academy.',steps:['Open Modules & lessons.','Select a module to manage its lessons and resources.','Review the lesson before publishing.'],links:[['Manage modules','Modules & lessons'],['Student Academy','../academy.html']]},
+ {icon:'✦',title:'Website & quotes',sub:'Daily motivation & site content',about:'Manage the Quote for the Day and connected website content. The daily quote stays visible in the Admin sidebar.',steps:['Open Website & quotes.','Update the quote, author and display date.','Save and check the preview.'],links:[['Manage quotes','Website & quotes'],['View website','/']]},
+ {icon:'♧',title:'Community',sub:'Student conversations',about:'Manage community spaces and moderation from the Academy admin tools. Community discussions appear on the separate student community experience.',steps:['Open Community.','Review the available categories and discussions.','Make changes and confirm the student-facing result.'],links:[['Manage community','Community'],['Student community','/community.html']]},
+ {icon:'✉',title:'Waitlist',sub:'Future Academy members',about:'Review Academy waitlist entries and, where a registered and confirmed account exists, grant the appropriate access.',steps:['Open Waitlist.','Review registrations and confirmation details.','Grant access only to the intended registered account.'],links:[['Manage waitlist','Waitlist'],['Join Academy','/join-academy/']]},
+ {icon:'◷',title:'Audit history',sub:'Accountability & change tracking',about:'Review available administration history and recorded changes. Use it when checking what was updated and when.',steps:['Open Audit history.','Review the relevant records.','Use the available details to trace changes.'],links:[['Open audit history','Audit history']]},
+ {icon:'▣',title:'SGC Studio',sub:'Products, customers & commerce',about:'Your separate commerce control centre for products, variants, categories, collections, memberships, purchase orders, customers and discounts. Checkout integration varies by feature.',steps:['Open SGC Studio.','Select the relevant commerce section.','Save changes and check the connected customer-facing page.'],links:[['Open SGC Studio','/SGC_Studio_Separate_Folder/sgc-studio/index.html']]},
+ {icon:'◇',title:'Student experience',sub:'Dashboard, shop & Academy',about:'The customer-facing experience includes the Academy, account/dashboard, shop and community. These are separate from this administrator interface.',steps:['Open the relevant student page.','Check the content and access level.','Confirm the student experience after changes.'],links:[['Student Academy','../academy.html'],['Shop','/shop.html'],['Dashboard','/dashboard.html']]}
+ ];
+ const cards=n('div',undefined,'setup-cards');
+ for(const a of areas){
+ const card=n('article',undefined,'setup-card');card.append(n('div',a.icon,'setup-icon'),n('p',a.sub,'setup-kicker'),n('h3',a.title),n('p',a.about,'setup-about'));
+ const details=n('details');details.append(n('summary','How to use this area'));const ol=n('ol');for(const step of a.steps)ol.append(n('li',step));details.append(ol);card.append(details);
+ const actions=n('div',undefined,'setup-links');for(const [label,target] of a.links){if(sections.includes(target)){const btn=button(label,async()=>{section=target;moduleNo=null;offset=0;await show()},true);btn.classList.add('setup-link');actions.append(btn)}else{const link=n('a',label+' ↗','setup-link');link.href=target;link.target='_blank';link.rel='noopener';actions.append(link)}}card.append(actions);cards.append(card);
+ }
+ root.append(cards);
+ const tech=n('details',undefined,'setup-technical');tech.append(n('summary','Advanced: existing technical setup and connection instructions'));const technical=n('div');tech.append(technical);root.append(tech);
+ tech.addEventListener('toggle',()=>{if(!tech.open||tech.dataset.loaded)return;tech.dataset.loaded='yes';const main=$('content');technicalSetupV2();const generated=[...main.children].filter(x=>x!==intro&&x!==cards&&x!==tech);for(const el of generated)technical.append(el)});
+}
 async function show() {
   await reloadV2();
   await quoteV2();
