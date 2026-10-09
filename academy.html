@@ -200,13 +200,14 @@ function guard(){
  if(quizDirty){say('Submit your selected quiz answers before changing lessons.');return false;}
  return true;
 }
+let courseCovers=new Map();
 function sidebar(){
  const list=$('lesson-list');list.replaceChildren();
  let module=null;
  for(const l of lessons){
   if(module!==l.module_no){
    module=l.module_no;
-   list.append(n('div',moduleNames.get(module)||'Module '+module,'module'));
+   const heading=n('div',moduleNames.get(module)||'Module '+module,'module');const cover=courseCovers.get(module);if(cover){const img=document.createElement('img');img.src=cover;img.alt='Course cover';img.loading='lazy';img.style.cssText='display:block;width:100%;max-height:130px;object-fit:cover;border-radius:9px;margin:8px 0';heading.prepend(img)}list.append(heading);
   }
   const b=n('button',(responses.get(l.id)?.completed?'✓ ':'')+
    l.position+'. '+l.title,'lesson'+(l.id===current?' active':''));
@@ -242,7 +243,7 @@ async function load(){
  try{
   const demo=check(await sb.rpc('sgc_extra_is_demo'));
   const mods=check(await sb.from('sgc_console_modules').select('module_no,title'));
-  moduleNames=new Map(mods.map(m=>[m.module_no,m.title]));
+  moduleNames=new Map(mods.map(m=>[m.module_no,m.title]));const covers=check(await sb.rpc('sgc_academy_module_covers'))||[];courseCovers=new Map(covers.filter(c=>c.cover_image_url).map(c=>[c.module_no,c.cover_image_url]));
   lessons=check(await sb.from('sgc_extra_lessons')
    .select('id,title,module_no,position').eq('published',true)
    .order('module_no').order('position'))||[];
