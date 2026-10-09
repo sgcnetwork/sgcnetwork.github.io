@@ -165,7 +165,7 @@ async function sgcAllVariants(){
  const names=new Map(products.map(p=>[p.id,p.name]));
  show('Variants','Manage saved Business Kit variants','<div class="toolbar"><button class="btn primary" id="variant-add">+ Add variant</button><button class="btn" id="variant-refresh">Refresh</button></div>'+grid(['Variant','Kit','Price','Status','Actions'],variants.map(v=>[esc(v.name),esc(names.get(v.product_id)||'—'),money(v.price_zar),v.active?'Published':'Draft','<button class="btn" data-variant-edit="'+esc(v.id)+'">Edit</button>'])));
  $('variant-add').onclick=()=>go('businesskits');$('variant-refresh').onclick=sgcAllVariants;
- document.querySelectorAll('[data-variant-edit]').forEach(b=>b.onclick=()=>go('businesskits'));
+ document.querySelectorAll('[data-variant-edit]').forEach(b=>b.onclick=()=>{const v=variants.find(x=>x.id===b.dataset.variantEdit);if(v)editKitVariant(v.product_id,v)});
 }
 
 async function drawProductDrafts(){
