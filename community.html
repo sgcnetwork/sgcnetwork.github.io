@@ -70,7 +70,7 @@ nav{gap:12px}
 .hero{padding-top:24px}
 }
 </style>
-</head>
+<link rel="stylesheet" href="css/community-notifications.css"></head>
 <body>
 <div class="wrap">
 <header>
@@ -283,6 +283,7 @@ async function chooseGroups(preferred){
   $('group').append(o);
  }
 
+ const requested=new URLSearchParams(location.search).get('group');if(matches.some(g=>g.id===requested))preferred=requested;
  if(matches.some(g=>g.id===preferred))$('group').value=preferred;
  activeGroup=matches.find(g=>g.id===$('group').value)||null;
  await feed();
@@ -291,7 +292,7 @@ async function chooseGroups(preferred){
 async function refresh(){
  const wanted=activeGroup?.id;
  groups=check(await sb.rpc('sgc_community',{}));
- categories=await setting('sgc.community.categories');
+ categories=await setting('sgc.community.categories');const requested=new URLSearchParams(location.search).get('group');if(requested&&groups.some(g=>g.id===requested))$('category').value=categories[requested]||'niche';
  await quote();
  await chooseGroups(wanted);
  if(isAdmin)await review();
@@ -359,7 +360,7 @@ async function feed(){
  }
 
  for(const post of posts){
-  const card=el('article',undefined,'card');
+  const card=el('article',undefined,'card');card.id='post-'+post.id;
   const person=el('div',undefined,'person');
   const details=el('div');
 
@@ -399,6 +400,8 @@ async function feed(){
   card.append(reactionRow,row,comments);
   $('feed').append(card);
  }
+ const wanted=new URLSearchParams(location.search).get('post');
+ if(wanted){const target=document.getElementById('post-'+wanted);if(target){target.scrollIntoView({behavior:'smooth',block:'start'});const button=target.querySelector('.feed-actions button');if(button)button.click();}}
 }
 
 function commentLabel(count){
@@ -434,6 +437,8 @@ function renderReactions(post,root){
 
 async function renderComments(postId,root,countButton){
  root.replaceChildren();
+ let replyTarget=null;
+ const replyStatus=el('p',undefined,'muted');
 
  const comments=check(await sb.rpc('sgc_social',{
   p_action:'comments',p_post:postId
@@ -448,7 +453,11 @@ async function renderComments(postId,root,countButton){
    el('div',c.email||'','email')
   );
   if(c.title)box.append(el('h3',c.title));
+  if(c.reply_to_comment_id)box.append(el('span','@ Reply','pill'));
   box.append(el('p',c.body));
+  box.append(button('Reply',async()=>{
+   replyTarget=c.id;replyStatus.textContent='Replying to @'+(c.author||'SGC member');input.focus();
+  }));
   root.append(box);
  }
 
@@ -468,16 +477,14 @@ async function renderComments(postId,root,countButton){
  label.append(input);
 
  const submit=el('button','Post comment','btn');
- form.append(headingLabel,label,submit);
+ form.append(replyStatus,headingLabel,label,submit);const cancelReply=button('Cancel reply',async()=>{replyTarget=null;replyStatus.textContent='';});form.append(cancelReply);
 
  form.onsubmit=action(async()=>{
   if(!input.value.trim())throw Error('Write your comment first.');
 
-  check(await sb.rpc('sgc_social',{
-   p_action:'comment',
-   p_post:postId,
-   p_body:input.value,
-   p_title:heading.value
+  if(replyTarget)check(await sb.rpc('sgc_reply_comment',{p_comment:replyTarget,p_body:input.value}));
+  else check(await sb.rpc('sgc_social',{
+   p_action:'comment',p_post:postId,p_body:input.value,p_title:heading.value
   }));
 
   await renderComments(postId,root,countButton);
@@ -676,5 +683,5 @@ async function start(){
 
 start().catch(e=>say(e.message));
 </script>
-</body>
+<script src="js/community-notifications.js"></script></body>
 </html>
