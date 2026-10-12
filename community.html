@@ -255,7 +255,7 @@ header nav{gap:8px}header nav a{font-size:13px;font-weight:600}
 #sgc-story-strip .sgc-story.create:before{display:none!important}
 #sgc-story-strip .sgc-story.create .sgc-create-story-avatar{border:3px solid #fff!important;background:#e9cee3;color:#8b4c7c;font-size:23px}
 @media(max-width:650px){#sgc-story-strip .sgc-story .story-avatar{width:44px!important;height:44px!important;min-width:44px!important}}
-</style><style>.sgc-crop-shade{z-index:2147483000!important;position:fixed!important;inset:0!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:12px!important;background:rgba(22,15,25,.78)!important}.sgc-crop-panel{position:relative!important;z-index:1!important;width:min(420px,100%)!important;max-height:calc(100dvh - 24px)!important;overflow-y:auto!important;overscroll-behavior:contain!important;background:#fffafc!important;border-radius:22px!important;padding:20px!important;box-sizing:border-box!important}.sgc-crop-canvas{touch-action:none!important}.sgc-crop-buttons{display:flex!important;gap:10px!important;justify-content:flex-end!important;margin-top:16px!important}.sgc-crop-buttons button{padding:12px 16px!important;border-radius:20px!important}</style></head>
+</style><style>.sgc-crop-shade{z-index:2147483000!important;position:fixed!important;inset:0!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:12px!important;background:rgba(22,15,25,.78)!important}.sgc-crop-panel{position:relative!important;z-index:1!important;width:min(420px,100%)!important;max-height:calc(100dvh - 24px)!important;overflow-y:auto!important;overscroll-behavior:contain!important;background:#fffafc!important;border-radius:22px!important;padding:20px!important;box-sizing:border-box!important}.sgc-crop-canvas{touch-action:none!important}.sgc-crop-buttons{display:flex!important;gap:10px!important;justify-content:flex-end!important;margin-top:16px!important}.sgc-crop-buttons button{padding:12px 16px!important;border-radius:20px!important}</style><style>.sgc-inline-photo-editor{width:min(100%,390px);padding:16px;margin:12px 0;border:1px solid #e5c9df;border-radius:18px;background:#fff8fc;display:flex;flex-direction:column;gap:10px}.sgc-inline-photo-editor canvas{display:block;width:min(100%,320px);height:auto;aspect-ratio:1;margin:0 auto;border-radius:50%;background:#ecd6e6;touch-action:none;user-select:none;-webkit-user-select:none}.sgc-inline-photo-editor input[type=range]{width:100%;accent-color:#c46b9e}.sgc-inline-photo-editor button{padding:12px;min-height:44px}.sgc-inline-photo-editor p{margin:0;line-height:1.4}</style></head>
 <body>
 <div class="wrap">
 <header>
@@ -899,6 +899,34 @@ function sgcModal(title){sgcModalRoot.replaceChildren();const backdrop=el('div',
 async function sgcProfile(id){const r=await sb.from('sgc_social_profiles').select('*').eq('user_id',id).maybeSingle();if(r.error)throw r.error;return r.data}
 async function sgcImage(path){if(!path)return '';const r=await sb.storage.from('sgc-community').createSignedUrl(path,3600);return r.error?'':r.data.signedUrl}
 async function sgcUpload(file){if(!file)return null;if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>5242880)throw Error('Use a JPG, PNG or WebP image under 5 MB.');const ext=file.type==='image/png'?'png':file.type==='image/webp'?'webp':'jpg';const path=user.id+'/'+crypto.randomUUID()+'.'+ext;check(await sb.storage.from('sgc-community').upload(path,file,{contentType:file.type}));return path}
+function sgcInlinePhotoEditor(file,host,onReady){
+ host.replaceChildren();
+ if(!file||!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>5242880){host.textContent='Choose a JPG, PNG or WebP image under 5 MB.';return}
+ const url=URL.createObjectURL(file),img=new Image();
+ img.onerror=()=>{host.textContent='Could not preview this photo.';URL.revokeObjectURL(url)};
+ img.onload=()=>{
+  const panel=document.createElement('div');panel.className='sgc-inline-photo-editor';
+  const heading=document.createElement('strong');heading.textContent='Preview and adjust your photo';
+  const hint=document.createElement('p');hint.textContent='Drag to reposition your photo. Use the slider to resize it before saving.';
+  const canvas=document.createElement('canvas');canvas.width=320;canvas.height=320;
+  const zoom=document.createElement('input');zoom.type='range';zoom.min='1';zoom.max='4';zoom.step='.01';zoom.value='1';zoom.setAttribute('aria-label','Resize photo');
+  const label=document.createElement('label');label.textContent='Resize / zoom';label.append(zoom);
+  const apply=document.createElement('button');apply.type='button';apply.textContent='✓ Use this crop';apply.className='btn';
+  const reset=document.createElement('button');reset.type='button';reset.textContent='Reset position';reset.className='btn soft';
+  const info=document.createElement('p');info.className='muted';info.textContent='Nothing uploads until you save your profile.';
+  const w=320,base=Math.max(w/img.naturalWidth,w/img.naturalHeight);let scale=1,dx=0,dy=0,drag=null;const pointers=new Map();let pinch=null;
+  function draw(){const iw=img.naturalWidth*base*scale,ih=img.naturalHeight*base*scale;dx=Math.max(-(iw-w)/2,Math.min((iw-w)/2,dx));dy=Math.max(-(ih-w)/2,Math.min((ih-w)/2,dy));const ctx=canvas.getContext('2d');ctx.clearRect(0,0,w,w);ctx.save();ctx.beginPath();ctx.arc(w/2,w/2,w/2,0,Math.PI*2);ctx.clip();ctx.drawImage(img,(w-iw)/2+dx,(w-ih)/2+dy,iw,ih);ctx.restore()}
+  zoom.oninput=()=>{scale=Number(zoom.value);draw()};
+  reset.onclick=()=>{scale=1;dx=0;dy=0;zoom.value='1';draw()};
+  const distance=()=>{const p=[...pointers.values()];return Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y)};
+  canvas.onpointerdown=e=>{e.preventDefault();canvas.setPointerCapture(e.pointerId);pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pointers.size===1){drag={x:e.clientX,y:e.clientY,dx,dy};pinch=null}else if(pointers.size===2){pinch={distance:distance(),scale};drag=null}};
+  canvas.onpointermove=e=>{if(!pointers.has(e.pointerId))return;e.preventDefault();pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pointers.size===2&&pinch){scale=Math.max(1,Math.min(4,pinch.scale*distance()/Math.max(1,pinch.distance)));zoom.value=String(scale);draw()}else if(pointers.size===1&&drag){const ratio=w/canvas.getBoundingClientRect().width;dx=drag.dx+(e.clientX-drag.x)*ratio;dy=drag.dy+(e.clientY-drag.y)*ratio;draw()}};
+  const end=e=>{pointers.delete(e.pointerId);drag=null;pinch=null;if(pointers.size===1){const p=[...pointers.values()][0];drag={x:p.x,y:p.y,dx,dy}}};canvas.onpointerup=end;canvas.onpointercancel=end;
+  apply.onclick=()=>{draw();canvas.toBlob(blob=>{if(!blob){info.textContent='Could not crop this photo. Try again.';return}onReady(new File([blob],'profile-picture.png',{type:'image/png'}));info.textContent='Crop ready! Save your profile to upload it.';apply.textContent='✓ Crop selected'},'image/png')};
+  panel.append(heading,hint,canvas,label,reset,apply,info);host.append(panel);draw();URL.revokeObjectURL(url);
+ };
+ img.src=url;
+}
 async function sgcCropProfilePhoto(file){
  if(!file)return null;
  if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>5242880)throw Error('Choose a JPG, PNG or WebP photo under 5 MB.');
@@ -962,10 +990,11 @@ async function sgcOpenProfile(id=user.id){
  const form=el('form'),name=el('input'),bio=el('textarea'),website=el('input'),file=el('input'),save=el('button','Save my profile','btn'),status=el('p',undefined,'muted');
  name.value=profile?.display_name||user.user_metadata?.username||user.user_metadata?.full_name||user.email.split('@')[0];name.required=true;name.minLength=2;name.maxLength=60;
  website.type='url';website.placeholder='https://yourbusiness.co.za';website.maxLength=500;website.value=profile?.business_website||'';bio.value=profile?.bio||'';bio.maxLength=500;bio.placeholder='A little about you and your business journey…';
- let croppedPhoto=null;file.onchange=async()=>{try{status.textContent='Opening photo crop editor…';const selected=file.files[0];if(!selected)return;const cropped=await sgcCropProfilePhoto(selected);if(cropped){croppedPhoto=cropped;const url=URL.createObjectURL(cropped);const image=el('img');image.src=url;image.onload=()=>URL.revokeObjectURL(url);avatar.replaceChildren(image);status.textContent='Photo cropped. Tap Save my profile to finish.'}else{file.value='';croppedPhoto=null;status.textContent='Photo change cancelled.'}}catch(err){alert(err.message);file.value=''}};
- file.type='file';file.accept='image/jpeg,image/png,image/webp';file.style.maxWidth='100%';const editPhoto=el('button','📷 Choose photo & crop','btn soft');editPhoto.type='button';editPhoto.onclick=()=>file.click();const cropHelp=el('p','After choosing a photo, a crop window will open. Drag, zoom, then tap Use this picture.','muted');avatar.title='Click to change and crop your picture';avatar.style.cursor='pointer';avatar.onclick=()=>file.click();
- form.append(el('label','Display name (other members will see this)'),name,el('label','About me'),bio,el('label','Business website (optional)'),website,el('label','Profile picture'),editPhoto,file,cropHelp,save,status);
- form.onsubmit=async e=>{e.preventDefault();save.disabled=true;try{const path=croppedPhoto?await sgcUpload(croppedPhoto):profile?.avatar_path||null;check(await sb.from('sgc_social_profiles').upsert({user_id:user.id,display_name:name.value.trim(),bio:bio.value.trim(),business_website:website.value.trim()||null,avatar_path:path,updated_at:new Date().toISOString()}));sgcModalRoot.replaceChildren();await sgcStories();await feed();say('Your profile has been updated.')}catch(err){status.textContent=err.message}finally{save.disabled=false}};
+ let croppedPhoto=null;const photoEditor=el('div');photoEditor.className='sgc-photo-preview-holder';
+ file.onchange=()=>{const selected=file.files?.[0];if(!selected)return;croppedPhoto=null;status.textContent='Preview your photo, adjust it, then choose Use this crop.';sgcInlinePhotoEditor(selected,photoEditor,cropped=>{croppedPhoto=cropped;const preview=URL.createObjectURL(cropped);const image=el('img');image.src=preview;image.onload=()=>URL.revokeObjectURL(preview);avatar.replaceChildren(image);status.textContent='Crop ready. Tap Save my profile to upload.'})};
+ file.type='file';file.accept='image/jpeg,image/png,image/webp';file.style.maxWidth='100%';const editPhoto=el('button','📷 Choose photo','btn soft');editPhoto.type='button';editPhoto.onclick=()=>file.click();const cropHelp=el('p','Choose a photo, preview it below, drag or resize it, then select Use this crop.','muted');avatar.title='Click to change and crop your picture';avatar.style.cursor='pointer';avatar.onclick=()=>file.click();
+ form.append(el('label','Display name (other members will see this)'),name,el('label','About me'),bio,el('label','Business website (optional)'),website,el('label','Profile picture'),editPhoto,file,cropHelp,photoEditor,save,status);
+ form.onsubmit=async e=>{e.preventDefault();if(file.files?.length&&!croppedPhoto){status.textContent='Please select Use this crop before saving your photo.';photoEditor.scrollIntoView({block:'center',behavior:'smooth'});return}save.disabled=true;try{const path=croppedPhoto?await sgcUpload(croppedPhoto):profile?.avatar_path||null;check(await sb.from('sgc_social_profiles').upsert({user_id:user.id,display_name:name.value.trim(),bio:bio.value.trim(),business_website:website.value.trim()||null,avatar_path:path,updated_at:new Date().toISOString()}));sgcModalRoot.replaceChildren();await sgcStories();await feed();say('Your profile has been updated.')}catch(err){status.textContent=err.message}finally{save.disabled=false}};
  box.append(form);
  sgcStyleProfile(box,profile,mine);
 }
