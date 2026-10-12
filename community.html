@@ -492,6 +492,19 @@ html.sgc-members-page-mode #sgc-members-hub[hidden]{display:none!important}
 #sgc-faq-feed-posts .sgc-faq-post{width:100%;max-width:100%}
 #sgc-faq-feed-posts .sgc-faq-comment{border-radius:14px}
 #sgc-faq-feed-posts .sgc-faq-actions button{min-height:36px}
+</style><style>
+/* Compact, comfortable quote suggestion card in the narrow desktop sidebar. */
+@media(min-width:701px){
+ .layout>.left .sgc-inspiration-card{width:100%!important;min-width:0!important;box-sizing:border-box!important;padding:18px 15px!important;border-radius:19px!important;overflow:visible!important}
+ .sgc-inspiration-card h2{font-size:clamp(17px,1.45vw,21px)!important;line-height:1.2!important;margin:0 0 10px!important;overflow-wrap:break-word}
+ .sgc-inspiration-card p.muted{font-size:12px!important;line-height:1.55!important;margin:0 0 14px!important}
+ .sgc-inspiration-card form{display:flex!important;flex-direction:column!important;gap:7px!important;min-width:0!important;width:100%!important}
+ .sgc-inspiration-card label{font-size:11px!important;margin:3px 0 0!important;line-height:1.4!important}
+ .sgc-inspiration-card textarea,.sgc-inspiration-card input{box-sizing:border-box!important;display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;font-size:12px!important;padding:10px 11px!important;border-radius:12px!important}
+ .sgc-inspiration-card textarea{min-height:92px!important;resize:vertical!important;line-height:1.5!important}
+ .sgc-inspiration-card button{align-self:flex-start!important;max-width:100%!important;white-space:normal!important;font-size:11px!important;padding:11px 14px!important;margin-top:7px!important}
+ .sgc-inspiration-card #suggest-status{overflow-wrap:anywhere}
+}
 </style></head>
 <body>
 <div class="wrap">
@@ -526,7 +539,7 @@ html.sgc-members-page-mode #sgc-members-hub[hidden]{display:none!important}
 <small id="quote-author">SGC Network</small>
 </section>
 
-<section class="card">
+<section class="card sgc-inspiration-card">
 <h2>Pass on some inspiration.</h2>
 <p class="muted">Suggest a quote for the day. SGC Network will review it and may feature it later.</p>
 <form id="suggest-form">
