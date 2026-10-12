@@ -109,7 +109,7 @@ async function loadMessages(){
  if(!deleted){
  const bar=document.createElement('div');bar.className='sgc-message-toolbar';
  const menu=document.createElement('details');menu.className='sgc-message-menu';menu.innerHTML='<summary aria-label="Message options" title="Message options"><span>⌄</span></summary>';menu.addEventListener('toggle',()=>{
- const panel=menu.querySelector('.sgc-message-options')||document.querySelector('.sgc-message-options[data-owner="'+menu.dataset.menuId+'"]');if(!panel)return;
+ const panel=menu.querySelector('.sgc-message-options')||[...document.body.querySelectorAll(':scope > .sgc-message-options')].find(p=>p.dataset.owner===menu.dataset.menuId);if(!panel)return;
  if(!menu.open){if(panel.parentNode===document.body)menu.append(panel);panel.style.display='';return}
  document.querySelectorAll('.sgc-message-menu[open]').forEach(other=>{if(other!==menu)other.open=false});
  menu.dataset.menuId=menu.dataset.menuId||('msg-'+m.id);panel.dataset.owner=menu.dataset.menuId;document.body.append(panel);panel.style.display='flex';
@@ -131,14 +131,14 @@ async function loadMessages(){
  let pressTimer=null,pressStart=null,suppressTap=false;
  const cancelPress=()=>{if(pressTimer!==null){clearTimeout(pressTimer);pressTimer=null}};
  d.addEventListener('pointerdown',e=>{
-  if(e.pointerType==='mouse'||e.target.closest('button,summary,a,textarea,input,video'))return;
+  if(e.pointerType==='mouse'||e.target.closest('button,summary,a,textarea,input,video,[contenteditable]'))return;
   cancelPress();pressStart={x:e.clientX,y:e.clientY};
   pressTimer=setTimeout(()=>{pressTimer=null;suppressTap=true;menu.open=true;if(navigator.vibrate)navigator.vibrate(12)},480);
  },{passive:true});
  d.addEventListener('pointermove',e=>{if(pressStart&&Math.hypot(e.clientX-pressStart.x,e.clientY-pressStart.y)>12)cancelPress()},{passive:true});
  d.addEventListener('pointerup',cancelPress,{passive:true});
  d.addEventListener('pointercancel',cancelPress,{passive:true});
- d.addEventListener('contextmenu',e=>{if(e.target.closest('a,video,input,textarea'))return;e.preventDefault();cancelPress();menu.open=true});
+ d.addEventListener('contextmenu',e=>{if(e.target.closest('a,video,input,textarea,[contenteditable]'))return;e.preventDefault();cancelPress();menu.open=true});
  d.addEventListener('click',e=>{if(suppressTap){e.preventDefault();e.stopPropagation();suppressTap=false}},true);
  const add=(label,fn)=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.onclick=async()=>{menu.open=false;try{await fn()}catch(e){error(e)}};items.append(b)};
  const reply=()=>{replying=m;$('reply-label').textContent='Reply to '+name(m.sender_id)+': '+(m.body||'Media').slice(0,65);$('reply-banner').hidden=false;$('message').focus()};
@@ -174,7 +174,7 @@ async function loadMessages(){
  if(choice==='me'){
   const k='sgc-chat-hidden:'+me.id;const hidden=JSON.parse(localStorage.getItem(k)||'[]');if(!hidden.includes(m.id))hidden.push(m.id);localStorage.setItem(k,JSON.stringify(hidden));box.dataset.renderSignature='';await loadMessages();return
  }
- const res=await sb.from('sgc_private_messages').update({deleted_at:new Date().toISOString()}).eq('id',m.id).eq('sender_id',me.id);if(res.error)throw res.error;box.dataset.renderSignature='';await loadMessages()
+ const res=await sb.from('sgc_private_messages').update({body:'Message deleted',deleted_at:new Date().toISOString()}).eq('id',m.id).eq('sender_id',me.id);if(res.error)throw res.error;box.dataset.renderSignature='';await loadMessages()
 });
  }
  }
@@ -196,7 +196,12 @@ $('compose').onsubmit=async e=>{e.preventDefault();if(!selected)return;const bod
  }catch(err){error(err);if(path)await sb.storage.from('sgc-chat-media').remove([path])}finally{button.disabled=false}};
 
 function showModal(kind){$('modal').hidden=false;$('modal-title').textContent=kind==='group'?'Create a group chat':'Start a private chat';$('modal-content').innerHTML=(kind==='group'?'<label>Group name<input type="text" id="group-name" maxlength="70" placeholder="e.g. Business besties"></label><p>Select members to add:</p>':'<p>Choose a member:</p>')+friends.map(id=>'<label class="friend"><input type="'+(kind==='group'?'checkbox':'radio')+'" name="friends" value="'+esc(id)+'">'+esc(name(id))+'</label>').join('')+(friends.length?'':'<p>No accepted SGC member connections yet. Connect with members first.</p>');$('create').textContent=kind==='group'?'Create group':'Open chat';$('create').onclick=async()=>{try{const ids=[...document.querySelectorAll('input[name=friends]:checked')].map(x=>x.value);if(kind==='group'){const groupName=$('group-name').value.trim();if(!ids.length)throw Error('Select at least one member');const r=await sb.rpc('sgc_create_chat_group',{p_name:groupName,p_members:ids});if(r.error)throw r.error;$('modal').hidden=true;await loadThreads();const t=threads.find(x=>x.kind==='group'&&x.id===r.data);if(t)await openThread(t)}else{if(ids.length!==1)throw Error('Select one member');$('modal').hidden=true;const t={kind:'dm',id:ids[0],label:name(ids[0]),preview:'',updated:''};await openThread(t)}}catch(e){error(e)}}}
-document.addEventListener('pointerdown',e=>{for(const menu of document.querySelectorAll('.sgc-message-menu[open]')){const panel=menu.querySelector('.sgc-message-options')||document.querySelector('.sgc-message-options[data-owner="'+menu.dataset.menuId+'"]');if(!menu.contains(e.target)&&!panel?.contains(e.target))menu.open=false}},true);
+document.addEventListener('pointerdown',e=>{
+ for(const menu of document.querySelectorAll('.sgc-message-menu[open]')){
+  const panel=[...document.body.querySelectorAll(':scope > .sgc-message-options')].find(p=>p.dataset.owner===menu.dataset.menuId)||menu.querySelector('.sgc-message-options');
+  if(!menu.contains(e.target)&&!panel?.contains(e.target)){menu.open=false;if(panel&&panel.parentNode===document.body){menu.append(panel);panel.style.display=''}}
+ }
+},true);
 document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.sgc-message-menu[open]').forEach(menu=>menu.open=false)});
 $('messages').addEventListener('scroll',()=>document.querySelectorAll('.sgc-message-menu[open]').forEach(menu=>menu.open=false),{passive:true});
 $('new-group').onclick=()=>showModal('group');$('new-chat').onclick=()=>showModal('dm');$('cancel').onclick=()=>{$('modal').hidden=true};$('back').onclick=()=>{$('shell').classList.remove('open')};$('search').oninput=renderThreads;
