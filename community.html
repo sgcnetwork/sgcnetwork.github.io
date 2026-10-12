@@ -1014,15 +1014,21 @@ function renderFaqReactions(post,root,groupId){
 async function sgcFaqMedia(path,parent){
  const signed=await sb.storage.from('sgc-community').createSignedUrl(path,3600);
  if(signed.error){parent.append(el('p','Media unavailable: '+signed.error.message,'muted'));return}
- const video=/\.(mp4|webm|mov)$/i.test(path);
- const media=el(video?'video':'img');
- media.src=signed.data.signedUrl;media.className='sgc-faq-media';
- if(video){
-  media.controls=true;media.playsInline=true;media.preload='metadata';media.setAttribute('controlsList','nodownload');
-  media.style.width='100%';media.style.maxHeight='480px';media.style.objectFit='contain';media.style.background='#18151a';media.style.borderRadius='12px';
-  media.onerror=()=>{if(!parent.querySelector('.sgc-video-error')){const note=el('p','This video cannot play in your browser. Try uploading an MP4 video encoded with H.264 video and AAC audio.','sgc-video-error');parent.append(note)}};
- }else{media.loading='lazy';media.alt='Community attachment'}
- parent.append(media);
+ const url=signed.data.signedUrl;
+ const filename=String(path||'').split('?')[0];
+ const video=/\.(mp4|webm|mov|m4v)$/i.test(filename);
+ const renderVideo=()=>{
+  const player=el('video');player.src=url;player.className='sgc-faq-media sgc-faq-video';
+  player.controls=true;player.playsInline=true;player.preload='metadata';
+  player.setAttribute('aria-label','Play community video with sound');
+  player.style.cssText='display:block;width:100%;max-height:480px;object-fit:contain;background:#18151a;border-radius:12px';
+  player.onerror=()=>{const msg=el('p','This video could not play. Please upload an MP4 with H.264 video and AAC audio.','muted');player.insertAdjacentElement('afterend',msg)};
+  return player;
+ };
+ if(video){parent.append(renderVideo());return}
+ const img=el('img');img.src=url;img.className='sgc-faq-media';img.loading='lazy';img.alt='Community photo';
+ img.onerror=()=>{img.replaceWith(renderVideo())};
+ parent.append(img);
 }
 function sgcConfirmDelete(message='Confirm delete post?'){
  return new Promise(resolve=>{
@@ -1067,15 +1073,15 @@ async function sgcFaqFeed(){
   form.onsubmit=async ev=>{ev.preventDefault();send.disabled=true;let uploaded=null;try{
    const body=input.value.trim(),heading=title.value.trim(),f=file.files[0];
    if(!body&&!f){throw Error('Write a comment or attach a photo/video.')}
-   if(f){const image=['image/jpeg','image/png','image/webp'].includes(f.type)||/\.(jpe?g|png|webp)$/i.test(f.name),video=['video/mp4','video/webm','video/quicktime'].includes(f.type)||/\.(mp4|webm|mov)$/i.test(f.name);if(!image&&!video)throw Error('Use a JPG, PNG, WebP, MP4, WebM or MOV file.');if(f.size>(image?5:30)*1024*1024)throw Error(image?'Photo must be under 5 MB.':'Video must be under 30 MB.');const ext=f.name.split('.').pop().toLowerCase();uploaded={path:user.id+'/'+crypto.randomUUID()+'.'+ext,type:image?'image':'video'};const uploadResult=await sb.storage.from('sgc-community').upload(uploaded.path,f,{contentType:f.type|| (image?'image/jpeg':'video/mp4'),upsert:false});if(uploadResult.error)throw Error('Upload failed: '+uploadResult.error.message);}
+   if(f){const image=['image/jpeg','image/png','image/webp'].includes(f.type)||/\.(jpe?g|png|webp)$/i.test(f.name),video=['video/mp4','video/webm','video/quicktime'].includes(f.type)||/\.(mp4|webm|mov)$/i.test(f.name);if(!image&&!video)throw Error('Use a JPG, PNG, WebP, MP4, WebM or MOV file.');if(f.size>(image?5:30)*1024*1024)throw Error(image?'Photo must be under 5 MB.':'Video must be under 30 MB.');const ext=image?(f.type==='image/png'?'png':f.type==='image/webp'?'webp':'jpg'):(f.type==='video/quicktime'?'mov':f.type==='video/webm'?'webm':'mp4');uploaded={path:user.id+'/'+crypto.randomUUID()+'.'+ext,type:image?'image':'video'};const uploadResult=await sb.storage.from('sgc-community').upload(uploaded.path,f,{contentType:f.type|| (image?'image/jpeg':'video/mp4'),upsert:false});if(uploadResult.error)throw Error('Upload failed: '+uploadResult.error.message);}
    const textBody=body||(uploaded?.type==='video'?'🎥 Video':'📷 Photo');
    if(commentId||postId){
     if(commentId)check(await sb.rpc('sgc_reply_comment',{p_comment:commentId,p_body:textBody}));
     else check(await sb.rpc('sgc_social',{p_action:'comment',p_post:postId,p_body:textBody,p_title:heading}));
     if(uploaded){const q=await sb.from('community_comments').select('id').eq('post_id',postId).eq('user_id',user.id).eq('body',textBody).order('created_at',{ascending:false}).limit(1);if(q.error||!q.data?.length)throw Error('Comment saved but attachment could not be linked.');check(await sb.from('sgc_comment_media').insert({comment_id:q.data[0].id,path:uploaded.path,media_type:uploaded.type}));}
    }else{
-    check(await sb.rpc('sgc_social',{p_action:'post',p_group:faq.id,p_body:textBody,p_title:heading}));
-    if(uploaded){const q=await sb.from('community_posts').select('id').eq('group_id',faq.id).eq('user_id',user.id).eq('body',textBody).order('created_at',{ascending:false}).limit(1);if(q.error||!q.data?.length)throw Error('Thread saved but attachment could not be linked.');check(await sb.from('sgc_post_images').insert({post_id:q.data[0].id,path:uploaded.path}));}
+    const created=check(await sb.rpc('sgc_social',{p_action:'post',p_group:faq.id,p_body:textBody,p_title:heading}));
+    if(uploaded){if(!created?.id)throw Error('Thread saved but attachment could not be linked.');check(await sb.from('sgc_post_images').insert({post_id:created.id,path:uploaded.path}));}
    }
    await sgcFaqFeed();
   }catch(err){alert(err.message);send.disabled=false}};
