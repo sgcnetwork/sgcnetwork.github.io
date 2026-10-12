@@ -139,3 +139,44 @@ html[data-sgc-theme="dark"] #sgc-story-strip .sgc-story.sgc-story-seen .story-av
  border-color:#89744d!important;
  box-shadow:0 0 0 2px #53472f!important;
 }
+
+/* Dark-mode readability: light gold/cream text always sits on dark surfaces. */
+html[data-sgc-theme="dark"] body :is(
+ .sgc-faq-compose,.sgc-faq-feed,.sgc-faq-thread,.sgc-faq-post,.sgc-faq-comment,
+ .sgc-profile-tabs,.sgc-profile-page,.sgc-profile-hero,.sgc-profile-card,
+ .sgc-member-card,.sgc-study-group-card,.sgc-chat-bubble,
+ .sgc-private-chat-messages,.sgc-private-chat-compose,.sgc-modal,
+ .sgc-inspiration-card,.sgc-story,.sgc-story.create,
+ .quote-card,.story-card,.post-card,.feed-card,
+ .form-card,.content-card,.info-card,.access-card,
+ .section-card,.stat-card,.lesson-card,.module-card,
+ .dropdown-menu,.popover,.tooltip,.modal-content
+){
+ background-color:#11100e!important;
+ color:#f7ebd1!important;
+ border-color:#ad8d4a66!important;
+}
+html[data-sgc-theme="dark"] body :is(
+ .sgc-faq-compose,.sgc-faq-feed,.sgc-faq-thread,.sgc-faq-post,
+ .sgc-faq-comment,.sgc-profile-page,.sgc-member-card,.sgc-study-group-card,
+ .sgc-private-chat-messages,.sgc-modal,.sgc-inspiration-card,
+ .quote-card,.post-card,.feed-card,.form-card,.content-card,.info-card,
+ .access-card,.section-card,.stat-card,.lesson-card,.module-card
+) :is(p,span,label,small,strong,h1,h2,h3,h4,h5,h6){
+ color:#f7ebd1!important;
+}
+html[data-sgc-theme="dark"] body :is(
+ input,textarea,select,[contenteditable="true"],.sgc-faq-compose textarea
+){
+ background-color:#080808!important;
+ color:#f9e8bd!important;
+ border-color:#b99b5c!important;
+}
+html[data-sgc-theme="dark"] body :is(
+ input,textarea,[contenteditable="true"]
+)::placeholder{color:#d5bc86!important;opacity:1!important}
+html[data-sgc-theme="dark"] body :is(
+ .sgc-faq-compose button,.sgc-member-card button,
+ .sgc-study-group-card button,.sgc-profile-page button,
+ .sgc-modal button,.sgc-private-chat-compose button
+){background-color:#211c12!important;color:#f8dfaa!important}
