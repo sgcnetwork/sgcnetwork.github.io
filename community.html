@@ -419,6 +419,12 @@ header nav{gap:8px}header nav a{font-size:13px;font-weight:600}
  #sgc-active-community-name{font-size:19px!important;color:#51354d!important}
  #sgc-active-community-category{font-size:11px!important}
 }
+</style><style>
+#sgc-my-profile{display:none!important}
+.sgc-desktop-community-picker{display:grid;grid-template-columns:auto minmax(110px,1fr) auto minmax(150px,1.3fr);gap:8px;align-items:center;width:100%;margin-top:9px}
+.sgc-desktop-community-picker label{font-size:11px;color:#765d72;font-weight:600}
+.sgc-desktop-community-picker select{width:100%;min-width:0;padding:9px 10px;border:1px solid #e4d5e3;border-radius:12px;background:#fff9fd;color:#49364a;font-size:12px}
+@media(max-width:700px){.sgc-desktop-community-picker{display:none!important}#sgc-active-community-banner{order:0!important;margin:0 0 12px!important;border-radius:14px!important;padding:10px 12px!important;border:1px solid #ead7e7!important}.layout>main>.sgc-social-top:has(#sgc-story-strip){order:2!important}}
 </style></head>
 <body>
 <div class="wrap">
@@ -494,12 +500,13 @@ header nav{gap:8px}header nav a{font-size:13px;font-weight:600}
 <main>
 <section id="sgc-members-hub" class="sgc-social-top" hidden><div class="row" style="justify-content:space-between"><h2>SGC Members & Conversations</h2><button class="btn alt" id="sgc-members-close" type="button">Close</button></div><p class="muted">Connect by username. Email addresses and phone numbers are never shown here.</p><div class="sgc-social-tabs"><button data-sgc-tab="members" class="active">👥 Members</button><button data-sgc-tab="requests">Friend requests</button><button data-sgc-tab="chats">Private chats</button><button data-sgc-tab="groups">Study & help groups</button></div><div id="sgc-members-content"></div></section>
 <section class="sgc-social-top">
+<section id="sgc-active-community-banner" aria-live="polite"><span class="sgc-community-label">YOU’RE CONNECTING IN</span><strong id="sgc-active-community-name">General Community</strong><span id="sgc-active-community-category"></span><div class="sgc-desktop-community-picker"><label for="sgc-desktop-category">Community type</label><select id="sgc-desktop-category"></select><label for="sgc-desktop-group">Post in community</label><select id="sgc-desktop-group"></select></div></section>
 <div class="row" style="justify-content:space-between;margin-bottom:12px">
 <h2>Stories & little moments ✦</h2>
-<button type="button" class="btn soft" id="sgc-my-profile">My profile</button>
+<button type="button" class="btn soft" id="sgc-my-profile" hidden>My profile</button>
 </div>
 <div id="sgc-story-strip" class="sgc-stories"><div class="muted">Loading stories…</div></div>
-<section id="sgc-active-community-banner" aria-live="polite"><span class="sgc-community-label">YOU’RE CONNECTING IN</span><strong id="sgc-active-community-name">General Community</strong><span id="sgc-active-community-category"></span></section>
+
 </section>
 <section id="sgc-faq-feed" class="sgc-social-top"><div class="row" style="justify-content:space-between;align-items:center;gap:12px"><div><span class="eyebrow">Questions & conversations</span><h2>FAQs feed ✦</h2></div><a class="btn soft" href="faqs.html">Search FAQs →</a></div><p class="muted">A simple conversation. Leave a comment, reply to someone, and follow the thread.</p><div id="sgc-faq-feed-posts"><p class="muted">Loading FAQs…</p></div></section><section id="composer-card" class="card" hidden>
 <div class="person">
@@ -1570,6 +1577,19 @@ start().catch(e=>{console.error('Community startup error',e);if(/auth session mi
    clearInterval(poll);
   }else if(++n>40)clearInterval(poll);
  },200);
+})();
+</script><script>
+(function(){
+ const srcType=document.getElementById('category'),srcGroup=document.getElementById('group');
+ const destType=document.getElementById('sgc-desktop-category'),destGroup=document.getElementById('sgc-desktop-group');
+ if(!srcType||!srcGroup||!destType||!destGroup)return;
+ const copy=(src,dst)=>{const current=src.value;dst.replaceChildren(...Array.from(src.options,o=>o.cloneNode(true)));dst.value=current};
+ const sync=()=>{copy(srcType,destType);copy(srcGroup,destGroup)};
+ destType.addEventListener('change',()=>{srcType.value=destType.value;srcType.dispatchEvent(new Event('change',{bubbles:true}));sync()});
+ destGroup.addEventListener('change',()=>{srcGroup.value=destGroup.value;srcGroup.dispatchEvent(new Event('change',{bubbles:true}));sync()});
+ srcType.addEventListener('change',()=>setTimeout(sync,0));srcGroup.addEventListener('change',sync);
+ new MutationObserver(sync).observe(srcGroup,{childList:true,subtree:true});
+ sync();
 })();
 </script></body>
 </html>
