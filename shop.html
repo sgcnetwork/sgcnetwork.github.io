@@ -45,6 +45,18 @@ label[for="category-menu"]{font-size:11px;text-transform:uppercase;letter-spacin
 @media(max-width:1000px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}main{padding:25px}.product-card .sgc-product-picture{height:250px}}
 @media(max-width:600px){main{padding:22px 18px 50px}.hero{padding:36px 24px}.hero:after{width:250px;height:250px;right:-100px}.grid{grid-template-columns:1fr;gap:30px}.product-card .sgc-product-picture{height:290px}.product-card h3{min-height:0}.hero h1{font-size:47px}}
 @media(prefers-reduced-motion:reduce){.product-card .sgc-product-picture{transition:none}}
+
+.kit-inclusions{padding:30px 0 8px;border-top:1px solid var(--line);margin-top:10px}
+.kit-inclusions h2{font:36px/1.1 Georgia,serif;margin:15px 0}
+.kit-inclusion-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:26px 0}
+.kit-inclusion{padding:22px;border:1px solid var(--line);border-radius:5px;background:#f5eff3}
+.kit-inclusion:nth-child(3n+2){background:#efedf5}.kit-inclusion:nth-child(3n){background:#f7f0e7}
+.kit-number{font:12px Arial,sans-serif;letter-spacing:2px;color:#99808e}
+.kit-inclusion h3{font:23px/1.2 Georgia,serif;min-height:0;margin:13px 0}
+.kit-inclusion p{font-size:13px;margin:0}
+.kit-outcome,.kit-delivery{padding:24px 0;border-top:1px solid var(--line)}
+.kit-delivery-note{font-size:13px;line-height:1.7;background:#eee7ef;border-radius:5px;padding:18px;color:#59465b}
+@media(max-width:600px){.kit-inclusion-grid{grid-template-columns:1fr}.kit-inclusions h2{font-size:30px}}
 </style>
 </head>
 <body><main>
@@ -94,12 +106,43 @@ function kitArtwork(product){
 }
 function buyProduct(product){location.assign('payment.html?productId='+encodeURIComponent(product.id));}
 
+
+function kitContents(product){
+ const name=product.name.toLowerCase();
+ const specs=[
+ [/beauty/,'beauty services','Define your services, ideal clients, tools and appointment setup.','Price treatments using product costs, time and profit targets.','Plan equipment, consumables and your opening budget.','Promote your services with offer, social post and enquiry templates.','Prepare your service menu, bookings and first-client launch.'],
+ [/finance/,'finance services','Define your service scope, ideal clients and working processes.','Build service packages around time, costs and profit targets.','Plan software, equipment and operating expenses.','Introduce your services using outreach, offer and social post templates.','Prepare your service offer, client onboarding and launch tasks.'],
+ [/baking/,'baking business','Plan your product range, customer niche and order process.','Calculate ingredient, packaging and time costs when pricing each product.','Budget for equipment, ingredients and packaging.','Promote your menu using offer, social post and customer enquiry templates.','Prepare your menu, order terms and first selling campaign.'],
+ [/social media/,'social media services','Define your services, ideal clients and content workflow.','Structure service packages using workload, time and costs.','Budget for software, equipment and operating expenses.','Create service offers, client outreach and promotional posts.','Prepare your portfolio, packages and first-client outreach.'],
+ [/cleaning/,'cleaning services','Define your service area, cleaning packages and working setup.','Price jobs using time, supplies, transport and profit targets.','Budget for equipment, cleaning supplies and transport.','Promote your services with enquiry, offer and social post templates.','Prepare your service checklist, booking process and launch outreach.'],
+ [/car wash/,'car wash business','Plan your service model, equipment needs and customer offer.','Price wash packages using supplies, labour and running costs.','Budget for equipment, consumables and operating expenses.','Promote your wash packages using offers and social post templates.','Prepare your services, customer process and opening campaign.'],
+ [/online store/,'online store','Plan your product niche, storefront and order workflow.','Price products using product costs, packaging, fees and profit targets.','Budget for stock, packaging, software and marketing.','Prepare product promotion, launch offers and customer messaging.','Prepare product listings, fulfilment steps and your store launch.'],
+ [/gaming/,'gaming or roleplay project','Define your project concept, audience, platform and launch approach.','Plan offer pricing and running costs using a budgeting framework.','Budget for hosting, software, equipment and promotion.','Prepare community announcements, promotional posts and launch messaging.','Organise your setup, community rules, testing and launch tasks.'],
+ [/content|creative|editing/,'creative services','Define your creative services, ideal clients and delivery workflow.','Price projects around time, revisions, costs and profit targets.','Budget for creative software, equipment and operating expenses.','Present your offer with outreach, social post and enquiry templates.','Prepare your portfolio, service packages and first-client launch.'],
+ [/digital/,'digital services','Define your digital service offer, clients and project workflow.','Price service packages around scope, time and operating costs.','Budget for software, equipment and business tools.','Promote your services using outreach, offers and social post templates.','Prepare your service packages, delivery process and launch outreach.']
+ ];
+ const spec=specs.find(x=>x[0].test(name));
+ if(!spec)return null;
+ const box=node('section',undefined,'kit-inclusions');
+ box.append(node('span','DESIGNED FOR YOUR NEXT STEP','eyebrow'),node('h2',"What’s inside your kit"),node('p','A practical starter bundle to help you plan and launch your '+spec[1]+'.','muted'));
+ const items=[['01','Niche startup guide',spec[2]],['02','Pricing worksheet',spec[3]],['03','Startup budget',spec[4]],['04','Marketing templates',spec[5]],['05','Launch checklist',spec[6]]];
+ const grid=node('div',undefined,'kit-inclusion-grid');
+ for(const [number,title,copy] of items){const item=node('article',undefined,'kit-inclusion');item.append(node('span',number,'kit-number'),node('h3',title),node('p',copy,'muted'));grid.append(item);}
+ box.append(grid);
+ const outcome=node('div',undefined,'kit-outcome');
+ outcome.append(node('h3','Turn your idea into a practical plan'),node('p','Work through the kit to define your offer, estimate startup costs, build your prices, prepare your marketing and organise your launch.','muted'));
+ box.append(outcome);
+ const delivery=node('div',undefined,'kit-delivery');
+ delivery.append(node('h3','Your purchase'),node('p','A digital business kit with the five resources listed above. The displayed price is a once-off payment. This purchase covers the kit; personal coaching, business registration and physical equipment are separate.','muted'),node('p','Delivery preparation: kit files are being prepared. Immediate downloads are not available yet. Contact SGC Network to confirm the delivery date and file formats before purchasing.','kit-delivery-note'));
+ box.append(delivery);return box;
+}
+
 function productCard(product,detail=false){const card=node('article',undefined,'card'+(detail?' detail':''));card.classList.add('product-card');const title=sections.find(s=>s[0]===category(product))?.[1]||'Extras';const picture=productImages.get(product.id);if(picture){const img=document.createElement('img');img.src=picture;img.alt=product.name+' product image';img.loading='lazy';img.className='sgc-product-picture';img.onerror=()=>img.replaceWith(kitArtwork(product));card.append(img);}else{card.append(kitArtwork(product));}const image=card.firstElementChild;
  if(!detail&&image){const preview=node('a',undefined,'product-image-link');preview.href=shopLink(category(product),product.id);preview.setAttribute('aria-label','Explore '+product.name);image.replaceWith(preview);preview.append(image);}
  const body=node('div',undefined,'product-card-body');
  body.append(node('span',title,'badge'),node(detail?'h1':'h3',product.name));
  if(detail)body.append(node('p',product.description||'','muted'));
- body.append(node('p',price(product),'price'));card.append(body);if(detail){const meta=settings.get(product.id);if(meta?.delivery==='appointment'){card.querySelector('.price').textContent='R'+Number(product.price_zar).toFixed(2)+' / hour · '+meta.duration_minutes+' minute session';card.append(bookingForm(product,meta));return card;}if(meta?.delivery==='task'){card.append(taskForm(product));}const variants=kitVariants.get(product.id)||[];if(variants.length){const section=node('section');section.append(node('h3','Available kit variants'));for(const v of variants){const line=node('p',v.name+' — R'+Number(v.price_zar).toFixed(2),'muted');section.append(line);}section.append(node('p','Variant checkout is being connected. Contact SGC Network for variant-specific purchases; the button below purchases the standard kit only.','muted'));card.append(section);}if(meta?.scheduled_at)card.append(node('p','Scheduled: '+new Date(meta.scheduled_at).toLocaleString('en-ZA',{timeZone:'Africa/Johannesburg'}),'muted'));const buy=node('button','Buy');buy.type='button';buy.onclick=()=>buyProduct(product);card.append(buy);}else{const buy=node('button','Buy');buy.type='button';buy.onclick=()=>buyProduct(product);const actions=node('div',undefined,'product-actions');actions.append(buy);const info=node('a','Explore kit ↗','product-details');info.href=shopLink(category(product),product.id);actions.append(info);body.append(actions);}return card;}
+ body.append(node('p',price(product),'price'));card.append(body);if(detail){if(category(product)==='business-kits'){const contents=kitContents(product);if(contents)card.append(contents);}const meta=settings.get(product.id);if(meta?.delivery==='appointment'){card.querySelector('.price').textContent='R'+Number(product.price_zar).toFixed(2)+' / hour · '+meta.duration_minutes+' minute session';card.append(bookingForm(product,meta));return card;}if(meta?.delivery==='task'){card.append(taskForm(product));}const variants=kitVariants.get(product.id)||[];if(variants.length){const section=node('section');section.append(node('h3','Available kit variants'));for(const v of variants){const line=node('p',v.name+' — R'+Number(v.price_zar).toFixed(2),'muted');section.append(line);}section.append(node('p','Variant checkout is being connected. Contact SGC Network for variant-specific purchases; the button below purchases the standard kit only.','muted'));card.append(section);}if(meta?.scheduled_at)card.append(node('p','Scheduled: '+new Date(meta.scheduled_at).toLocaleString('en-ZA',{timeZone:'Africa/Johannesburg'}),'muted'));const buy=node('button','Buy');buy.type='button';buy.onclick=()=>buyProduct(product);card.append(buy);}else{const buy=node('button','Buy');buy.type='button';buy.onclick=()=>buyProduct(product);const actions=node('div',undefined,'product-actions');actions.append(buy);const info=node('a','Explore kit ↗','product-details');info.href=shopLink(category(product),product.id);actions.append(info);body.append(actions);}return card;}
 $('category-menu').onchange=()=>location.assign(shopLink($('category-menu').value));
 
 async function showNamedMemberships(){
