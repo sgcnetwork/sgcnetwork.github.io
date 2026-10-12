@@ -202,6 +202,8 @@ header nav{gap:8px}header nav a{font-size:13px;font-weight:600}
 .sgc-story-stage{background:linear-gradient(145deg,#f4dce9 0%,#e8dff5 52%,#f8edc9 100%)!important}.sgc-story-stage .sgc-story-text{color:#3d2e3b!important;text-shadow:none!important;background:#fff9f4d9;border:1px solid #e6d4e4;border-radius:20px;box-shadow:0 14px 38px #72567220;max-width:88%;padding:25px 30px!important}.sgc-story-stage:has(img),.sgc-story-stage:has(video){background:#15131a!important}.sgc-story-stage:has(img) .sgc-story-text,.sgc-story-stage:has(video) .sgc-story-text{position:absolute;bottom:10px;background:#201521a8;color:#fff!important;font:15px/1.4 Arial,sans-serif;padding:10px 14px!important;max-width:90%}.sgc-story-stage .sgc-story-progress span{width:0%;transition:none}.sgc-story-stage .sgc-story-owner{padding-right:40px}.sgc-story-playback{margin-left:auto;border:0;background:#ffffff30;color:#fff;border-radius:50%;width:33px;height:33px;cursor:pointer}.sgc-story-stage .sgc-story-nav{font-size:25px}.sgc-story-stage img,.sgc-story-stage video{object-fit:contain!important}
 
 .sgc-faq-chat{display:grid;gap:10px}.sgc-faq-chat .sgc-chat-thread{padding:12px 0;border-bottom:1px solid #e9dfeb}.sgc-chat-message{padding:12px 16px;background:#fff;border:1px solid #e9dfeb;border-radius:18px;line-height:1.5;overflow-wrap:anywhere}.sgc-chat-message.reply{margin:7px 0 0 30px;background:#f2e9f6;border-left:3px solid #c7a5cb}.sgc-chat-message strong{font-size:12px;color:#785d76}.sgc-chat-message p{margin:6px 0}.sgc-chat-message button{background:none;border:0;color:#8e6589;font-size:12px;cursor:pointer;padding:3px}.sgc-chat-compose{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.sgc-chat-compose textarea{flex:1;min-width:180px;min-height:46px;border:1px solid #e2d3e2;border-radius:20px;padding:12px 15px;background:#fff;font:14px Arial,sans-serif}.sgc-chat-compose .btn{align-self:center}.sgc-faq-chat .sgc-chat-status{font-size:12px;color:#8e6589}
+<style>
+.sgc-faq-post{background:white;border:1px solid #eee5ec;border-radius:16px;margin:12px 0;padding:16px;box-shadow:0 2px 12px #3b243408}.sgc-faq-author{display:flex;gap:10px;align-items:center}.sgc-faq-author strong{display:block}.sgc-faq-author small{display:block;color:#887b86;margin-top:3px}.sgc-faq-avatar{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:#eee1f1;color:#49374e;font-weight:700}.sgc-faq-body{margin:15px 0;font-size:15px;line-height:1.6}.sgc-faq-summary{display:flex;justify-content:space-between;color:#80737d;font-size:12px;padding:9px 0;border-bottom:1px solid #eee}.sgc-faq-actions{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0}.sgc-faq-reactions{display:flex;flex-wrap:wrap;gap:5px}.sgc-faq-reactions button{font-size:12px!important;padding:6px!important}.sgc-faq-thread{border-top:1px solid #eee;padding-top:12px}.sgc-faq-comment{margin:9px 0}.sgc-faq-compose-top{padding:10px 0}.sgc-faq-thread .sgc-chat-compose{margin-top:10px}
 </style>
 <link rel="stylesheet" href="css/community-notifications.css"><link rel="stylesheet" href="css/sgc-user-guide.css?v=guide1"></head>
 <body>
@@ -987,34 +989,56 @@ function renderFaqReactions(post,root,groupId){
  }
 }
 async function sgcFaqFeed(){
- const container=document.getElementById('sgc-faq-feed-posts');if(!container)return;container.replaceChildren();container.classList.add('sgc-faq-chat');
+ const container=document.getElementById('sgc-faq-feed-posts');if(!container)return;container.replaceChildren();
  try{
  const faqGroups=groups.filter(g=>(categories[g.id]||'niche')==='faq'||/faq/i.test(g.name));
  if(!faqGroups.length){container.append(el('p','No FAQ conversations yet.','muted'));return}
  const faq=faqGroups.find(g=>g.joined)||faqGroups[0];
  if(!faq.joined){const join=el('button','Join FAQ conversation','btn soft');join.onclick=async()=>{check(await sb.rpc('sgc_join_community',{p_group:faq.id}));faq.joined=true;await sgcFaqFeed()};container.append(join);return}
  const posts=check(await sb.rpc('sgc_social',{p_action:'feed',p_group:faq.id}));
- if(!posts.length){container.append(el('p','Start the conversation below.','muted'))}
- const replyState={post:null,comment:null};
- const replyNotice=el('p','','sgc-chat-status');
- const form=el('form',undefined,'sgc-chat-compose'),input=el('textarea'),send=el('button','Comment','btn');
- input.required=true;input.maxLength=10000;input.placeholder='Write a comment or ask a question…';form.append(input,send);
- const setReply=(postId,commentId,name)=>{replyState.post=postId;replyState.comment=commentId;replyNotice.textContent='Replying to '+name+' · ';const cancel=el('button','Cancel reply','sgc-profile-link');cancel.type='button';cancel.onclick=()=>{replyState.post=null;replyState.comment=null;replyNotice.replaceChildren()};replyNotice.append(cancel);input.focus()};
- for(const post of posts.slice().reverse()){
- const thread=el('div',undefined,'sgc-chat-thread'),root=el('div',undefined,'sgc-chat-message');
- root.append(el('strong',post.author||'SGC member'));
- root.append(el('p',post.body||post.title||''));
- const reactRow=el('div',undefined,'row');renderFaqReactions(post,reactRow,faq.id);root.append(reactRow);
- const reply=el('button','↩ Reply');reply.type='button';reply.onclick=()=>setReply(post.id,null,post.author||'member');root.append(reply);thread.append(root);
- const cr=await sb.rpc('sgc_social',{p_action:'comments',p_post:post.id});
- if(!cr.error){const comments=cr.data||[];const byParent=new Map();for(const cm of comments){const parent=cm.reply_to_comment_id||null;if(!byParent.has(parent))byParent.set(parent,[]);byParent.get(parent).push(cm)}
- const draw=(parent,depth=0)=>{if(depth>20)return;for(const cm of byParent.get(parent)||[]){const bubble=el('div',undefined,'sgc-chat-message reply');bubble.style.marginLeft=Math.min(depth+1,5)*22+'px';bubble.append(el('strong',cm.author||'SGC member'),el('p',cm.body));const b=el('button','↩ Reply');b.type='button';b.onclick=()=>setReply(post.id,cm.id,cm.author||'member');bubble.append(b);thread.append(bubble);draw(cm.id,depth+1)}};draw(null);
+ const compose=(postId=null,commentId=null,after=null)=>{
+  const form=el('form',undefined,'sgc-chat-compose'),input=el('textarea'),send=el('button',commentId?'Reply':postId?'Comment':'Post','btn');
+  input.required=true;input.maxLength=10000;input.placeholder=commentId?'Write a reply…':postId?'Write a comment…':'Write something to the community…';
+  form.append(input,send);
+  if(postId){const cancel=el('button','Cancel','sgc-profile-link');cancel.type='button';cancel.onclick=()=>form.remove();form.append(cancel)}
+  form.onsubmit=async ev=>{ev.preventDefault();send.disabled=true;try{const body=input.value.trim();if(!body)return;
+   if(commentId)check(await sb.rpc('sgc_reply_comment',{p_comment:commentId,p_body:body}));
+   else if(postId)check(await sb.rpc('sgc_social',{p_action:'comment',p_post:postId,p_body:body}));
+   else check(await sb.rpc('sgc_social',{p_action:'post',p_group:faq.id,p_body:body,p_title:''}));
+   await sgcFaqFeed();
+  }catch(err){alert(err.message);send.disabled=false}};
+  if(after)after.append(form);else container.prepend(form);input.focus();
+ };
+ const intro=el('div',undefined,'sgc-faq-compose-top');
+ const add=el('button','✎ Write a comment…','btn soft');add.type='button';add.onclick=()=>{intro.replaceChildren();compose(null,null,intro)};intro.append(add);container.append(intro);
+ if(!posts.length)container.append(el('p','No conversations yet. Start one above.','muted'));
+ for(const post of posts){
+  const card=el('article',undefined,'sgc-faq-post');
+  const top=el('div',undefined,'sgc-faq-author');top.append(el('span',(post.author||'S').slice(0,1).toUpperCase(),'sgc-faq-avatar'));
+  const who=el('div');who.append(el('strong',post.author||'SGC member'),el('small',new Date(post.created_at).toLocaleString('en-ZA')));top.append(who);card.append(top);
+  if(post.title)card.append(el('strong',post.title));
+  card.append(el('p',post.body||'','sgc-faq-body'));
+  const summary=el('div',undefined,'sgc-faq-summary');
+  const total=Object.values(post.reactions||{}).reduce((n,v)=>n+Number(v||0),0);
+  summary.append(el('span',total?'👍 💗 · '+total+' reactions':''),el('span',Number(post.comment_count||0)+' comments'));card.append(summary);
+  const actions=el('div',undefined,'sgc-faq-actions'),react=el('div',undefined,'sgc-faq-reactions');renderFaqReactions(post,react,faq.id);
+  const commentBtn=el('button','💬 Comment','sgc-profile-link');commentBtn.type='button';
+  actions.append(react,commentBtn);card.append(actions);
+  const thread=el('div',undefined,'sgc-faq-thread');thread.hidden=true;card.append(thread);
+  const openThread=async()=>{thread.hidden=false;thread.replaceChildren();const cr=await sb.rpc('sgc_social',{p_action:'comments',p_post:post.id});
+   if(cr.error){thread.append(el('p','Comments unavailable: '+cr.error.message,'muted'));return}
+   const comments=cr.data||[],byParent=new Map();for(const cm of comments){const parent=cm.reply_to_comment_id||null;if(!byParent.has(parent))byParent.set(parent,[]);byParent.get(parent).push(cm)}
+   if(!comments.length)thread.append(el('p','Be the first to comment.','muted'));
+   const draw=(parent,depth=0)=>{if(depth>20)return;for(const cm of byParent.get(parent)||[]){const wrap=el('div',undefined,'sgc-faq-comment');wrap.style.marginLeft=Math.min(depth,5)*20+'px';
+    const bubble=el('div',undefined,'sgc-chat-message');bubble.append(el('strong',cm.author||'SGC member'),el('p',cm.body));
+    const reply=el('button','Reply');reply.type='button';reply.onclick=()=>compose(post.id,cm.id,wrap);bubble.append(reply);wrap.append(bubble);thread.append(wrap);draw(cm.id,depth+1)}};draw(null);
+   const entry=el('div');thread.append(entry);compose(post.id,null,entry);
+  };
+  commentBtn.onclick=()=>{if(!thread.hidden){thread.hidden=true;thread.replaceChildren()}else openThread()};
+  summary.style.cursor='pointer';summary.onclick=()=>commentBtn.click();
+  container.append(card);
  }
- container.append(thread);
- }
- container.append(replyNotice,form);
- form.onsubmit=async ev=>{ev.preventDefault();send.disabled=true;try{const body=input.value.trim();if(!body)return;if(replyState.comment){check(await sb.rpc('sgc_reply_comment',{p_comment:replyState.comment,p_body:body}))}else if(replyState.post){check(await sb.rpc('sgc_social',{p_action:'comment',p_post:replyState.post,p_body:body}))}else{check(await sb.rpc('sgc_social',{p_action:'post',p_group:faq.id,p_body:body,p_title:''}))}await sgcFaqFeed()}catch(err){replyNotice.textContent=err.message}finally{send.disabled=false}};
- }catch(err){container.replaceChildren(el('p','Comments could not load: '+err.message,'muted'))}
+ }catch(err){container.replaceChildren(el('p','FAQ feed could not load: '+err.message,'muted'))}
 }
 async function start(){
  if(!sb)throw Error('Supabase library could not load.');
