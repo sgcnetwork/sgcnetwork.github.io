@@ -1405,13 +1405,24 @@ const sgcName=id=>sgcMembers.find(x=>x.user_id===id)?.display_name||'SGC member'
 const sgcBtn=(label,fn,cls='btn soft')=>{const b=el('button',label,cls);b.type='button';b.onclick=async()=>{b.disabled=true;try{await fn()}catch(e){alert(e.message)}finally{b.disabled=false}};return b};
 async function sgcLoadMembers(){sgcMembers=check(await sb.rpc('sgc_public_members'));sgcFriends=check(await sb.from('sgc_friend_requests').select('*').or('sender_id.eq.'+user.id+',receiver_id.eq.'+user.id));}
 function sgcAccepted(id){return sgcFriends.some(f=>f.status==='accepted'&&((f.sender_id===user.id&&f.receiver_id===id)||(f.receiver_id===user.id&&f.sender_id===id)))}
+function sgcViewMemberProfile(id){
+ if(new URLSearchParams(location.search).get('view')==='members'){
+  const destination=new URL('community.html',location.href);
+  destination.searchParams.set('profile',id);
+  destination.searchParams.set('v','member-profile-redirect');
+  // Dedicated Members is embedded in an iframe; open profile in the full browser viewport.
+  try{window.top.location.assign(destination.href)}catch(e){window.location.assign(destination.href)}
+  return;
+ }
+ sgcOpenProfile(id).catch(err=>alert('Unable to open profile: '+err.message));
+}
 function sgcMemberRow(m,actions){
  const row=el('div',undefined,'sgc-member-card'),who=el('div',undefined,'person');
  const av=el('span',m.display_name.slice(0,1).toUpperCase(),'avatar');
- av.classList.add('sgc-member-avatar');av.title='View '+m.display_name+' profile';av.style.cursor='pointer';av.onclick=()=>sgcOpenProfile(m.user_id).catch(err=>alert('Unable to open profile: '+err.message));
- const name=sgcBtn(m.display_name,()=>sgcOpenProfile(m.user_id).catch(err=>alert('Unable to open profile: '+err.message)),'sgc-profile-link');
+ av.classList.add('sgc-member-avatar');av.title='View '+m.display_name+' profile';av.style.cursor='pointer';av.onclick=()=>sgcViewMemberProfile(m.user_id);
+ const name=sgcBtn(m.display_name,()=>sgcViewMemberProfile(m.user_id),'sgc-profile-link');
  const details=el('div',undefined,'sgc-member-identity');
- const view=sgcBtn('View profile',()=>sgcOpenProfile(m.user_id).catch(err=>alert('Unable to open profile: '+err.message)),'sgc-member-view-profile');
+ const view=sgcBtn('View profile',()=>sgcViewMemberProfile(m.user_id),'sgc-member-view-profile');
  details.append(name,view);who.append(av,details);row.append(who);if(actions)row.append(actions);
  (async()=>{try{
   const profile=await sgcProfile(m.user_id);
