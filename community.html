@@ -199,6 +199,7 @@ header nav{gap:8px}header nav a{font-size:13px;font-weight:600}
 .sgc-story-nav{position:absolute;top:45%;border:0;background:#0006;color:#fff;border-radius:50%;height:38px;width:38px;font-size:24px;cursor:pointer;z-index:4}
 .sgc-story-nav.prev{left:8px}.sgc-story-nav.next{right:8px}
 @media(max-width:600px){.sgc-modal.sgc-story-viewer{height:100dvh;width:100vw;border-radius:0!important}.sgc-story-bottom{max-height:45%}}
+.sgc-story-stage{background:linear-gradient(145deg,#f4dce9 0%,#e8dff5 52%,#f8edc9 100%)!important}.sgc-story-stage .sgc-story-text{color:#3d2e3b!important;text-shadow:none!important;background:#fff9f4d9;border:1px solid #e6d4e4;border-radius:20px;box-shadow:0 14px 38px #72567220;max-width:88%;padding:25px 30px!important}.sgc-story-stage:has(img),.sgc-story-stage:has(video){background:#15131a!important}.sgc-story-stage:has(img) .sgc-story-text,.sgc-story-stage:has(video) .sgc-story-text{position:absolute;bottom:10px;background:#201521a8;color:#fff!important;font:15px/1.4 Arial,sans-serif;padding:10px 14px!important;max-width:90%}.sgc-story-stage .sgc-story-progress span{width:0%;transition:none}.sgc-story-stage .sgc-story-owner{padding-right:40px}.sgc-story-playback{margin-left:auto;border:0;background:#ffffff30;color:#fff;border-radius:50%;width:33px;height:33px;cursor:pointer}.sgc-story-stage .sgc-story-nav{font-size:25px}.sgc-story-stage img,.sgc-story-stage video{object-fit:contain!important}
 </style>
 <link rel="stylesheet" href="css/community-notifications.css"><link rel="stylesheet" href="css/sgc-user-guide.css?v=guide1"></head>
 <body>
@@ -886,10 +887,13 @@ async function sgcCreateStory(existing=null){
  }catch(err){status.textContent=err.message;console.error('SGC story save failed',err)}finally{draft.disabled=false;publish.disabled=false}};
  draft.onclick=()=>save('draft');publish.onclick=()=>save('published');box.append(form);await draw();
 }
+let sgcStorySequence=[],sgcStoryPlayback=null,sgcStoryViewToken=0;
+function sgcStopStoryPlayback(){if(sgcStoryPlayback){sgcStoryPlayback();sgcStoryPlayback=null}}
 async function sgcViewStory(story){
- const p=await sgcProfile(story.user_id),box=sgcModal(p?.display_name||'SGC member');
- box.classList.add('sgc-story-viewer');const stage=el('div',undefined,'sgc-story-stage'),top=el('div',undefined,'sgc-story-top'),progress=el('div',undefined,'sgc-story-progress'),bar=el('span'),owner=el('div',undefined,'sgc-story-owner'),bottom=el('div',undefined,'sgc-story-bottom');progress.append(bar);const ownerBtn=el('button',p?.display_name||(story.user_id===user.id?'You':'SGC member'),'sgc-profile-link');ownerBtn.onclick=()=>sgcOpenProfile(story.user_id);owner.append(ownerBtn,el('small',new Date(story.created_at).toLocaleString('en-ZA')));top.append(progress,owner);stage.append(top);box.append(stage,bottom);
- if(story.image_path||story.video_path){const isVideo=!!story.video_path,url=await sgcImage(story.video_path||story.image_path);if(url){const media=el(isVideo?'video':'img',undefined,'sgc-story-image');media.src=url;if(isVideo){media.controls=true;media.playsInline=true}stage.append(media)}}
+ sgcStopStoryPlayback();const viewToken=++sgcStoryViewToken;
+ const p=await sgcProfile(story.user_id);if(viewToken!==sgcStoryViewToken)return;const box=sgcModal(p?.display_name||'SGC member');
+ box.classList.add('sgc-story-viewer');const stage=el('div',undefined,'sgc-story-stage'),top=el('div',undefined,'sgc-story-top'),progress=el('div',undefined,'sgc-story-progress'),bar=el('span'),owner=el('div',undefined,'sgc-story-owner'),bottom=el('div',undefined,'sgc-story-bottom');progress.append(bar);const pause=el('button','Ⅱ','sgc-story-playback');pause.type='button';pause.title='Pause story';const ownerBtn=el('button',p?.display_name||(story.user_id===user.id?'You':'SGC member'),'sgc-profile-link');ownerBtn.onclick=()=>sgcOpenProfile(story.user_id);owner.append(ownerBtn,el('small',new Date(story.created_at).toLocaleString('en-ZA')));owner.append(pause);top.append(progress,owner);stage.append(top);box.append(stage,bottom);
+ if(story.image_path||story.video_path){const isVideo=!!story.video_path,url=await sgcImage(story.video_path||story.image_path);if(url){const media=el(isVideo?'video':'img',undefined,'sgc-story-image');media.src=url;if(isVideo){media.playsInline=true;media.preload='auto';media.muted=false}stage.append(media)}}
  if(story.body)stage.append(el('div',story.body,'sgc-story-text'));
  if(story.user_id===user.id){if(story.status==='draft')bottom.append(sgcBtn('Edit or publish draft',()=>sgcCreateStory(story)));const del=el('button','Delete story','btn alt');del.onclick=async()=>{if(!confirm('Delete this story?'))return;check(await sb.from('sgc_social_stories').delete().eq('id',story.id));sgcModalRoot.replaceChildren();await sgcStories()};bottom.append(del)}
  if(story.status==='published'){
@@ -908,6 +912,15 @@ async function sgcViewStory(story){
  bottom.append(reactions,counts,heading,comments,form);await refresh();
  }
  const profileBtn=el('button','View profile','btn soft');profileBtn.onclick=()=>sgcOpenProfile(story.user_id);bottom.append(profileBtn);
+ const current=sgcStorySequence.findIndex(s=>s.id===story.id),next=()=>{if(viewToken!==sgcStoryViewToken)return;const following=sgcStorySequence.slice(current+1).find(s=>s.status==='published');if(following)sgcViewStory(following);else{sgcStopStoryPlayback();sgcModalRoot.replaceChildren()}};
+ if(current>0){const prev=el('button','‹','sgc-story-nav prev');prev.type='button';prev.onclick=()=>sgcViewStory(sgcStorySequence[current-1]);stage.append(prev)}
+ if(current>=0&&current<sgcStorySequence.length-1){const forward=el('button','›','sgc-story-nav next');forward.type='button';forward.onclick=next;stage.append(forward)}
+ let paused=false,elapsed=0,last=performance.now(),frame=0;const video=stage.querySelector('video');
+ const tick=now=>{if(viewToken!==sgcStoryViewToken||!sgcModalRoot.contains(box))return;if(!paused){elapsed+=Math.min(now-last,250);bar.style.width=Math.min(100,elapsed/30000*100)+'%';if(elapsed>=30000){next();return}}last=now;frame=requestAnimationFrame(tick)};
+ pause.onclick=()=>{paused=!paused;pause.textContent=paused?'▶':'Ⅱ';pause.title=paused?'Resume story':'Pause story';if(video){if(paused)video.pause();else video.play().catch(()=>{})}};
+ if(video){video.addEventListener('ended',()=>{video.pause();video.currentTime=0;if(!paused)video.play().catch(()=>{})});video.play().catch(()=>{video.muted=true;video.play().catch(()=>{})})}
+ frame=requestAnimationFrame(tick);sgcStoryPlayback=()=>{cancelAnimationFrame(frame);if(video)video.pause()};
+ const close=box.querySelector('.close-modal');if(close){const old=close.onclick;close.onclick=()=>{sgcStopStoryPlayback();sgcStoryViewToken++;if(old)old()}};
 }
 async function sgcStories(){
  const strip=document.getElementById('sgc-story-strip');if(!strip||!user)return;
@@ -916,6 +929,7 @@ async function sgcStories(){
  if(r.error){strip.append(el('p','Stories are unavailable right now.','muted'));return}
  const ids=[...new Set((r.data||[]).map(x=>x.user_id))],names={};
  if(ids.length){const profiles=await sb.from('sgc_social_profiles').select('user_id,display_name').in('user_id',ids);for(const p of profiles.data||[])names[p.user_id]=p.display_name}
+ sgcStorySequence=(r.data||[]).filter(s=>s.status==='published').slice().reverse();
  for(const s of (r.data||[]).filter(s=>s.status==='published'||s.user_id===user.id)){const name=names[s.user_id]||(s.user_id===user.id?'You':'SGC member'),card=el('button',undefined,'sgc-story');card.type='button';if(s.status==='draft')card.classList.add('draft');card.append(el('span',name.slice(0,1).toUpperCase(),'story-avatar'),el('span',s.status==='draft'?'Your draft · Edit':name,'story-name'));card.onclick=()=>sgcViewStory(s);strip.append(card)}
 }
 document.getElementById('sgc-my-profile').onclick=()=>sgcOpenProfile();
