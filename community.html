@@ -890,7 +890,7 @@ async function sgcCreateStory(existing=null){
  const box=sgcModal(existing?'Edit your story draft':'Create your story ✦'),form=el('form'),body=el('textarea'),file=el('input'),preview=el('div',undefined,'sgc-story-preview'),status=el('p',undefined,'muted'),controls=el('div',undefined,'sgc-story-controls'),draft=el('button','Save as draft','btn soft'),publish=el('button','Post story to everyone →','btn');
  let objectUrl=null;
  body.maxLength=500;body.placeholder='Share a moment, an update or something inspiring…';body.value=existing?.body||'';
- file.type='file';file.accept='image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime';
+ file.type='file';file.accept='image/*,video/*,.mp4,.webm,.mov';
  draft.type='button';publish.type='button';
  const draw=async()=>{preview.replaceChildren();if(objectUrl){URL.revokeObjectURL(objectUrl);objectUrl=null}const selected=file.files[0];let url='',isVideo=false;if(selected){objectUrl=URL.createObjectURL(selected);url=objectUrl;isVideo=selected.type.startsWith('video/')}else if(existing?.video_path){url=await sgcImage(existing.video_path);isVideo=true}else if(existing?.image_path){url=await sgcImage(existing.image_path)}
  if(url){const media=el(isVideo?'video':'img');media.src=url;if(isVideo){media.controls=true;media.playsInline=true;media.preload='metadata'}preview.append(media)}
@@ -1012,8 +1012,17 @@ function renderFaqReactions(post,root,groupId){
  }
 }
 async function sgcFaqMedia(path,parent){
- const signed=await sb.storage.from('sgc-community').createSignedUrl(path,3600);if(signed.error)return;
- const video=/\\.(mp4|webm|mov)$/i.test(path);const media=el(video?'video':'img');media.src=signed.data.signedUrl;media.className='sgc-faq-media';if(video){media.controls=true;media.playsInline=true;media.preload='metadata'}else{media.loading='lazy';media.alt='Community attachment'}parent.append(media);
+ const signed=await sb.storage.from('sgc-community').createSignedUrl(path,3600);
+ if(signed.error){parent.append(el('p','Media unavailable: '+signed.error.message,'muted'));return}
+ const video=/\.(mp4|webm|mov)$/i.test(path);
+ const media=el(video?'video':'img');
+ media.src=signed.data.signedUrl;media.className='sgc-faq-media';
+ if(video){
+  media.controls=true;media.playsInline=true;media.preload='metadata';media.setAttribute('controlsList','nodownload');
+  media.style.width='100%';media.style.maxHeight='480px';media.style.objectFit='contain';media.style.background='#18151a';media.style.borderRadius='12px';
+  media.onerror=()=>{if(!parent.querySelector('.sgc-video-error')){const note=el('p','This video cannot play in your browser. Try uploading an MP4 video encoded with H.264 video and AAC audio.','sgc-video-error');parent.append(note)}};
+ }else{media.loading='lazy';media.alt='Community attachment'}
+ parent.append(media);
 }
 function sgcConfirmDelete(message='Confirm delete post?'){
  return new Promise(resolve=>{
@@ -1048,8 +1057,8 @@ async function sgcFaqFeed(){
   const headerToggle=iconButton('✎','Add optional header',()=>{title.hidden=!title.hidden;if(!title.hidden)title.focus()});
   const emojiPicker=iconButton('☺','Insert emoji',()=>{const emojis=['💗','😊','😂','👏','🎉','✨','❤️','👍'];const pick=el('div',undefined,'sgc-comment-emoji-picker');for(const emoji of emojis){pick.append(iconButton(emoji,'Add '+emoji,()=>{input.value+=emoji;pick.remove();input.focus()}))}tools.append(pick)});
   const photo=iconButton('📷','Upload a photo',()=>{file.accept='image/jpeg,image/png,image/webp';file.click()});
-  const video=iconButton('🎥','Upload a video',()=>{file.accept='video/mp4,video/webm,video/quicktime';file.click()});
-  const attach=iconButton('♧','Attach photo or video',()=>{file.accept='image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime';file.click()});
+  const video=iconButton('🎥','Upload a video',()=>{file.accept='video/*,.mp4,.webm,.mov';file.click()});
+  const attach=iconButton('♧','Attach photo or video',()=>{file.accept='image/*,video/*,.mp4,.webm,.mov';file.click()});
   const fileName=el('span','','sgc-comment-file-name');file.onchange=()=>{const selected=file.files[0];fileName.textContent=selected?'📎 '+selected.name:'';if(selected)input.placeholder='Add a caption (optional)…'};
   file.hidden=true;send.textContent='➤';send.className='sgc-comment-send';send.title='Send '+(commentId?'reply':postId?'comment':'thread');send.setAttribute('aria-label',send.title);
   tools.append(headerToggle,emojiPicker,photo,video,attach,fileName,send);
@@ -1059,7 +1068,7 @@ async function sgcFaqFeed(){
    const body=input.value.trim(),heading=title.value.trim(),f=file.files[0];
    if(!body&&!f){throw Error('Write a comment or attach a photo/video.')}
    if(f){const image=['image/jpeg','image/png','image/webp'].includes(f.type)||/\.(jpe?g|png|webp)$/i.test(f.name),video=['video/mp4','video/webm','video/quicktime'].includes(f.type)||/\.(mp4|webm|mov)$/i.test(f.name);if(!image&&!video)throw Error('Use a JPG, PNG, WebP, MP4, WebM or MOV file.');if(f.size>(image?5:30)*1024*1024)throw Error(image?'Photo must be under 5 MB.':'Video must be under 30 MB.');const ext=f.name.split('.').pop().toLowerCase();uploaded={path:user.id+'/'+crypto.randomUUID()+'.'+ext,type:image?'image':'video'};const uploadResult=await sb.storage.from('sgc-community').upload(uploaded.path,f,{contentType:f.type|| (image?'image/jpeg':'video/mp4'),upsert:false});if(uploadResult.error)throw Error('Upload failed: '+uploadResult.error.message);}
-   const textBody=body||'📎 '+(uploaded?.type==='video'?'Video':'Photo');
+   const textBody=body||(uploaded?.type==='video'?'🎥 Video':'📷 Photo');
    if(commentId||postId){
     if(commentId)check(await sb.rpc('sgc_reply_comment',{p_comment:commentId,p_body:textBody}));
     else check(await sb.rpc('sgc_social',{p_action:'comment',p_post:postId,p_body:textBody,p_title:heading}));
