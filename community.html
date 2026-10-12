@@ -170,6 +170,35 @@ header nav{gap:8px}header nav a{font-size:13px;font-weight:600}
 .sgc-people-toggle{border:0!important;background:#f0e4f5!important;color:#3f3046!important;font-weight:700!important}.sgc-social-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 18px}.sgc-social-tabs button{border:0;border-radius:15px;padding:11px 15px;background:#eee5f2;color:#3b3040;font-weight:600}.sgc-social-tabs button.active{background:#3e303a;color:white}.sgc-member-card{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #e9e1e9;border-radius:15px;padding:12px;margin:9px 0;background:#fff}.sgc-member-card .avatar{width:38px;height:38px;font-size:17px}.sgc-member-card button{font-size:11px;padding:9px 12px}.sgc-chat-messages{min-height:150px;max-height:360px;overflow:auto;background:#f8f4f9;padding:15px;border-radius:14px}.sgc-chat-bubble{max-width:85%;background:#e7ddee;border-radius:14px;padding:11px 14px;margin:9px 0;white-space:pre-wrap;overflow-wrap:anywhere}.sgc-chat-bubble.mine{background:#f3e4da;margin-left:auto}.sgc-people-search{margin:12px 0}.sgc-chat-form{display:flex;gap:9px;margin-top:12px}.sgc-chat-form input{flex:1;min-width:0}.sgc-chat-form button{flex-shrink:0}@media(max-width:700px){.sgc-member-card{flex-wrap:wrap}.sgc-chat-form{flex-wrap:wrap}}
 .sgc-story-preview{min-height:190px;display:grid;place-items:center;background:linear-gradient(145deg,#f5e7f5,#fbe8eb);border:1px dashed #d9bfd5;border-radius:18px;padding:16px;margin:14px 0;overflow:hidden}.sgc-story-preview img,.sgc-story-preview video{max-width:100%;max-height:320px;object-fit:contain;border-radius:12px}.sgc-story-preview p{text-align:center;white-space:pre-wrap}.sgc-story-controls{display:flex;gap:10px;flex-wrap:wrap}.sgc-story-controls button{flex:1;min-width:130px}.sgc-story.draft{border:2px dashed #a98fae;background:#f8f1fa}.sgc-story.draft:before{content:'✎'}
 .sgc-story-react{display:flex;gap:8px;flex-wrap:wrap;margin:13px 0}.sgc-story-react button{border:1px solid #e6d6e4;background:#fbf4fa;border-radius:13px;font-size:20px;padding:7px 11px;cursor:pointer}.sgc-story-react button.selected{background:#ecd5e9;border-color:#ae83ad}.sgc-story-comment{background:#f8f3f8;border-radius:14px;padding:10px 13px;margin:8px 0;white-space:pre-wrap;overflow-wrap:anywhere}.sgc-story-comment small{color:#8c798c}.sgc-story-comment-form{display:flex;gap:8px;margin-top:10px}.sgc-story-comment-form input{flex:1;min-width:0}.sgc-story-comment-form button{flex-shrink:0}
+
+/* Immersive Facebook-style story viewer */
+.sgc-modal-backdrop:has(.sgc-story-viewer){background:#08090df5!important;padding:0!important}
+.sgc-modal.sgc-story-viewer{width:min(510px,100vw)!important;height:min(94vh,960px)!important;max-height:100vh!important;padding:0!important;border-radius:14px!important;background:#22252c!important;color:#fff!important;position:relative!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
+.sgc-story-viewer>.close-modal{position:absolute;right:12px;top:14px;z-index:5;color:white;background:#ffffff35;width:37px;height:37px}
+.sgc-story-viewer>h2{display:none}
+.sgc-story-stage{position:relative;min-height:0;flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;background:linear-gradient(160deg,#6c8089,#a6bbc4)}
+.sgc-story-stage img,.sgc-story-stage video{height:100%;width:100%;object-fit:contain;max-height:100%;border-radius:0;margin:0}
+.sgc-story-stage .sgc-story-text{padding:25px;text-align:center;font:clamp(19px,3vw,28px)/1.5 Georgia,serif;white-space:pre-wrap;overflow-wrap:anywhere;color:#fff;text-shadow:0 2px 7px #0007}
+.sgc-story-top{position:absolute;top:0;left:0;right:0;z-index:3;padding:13px 15px;background:linear-gradient(#0008,transparent);color:#fff}
+.sgc-story-progress{height:4px;background:#ffffff65;border-radius:5px;margin-bottom:13px;overflow:hidden}
+.sgc-story-progress span{display:block;height:100%;width:100%;background:#fff}
+.sgc-story-owner{font-size:14px;font-weight:700;display:flex;align-items:center;gap:9px}
+.sgc-story-owner button{color:#fff!important}
+.sgc-story-bottom{background:#202128;padding:10px 13px 14px;max-height:43%;overflow-y:auto}
+.sgc-story-bottom .sgc-story-react{margin:7px 0;flex-wrap:nowrap;justify-content:space-between}
+.sgc-story-bottom .sgc-story-react button{border:0;background:none;color:white;padding:4px;font-size:24px}
+.sgc-story-bottom .sgc-story-react button.selected{background:#fff3;border-radius:20px}
+.sgc-story-bottom .sgc-story-comment{background:#33353e;color:white}
+.sgc-story-bottom .sgc-story-comment small{color:#c9c5cf}
+.sgc-story-bottom .sgc-story-comment-form input{background:#353741;color:#fff;border:1px solid #aaa7b0;border-radius:25px}
+.sgc-story-bottom .sgc-story-comment-form input::placeholder{color:#ccc}
+.sgc-story-bottom .sgc-story-comment-form button{background:#efcfe1;color:#302631;border-radius:25px}
+.sgc-story-bottom h3{font-size:14px;color:#eee;margin:7px 0}
+.sgc-story-bottom .muted{color:#c9c5cf}
+.sgc-story-bottom .sgc-profile-link{color:#fff}
+.sgc-story-nav{position:absolute;top:45%;border:0;background:#0006;color:#fff;border-radius:50%;height:38px;width:38px;font-size:24px;cursor:pointer;z-index:4}
+.sgc-story-nav.prev{left:8px}.sgc-story-nav.next{right:8px}
+@media(max-width:600px){.sgc-modal.sgc-story-viewer{height:100dvh;width:100vw;border-radius:0!important}.sgc-story-bottom{max-height:45%}}
 </style>
 <link rel="stylesheet" href="css/community-notifications.css"><link rel="stylesheet" href="css/sgc-user-guide.css?v=guide1"></head>
 <body>
@@ -859,10 +888,10 @@ async function sgcCreateStory(existing=null){
 }
 async function sgcViewStory(story){
  const p=await sgcProfile(story.user_id),box=sgcModal(p?.display_name||'SGC member');
- box.append(el('p',new Date(story.created_at).toLocaleString('en-ZA'),'muted'));
- if(story.image_path||story.video_path){const isVideo=!!story.video_path,url=await sgcImage(story.video_path||story.image_path);if(url){const media=el(isVideo?'video':'img',undefined,'sgc-story-image');media.src=url;if(isVideo){media.controls=true;media.playsInline=true}box.append(media)}}
- box.append(el('p',story.body||'✦','post-body'));
- if(story.user_id===user.id){if(story.status==='draft')box.append(sgcBtn('Edit or publish draft',()=>sgcCreateStory(story)));const del=el('button','Delete story','btn alt');del.onclick=async()=>{if(!confirm('Delete this story?'))return;check(await sb.from('sgc_social_stories').delete().eq('id',story.id));sgcModalRoot.replaceChildren();await sgcStories()};box.append(del)}
+ box.classList.add('sgc-story-viewer');const stage=el('div',undefined,'sgc-story-stage'),top=el('div',undefined,'sgc-story-top'),progress=el('div',undefined,'sgc-story-progress'),bar=el('span'),owner=el('div',undefined,'sgc-story-owner'),bottom=el('div',undefined,'sgc-story-bottom');progress.append(bar);const ownerBtn=el('button',p?.display_name||(story.user_id===user.id?'You':'SGC member'),'sgc-profile-link');ownerBtn.onclick=()=>sgcOpenProfile(story.user_id);owner.append(ownerBtn,el('small',new Date(story.created_at).toLocaleString('en-ZA')));top.append(progress,owner);stage.append(top);box.append(stage,bottom);
+ if(story.image_path||story.video_path){const isVideo=!!story.video_path,url=await sgcImage(story.video_path||story.image_path);if(url){const media=el(isVideo?'video':'img',undefined,'sgc-story-image');media.src=url;if(isVideo){media.controls=true;media.playsInline=true}stage.append(media)}}
+ if(story.body)stage.append(el('div',story.body,'sgc-story-text'));
+ if(story.user_id===user.id){if(story.status==='draft')bottom.append(sgcBtn('Edit or publish draft',()=>sgcCreateStory(story)));const del=el('button','Delete story','btn alt');del.onclick=async()=>{if(!confirm('Delete this story?'))return;check(await sb.from('sgc_social_stories').delete().eq('id',story.id));sgcModalRoot.replaceChildren();await sgcStories()};bottom.append(del)}
  if(story.status==='published'){
  const reactions=el('div',undefined,'sgc-story-react'),counts=el('p',undefined,'muted'),heading=el('h3','Comments'),comments=el('div'),form=el('form',undefined,'sgc-story-comment-form'),input=el('input'),send=el('button','Comment','btn');
  input.required=true;input.maxLength=1000;input.placeholder='Write a comment…';form.append(input,send);
@@ -876,9 +905,9 @@ async function sgcViewStory(story){
  for(const cm of cr.data){const item=el('div',undefined,'sgc-story-comment'),top=el('div',undefined,'row'),who=el('button',names[cm.user_id]||(cm.user_id===user.id?'You':'SGC member'),'sgc-profile-link');who.type='button';who.onclick=()=>sgcOpenProfile(cm.user_id);top.append(who,el('small',new Date(cm.created_at).toLocaleString('en-ZA')));if(cm.user_id===user.id||story.user_id===user.id){const remove=el('button','Delete','btn alt');remove.type='button';remove.onclick=async()=>{if(!confirm('Delete this comment?'))return;check(await sb.from('sgc_story_comments').delete().eq('id',cm.id));await refresh()};top.append(remove)}item.append(top,el('p',cm.body));comments.append(item)}
  };
  form.onsubmit=async e=>{e.preventDefault();send.disabled=true;try{check(await sb.from('sgc_story_comments').insert({story_id:story.id,user_id:user.id,body:input.value.trim()}));input.value='';await refresh()}catch(err){alert(err.message)}finally{send.disabled=false}};
- box.append(reactions,counts,heading,comments,form);await refresh();
+ bottom.append(reactions,counts,heading,comments,form);await refresh();
  }
- const profileBtn=el('button','View profile','btn soft');profileBtn.onclick=()=>sgcOpenProfile(story.user_id);box.append(profileBtn);
+ const profileBtn=el('button','View profile','btn soft');profileBtn.onclick=()=>sgcOpenProfile(story.user_id);bottom.append(profileBtn);
 }
 async function sgcStories(){
  const strip=document.getElementById('sgc-story-strip');if(!strip||!user)return;
