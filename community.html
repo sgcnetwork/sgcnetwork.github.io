@@ -1484,7 +1484,31 @@ start().catch(e=>{console.error('Community startup error',e);if(/auth session mi
  connect('sgc-mobile-community','sgc-people-nav');
  connect('sgc-mobile-profile','sgc-my-profile');
  const jump=(id,target)=>{const button=document.getElementById(id);if(button)button.addEventListener('click',()=>document.getElementById(target)?.scrollIntoView({behavior:'smooth',block:'start'}))};
- jump('sgc-mobile-feed','feed');jump('sgc-mobile-stories','sgc-story-strip');
+ // Reload fresh data, then scroll the independent feed pane to the requested section.
+ const refreshTab=(id,section)=>{
+  const button=document.getElementById(id);
+  button?.addEventListener('click',()=>{
+   sessionStorage.setItem('sgc-community-tab-target',section);
+   location.reload();
+  });
+ };
+ refreshTab('sgc-mobile-feed','sgc-active-community-banner');
+ refreshTab('sgc-mobile-stories','sgc-story-strip');
+ const target=sessionStorage.getItem('sgc-community-tab-target');
+ if(target){
+  sessionStorage.removeItem('sgc-community-tab-target');
+  let tries=0;
+  const seek=()=>{
+   const section=document.getElementById(target),pane=document.querySelector('.layout>main');
+   if(!section||!pane||pane.clientHeight<100||document.getElementById('app')?.hidden)return false;
+   const paneTop=pane.getBoundingClientRect().top;
+   const sectionTop=section.getBoundingClientRect().top;
+   pane.scrollTop+=sectionTop-paneTop;
+   return true;
+  };
+  const poll=setInterval(()=>{tries++;if(seek()||tries>=60)clearInterval(poll)},150);
+ }
+ 
 })();
 </script><script>
 (function(){
