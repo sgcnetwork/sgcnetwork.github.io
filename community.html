@@ -1032,8 +1032,8 @@ async function sgcFaqFeed(){
   title.classList.add('sgc-comment-heading');title.hidden=true;
   const headerToggle=iconButton('✎','Add optional header',()=>{title.hidden=!title.hidden;if(!title.hidden)title.focus()});
   const emojiPicker=iconButton('☺','Insert emoji',()=>{const emojis=['💗','😊','😂','👏','🎉','✨','❤️','👍'];const pick=el('div',undefined,'sgc-comment-emoji-picker');for(const emoji of emojis){pick.append(iconButton(emoji,'Add '+emoji,()=>{input.value+=emoji;pick.remove();input.focus()}))}tools.append(pick)});
-  const photo=iconButton('▧','Upload a photo',()=>{file.accept='image/jpeg,image/png,image/webp';file.click()});
-  const video=iconButton('▣','Upload a video',()=>{file.accept='video/mp4,video/webm,video/quicktime';file.click()});
+  const photo=iconButton('📷','Upload a photo',()=>{file.accept='image/jpeg,image/png,image/webp';file.click()});
+  const video=iconButton('🎥','Upload a video',()=>{file.accept='video/mp4,video/webm,video/quicktime';file.click()});
   const attach=iconButton('♧','Attach photo or video',()=>{file.accept='image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime';file.click()});
   const fileName=el('span','','sgc-comment-file-name');file.onchange=()=>{fileName.textContent=file.files[0]?'📎 '+file.files[0].name:''};
   file.hidden=true;send.textContent='➤';send.className='sgc-comment-send';send.title='Send '+(commentId?'reply':postId?'comment':'thread');send.setAttribute('aria-label',send.title);
