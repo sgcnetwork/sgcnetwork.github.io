@@ -1,0 +1,19 @@
+{
+  "id": "/",
+  "name": "SGC Network — Learn, Build, Grow",
+  "short_name": "SGC Network",
+  "description": "SGC Network Academy, community, shop and your member dashboard.",
+  "start_url": "/dashboard.html",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#fbf5ea",
+  "theme_color": "#f4dfe0",
+  "icons": [
+    {
+      "src": "/sgc-app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
