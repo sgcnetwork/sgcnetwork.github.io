@@ -216,6 +216,8 @@ body{background:radial-gradient(ellipse at 90% 4%,#eee4f3 0%,transparent 38%),ra
 .hero .hero-card>span.muted{display:none!important}
 .hero .hero-card .btn{font-size:9px!important;padding:8px 10px!important;line-height:1.3!important;width:100%!important;box-sizing:border-box!important;margin:4px 0 0!important;white-space:normal!important}
 @media(max-width:800px){.hero .hero-card{width:210px!important;max-width:210px!important;margin-left:auto!important}}
+
+#my-profile{max-width:900px;margin:30px auto 55px}.sgc-profile-shell{background:#fffdfa;border:1px solid #e9dbe5;border-radius:30px;overflow:hidden;box-shadow:0 20px 50px #5d3c5d0c}.sgc-profile-banner{padding:38px 38px 60px;background:linear-gradient(125deg,#f8dfe9,#ece2f7 65%,#fff0cf)}.sgc-profile-banner h2{font:44px Georgia,serif;margin:9px 0}.sgc-profile-banner p{color:#71606d}.sgc-profile-form{padding:0 38px 38px;display:grid;gap:22px}.sgc-profile-photo{display:flex;align-items:center;gap:22px;margin-top:-36px}.sgc-profile-avatar{width:110px;height:110px;flex-shrink:0;border-radius:50%;border:5px solid white;background:#d7bcd9;display:grid;place-items:center;color:#543d55;font:25px Georgia,serif;overflow:hidden}.sgc-profile-avatar img{width:100%;height:100%;object-fit:cover}.sgc-profile-form label{font-size:13px;font-weight:600;display:grid;gap:9px}.sgc-profile-photo label{margin-bottom:7px}.sgc-profile-photo small{display:block;font-size:11px;color:#877684;margin-top:7px}.sgc-profile-form input:not([type=file]),.sgc-profile-form textarea{font:14px Arial,sans-serif;width:100%;padding:14px 16px;border-radius:13px;border:1px solid #decfdb;background:#fff;outline-color:#b999b6;color:#332b32}.sgc-profile-form input[type=file]{max-width:100%;font-size:12px}.sgc-profile-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}.sgc-profile-fields label:last-child{grid-column:1/-1}.sgc-profile-actions{display:flex;gap:12px;flex-wrap:wrap}#sgc-profile-status{margin:0}@media(max-width:650px){.sgc-profile-fields{grid-template-columns:1fr}.sgc-profile-fields label:last-child{grid-column:auto}.sgc-profile-banner{padding:28px 23px 55px}.sgc-profile-form{padding:0 23px 30px}.sgc-profile-photo{align-items:flex-start;flex-wrap:wrap}}
 </style>
 <link rel="stylesheet" href="css/community-notifications.css"><style>.sgc-notification-toggle{display:none!important}</style><link rel="stylesheet" href="css/sgc-user-guide.css?v=guide1"></head>
 <body>
@@ -228,10 +230,21 @@ body{background:radial-gradient(ellipse at 90% 4%,#eee4f3 0%,transparent 38%),ra
 <a href="academy.html">Academy</a>
 <a href="community.html">Community</a>
 <a href="#my-library" id="library-nav">My library</a>
+<a class="btn soft" href="#my-profile" id="sgc-profile-nav">👤 Profile</a>
 <button class="btn alt" id="signout">Sign out</button>
 </nav>
 </header>
 <main>
+<section id="my-profile" class="section" hidden>
+<div class="sgc-profile-shell">
+<div class="sgc-profile-banner"><span class="eyebrow">Your SGC identity</span><h2>My profile</h2><p>Update your account details and the profile other SGC members see.</p></div>
+<form id="sgc-profile-form" class="sgc-profile-form">
+<div class="sgc-profile-photo"><div id="sgc-profile-avatar" class="sgc-profile-avatar">SGC</div><div><label for="sgc-profile-picture">Profile picture</label><input id="sgc-profile-picture" type="file" accept="image/jpeg,image/png,image/webp"><small>JPG, PNG or WebP · up to 5 MB</small></div></div>
+<div class="sgc-profile-fields"><label>Username <input id="sgc-profile-username" required minlength="2" maxlength="60" autocomplete="nickname" placeholder="Your display name"></label><label>Email address <input id="sgc-profile-email" type="email" required autocomplete="email"></label><label>Phone number <input id="sgc-profile-phone" type="tel" autocomplete="tel" placeholder="+27…"></label></div>
+<label>About me / Bio<textarea id="sgc-profile-bio" rows="5" maxlength="500" placeholder="Tell the SGC community a little about yourself…"></textarea></label>
+<p class="muted">Your username, bio and profile photo may be visible to other SGC members. Your email and phone number remain private. Changing your email may require confirmation from your new address. Changing your login phone number may require verification.</p>
+<div class="sgc-profile-actions"><button class="btn" type="submit" id="sgc-profile-save">Save profile changes</button><a class="btn alt" href="dashboard.html">Back to dashboard</a></div><p id="sgc-profile-status" role="status" class="muted"></p>
+</form></div></section>
 <section class="hero">
 <div>
 <div class="eyebrow">Your space to grow</div>
@@ -693,13 +706,16 @@ body{background:radial-gradient(ellipse at 90% 4%,#eee4f3 0%,transparent 38%),ra
  }
  function fromHash(){
   const id=location.hash.slice(1);
+  const profileActive=id==='my-profile';
   const libraryActive=id==='my-library'||panels.some(p=>p.id===id);
   document.getElementById('my-library').hidden=!libraryActive;
+  document.getElementById('my-profile').hidden=!profileActive;
   for(const section of document.querySelectorAll('main > section')){
-   if(section.id!=='my-library')section.hidden=libraryActive;
+   if(section.id!=='my-library'&&section.id!=='my-profile')section.hidden=libraryActive||profileActive;
   }
   document.getElementById('library-nav').classList.toggle('active',libraryActive);
-  document.getElementById('dashboard-nav').classList.toggle('active',!libraryActive);
+  document.getElementById('sgc-profile-nav').classList.toggle('active',profileActive);
+  document.getElementById('dashboard-nav').classList.toggle('active',!libraryActive&&!profileActive);
   select(id);
  }
  for(const link of links)link.addEventListener('click',()=>select(link.dataset.library));
@@ -747,6 +763,46 @@ body{background:radial-gradient(ellipse at 90% 4%,#eee4f3 0%,transparent 38%),ra
  else if(!legacy.data?.length && !tx.data?.length)host.append(item('No payments recorded','Your payment records will appear here.'));
  else {for(const x of legacy.data||[])host.append(item(String(x.payment_type||'Payment'),money(x.amount_zar)+' · '+x.status+' · '+date(x.paid_at||x.created_at)));for(const x of tx.data||[])host.append(item(x.product_name||'Stitch checkout',money(x.amount_zar)+' · '+x.status+' · '+date(x.paid_at||x.created_at)));}
  }catch(e){host.replaceChildren(item('Unable to load your library',e.message));}
+})();
+</script>
+<script>
+(async()=>{
+const sb=window.sgcSupabase||window.supabase?.createClient('https://bxpexanyoyubxeqqlggh.supabase.co','sb_publishable_Z0_Y-Bj_G5qw4hMgDbQlgA__jj8rGGq');
+const $=id=>document.getElementById(id),form=$('sgc-profile-form'),status=$('sgc-profile-status'),photo=$('sgc-profile-picture'),avatar=$('sgc-profile-avatar');
+if(!sb)return;
+let current=null,profile=null,phoneOriginal='';
+const validPhone=x=>!x||/^\+[1-9]\d{7,14}$/.test(x);
+function renderAvatar(url,name){avatar.replaceChildren();if(url){const im=document.createElement('img');im.src=url;im.alt='Your profile picture';avatar.append(im)}else avatar.textContent=(name||'SGC').slice(0,2).toUpperCase()}
+async function load(){
+const auth=await sb.auth.getUser();if(auth.error)throw auth.error;current=auth.data.user;if(!current)return;
+const r=await sb.from('sgc_social_profiles').select('display_name,bio,avatar_path').eq('user_id',current.id).maybeSingle();if(r.error)throw r.error;profile=r.data;
+$('sgc-profile-username').value=profile?.display_name||current.user_metadata?.username||current.user_metadata?.full_name||current.email?.split('@')[0]||'SGC member';
+$('sgc-profile-email').value=current.email||'';
+phoneOriginal=current.phone||current.user_metadata?.phone||'';
+$('sgc-profile-phone').value=phoneOriginal;
+$('sgc-profile-bio').value=profile?.bio||'';
+if(profile?.avatar_path){const img=await sb.storage.from('sgc-community').createSignedUrl(profile.avatar_path,3600);renderAvatar(img.data?.signedUrl,$('sgc-profile-username').value)}else renderAvatar('', $('sgc-profile-username').value);
+}
+photo.addEventListener('change',()=>{const f=photo.files?.[0];if(!f)return;if(!['image/jpeg','image/png','image/webp'].includes(f.type)||f.size>5242880){status.textContent='Choose a JPG, PNG or WebP picture under 5 MB.';photo.value='';return}renderAvatar(URL.createObjectURL(f),$('sgc-profile-username').value)});
+form.addEventListener('submit',async e=>{
+e.preventDefault();const save=$('sgc-profile-save');save.disabled=true;status.textContent='Saving your profile…';
+try{
+const auth=await sb.auth.getUser();if(auth.error||!auth.data.user)throw Error('Please sign in again.');current=auth.data.user;
+const name=$('sgc-profile-username').value.trim(),email=$('sgc-profile-email').value.trim(),phone=$('sgc-profile-phone').value.trim(),bio=$('sgc-profile-bio').value.trim();
+if(name.length<2||name.length>60)throw Error('Username must be 2–60 characters.');
+if(!validPhone(phone))throw Error('Use an international phone number, for example +27821234567.');
+let path=profile?.avatar_path||null;const f=photo.files?.[0];
+if(f){if(!['image/jpeg','image/png','image/webp'].includes(f.type)||f.size>5242880)throw Error('Use a JPG, PNG or WebP under 5 MB.');const ext=f.type==='image/png'?'png':f.type==='image/webp'?'webp':'jpg';path=current.id+'/'+crypto.randomUUID()+'.'+ext;const upload=await sb.storage.from('sgc-community').upload(path,f,{contentType:f.type});if(upload.error)throw upload.error;}
+const saved=await sb.from('sgc_social_profiles').upsert({user_id:current.id,display_name:name,bio,avatar_path:path,updated_at:new Date().toISOString()});if(saved.error)throw saved.error;
+const meta=await sb.auth.updateUser({data:{username:name,phone:phone}});if(meta.error)throw meta.error;
+let notices=[];
+if(email&&email.toLowerCase()!==(current.email||'').toLowerCase()){const changed=await sb.auth.updateUser({email});if(changed.error)notices.push('Email change failed: '+changed.error.message);else notices.push('Check your email to confirm the new address.')}
+if(phone!==phoneOriginal){const changed=await sb.from('profiles').update({phone:phone||null}).eq('id',current.id);if(changed.error)notices.push('Phone update could not be saved: '+changed.error.message);else{phoneOriginal=phone;notices.push('Contact phone saved. Changing a phone used for sign-in may require separate verification.');}}
+profile={display_name:name,bio,avatar_path:path};photo.value='';$('email').textContent=name;$('member-username').textContent=current.email||'';
+status.textContent='Profile saved! '+notices.join(' ');
+}catch(err){status.textContent='Could not save profile: '+(err.message||String(err))}finally{save.disabled=false}
+});
+try{await load()}catch(e){status.textContent='Could not load your profile: '+e.message}
 })();
 </script>
 <script src="js/community-notifications.js"></script><script src="js/sgc-user-guide.js?v=guide1"></script></body>
