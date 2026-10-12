@@ -558,6 +558,23 @@ html.sgc-profile-document-mode .sgc-modal .close-modal{display:none!important}
 .sgc-chat-media-panel{position:relative!important;max-width:96vw!important;max-height:94dvh!important;display:flex!important;align-items:center!important;justify-content:center!important}
 .sgc-chat-media-panel img,.sgc-chat-media-panel video{max-width:94vw!important;max-height:85dvh!important;object-fit:contain!important;border-radius:10px!important}
 .sgc-chat-media-close{position:absolute!important;right:0!important;top:-45px!important;border:1px solid #c7a76b!important;border-radius:50%!important;width:38px!important;height:38px!important;background:#18140d!important;color:#fff!important;font-size:26px!important;cursor:pointer!important}
+</style><style>
+/* Dark mode: clearly defined gold story cards on desktop and mobile. */
+html[data-sgc-theme="dark"] #sgc-story-strip .sgc-story,
+html[data-sgc-theme="dark"] #sgc-story-strip button.sgc-story,
+html[data-sgc-theme="dark"] #sgc-story-strip .sgc-story.create {
+  border:2px solid #d7b365!important;
+  border-radius:17px!important;
+  background:#1d1912!important;
+  background-image:linear-gradient(145deg,#282115,#100f0c)!important;
+  box-shadow:inset 0 0 0 1px #f2d18a33,0 3px 12px #0009!important;
+  color:#f8e7c3!important;
+}
+html[data-sgc-theme="dark"] #sgc-story-strip .sgc-story .story-name{color:#f8e7c3!important}
+html[data-sgc-theme="dark"] #sgc-story-strip .sgc-story::before{color:#d7b365!important}
+html[data-sgc-theme="dark"] #sgc-story-strip .sgc-story .story-avatar{
+  border-color:#d7b365!important;box-shadow:0 0 0 2px #705829!important;
+}
 </style></head>
 <body>
 <div class="wrap">
