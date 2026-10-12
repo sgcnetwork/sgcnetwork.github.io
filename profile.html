@@ -1726,12 +1726,7 @@ async function start(){
  isAdmin=check(await sb.rpc('sgc_extra_is_admin'));
  $('signed-in').textContent='Signed in as '+(user.user_metadata?.username||user.user_metadata?.full_name||user.email);
  $('app').hidden=false;
- // Standalone member profile: don't fetch or render the community feed.
- if(new URLSearchParams(location.search).get('view')!=='profile'){
- await refresh();
- await sgcStories();
- await sgcFaqFeed();
- }
+ // Member profiles are standalone: never initialise the Community feed.
  document.documentElement.classList.add('sgc-profile-document-mode');
  const profileId=new URLSearchParams(location.search).get('user');
  if(profileId&&/^[a-f0-9-]{36}$/i.test(profileId)){
