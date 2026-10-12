@@ -148,9 +148,22 @@ html[data-academy-theme="light"] .academy-appearance button[aria-pressed="true"]
  body .sgc-guide-launcher{position:fixed!important;bottom:calc(86px + env(safe-area-inset-bottom,0px))!important;right:12px!important}
 }
 @media(prefers-reduced-motion:reduce){aside.sidebar{transition:none!important}}
-</style><meta name="sgc-academy-release" content="mobile-app-refresh-20261012"></head>
+</style><meta name="sgc-academy-release" content="mobile-app-refresh-20261012"><style>
+@media(max-width:720px){
+ .sgc-academy-mobile-nav{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;grid-template-rows:1fr!important;align-items:stretch!important;gap:3px!important;width:100%!important;padding:8px 7px calc(8px + env(safe-area-inset-bottom,0px))!important;min-height:72px!important;background:var(--panel)!important;border-top:1px solid var(--line)!important;box-shadow:0 -6px 22px #00000018!important}
+ .sgc-academy-mobile-nav a,.sgc-academy-mobile-nav button{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;min-width:0!important;max-width:100%!important;min-height:53px!important;padding:4px 1px!important;gap:4px!important;border-radius:16px!important;white-space:nowrap!important;font:600 10px/1.2 Arial,sans-serif!important;letter-spacing:0!important;text-decoration:none!important}
+ .sgc-academy-mobile-nav .icon{display:grid!important;place-items:center!important;width:38px!important;height:33px!important;border-radius:13px!important;background:color-mix(in srgb,var(--gold) 10%,var(--panel))!important;color:var(--gold)!important}
+ .sgc-academy-mobile-nav .icon svg{display:block!important;width:23px!important;height:23px!important;flex-shrink:0!important}
+ .sgc-academy-mobile-nav .active{background:color-mix(in srgb,var(--gold) 14%,var(--panel))!important;color:var(--text)!important}
+ .sgc-academy-mobile-nav .active .icon{background:color-mix(in srgb,var(--gold) 23%,var(--panel))!important}
+ .sgc-academy-appbar button{display:grid!important;place-items:center!important;border-radius:14px!important;background:color-mix(in srgb,var(--gold) 9%,var(--panel))!important;color:var(--text)!important}
+ .sgc-academy-appbar button svg{width:22px;height:22px}
+ body>main{bottom:calc(78px + env(safe-area-inset-bottom,0px))!important}
+ body .sgc-guide-launcher{bottom:calc(99px + env(safe-area-inset-bottom,0px))!important}
+}
+</style></head>
 <body>
-<div class="sgc-academy-appbar"><button type="button" id="sgc-academy-menu" aria-label="Open Academy modules and settings" aria-expanded="false">☰</button><div class="app-name">SGC Academy<small>LEARN · BUILD · GROW</small></div><button type="button" id="sgc-academy-next-shortcut" aria-label="Next lesson">›</button></div><div class="sgc-academy-drawer-shade" id="sgc-academy-drawer-shade"></div>
+<div class="sgc-academy-appbar"><button type="button" id="sgc-academy-menu" aria-label="Open Academy modules and settings" aria-expanded="false"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button><div class="app-name">SGC Academy<small>LEARN · BUILD · GROW</small></div><button type="button" id="sgc-academy-next-shortcut" aria-label="Next lesson"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg></button></div><div class="sgc-academy-drawer-shade" id="sgc-academy-drawer-shade"></div>
 <aside class="sidebar">
 <a class="brand" href="index.html">SGC<br>NETWORK<small>ACADEMY</small></a>
 <nav class="nav">
@@ -238,7 +251,7 @@ html[data-academy-theme="light"] .academy-appearance button[aria-pressed="true"]
 </aside>
 </div>
 </main>
-<nav class="sgc-academy-mobile-nav" aria-label="Academy app navigation"><a href="dashboard.html"><span class="icon">⌂</span>My SGC</a><button type="button" id="sgc-app-modules"><span class="icon">☷</span>Modules</button><button type="button" id="sgc-app-learn" class="active"><span class="icon">▣</span>Learn</button><a href="community.html"><span class="icon">♧</span>Community</a><a href="shop.html"><span class="icon">◇</span>Shop</a></nav>
+<nav class="sgc-academy-mobile-nav" aria-label="Academy app navigation"><a href="dashboard.html"><span class="icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg></span><span>My SGC</span></a><button type="button" id="sgc-app-modules"><span class="icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M8 9h9M8 13h9M8 17h5M6 9h.01"/></svg></span><span>Modules</span></button><button type="button" id="sgc-app-learn" class="active"><span class="icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 6.5c-2.8-2-6-2-9-1v14c3-1 6-1 9 1 3-2 6-2 9-1v-14c-3-1-6-1-9 1zM12 6.5v14"/></svg></span><span>Learn</span></button><a href="community.html"><span class="icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M2 20v-2a6 6 0 0 1 12 0v2M17 11a3 3 0 0 0 0-6M17 15a5 5 0 0 1 5 5"/></svg></span><span>Community</span></a><a href="shop.html"><span class="icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h16v12H4zM3 9l2-6h14l2 6M9 21v-8h6v8"/></svg></span><span>Shop</span></a></nav>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
