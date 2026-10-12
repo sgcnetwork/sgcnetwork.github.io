@@ -1,4 +1,34 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Join SGC | SGC Network</title><style>body{margin:0;background:#faf7f2;color:#29242c;font:14px Arial,sans-serif}.auth-wrap{max-width:500px;margin:55px auto;padding:0 22px}.auth-brand{font:30px Georgia,serif;text-decoration:none;color:inherit;letter-spacing:3px}.auth-brand small{display:block;font:9px Arial,sans-serif;letter-spacing:4px;margin-top:5px}.auth-card{background:#fffdf9;border:1px solid #e4dde2;border-radius:12px;padding:36px;margin-top:30px}.eyebrow{font-size:10px;letter-spacing:2px;color:#796778}h1{font:46px/1.05 Georgia,serif;margin:18px 0}p{line-height:1.7;color:#746a74}label{display:block;margin-top:18px;font-size:12px}input{box-sizing:border-box;width:100%;padding:14px;margin-top:7px;border:1px solid #d8cdd7;border-radius:5px;background:white;font:inherit}button{padding:14px 20px;border:0;border-radius:5px;background:#322936;color:white;font:inherit;cursor:pointer;margin-top:20px}button:disabled{opacity:.5}a{color:#71566d}.text-button{background:none;color:#71566d;padding:0;font-size:12px}small{color:#817581;line-height:1.6}.status{font-size:13px}[hidden]{display:none!important}@media(max-width:600px){.auth-card{padding:25px}h1{font-size:38px}}</style></head><body><main class="auth-wrap"><a class="auth-brand" href="index.html">SGC<small>NETWORK</small></a><section class="auth-card"><div class="eyebrow">JOIN SGC</div><h1>Your next chapter.</h1><form id="join-form"><label for="full-name">Username</label><input id="full-name" autocomplete="username" minlength="3" maxlength="150" required><label for="email">Email address</label><input type="email" id="email" autocomplete="email" required><label for="phone">Phone number <small>(optional)</small></label><input type="tel" id="phone" autocomplete="tel" placeholder="+27…"><label for="password">Password</label><input type="password" id="password" autocomplete="new-password" minlength="8" required><small>Use at least 8 characters.</small><button id="join-button" type="submit">Create account</button></form><p id="status" class="status" role="status" aria-live="polite"></p><p>Already a member? <a href="login.html">Log in</a></p></section></main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="js/config.js"></script><script src="js/supabase-client.js"></script><script>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Join SGC | SGC Network</title><style>
+:root{--ink:#302731;--muted:#857681;--line:#e8dfe3;--paper:#fffdfa;--gold:#ad8c58}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 8% 15%,#f2dfe4 0,transparent 45%),radial-gradient(ellipse at 95% 80%,#e8e0f2 0,transparent 42%),#faf6ee;color:var(--ink);font:14px/1.5 Arial,Helvetica,sans-serif}
+.auth-wrap{width:min(100%,550px);margin:0 auto;padding:42px 24px 52px}
+.auth-brand{display:block;width:max-content;margin:0 auto;text-align:center;font:35px/.9 Georgia,serif;text-decoration:none;color:var(--ink);letter-spacing:5px}
+.auth-brand small{display:block;font:8px Arial,sans-serif;letter-spacing:5px;margin:10px 0 0 4px;color:var(--muted)}
+.auth-card{position:relative;background:var(--paper);border:1px solid rgba(173,140,88,.22);border-radius:25px;padding:38px 42px 28px;margin-top:28px;box-shadow:0 20px 65px rgba(74,49,61,.075);overflow:hidden}
+.auth-card:before{content:"";position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,#ecced7,#e8daa6,#d9cdec)}
+.eyebrow{text-align:center;font-size:9px;font-weight:600;letter-spacing:3px;color:var(--gold);margin:3px 0 14px}
+h1{text-align:center;font:42px/1.12 Georgia,"Times New Roman",serif;letter-spacing:-1.6px;margin:0 0 11px}
+.intro{text-align:center;font-size:12px;color:var(--muted);margin:0 0 25px;line-height:1.7}
+p{line-height:1.7;color:var(--muted)}
+label{display:block;margin-top:17px;font-size:11px;font-weight:600;letter-spacing:.25px}
+input{display:block;width:100%;height:49px;padding:12px 15px;margin-top:7px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);font:14px Arial,sans-serif;transition:border-color .2s,box-shadow .2s}
+input:focus{outline:none;border-color:#b69b79;box-shadow:0 0 0 3px rgba(173,140,88,.12)}
+input::placeholder{color:#b0a3ae}
+button{width:100%;padding:15px 20px;border:1px solid #40323f;border-radius:10px;background:#342934;color:#fffaf2;font:600 12px Arial,sans-serif;letter-spacing:.5px;cursor:pointer;margin-top:25px;box-shadow:0 6px 16px rgba(48,39,49,.1);transition:background .2s,transform .2s}
+button:hover{background:#4a3a48}button:active{transform:translateY(1px)}button:focus-visible,a:focus-visible{outline:2px solid var(--gold);outline-offset:4px}button:disabled{opacity:.5;cursor:wait}
+a{color:#775b6d;text-underline-offset:4px}
+small{font-size:10px;color:#9b8c97;line-height:1.6}
+label small{font-weight:400;margin-left:4px}
+input+small{display:block;margin:7px 2px 0}
+.status{font-size:12px;margin:14px 0 0}
+.status:empty{display:none}
+.auth-card>p:last-child{text-align:center;font-size:11px;border-top:1px solid var(--line);padding-top:20px;margin:24px 0 0}
+.auth-card>p:last-child a{font-weight:600}
+[hidden]{display:none!important}
+@media(max-width:600px){.auth-wrap{padding:28px 18px 35px}.auth-card{padding:30px 25px 24px;margin-top:23px;border-radius:20px}h1{font-size:36px}.intro{font-size:11px}}
+@media(prefers-reduced-motion:reduce){input,button{transition:none}}
+</style></head><body><main class="auth-wrap"><a class="auth-brand" href="index.html">SGC<small>NETWORK</small></a><section class="auth-card"><div class="eyebrow">JOIN SGC</div><h1>Your next chapter.</h1><p class="intro">A little ambition. A world of possibility.<br>Make room for what comes next.</p><form id="join-form"><label for="full-name">Username</label><input id="full-name" autocomplete="username" minlength="3" maxlength="150" required><label for="email">Email address</label><input type="email" id="email" autocomplete="email" required><label for="phone">Phone number <small>(optional)</small></label><input type="tel" id="phone" autocomplete="tel" placeholder="+27…"><label for="password">Password</label><input type="password" id="password" autocomplete="new-password" minlength="8" required><small>Use at least 8 characters.</small><button id="join-button" type="submit">Create account</button></form><p id="status" class="status" role="status" aria-live="polite"></p><p>Already a member? <a href="login.html">Log in</a></p></section></main><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="js/config.js"></script><script src="js/supabase-client.js"></script><script>
 const $=id=>document.getElementById(id),sb=window.sgcSupabase;
 $('join-form').onsubmit=async e=>{
  e.preventDefault();$('join-button').disabled=true;$('status').textContent='Creating your account…';
