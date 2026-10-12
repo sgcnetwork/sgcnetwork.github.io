@@ -470,6 +470,16 @@ html.sgc-members-page-mode #sgc-members-hub[hidden]{display:none!important}
  #sgc-compact-community-bar .sgc-compact-edit{flex-shrink:0;color:#885f83;font-size:11px}
 }
 @media(min-width:701px){#sgc-compact-community-bar{display:none!important}}
+</style><style>
+@media(min-width:701px){
+ .layout>.left>.card.butter{display:none!important}
+ .layout>.left{overflow-y:auto!important}
+ .sgc-desktop-community-picker{grid-template-columns:auto minmax(110px,1fr) auto minmax(150px,1.3fr)!important}
+ .sgc-desktop-join{grid-column:1/-1;display:flex;align-items:center;gap:10px;margin-top:3px}
+ .sgc-desktop-join button{border:0;border-radius:12px;background:#493348;color:white;padding:10px 17px;cursor:pointer;font-weight:700}
+ .sgc-desktop-join .pill{font-size:11px}
+}
+@media(max-width:700px){.sgc-desktop-join{display:none!important}}
 </style></head>
 <body>
 <div class="wrap">
@@ -721,13 +731,13 @@ async function refresh(){
 
 async function joinCommunity(){
  if(!activeGroup)return;
- const id=activeGroup.id;
- check(await sb.rpc('sgc_join_community',{p_group:id}));
- activeGroup.joined=true;
- const option=[...$('group').options].find(o=>o.value===id);
- if(option)option.textContent=activeGroup.name+' · Joined';
- await feed();
- say('You’ve joined '+activeGroup.name+'. Welcome to the conversation!');
+ if(activeGroup.joined){say('You already have access to '+activeGroup.name+'.');return}
+ // Membership must be paid and verified before access is granted.
+ // Never invoke sgc_join_community from an unauthenticated purchase button.
+ const url=new URL('shop.html',location.href);
+ url.searchParams.set('community',activeGroup.id);
+ url.searchParams.set('community_name',activeGroup.name);
+ location.assign(url.href);
 }
 
 async function photoElement(path,parent){
@@ -1455,7 +1465,7 @@ async function sgcFaqFeed(){
  const faqGroups=groups.filter(g=>g.id===activeGroup.id);
  if(!faqGroups.length){container.append(el('p','No FAQ conversations yet.','muted'));return}
  const faq=faqGroups.find(g=>g.joined)||faqGroups[0];
- if(!faq.joined){const join=el('button','Join FAQ conversation','btn soft');join.onclick=async()=>{check(await sb.rpc('sgc_join_community',{p_group:faq.id}));faq.joined=true;await sgcFaqFeed()};container.append(join);return}
+ if(!faq.joined){const join=el('button','Join FAQ conversation','btn soft');join.onclick=()=>joinCommunity();container.append(join);return}
  const posts=check(await sb.rpc('sgc_social',{p_action:'feed',p_group:faq.id}));
  const memberAvatars=await sgcMemberAvatars();
  const minePosts=await sb.from('community_posts').select('id').eq('group_id',faq.id).eq('user_id',user.id);const ownPostIds=new Set((minePosts.data||[]).map(p=>p.id));
@@ -1705,6 +1715,24 @@ start().catch(e=>{console.error('Community startup error',e);if(/auth session mi
  document.querySelector('.layout>main')?.addEventListener('scroll',onScroll,{passive:true});
  window.addEventListener('resize',onScroll);
  onScroll();
+})();
+</script><script>
+(function(){
+ const picker=document.querySelector('.sgc-desktop-community-picker');
+ if(!picker)return;
+ const host=document.createElement('div');host.className='sgc-desktop-join';picker.append(host);
+ const render=()=>{
+  const group=document.getElementById('group'),id=group?.value;
+  const selected=typeof groups!=='undefined'?groups.find(g=>g.id===id):null;
+  host.replaceChildren();
+  if(!selected)return;
+  if(selected.joined){const label=document.createElement('span');label.className='pill';label.textContent='Access included ✓';host.append(label);return}
+  const button=document.createElement('button');button.type='button';button.textContent='Join '+selected.name+' →';button.addEventListener('click',()=>joinCommunity());host.append(button);
+ };
+ document.getElementById('group')?.addEventListener('change',render);
+ document.getElementById('category')?.addEventListener('change',()=>setTimeout(render,80));
+ const group=document.getElementById('group');if(group)new MutationObserver(render).observe(group,{childList:true,subtree:true});
+ setTimeout(render,600);
 })();
 </script></body>
 </html>
