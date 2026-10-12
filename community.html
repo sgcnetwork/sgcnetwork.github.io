@@ -510,7 +510,18 @@ html.sgc-members-page-mode #sgc-members-hub[hidden]{display:none!important}
 html.sgc-members-page-mode #sgc-social-modal-root{display:block!important;position:relative!important;z-index:200!important}
 html.sgc-members-page-mode #sgc-social-modal-root .sgc-modal-backdrop{display:flex!important;position:fixed!important;inset:0!important;z-index:10000!important;align-items:center!important;justify-content:center!important;overflow-y:auto!important;padding:15px!important;background:rgba(27,18,28,.65)!important}
 html.sgc-members-page-mode #sgc-social-modal-root .sgc-modal{display:block!important;width:min(96vw,800px)!important;max-height:calc(100dvh - 30px)!important;overflow-y:auto!important;background:#fff!important}
-</style><style>.sgc-study-group-card{align-items:flex-start!important;flex-wrap:wrap!important}.sgc-study-group-actions{display:flex;gap:7px;flex-wrap:wrap;align-items:center}.sgc-group-request{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:8px 0}.sgc-study-group-card small{display:block;margin-top:5px}.sgc-modal form label{display:block;margin-top:12px}.sgc-modal form input,.sgc-modal form textarea,.sgc-modal form select{display:block;width:100%;max-width:100%;margin-top:5px}</style></head>
+</style><style>.sgc-study-group-card{align-items:flex-start!important;flex-wrap:wrap!important}.sgc-study-group-actions{display:flex;gap:7px;flex-wrap:wrap;align-items:center}.sgc-group-request{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:8px 0}.sgc-study-group-card small{display:block;margin-top:5px}.sgc-modal form label{display:block;margin-top:12px}.sgc-modal form input,.sgc-modal form textarea,.sgc-modal form select{display:block;width:100%;max-width:100%;margin-top:5px}</style><style>
+.sgc-private-chat-view{display:flex;flex-direction:column;gap:12px;min-height:min(72dvh,640px);width:100%;max-width:100%;border:1px solid #eadce9;border-radius:18px;background:#fff;overflow:hidden;padding:14px}
+.sgc-private-chat-header{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding-bottom:12px;border-bottom:1px solid #f0e3ef}
+.sgc-private-chat-person{display:flex;align-items:center;gap:10px}.sgc-private-chat-person small{display:block;margin-top:4px}
+.sgc-private-chat-avatar{width:44px;height:44px;border-radius:50%;background:#f0e0ee;display:grid;place-items:center;overflow:hidden}.sgc-private-chat-avatar img{width:100%;height:100%;object-fit:cover}
+.sgc-private-chat-messages{flex:1;min-height:300px;max-height:55dvh;overflow-y:auto!important;padding:14px!important;background:#fcf8fc;border-radius:14px}
+.sgc-private-chat-messages .sgc-chat-bubble{max-width:78%;margin:8px 0;padding:10px 13px;border-radius:15px;background:#f0e7f0;overflow-wrap:anywhere}
+.sgc-private-chat-messages .sgc-chat-bubble.mine{margin-left:auto;background:#e9d7eb}
+.sgc-private-chat-messages .sgc-chat-bubble small{display:block;font-size:10px;opacity:.65;margin-top:5px}
+.sgc-private-chat-compose{display:flex!important;gap:8px!important;align-items:center}.sgc-private-chat-compose input{flex:1;min-width:0!important}.sgc-private-chat-compose button{flex-shrink:0}
+@media(max-width:700px){.sgc-private-chat-view{padding:9px;min-height:65dvh}.sgc-private-chat-messages{min-height:45dvh}.sgc-private-chat-compose button{padding:11px!important}}
+</style></head>
 <body>
 <div class="wrap">
 <header>
@@ -1417,12 +1428,23 @@ async function sgcHubRender(){
  }else if(sgcMemberTab==='groups'){await sgcRenderStudyGroups()}
 }
 async function sgcOpenChat(id){
- if(!sgcAccepted(id))throw Error('You must be friends to chat privately.');
- const box=sgcModal('Chat with '+sgcName(id)),msgs=el('div',undefined,'sgc-chat-messages'),form=el('form',undefined,'sgc-chat-form'),input=el('input'),send=el('button','Send','btn');
- input.maxLength=5000;input.required=true;input.placeholder='Write a private message…';form.append(input,send);box.append(msgs,form);
- const load=async()=>{const r=await sb.from('sgc_private_messages').select('sender_id,body,created_at').or('and(sender_id.eq.'+user.id+',receiver_id.eq.'+id+'),and(sender_id.eq.'+id+',receiver_id.eq.'+user.id+')').order('created_at',{ascending:true}).limit(200);if(r.error)throw r.error;msgs.replaceChildren();for(const m of r.data){const bubble=el('div',m.body,'sgc-chat-bubble'+(m.sender_id===user.id?' mine':''));msgs.append(bubble)}msgs.scrollTop=msgs.scrollHeight};
- form.onsubmit=async e=>{e.preventDefault();send.disabled=true;try{check(await sb.from('sgc_private_messages').insert({sender_id:user.id,receiver_id:id,body:input.value.trim()}));input.value='';await load()}catch(err){alert(err.message)}finally{send.disabled=false}};await load();
- const refresh=sgcBtn('↻ Refresh messages',load);box.append(refresh);
+ if(!sgcAccepted(id)){alert('You must be friends to chat privately.');return}
+ // Keep the conversation on the dedicated Members page, not in an overlay.
+ const hub=sgcHubContent;hub.replaceChildren();
+ const chat=el('section',undefined,'sgc-private-chat-view'),top=el('div',undefined,'sgc-private-chat-header');
+ const back=sgcBtn('← Private chats',()=>{sgcMemberTab='chats';sgcHubRender()},'btn soft');
+ const identity=el('div',undefined,'sgc-private-chat-person');
+ const avatar=el('span',sgcName(id).slice(0,1).toUpperCase(),'sgc-private-chat-avatar');
+ const label=el('div');label.append(el('strong',sgcName(id)),el('small','Private conversation · only you two','muted'));
+ identity.append(avatar,label);top.append(back,identity);
+ try{const p=await sgcProfile(id);if(p?.avatar_path){const url=await sgcImage(p.avatar_path);if(url){const img=el('img');img.src=url;img.alt='Profile picture';avatar.replaceChildren(img)}}}catch(e){console.warn(e)}
+ const msgs=el('div',undefined,'sgc-chat-messages sgc-private-chat-messages'),form=el('form',undefined,'sgc-chat-form sgc-private-chat-compose'),input=el('input'),send=el('button','Send →','btn');
+ input.maxLength=5000;input.required=true;input.placeholder='Write a private message…';input.autocomplete='off';form.append(input,send);
+ chat.append(top,msgs,form);hub.append(chat);
+ const load=async()=>{const res=await sb.from('sgc_private_messages').select('sender_id,body,created_at').or('and(sender_id.eq.'+user.id+',receiver_id.eq.'+id+'),and(sender_id.eq.'+id+',receiver_id.eq.'+user.id+')').order('created_at',{ascending:true}).limit(200);if(res.error)throw res.error;msgs.replaceChildren();if(!res.data.length)msgs.append(el('p','No messages yet. Say hello!','muted'));for(const m of res.data){const bubble=el('div',undefined,'sgc-chat-bubble'+(m.sender_id===user.id?' mine':''));bubble.append(el('div',m.body),el('small',new Date(m.created_at).toLocaleString()));msgs.append(bubble)}msgs.scrollTop=msgs.scrollHeight};
+ form.onsubmit=async e=>{e.preventDefault();const body=input.value.trim();if(!body)return;send.disabled=true;try{check(await sb.from('sgc_private_messages').insert({sender_id:user.id,receiver_id:id,body}));input.value='';await load()}catch(err){alert(err.message)}finally{send.disabled=false;input.focus()}};
+ try{await load()}catch(err){msgs.textContent='Could not load conversation: '+err.message}
+ const refresh=sgcBtn('↻ Refresh messages',()=>load().catch(err=>alert(err.message)),'btn soft');chat.append(refresh);
 }
 async function sgcRenderStudyGroups(){
  const rpc=async(action,group=null,data={})=>check(await sb.rpc('sgc_study_group_manage',{p_action:action,p_group:group,p_data:data}));
