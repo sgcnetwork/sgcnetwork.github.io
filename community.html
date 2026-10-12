@@ -845,12 +845,16 @@ async function sgcCreateStory(existing=null){
  file.onchange=draw;body.oninput=draw;
  controls.append(draft,publish);
  form.append(el('label','Your story caption (optional)'),body,el('label','Photo or video (MP4, WebM or MOV)'),file,el('p','Preview your story before posting. Videos up to 40 MB; photos up to 5 MB. Published stories are visible to signed-in SGC members for 24 hours.','muted'),preview,controls,status);
- const save=async mode=>{draft.disabled=true;publish.disabled=true;try{const selected=file.files[0];let image_path=existing?.image_path||null,video_path=existing?.video_path||null;if(selected){const video=selected.type.startsWith('video/');const allowed=video?['video/mp4','video/webm','video/quicktime']:['image/jpeg','image/png','image/webp'];if(!allowed.includes(selected.type)||selected.size>(video?41943040:5242880))throw Error('Use an MP4, WebM or MOV video under 40 MB, or a JPG, PNG or WebP image under 5 MB.');const ext=selected.type==='video/mp4'?'mp4':selected.type==='video/webm'?'webm':selected.type==='video/quicktime'?'mov':selected.type==='image/png'?'png':selected.type==='image/webp'?'webp':'jpg';const path=user.id+'/'+crypto.randomUUID()+'.'+ext;check(await sb.storage.from('sgc-community').upload(path,selected,{contentType:selected.type}));image_path=video?null:path;video_path=video?path:null}
+ const save=async mode=>{draft.disabled=true;publish.disabled=true;try{
+ const authResult=await sb.auth.getUser();if(authResult.error)throw authResult.error;
+ const authenticatedId=authResult.data?.user?.id;
+ if(!authenticatedId||!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(authenticatedId))throw Error('Your session has expired. Please sign in again.');
+ const selected=file.files[0];let image_path=existing?.image_path||null,video_path=existing?.video_path||null;if(selected){const video=selected.type.startsWith('video/');const allowed=video?['video/mp4','video/webm','video/quicktime']:['image/jpeg','image/png','image/webp'];if(!allowed.includes(selected.type)||selected.size>(video?41943040:5242880))throw Error('Use an MP4, WebM or MOV video under 40 MB, or a JPG, PNG or WebP image under 5 MB.');const ext=selected.type==='video/mp4'?'mp4':selected.type==='video/webm'?'webm':selected.type==='video/quicktime'?'mov':selected.type==='image/png'?'png':selected.type==='image/webp'?'webp':'jpg';const path=authenticatedId+'/'+crypto.randomUUID()+'.'+ext;check(await sb.storage.from('sgc-community').upload(path,selected,{contentType:selected.type}));image_path=video?null:path;video_path=video?path:null}
  if(!body.value.trim()&&!image_path&&!video_path)throw Error('Add text, a photo or a video first.');
- const payload={user_id:user.id,body:body.value.trim(),image_path,video_path,status:mode,expires_at:new Date(Date.now()+86400000).toISOString()};
- if(existing)check(await sb.from('sgc_social_stories').update(payload).eq('id',existing.id).eq('user_id',user.id));else check(await sb.from('sgc_social_stories').insert(payload));
+ const payload={user_id:authenticatedId,body:body.value.trim(),image_path,video_path,status:mode,expires_at:new Date(Date.now()+86400000).toISOString()};
+ if(existing)check(await sb.from('sgc_social_stories').update(payload).eq('id',existing.id).eq('user_id',authenticatedId));else check(await sb.from('sgc_social_stories').insert(payload));
  if(objectUrl)URL.revokeObjectURL(objectUrl);sgcModalRoot.replaceChildren();await sgcStories();say(mode==='draft'?'Story saved as a private draft.':'Your story is now visible to SGC members for 24 hours.');
- }catch(err){status.textContent=err.message}finally{draft.disabled=false;publish.disabled=false}};
+ }catch(err){status.textContent=err.message;console.error('SGC story save failed',err)}finally{draft.disabled=false;publish.disabled=false}};
  draft.onclick=()=>save('draft');publish.onclick=()=>save('published');box.append(form);await draw();
 }
 async function sgcViewStory(story){
