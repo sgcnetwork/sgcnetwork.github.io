@@ -92,8 +92,65 @@ html[data-academy-theme="light"] .academy-appearance button[aria-pressed="true"]
 .academy-appearance button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .quiz-count{display:inline-block;margin:4px 0 15px;padding:9px 13px;background:var(--panel);border:1px solid var(--gold);color:var(--gold);border-radius:10px;font-size:12px;font-weight:700}.reflection fieldset{border:1px solid var(--line);padding:15px;border-radius:12px;margin:16px 0}.reflection legend{font-size:15px;color:var(--text);padding:0 7px}.reflection .choice{border-radius:10px}.reflection #quiz-submit{border-radius:10px;font-weight:700}html[data-academy-theme="light"] .quiz-count{background:#f5eaf6;color:#654368}#module-select{display:block;width:100%;padding:12px;margin:8px 0 18px;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:9px;font:12px Arial,sans-serif}
 </style>
-<link rel="stylesheet" href="css/community-notifications.css"><link rel="stylesheet" href="css/sgc-user-guide.css?v=guide1"><link rel="manifest" href="/manifest.webmanifest"><meta name="theme-color" content="#f4dfe0"><meta name="apple-mobile-web-app-capable" content="yes"><link rel="icon" type="image/svg+xml" href="/sgc-app-icon.svg"><script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/service-worker.js').catch(function(error){console.warn('SGC app setup:',error);});});}</script></head>
+<link rel="stylesheet" href="css/community-notifications.css"><link rel="stylesheet" href="css/sgc-user-guide.css?v=guide1"><link rel="manifest" href="/manifest.webmanifest"><meta name="theme-color" content="#f4dfe0"><meta name="apple-mobile-web-app-capable" content="yes"><link rel="icon" type="image/svg+xml" href="/sgc-app-icon.svg"><script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/service-worker.js').catch(function(error){console.warn('SGC app setup:',error);});});}</script><style>
+/* Responsive Academy app shell: independent desktop classroom, mobile drawer and bottom tabs. */
+.sgc-academy-appbar,.sgc-academy-mobile-nav,.sgc-academy-drawer-shade{display:none}
+@media(min-width:721px){
+ html,body{height:100%;overflow:hidden}
+ aside.sidebar{height:100dvh;overscroll-behavior:contain}
+ body>main{height:100dvh;overflow-y:auto;overscroll-behavior:contain}
+}
+@media(max-width:720px){
+ html,body{height:100%;max-width:100%;overflow:hidden}
+ body{height:100dvh;overflow:hidden;background:var(--bg)}
+ .sgc-academy-appbar{display:flex;align-items:center;justify-content:space-between;gap:10px;position:fixed;inset:0 0 auto;z-index:60;height:62px;padding:8px 14px;background:var(--panel);border-bottom:1px solid var(--line);box-shadow:0 3px 16px #0002}
+ .sgc-academy-appbar .app-name{font:21px Georgia,serif;color:var(--gold);white-space:nowrap}
+ .sgc-academy-appbar .app-name small{display:block;font:9px Arial,sans-serif;letter-spacing:.2em;color:var(--muted);margin-top:3px}
+ .sgc-academy-appbar button{border:1px solid var(--line);border-radius:13px;background:var(--bg);color:var(--text);font-size:22px;min-width:42px;height:42px}
+ aside.sidebar{position:fixed!important;inset:0 auto 0 0!important;width:min(330px,88vw)!important;height:100dvh!important;z-index:81!important;transform:translateX(-105%);transition:transform .2s ease!important;overflow-y:auto!important;overscroll-behavior:contain!important;padding:22px 18px 95px!important;box-shadow:12px 0 35px #0003!important}
+ body.sgc-academy-drawer-open aside.sidebar{transform:translateX(0)!important}
+ .sgc-academy-drawer-shade{position:fixed;inset:0;z-index:80;background:#0009}
+ body.sgc-academy-drawer-open .sgc-academy-drawer-shade{display:block}
+ aside.sidebar .nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px!important}
+ aside.sidebar .nav .btn{border-radius:12px!important;min-height:42px!important}
+ aside.sidebar .academy-appearance{border-radius:16px}
+ #module-select{min-height:44px!important}
+ #lesson-list .lesson{border-radius:11px!important;min-height:43px}
+ body>main{position:fixed!important;top:62px!important;bottom:calc(71px + env(safe-area-inset-bottom,0px))!important;left:0!important;right:0!important;height:auto!important;margin:0!important;padding:14px 13px 35px!important;overflow-y:auto!important;overflow-x:hidden!important;-webkit-overflow-scrolling:touch;overscroll-behavior:contain!important}
+ main>.top{margin:0 0 12px!important}
+ main>.top .track{width:105px!important}
+ main>.row{gap:6px!important;margin-bottom:10px}
+ main>.row>.btn{flex:1;min-width:0!important;padding:10px 5px!important;border-radius:12px!important;font-size:11px!important}
+ .classroom{display:block!important}
+ .panel{padding:15px!important;margin-bottom:13px!important;border-radius:16px!important}
+ .classroom>div>.panel:first-child{padding:0!important;overflow:hidden}
+ .video{width:100%;aspect-ratio:16/9}
+ .heading{padding:17px!important}
+ .heading h1{font-size:23px!important;line-height:1.3!important}
+ .tabs{padding:11px 14px!important;gap:8px!important;overflow-x:auto}
+ .tabs button{flex:1;border-radius:10px!important;white-space:nowrap}
+ .inside{padding:16px!important}
+ .content{line-height:1.7!important;overflow-wrap:anywhere}
+ .reflection{position:static!important;padding:18px!important}
+ .steps{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important}
+ .steps div{padding:10px!important;border-radius:12px!important}
+ .steps h3{font-size:13px!important}
+ .steps .muted{font-size:10px!important}
+ .steps span{font-size:15px!important}
+ #academy-paywall{padding:24px!important;margin:20px auto!important}
+ #academy-paywall h1{font-size:30px!important}
+ textarea{font-size:16px!important}
+ .sgc-academy-mobile-nav{position:fixed;bottom:0;left:0;right:0;z-index:65;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;background:var(--panel);border-top:1px solid var(--line);padding:7px 7px calc(8px + env(safe-area-inset-bottom,0px));box-shadow:0 -4px 16px #0002}
+ .sgc-academy-mobile-nav a,.sgc-academy-mobile-nav button{border:0!important;background:transparent!important;color:var(--muted)!important;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-width:0;min-height:47px;border-radius:13px;font-size:10px;font-weight:700;text-align:center}
+ .sgc-academy-mobile-nav .icon{font-size:23px;line-height:1.1}
+ .sgc-academy-mobile-nav .active{color:var(--gold)!important;background:color-mix(in srgb,var(--gold) 12%,transparent)!important}
+ .sgc-academy-mobile-nav button:active,.sgc-academy-mobile-nav a:active{background:color-mix(in srgb,var(--gold) 16%,transparent)!important}
+ body .sgc-guide-launcher{position:fixed!important;bottom:calc(86px + env(safe-area-inset-bottom,0px))!important;right:12px!important}
+}
+@media(prefers-reduced-motion:reduce){aside.sidebar{transition:none!important}}
+</style></head>
 <body>
+<div class="sgc-academy-appbar"><button type="button" id="sgc-academy-menu" aria-label="Open Academy modules and settings" aria-expanded="false">☰</button><div class="app-name">SGC Academy<small>LEARN · BUILD · GROW</small></div><button type="button" id="sgc-academy-next-shortcut" aria-label="Next lesson">›</button></div><div class="sgc-academy-drawer-shade" id="sgc-academy-drawer-shade"></div>
 <aside class="sidebar">
 <a class="brand" href="index.html">SGC<br>NETWORK<small>ACADEMY</small></a>
 <nav class="nav">
@@ -181,6 +238,7 @@ html[data-academy-theme="light"] .academy-appearance button[aria-pressed="true"]
 </aside>
 </div>
 </main>
+<nav class="sgc-academy-mobile-nav" aria-label="Academy app navigation"><a href="dashboard.html"><span class="icon">⌂</span>My SGC</a><button type="button" id="sgc-app-modules"><span class="icon">☷</span>Modules</button><button type="button" id="sgc-app-learn" class="active"><span class="icon">▣</span>Learn</button><a href="community.html"><span class="icon">♧</span>Community</a><a href="shop.html"><span class="icon">◇</span>Shop</a></nav>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
@@ -609,5 +667,19 @@ async function start(){
 }
 start().catch(e=>{say('Academy could not load: '+(e.message||String(e)));$('empty').hidden=false;$('empty').textContent='We could not open your lessons. '+(e.message||String(e))+' Please refresh or contact SGC support.';});
 </script>
-<script src="js/community-notifications.js"></script><script src="js/sgc-user-guide.js?v=guide1"></script></body>
+<script src="js/community-notifications.js"></script><script src="js/sgc-user-guide.js?v=guide1"></script><script>
+(function(){
+ const byId=id=>document.getElementById(id);
+ const menu=byId('sgc-academy-menu'),shade=byId('sgc-academy-drawer-shade');
+ const setOpen=open=>{document.body.classList.toggle('sgc-academy-drawer-open',open);menu.setAttribute('aria-expanded',String(open));};
+ menu.addEventListener('click',()=>setOpen(!document.body.classList.contains('sgc-academy-drawer-open')));
+ shade.addEventListener('click',()=>setOpen(false));
+ byId('sgc-app-modules').addEventListener('click',()=>setOpen(true));
+ byId('sgc-app-learn').addEventListener('click',()=>{setOpen(false);byId('classroom').scrollIntoView({block:'start',behavior:'smooth'})});
+ byId('sgc-academy-next-shortcut').addEventListener('click',()=>byId('next').click());
+ byId('lesson-list').addEventListener('click',e=>{if(e.target.closest('.lesson'))setOpen(false)});
+ byId('module-select').addEventListener('change',()=>{ /* Keep module drawer open for lesson selection. */ });
+ document.addEventListener('keydown',e=>{if(e.key==='Escape')setOpen(false)});
+})();
+</script></body>
 </html>
