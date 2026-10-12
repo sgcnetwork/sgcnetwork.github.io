@@ -92,7 +92,7 @@ html[data-academy-theme="light"] .academy-appearance button[aria-pressed="true"]
 .academy-appearance button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .quiz-count{display:inline-block;margin:4px 0 15px;padding:9px 13px;background:var(--panel);border:1px solid var(--gold);color:var(--gold);border-radius:10px;font-size:12px;font-weight:700}.reflection fieldset{border:1px solid var(--line);padding:15px;border-radius:12px;margin:16px 0}.reflection legend{font-size:15px;color:var(--text);padding:0 7px}.reflection .choice{border-radius:10px}.reflection #quiz-submit{border-radius:10px;font-weight:700}html[data-academy-theme="light"] .quiz-count{background:#f5eaf6;color:#654368}#module-select{display:block;width:100%;padding:12px;margin:8px 0 18px;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:9px;font:12px Arial,sans-serif}
 </style>
-<link rel="stylesheet" href="css/community-notifications.css"></head>
+<link rel="stylesheet" href="css/community-notifications.css"><link rel="stylesheet" href="css/sgc-user-guide.css?v=guide1"></head>
 <body>
 <aside class="sidebar">
 <a class="brand" href="index.html">SGC<br>NETWORK<small>ACADEMY</small></a>
@@ -596,5 +596,5 @@ async function start(){
 }
 start().catch(e=>{say('Academy could not load: '+(e.message||String(e)));$('empty').hidden=false;$('empty').textContent='We could not open your lessons. '+(e.message||String(e))+' Please refresh or contact SGC support.';});
 </script>
-<script src="js/community-notifications.js"></script></body>
+<script src="js/community-notifications.js"></script><script src="js/sgc-user-guide.js?v=guide1"></script></body>
 </html>

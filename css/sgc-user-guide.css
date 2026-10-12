@@ -1,0 +1,24 @@
+/* Scoped styles keep the member pages and Academy themes intact. */
+.sgc-guide-panel,.sgc-guide-panel *,.sgc-guide-launcher,.sgc-guide-spot{box-sizing:border-box}
+.sgc-guide-panel{position:fixed;right:24px;bottom:24px;z-index:2147483002;width:360px;max-width:calc(100vw - 32px);max-height:calc(100dvh - 40px);overflow:auto;border:1px solid #d9c6d1;border-radius:22px;background:#fffaf5;color:#352b35;padding:27px;box-shadow:0 15px 65px #24132230;font:14px/1.6 Arial,Helvetica,sans-serif;text-align:left}
+.sgc-guide-panel.sgc-guide-top{top:24px;bottom:auto}
+.sgc-guide-panel.sgc-guide-welcome{left:50%;top:50%;right:auto;bottom:auto;transform:translate(-50%,-50%);width:460px;padding:36px;background:linear-gradient(135deg,#fffaf5,#f9edf2 70%,#eee6f5)}
+.sgc-guide-progress{font:600 9px/1.4 Arial,sans-serif;letter-spacing:2px;color:#a17e50;margin:0 20px 12px 0}
+.sgc-guide-panel .sgc-guide-title{font:29px/1.16 Georgia,serif;letter-spacing:-.6px;margin:0 0 15px;color:#352b35}
+.sgc-guide-panel .sgc-guide-copy{font:13px/1.8 Arial,sans-serif;margin:0;color:#6f5e6b}
+.sgc-guide-panel .sgc-guide-hint{font:11px/1.6 Arial,sans-serif;margin:15px 0;color:#897682}
+.sgc-guide-panel button,.sgc-guide-launcher{font:12px/1.4 Arial,sans-serif;cursor:pointer;transition:background .15s;letter-spacing:0;margin:0;min-height:38px;border-radius:9px;box-shadow:none;text-transform:none}
+.sgc-guide-panel .sgc-guide-close{position:absolute;right:13px;top:10px;width:33px;padding:0;border:0;background:transparent;color:#786470;font:25px Arial,sans-serif;min-height:33px}
+.sgc-guide-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.sgc-guide-panel .sgc-guide-primary{padding:10px 14px;background:#352b35;color:#fffaf5;border:1px solid #352b35;flex:1}
+.sgc-guide-panel .sgc-guide-secondary{padding:10px 12px;background:#eee5f1;color:#514052;border:1px solid #ddcfe3}
+.sgc-guide-panel .sgc-guide-text{padding:5px 0;background:none;border:0;color:#897080;font-size:10px;text-decoration:underline;text-underline-offset:3px;min-height:30px}
+.sgc-guide-extra{margin-top:10px}.sgc-guide-setting{display:flex!important;align-items:center;gap:10px;margin:16px 0 4px!important;font-size:12px!important;color:#514052}
+.sgc-guide-setting input{width:17px!important;height:17px!important;min-height:0;margin:0!important;accent-color:#715673;padding:0!important}
+.sgc-guide-panel button:disabled{opacity:.45;cursor:default}
+.sgc-guide-panel button:focus-visible,.sgc-guide-launcher:focus-visible{outline:2px solid #ad8c58;outline-offset:3px}
+.sgc-guide-launcher{position:fixed;right:20px;bottom:20px;z-index:2147483000;background:#fffaf5;color:#514052;padding:11px 17px;border:1px solid #d8c4d3;border-radius:999px;box-shadow:0 6px 20px #24132215;min-height:40px}
+.sgc-guide-spot{position:fixed;z-index:2147483001;border:2px solid #bd9556;border-radius:12px;pointer-events:none;box-shadow:0 0 0 9999px #20142016;background:transparent}
+.sgc-guide-panel[hidden],.sgc-guide-launcher[hidden],.sgc-guide-spot[hidden]{display:none!important}
+@media(max-width:600px){.sgc-guide-panel{right:16px;bottom:16px;padding:22px;width:calc(100vw - 32px);max-height:48dvh}.sgc-guide-panel.sgc-guide-welcome{padding:28px;max-height:calc(100dvh - 40px)}.sgc-guide-panel.sgc-guide-top{top:16px}.sgc-guide-panel .sgc-guide-title{font-size:25px}.sgc-guide-actions{margin-top:16px}.sgc-guide-launcher{right:16px;bottom:16px}}
+@media(prefers-reduced-motion:reduce){.sgc-guide-panel button,.sgc-guide-launcher{transition:none}}
