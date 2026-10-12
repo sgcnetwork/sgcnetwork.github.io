@@ -149,6 +149,18 @@ a:focus-visible,button:focus-visible{outline:2px solid #a986aa;outline-offset:4p
 @media(max-width:800px){.hero{grid-template-columns:1fr;padding-top:22px;gap:15px}.hero>div:first-child{padding:22px 6px 10px}h1{font-size:49px}.lead{font-size:14px}.hero-card{min-height:240px;padding:27px}.site-nav{padding:23px 0;gap:18px}.nav-links a{font-size:12px;padding:9px 11px}.nav-links .btn{padding:10px 13px;font-size:11px}.grid{grid-template-columns:1fr}.grid .card{min-height:230px}.section-head{align-items:flex-start}.row{flex-wrap:wrap}.library-sidebar{position:static}}
 @media(prefers-reduced-motion:reduce){.btn{transition:none}.btn:hover{transform:none}}
 
+
+/* A little handwritten-note moment for today's inspiration. */
+.daily-sticky{position:relative;isolation:isolate;margin:15px 8px 27px;padding:31px 30px 25px;background:linear-gradient(135deg,#fbe8ee,#f5dfe8 70%,#f0dbe9);border:1px solid #bb899921;border-radius:25px 25px 25px 7px;box-shadow:0 9px 22px #a56e8310;transform:rotate(-1deg);color:#654554}
+.daily-sticky:before{content:"";position:absolute;width:76px;height:22px;top:-10px;left:calc(50% - 38px);background:#f5eed2c9;border:1px solid #d8c99826;transform:rotate(5deg);box-shadow:0 2px 4px #88664c08}
+.daily-sticky:after{content:"♡";position:absolute;right:22px;bottom:17px;font:28px Georgia,serif;color:#a96d874d;transform:rotate(12deg);pointer-events:none}
+.quote-label{display:flex;align-items:center;gap:8px;font-size:9px!important;letter-spacing:.13em!important;color:#9a7084}
+.quote-label:before{content:"✧";font-size:18px;letter-spacing:0}
+.daily-sticky .quote-text{font:italic 25px/1.5 Georgia,serif;letter-spacing:-.025em;margin:13px 0 16px;overflow-wrap:anywhere;position:relative}
+.daily-sticky .quote-credit{display:block;font:10px/1.6 Arial,sans-serif;letter-spacing:.04em;color:#a0788c;padding-right:35px}
+.quote-credit:before{content:"— ";color:#b991a1}
+@media(max-width:800px){.daily-sticky{margin:16px 5px 24px;padding:29px 26px 24px}.daily-sticky .quote-text{font-size:24px}}
+
 </style>
 <link rel="stylesheet" href="css/community-notifications.css"><style>.sgc-notification-toggle{display:none!important}</style><link rel="stylesheet" href="css/sgc-user-guide.css?v=guide1"></head>
 <body>
@@ -285,7 +297,10 @@ a:focus-visible,button:focus-visible{outline:2px solid #a986aa;outline-offset:4p
   const tag=document.createElement('small');
   const text=document.createElement('p');
   const author=document.createElement('small');
-  tag.textContent='QUOTE FOR THE DAY';
+  tag.className='quote-label';
+  tag.textContent='A LITTLE INSPIRATION FOR TODAY';
+  text.className='quote-text';
+  author.className='quote-credit';
   text.textContent=q.text;
   author.textContent=q.author||'SGC Network';
   box.replaceChildren(tag,text,author);
