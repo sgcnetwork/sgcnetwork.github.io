@@ -1256,7 +1256,19 @@ async function sgcCropProfilePhoto(file){
 }
 function sgcViewProfilePhoto(url){const shade=el('div',undefined,'sgc-photo-lightbox'),frame=el('div',undefined,'sgc-photo-lightbox-inner'),img=el('img'),close=el('button','×');img.src=url;img.alt='Full profile picture';close.type='button';close.onclick=()=>shade.remove();shade.onclick=e=>{if(e.target===shade)shade.remove()};frame.append(close,img);shade.append(frame);document.body.append(shade)}
 async function sgcOpenProfile(id=user.id){
- const profile=await sgcProfile(id),mine=id===user.id,box=sgcModal(mine?'My SGC profile':'Member profile'),cover=el('div',undefined,'sgc-profile-cover'),avatar=el('div',undefined,'sgc-profile-avatar');
+ const mine=id===user.id;
+ let profile=await sgcProfile(id);
+ // The directory includes accounts that have not created a social profile yet.
+ // Resolve their registered username from the authenticated, public-members RPC.
+ if(!profile?.display_name){
+  let directoryMember=(Array.isArray(sgcMembers)?sgcMembers:[]).find(m=>m.user_id===id);
+  if(!directoryMember){
+   const result=await sb.rpc('sgc_public_members');
+   if(!result.error)directoryMember=(result.data||[]).find(m=>m.user_id===id);
+  }
+  if(directoryMember)profile={...(profile||{}),display_name:directoryMember.display_name,avatar_path:profile?.avatar_path||directoryMember.avatar_path||null};
+ }
+ const box=sgcModal(mine?'My SGC profile':'Member profile'),cover=el('div',undefined,'sgc-profile-cover'),avatar=el('div',undefined,'sgc-profile-avatar');
  avatar.textContent=(profile?.display_name||user.user_metadata?.username||'S').slice(0,1).toUpperCase();
  if(profile?.avatar_path){const url=await sgcImage(profile.avatar_path);if(url){const img=el('img');img.src=url;avatar.replaceChildren(img)}}
  box.append(cover,avatar,el('h3',profile?.display_name|| (mine?(user.user_metadata?.username||user.email):'SGC member')),el('p',profile?.bio||'A member of the SGC community.','muted'));
@@ -1701,7 +1713,10 @@ async function start(){
  await refresh();
  await sgcStories();
  await sgcFaqFeed();
- const profileId=new URLSearchParams(location.search).get('profile');if(profileId&&/^[a-f0-9-]{36}$/i.test(profileId))await sgcOpenProfile(profileId);
+ const profileId=new URLSearchParams(location.search).get('profile');
+ if(profileId&&/^[a-f0-9-]{36}$/i.test(profileId)){
+  try{await sgcOpenProfile(profileId)}catch(err){console.error('Profile open error',err);alert('Unable to load this member profile: '+err.message)}
+ }
 }
 
 start().catch(e=>{console.error('Community startup error',e);if(/auth session missing|jwt expired|refresh token|invalid jwt|not authenticated/i.test(e.message||'')){sgcShowSignIn()}else say('Community could not load: '+(e.message||'Please refresh and try again.'))});
