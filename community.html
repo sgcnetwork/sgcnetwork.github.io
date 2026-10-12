@@ -406,6 +406,12 @@ header nav{gap:8px}header nav a{font-size:13px;font-weight:600}
  .layout>.left>.card.butter #sgc-mobile-write-post svg{width:19px;height:19px}
  .layout>main{min-height:0!important}
 }
+</style><style>
+#sgc-active-community-banner{display:flex;align-items:center;flex-wrap:wrap;gap:9px;padding:14px 18px;margin:10px 0;border:1px solid #ead7e7;border-radius:17px;background:linear-gradient(115deg,#faeaf3,#f8f0fc,#fff4df);color:#49344a}
+#sgc-active-community-banner .sgc-community-label{font-size:10px;letter-spacing:.12em;color:#8c6485;font-weight:700}
+#sgc-active-community-name{font-size:17px;font-family:Georgia,serif}
+#sgc-active-community-category{font-size:11px;color:#826e7f}
+@media(max-width:700px){#sgc-active-community-banner{order:3!important;display:flex!important;flex-direction:column;align-items:flex-start;gap:4px;margin:0!important;padding:13px 19px!important;border:0!important;border-bottom:7px solid #f1edf3!important;border-radius:0!important}#sgc-active-community-name{font-size:19px!important}.layout>main>#sgc-faq-feed{order:4!important}.layout>main>#composer-card.sgc-mobile-composer-open{order:3!important}}
 </style></head>
 <body>
 <div class="wrap">
@@ -487,7 +493,7 @@ header nav{gap:8px}header nav a{font-size:13px;font-weight:600}
 </div>
 <div id="sgc-story-strip" class="sgc-stories"><div class="muted">Loading stories…</div></div>
 </section>
-<section id="sgc-faq-feed" class="sgc-social-top"><div class="row" style="justify-content:space-between;align-items:center;gap:12px"><div><span class="eyebrow">Questions & conversations</span><h2>FAQs feed ✦</h2></div><a class="btn soft" href="faqs.html">Search FAQs →</a></div><p class="muted">A simple conversation. Leave a comment, reply to someone, and follow the thread.</p><div id="sgc-faq-feed-posts"><p class="muted">Loading FAQs…</p></div></section><section id="composer-card" class="card" hidden>
+<section id="sgc-active-community-banner" aria-live="polite"><span class="sgc-community-label">YOU’RE CONNECTING IN</span><strong id="sgc-active-community-name">General Community</strong><span id="sgc-active-community-category"></span></section><section id="sgc-faq-feed" class="sgc-social-top"><div class="row" style="justify-content:space-between;align-items:center;gap:12px"><div><span class="eyebrow">Questions & conversations</span><h2>FAQs feed ✦</h2></div><a class="btn soft" href="faqs.html">Search FAQs →</a></div><p class="muted">A simple conversation. Leave a comment, reply to someone, and follow the thread.</p><div id="sgc-faq-feed-posts"><p class="muted">Loading FAQs…</p></div></section><section id="composer-card" class="card" hidden>
 <div class="person">
 <span class="avatar">S</span>
 <div>
@@ -1520,6 +1526,22 @@ start().catch(e=>{console.error('Community startup error',e);if(/auth session mi
  document.getElementById('post-form')?.addEventListener('submit',()=>{setTimeout(()=>{if(!document.getElementById('post-body')?.value.trim())composer.classList.remove('sgc-mobile-composer-open')},1300)});
  group?.addEventListener('change',()=>composer.classList.remove('sgc-mobile-composer-open'));
  category?.addEventListener('change',()=>composer.classList.remove('sgc-mobile-composer-open'));
+})();
+</script><script>
+(function(){
+ const categoryNames={faq:'FAQs & assistance',niche:'Niche community',academy:'General community'};
+ function updateCommunityBanner(){
+  const group=document.getElementById('group'),category=document.getElementById('category'),name=document.getElementById('sgc-active-community-name'),type=document.getElementById('sgc-active-community-category'),banner=document.getElementById('sgc-active-community-banner');
+  if(!group||!category||!name||!type||!banner)return;
+  const selected=group.options[group.selectedIndex];
+  const clean=(selected?.textContent||'').replace(/\s*[·•]\s*(Joined|Not joined|Membership required|Access included).*$/i,'').trim();
+  name.textContent=clean||categoryNames[category.value]||'Select a community';
+  type.textContent=categoryNames[category.value]||'';
+ }
+ const group=document.getElementById('group'),category=document.getElementById('category');
+ group?.addEventListener('change',updateCommunityBanner);category?.addEventListener('change',()=>setTimeout(updateCommunityBanner,50));
+ if(group)new MutationObserver(updateCommunityBanner).observe(group,{childList:true,subtree:true,attributes:true,attributeFilter:['selected']});
+ updateCommunityBanner();
 })();
 </script></body>
 </html>
