@@ -940,6 +940,29 @@ try{await load()}catch(e){status.textContent='Could not load your profile: '+e.m
  overlay.addEventListener('click',e=>{if(e.target===overlay)hide()});
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!overlay.hidden)hide()});
 })();
+</script><script id="sgc-private-chat-alerts">
+(function(){
+ let lastSeen=0,initialised=false,busy=false,me=null,client=null;
+ const banner=document.createElement('a');
+ banner.href='chats.html';banner.className='sgc-chat-alert';banner.hidden=true;banner.setAttribute('aria-live','polite');
+ banner.textContent='New private message · Open chats';
+ document.body.append(banner);
+ const style=document.createElement('style');style.textContent='.sgc-chat-alert{position:fixed;right:16px;top:85px;z-index:100000;background:#171511;color:#f2d18b!important;padding:13px 18px;border:1px solid #c6a354;border-radius:14px;box-shadow:0 8px 26px #0005;font:600 14px Arial,sans-serif;text-decoration:none}.sgc-chat-alert[hidden]{display:none!important}';document.head.append(style);
+ async function check(){
+  if(busy||!client||!me||document.hidden)return;busy=true;
+  try{
+   const res=await client.from('sgc_private_messages').select('id,sender_id,created_at,body').eq('receiver_id',me.id).order('created_at',{ascending:false}).limit(1);
+   if(res.error)return;const msg=res.data?.[0];if(!msg)return;
+   const ts=new Date(msg.created_at).getTime();
+   if(!initialised){lastSeen=ts;initialised=true;return}
+   if(ts>lastSeen){lastSeen=ts;banner.textContent='New private message · Open chats';banner.hidden=false;
+    if('Notification' in window&&Notification.permission==='granted'&&document.visibilityState==='visible'){try{const n=new Notification('New SGC private message',{body:'You have a new message',icon:'/sgc-app-icon.svg',tag:'sgc-private-message'});n.onclick=()=>{window.focus();location.href='chats.html'}}catch(e){}}
+   }
+  }finally{busy=false}
+ }
+ async function init(){client=window.sgcSupabase||window.supabase?.createClient('https://bxpexanyoyubxeqqlggh.supabase.co','sb_publishable_Z0_Y-Bj_G5qw4hMgDbQlgA__jj8rGGq');if(!client)return;const auth=await client.auth.getUser();me=auth.data?.user;if(!me)return;await check();setInterval(check,12000)}
+ init().catch(console.warn);
+})();
 </script></body>
 </html>
 
