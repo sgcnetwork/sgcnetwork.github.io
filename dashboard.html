@@ -130,7 +130,7 @@ footer{padding:35px 0;border-top:1px solid var(--line);font-size:12px;color:var(
 <section id="sgc-daily-quote" class="daily-sticky" hidden></section>
 <div class="hero-card">
 <span class="tag">Signed in as</span>
-<strong id="email">Loading…</strong>
+<strong id="email">Loading…</strong><p class="muted" id="member-username"></p>
 <span class="muted">Your access is controlled by your SGC account.</span>
 <a class="btn" href="academy.html">Enter Academy →</a>
 </div>
@@ -588,6 +588,14 @@ footer{padding:35px 0;border-top:1px solid var(--line);font-size:12px;color:var(
  window.addEventListener('hashchange',fromHash);fromHash();
 })();
 </script>
-</body>
+<script>
+(async()=>{
+ const sb=window.sgcSupabase;if(!sb)return;
+ try{const auth=await sb.auth.getUser();if(!auth.data.user)return;
+ const result=await sb.from('sgc_login_names').select('username').eq('user_id',auth.data.user.id).single();
+ if(!result.error)document.getElementById('member-username').textContent='Username: '+result.data.username;
+ }catch{}
+})();
+</script></body>
 </html>
 
