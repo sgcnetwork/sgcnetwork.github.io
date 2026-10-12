@@ -227,6 +227,7 @@ a:focus-visible,button:focus-visible{outline:2px solid #a986aa;outline-offset:4p
 <div class="library-layout">
 <aside class="library-sidebar"><details open><summary>My library</summary><nav aria-label="My library sections">
 <a href="#library-meetings" data-library="library-meetings">My meetings</a>
+<a href="#library-purchases" data-library="library-purchases">Purchases & billing</a>
 <a href="#library-kits" data-library="library-kits">Your kits</a>
 <a href="#quiz-results" data-library="quiz-results">Quiz results</a>
 <a href="#my-learning" data-library="my-learning">My portfolio</a>
@@ -246,6 +247,7 @@ a:focus-visible,button:focus-visible{outline:2px solid #a986aa;outline-offset:4p
 <div class="section-head"><div><div class="eyebrow">Private assessment history</div><h2>Quiz Results</h2><p class="muted">Review your submitted answers and the correct answers, grouped by module and lesson.</p></div></div>
 <div id="quiz-review-list"><p class="muted">Loading quiz results…</p></div>
 </section>
+<section class="section" id="library-purchases"><div class="section-head"><div><div class="eyebrow">Your SGC collection</div><h2>Purchases, memberships & billing</h2><p class="muted">Your verified orders, recurring memberships and payment history.</p></div><a class="btn alt" href="shop.html">Explore shop →</a></div><div id="sgc-purchase-list" class="list"><div class="empty">Loading your purchase history…</div></div></section>
 <section class="section" id="library-kits">
 <div class="section-head">
 <div><div class="eyebrow">Purchases & balances</div><h2>Your kits</h2></div>
@@ -660,6 +662,37 @@ a:focus-visible,button:focus-visible{outline:2px solid #a986aa;outline-offset:4p
  document.getElementById('member-username').textContent=user.email||'';
  }catch{}
 })();
-</script><script src="js/community-notifications.js"></script><script src="js/sgc-user-guide.js?v=guide1"></script></body>
+</script><script>
+(async function(){
+ const host=document.getElementById('sgc-purchase-list');
+ const sb=window.sgcSupabase||window.supabase?.createClient('https://bxpexanyoyubxeqqlggh.supabase.co','sb_publishable_Z0_Y-Bj_G5qw4hMgDbQlgA__jj8rGGq');
+ if(!sb)return;
+ const item=(title,detail)=>{const box=document.createElement('div');box.className='card';const h=document.createElement('h3');h.textContent=title;const p=document.createElement('p');p.className='muted';p.textContent=detail;box.append(h,p);return box;};
+ try{
+ const {data:{user},error}=await sb.auth.getUser();if(error)throw error;if(!user){host.replaceChildren(item('Sign in required','Sign in to view your personal purchase history.'));return;}
+ const [tx,plans,legacy]=await Promise.all([
+ sb.from('sgc_stitch_transactions').select('product_name,amount_zar,billing,status,paid_at,created_at').eq('user_id',user.id).order('created_at',{ascending:false}).limit(100),
+ sb.from('memberships').select('membership_type,status,price_zar,started_at,current_period_end').eq('user_id',user.id).order('created_at',{ascending:false}).limit(50),
+ sb.from('payments').select('payment_type,amount_zar,status,paid_at,created_at').eq('user_id',user.id).order('created_at',{ascending:false}).limit(100)
+ ]);
+ host.replaceChildren();
+ const heading=t=>{const h=document.createElement('h3');h.style.margin='24px 0 12px';h.textContent=t;host.append(h);};
+ const date=x=>x?new Date(x).toLocaleDateString('en-ZA'):'—';
+ const money=x=>'R'+Number(x||0).toFixed(2);
+ heading('Your purchased products');
+ if(tx.error)host.append(item('Purchase history unavailable',tx.error.message));
+ else {const paid=(tx.data||[]).filter(x=>['paid','completed','successful','succeeded'].includes(String(x.status).toLowerCase()));if(!paid.length)host.append(item('No verified purchases yet','Your completed purchases will appear here.'));for(const x of paid)host.append(item(x.product_name||'SGC product',money(x.amount_zar)+' · '+(x.billing||'Once-off')+' · Purchased '+date(x.paid_at||x.created_at)));}
+ heading('Memberships & recurring billing');
+ if(plans.error)host.append(item('Membership details unavailable',plans.error.message));
+ else if(!plans.data?.length)host.append(item('No recurring memberships','Your membership status and renewal dates will appear here.'));
+ else for(const x of plans.data)host.append(item(String(x.membership_type||'Membership'),money(x.price_zar)+' · '+x.status+' · Next period end: '+date(x.current_period_end)));
+ heading('Payment history');
+ if(legacy.error)host.append(item('Payment history unavailable',legacy.error.message));
+ else if(!legacy.data?.length && !tx.data?.length)host.append(item('No payments recorded','Your payment records will appear here.'));
+ else {for(const x of legacy.data||[])host.append(item(String(x.payment_type||'Payment'),money(x.amount_zar)+' · '+x.status+' · '+date(x.paid_at||x.created_at)));for(const x of tx.data||[])host.append(item(x.product_name||'Stitch checkout',money(x.amount_zar)+' · '+x.status+' · '+date(x.paid_at||x.created_at)));}
+ }catch(e){host.replaceChildren(item('Unable to load your library',e.message));}
+})();
+</script>
+<script src="js/community-notifications.js"></script><script src="js/sgc-user-guide.js?v=guide1"></script></body>
 </html>
 
