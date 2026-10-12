@@ -542,6 +542,15 @@ html.sgc-chat-page-mode .sgc-private-chat-messages{max-height:calc(100dvh - 330p
 /* The enlarged profile photo must match the saved circular crop, never expose the rectangular source. */
 .sgc-photo-lightbox .sgc-cropped-profile-view{display:block!important;width:min(78vw,440px)!important;height:min(78vw,440px)!important;max-width:440px!important;max-height:440px!important;aspect-ratio:1!important;border-radius:50%!important;object-fit:cover!important;object-position:center!important;overflow:hidden!important;background:#f3e5f1!important;margin:20px auto!important}
 .sgc-photo-lightbox-inner{max-width:min(95vw,520px)!important}
+</style><style>
+/* Dedicated member profile document: no Community feed or modal overlay. */
+html.sgc-profile-document-mode,html.sgc-profile-document-mode body{background:#faf5f9!important;overflow:auto!important;height:auto!important}
+html.sgc-profile-document-mode body>.wrap,html.sgc-profile-document-mode .layout{display:none!important}
+html.sgc-profile-document-mode body>#sgc-social-modal-root{display:block!important;position:static!important;z-index:auto!important;pointer-events:auto!important}
+html.sgc-profile-document-mode body>#sgc-social-modal-root .sgc-modal-backdrop{position:static!important;inset:auto!important;display:block!important;overflow:visible!important;min-height:100dvh!important;background:transparent!important;padding:0!important}
+html.sgc-profile-document-mode body>#sgc-social-modal-root .sgc-modal{display:block!important;width:100%!important;max-width:100%!important;max-height:none!important;overflow:visible!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:0!important}
+html.sgc-profile-document-mode .sgc-profile-page>.sgc-profile-hero{border-radius:0!important}
+html.sgc-profile-document-mode .sgc-modal .close-modal{display:none!important}
 </style></head>
 <body>
 <div class="wrap">
@@ -1433,16 +1442,11 @@ const sgcBtn=(label,fn,cls='btn soft')=>{const b=el('button',label,cls);b.type='
 async function sgcLoadMembers(){sgcMembers=check(await sb.rpc('sgc_public_members'));sgcFriends=check(await sb.from('sgc_friend_requests').select('*').or('sender_id.eq.'+user.id+',receiver_id.eq.'+user.id));}
 function sgcAccepted(id){return sgcFriends.some(f=>f.status==='accepted'&&((f.sender_id===user.id&&f.receiver_id===id)||(f.receiver_id===user.id&&f.sender_id===id)))}
 function sgcViewMemberProfile(id){
- if(new URLSearchParams(location.search).get('view')==='members'){
-  const destination=new URL('community.html',location.href);
-  destination.searchParams.set('profile',id);
-  destination.searchParams.set('v','member-profile-redirect');
-  // Dedicated Members is embedded in an iframe; open profile in the full browser viewport.
-  try{window.top.location.assign(destination.href)}catch(e){window.location.assign(destination.href)}
-  return;
- }
- sgcOpenProfile(id).catch(err=>alert('Unable to open profile: '+err.message));
+ const url=new URL('profile.html',location.href);
+ url.searchParams.set('user',id);
+ try{window.top.location.assign(url.href)}catch(e){window.location.assign(url.href)}
 }
+
 function sgcMemberRow(m,actions){
  const row=el('div',undefined,'sgc-member-card'),who=el('div',undefined,'person');
  const av=el('span',m.display_name.slice(0,1).toUpperCase(),'avatar');
@@ -1718,6 +1722,7 @@ async function start(){
  await refresh();
  await sgcStories();
  await sgcFaqFeed();
+ if(new URLSearchParams(location.search).get('view')==='profile')document.documentElement.classList.add('sgc-profile-document-mode');
  const profileId=new URLSearchParams(location.search).get('profile');
  if(profileId&&/^[a-f0-9-]{36}$/i.test(profileId)){
   try{await sgcOpenProfile(profileId)}catch(err){console.error('Profile open error',err);alert('Unable to load this member profile: '+err.message)}
