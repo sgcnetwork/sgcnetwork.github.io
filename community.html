@@ -621,10 +621,7 @@ async function renderComments(postId,root,countButton){
 
  for(const c of comments){
   const box=el('div',undefined,'comment');
-  box.append(
-   el('strong',c.author||'SGC member'),
-   el('div',c.email||'','email')
-  );
+  box.append(el('strong',c.author||'SGC member'));
   if(c.title)box.append(el('h3',c.title));
   if(c.reply_to_comment_id)box.append(el('span','@ Reply','pill'));
   box.append(el('p',c.body));
