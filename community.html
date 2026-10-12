@@ -425,6 +425,17 @@ header nav{gap:8px}header nav a{font-size:13px;font-weight:600}
 .sgc-desktop-community-picker label{font-size:11px;color:#765d72;font-weight:600}
 .sgc-desktop-community-picker select{width:100%;min-width:0;padding:9px 10px;border:1px solid #e4d5e3;border-radius:12px;background:#fff9fd;color:#49364a;font-size:12px}
 @media(max-width:700px){.sgc-desktop-community-picker{display:none!important}#sgc-active-community-banner{order:0!important;margin:0 0 12px!important;border-radius:14px!important;padding:10px 12px!important;border:1px solid #ead7e7!important}.layout>main>.sgc-social-top:has(#sgc-story-strip){order:2!important}}
+</style><style>
+/* Dedicated members page view reuses authenticated members/chat implementation. */
+html.sgc-members-page-mode,html.sgc-members-page-mode body{overflow:auto!important;height:auto!important;background:#faf5f9!important}
+html.sgc-members-page-mode body>.wrap{display:block!important;height:auto!important;overflow:visible!important;max-width:1100px!important;margin:auto!important}
+html.sgc-members-page-mode .wrap>header,html.sgc-members-page-mode .wrap>.hero,html.sgc-members-page-mode .layout>.left,html.sgc-members-page-mode .layout>.right,html.sgc-members-page-mode .layout>main>*:not(#sgc-members-hub),html.sgc-members-page-mode .sgc-mobile-tabs{display:none!important}
+html.sgc-members-page-mode .layout{display:block!important;height:auto!important;overflow:visible!important;padding:0!important}
+html.sgc-members-page-mode .layout>main{display:block!important;position:static!important;height:auto!important;min-height:100dvh!important;overflow:visible!important;width:100%!important;padding:15px!important}
+html.sgc-members-page-mode #sgc-members-hub{display:block!important;position:static!important;width:100%!important;max-width:900px!important;margin:0 auto!important;padding:20px!important;border-radius:20px!important;background:white!important}
+html.sgc-members-page-mode #sgc-members-hub[hidden]{display:none!important}
+#sgc-faq-feed[hidden]{display:none!important}
+@media(max-width:700px){html.sgc-members-page-mode .layout>main{padding:10px!important}html.sgc-members-page-mode #sgc-members-hub{padding:15px!important;border-radius:16px!important}html.sgc-members-page-mode .sgc-member-card{gap:8px!important}}
 </style></head>
 <body>
 <div class="wrap">
@@ -714,6 +725,9 @@ async function feed(){
   niche:'Niche community',
   academy:'General community'
  }[$('category').value];
+ // Only display conversations belonging to the selected community.
+ const faqSection=document.getElementById('sgc-faq-feed');
+ if(faqSection)faqSection.hidden=!activeGroup||$('category').value!=='faq';
  $('feed-count').textContent='';
  $('group-description').textContent=activeGroup?.description||
   'No communities in this category yet.';
@@ -1328,7 +1342,7 @@ async function sgcOpenGroup(g){
  const load=async()=>{const data=check(await sb.from('sgc_study_group_messages').select('user_id,body,created_at').eq('group_id',g.id).order('created_at',{ascending:true}).limit(200));messages.replaceChildren();for(const m of data){const b=el('div',undefined,'sgc-chat-bubble'+(m.user_id===user.id?' mine':''));b.append(el('strong',m.user_id===user.id?'You':sgcName(m.user_id)),el('p',m.body));messages.append(b)}messages.scrollTop=messages.scrollHeight};
  form.onsubmit=async e=>{e.preventDefault();send.disabled=true;try{check(await sb.from('sgc_study_group_messages').insert({group_id:g.id,user_id:user.id,body:input.value.trim()}));input.value='';await load()}catch(err){alert(err.message)}finally{send.disabled=false}};await load();box.append(sgcBtn('↻ Refresh group chat',load));
 }
-document.getElementById('sgc-people-nav').onclick=()=>sgcHubOpen('members');
+document.getElementById('sgc-people-nav').onclick=()=>{location.href='members.html'};
 document.getElementById('sgc-members-close').onclick=()=>{sgcHub.hidden=true};
 document.querySelectorAll('[data-sgc-tab]').forEach(b=>b.onclick=()=>{sgcMemberTab=b.dataset.sgcTab;sgcHubRender().catch(e=>alert(e.message))});
 
@@ -1385,7 +1399,8 @@ function sgcAvatarNode(url,initial,cls){
 async function sgcFaqFeed(){
  const container=document.getElementById('sgc-faq-feed-posts');if(!container)return;container.replaceChildren();
  try{
- const faqGroups=groups.filter(g=>(categories[g.id]||'niche')==='faq'||/faq/i.test(g.name));
+ if(!activeGroup||$('category').value!=='faq')return;
+ const faqGroups=groups.filter(g=>g.id===activeGroup.id);
  if(!faqGroups.length){container.append(el('p','No FAQ conversations yet.','muted'));return}
  const faq=faqGroups.find(g=>g.joined)||faqGroups[0];
  if(!faq.joined){const join=el('button','Join FAQ conversation','btn soft');join.onclick=async()=>{check(await sb.rpc('sgc_join_community',{p_group:faq.id}));faq.joined=true;await sgcFaqFeed()};container.append(join);return}
@@ -1495,8 +1510,8 @@ start().catch(e=>{console.error('Community startup error',e);if(/auth session mi
 <script src="js/community-notifications.js"></script><script src="js/sgc-user-guide.js?v=guide1"></script><script>
 (function(){
  const connect=(source,target)=>{const button=document.getElementById(source);if(button)button.addEventListener('click',()=>{const original=document.getElementById(target);if(original)original.click()})};
- connect('sgc-mobile-members','sgc-people-nav');
- connect('sgc-mobile-community','sgc-people-nav');
+ document.getElementById('sgc-mobile-members')?.addEventListener('click',()=>{location.href='members.html'});
+ document.getElementById('sgc-mobile-community')?.addEventListener('click',()=>{location.href='members.html'});
  connect('sgc-mobile-profile','sgc-my-profile');
  const jump=(id,target)=>{const button=document.getElementById(id);if(button)button.addEventListener('click',()=>document.getElementById(target)?.scrollIntoView({behavior:'smooth',block:'start'}))};
  // Reload from the very top, including the community picker and stories.
@@ -1590,6 +1605,26 @@ start().catch(e=>{console.error('Community startup error',e);if(/auth session mi
  srcType.addEventListener('change',()=>setTimeout(sync,0));srcGroup.addEventListener('change',sync);
  new MutationObserver(sync).observe(srcGroup,{childList:true,subtree:true});
  sync();
+})();
+</script><script>
+(function(){
+ if(new URLSearchParams(location.search).get('view')!=='members')return;
+ document.documentElement.classList.add('sgc-members-page-mode');
+ const boot=()=>{
+  const hub=document.getElementById('sgc-members-hub'),app=document.getElementById('app');
+  if(!hub||!app||app.hidden)return false;
+  if(!hub.dataset.membersBooted){
+   hub.dataset.membersBooted='1';
+   const trigger=document.getElementById('sgc-members-close');
+   if(trigger)trigger.style.display='none';
+   const nav=document.getElementById('sgc-people-nav');
+   if(nav)nav.click=undefined;
+   // Open the existing members experience without duplicating its auth and chat logic.
+   if(typeof sgcHubOpen==='function')sgcHubOpen('members').catch(e=>console.error(e));
+  }
+  return true;
+ };
+ let tries=0;const timer=setInterval(()=>{tries++;if(boot()||tries>100)clearInterval(timer)},100);
 })();
 </script></body>
 </html>
