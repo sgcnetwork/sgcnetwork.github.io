@@ -73,7 +73,7 @@ label[for="category-menu"]{font-size:11px;text-transform:uppercase;letter-spacin
 'use strict';
 const $=id=>document.getElementById(id);
 const sb=window.supabase?.createClient('https://bxpexanyoyubxeqqlggh.supabase.co','sb_publishable_Z0_Y-Bj_G5qw4hMgDbQlgA__jj8rGGq');
-const sections=[['business-kits','Business Kits','Practical business implementation kits and resources.'],['memberships','Memberships & kits','Your access to learning and implementation.'],['extras','Extras','Useful extras for your next step.'],['addons','Add-ons','Add more tools and support to your journey.'],['assistance','Assistance','Practical help when you need a hand.'],['coaching','Personal Coaching','Dedicated support for you and your business.'],['manuals','Manuals','Step-by-step implementation guides.'],['textbooks','Textbooks','Learning material to build your knowledge.']];
+const sections=[['business-kits','Business Kits','Practical business implementation kits and resources.'],['memberships','Memberships','Your access to learning and implementation.'],['extras','Extras','Useful extras for your next step.'],['addons','Add-ons','Add more tools and support to your journey.'],['assistance','Assistance','Practical help when you need a hand.'],['coaching','Personal Coaching','Dedicated support for you and your business.'],['manuals','Manuals','Step-by-step implementation guides.'],['textbooks','Textbooks','Learning material to build your knowledge.']];
 let kitVariants=new Map();let user=null,paymentBusy=false,settings=new Map();const params=new URLSearchParams(location.search);let selected=params.get('category')||'';let currentProduct=null;
 function node(tag,text,cls){const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(cls)e.className=cls;return e;}
 function check(r){if(r.error)throw r.error;return r.data;}
@@ -173,7 +173,7 @@ async function showNamedMemberships(){
     }else{card.append(node('p','Benefits will be confirmed by SGC Network.','muted'));}
     const pay=node('button','Pay Now');pay.type='button';
     pay.onclick=()=>{location.assign('payment.html?membershipId='+encodeURIComponent(p.id));};
-    card.append(pay,node('p','Secure checkout via Stitch. Payment verification and membership activation are handled separately.','muted'));
+    card.append(pay,node('p','Secure checkout via Stitch. Once payment is verified, the features included in your membership unlock automatically.','muted'));
     grid.append(card);
   }
   host.append(section);
