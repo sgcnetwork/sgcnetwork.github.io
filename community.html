@@ -392,6 +392,20 @@ header nav{gap:8px}header nav a{font-size:13px;font-weight:600}
  .sgc-mobile-top-actions svg{width:22px!important;height:22px!important}
  .sgc-mobile-tabs .sgc-tab-icon{display:grid!important;place-items:center!important}
 }
+</style><style>
+@media(max-width:700px){
+ /* Show the actual selected community and post action above stories. */
+ .layout>.left{display:block!important;flex:0 0 auto!important;max-height:unset!important;height:auto!important;overflow:visible!important;order:1!important}
+ .layout>.left>.card.butter:last-child{display:block!important;height:auto!important;max-height:none!important;min-height:0!important;overflow:visible!important;padding:11px 15px 12px!important;margin:0!important;border:0!important;border-bottom:7px solid #f4edf3!important;border-radius:0!important;background:#fff!important}
+ .layout>.left>.card.butter .row{display:none!important}
+ .layout>.left>.card.butter label{display:block!important;margin:4px 0 5px!important;font-size:11px!important;color:#796a78!important}
+ .layout>.left>.card.butter select{display:block!important;width:100%!important;height:38px!important;min-height:38px!important;margin:0 0 6px!important;padding:6px 11px!important;border-radius:12px!important;background:#f9f5fa!important;font-size:13px!important}
+ .layout>.left>.card.butter #group-description,.layout>.left>.card.butter>p.muted{display:none!important}
+ .layout>.left>.card.butter #join-control{margin:2px 0!important}
+ .layout>.left>.card.butter #sgc-mobile-write-post:not([hidden]){display:flex!important;align-items:center!important;gap:9px!important;width:100%!important;margin:7px 0 0!important;min-height:42px!important;border:1px solid #e5cde0!important;border-radius:13px!important;background:#f5e8f3!important;color:#774b72!important;padding:9px 12px!important;font-size:13px!important;font-weight:700!important}
+ .layout>.left>.card.butter #sgc-mobile-write-post svg{width:19px;height:19px}
+ .layout>main{min-height:0!important}
+}
 </style></head>
 <body>
 <div class="wrap">
