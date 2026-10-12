@@ -436,6 +436,20 @@ html.sgc-members-page-mode #sgc-members-hub{display:block!important;position:sta
 html.sgc-members-page-mode #sgc-members-hub[hidden]{display:none!important}
 #sgc-faq-feed[hidden]{display:none!important}
 @media(max-width:700px){html.sgc-members-page-mode .layout>main{padding:10px!important}html.sgc-members-page-mode #sgc-members-hub{padding:15px!important;border-radius:16px!important}html.sgc-members-page-mode .sgc-member-card{gap:8px!important}}
+</style><style>
+/* Desktop: independent sidebar scrolling, stationary columns, feed scrolls separately. */
+@media(min-width:701px){
+ body>.wrap>.layout{min-height:0!important;overflow:hidden!important}
+ .layout>.left,.layout>.right{height:100%!important;min-height:0!important;max-height:100%!important;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior-y:contain!important;scrollbar-width:thin;scrollbar-color:#dac5d6 transparent;padding-bottom:28px!important}
+ .layout>.left{display:flex!important;flex-direction:column!important;align-items:stretch!important}
+ .layout>.left>*{flex-shrink:0!important}
+ .layout>.right{position:static!important;top:auto!important;display:flex!important;flex-direction:column!important;align-items:stretch!important}
+ .layout>.right>*{flex-shrink:0!important}
+ .layout>main{height:100%!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior-y:contain!important}
+}
+/* Restore a standard video player with the full image visible and native controls. */
+.sgc-faq-post video.sgc-faq-video{display:block!important;width:100%!important;max-width:100%!important;height:auto!important;max-height:min(68vh,620px)!important;aspect-ratio:auto!important;object-fit:contain!important;background:#151319!important;border-radius:0!important;cursor:auto!important}
+.sgc-faq-post video.sgc-faq-video::-webkit-media-controls{display:flex!important}
 </style></head>
 <body>
 <div class="wrap">
@@ -1361,9 +1375,9 @@ async function sgcFaqMedia(path,parent){
  const video=/\.(mp4|webm|mov|m4v)$/i.test(filename);
  const renderVideo=()=>{
   const player=el('video');player.src=url;player.className='sgc-faq-media sgc-faq-video';
-  player.controls=true;player.playsInline=true;player.preload='metadata';
+  player.controls=true;player.playsInline=true;player.preload='metadata';player.setAttribute('controls','');player.setAttribute('playsinline','');player.disablePictureInPicture=false;
   player.setAttribute('aria-label','Play community video with sound');
-  player.style.cssText='display:block;width:100%;max-height:480px;object-fit:contain;background:#18151a;border-radius:12px';
+  player.style.cssText='display:block;width:100%;height:auto;max-height:620px;object-fit:contain;background:#18151a;border-radius:0';
   player.onerror=()=>{const msg=el('p','This video could not play. Please upload an MP4 with H.264 video and AAC audio.','muted');player.insertAdjacentElement('afterend',msg)};
   return player;
  };
