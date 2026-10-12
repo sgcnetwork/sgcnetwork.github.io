@@ -538,6 +538,10 @@ html.sgc-chat-page-mode #sgc-members-hub{display:block!important;max-width:100%!
 html.sgc-chat-page-mode #sgc-members-hub>*:not(#sgc-members-content){display:none!important}
 html.sgc-chat-page-mode .sgc-private-chat-view{min-height:calc(100dvh - 160px)!important}
 html.sgc-chat-page-mode .sgc-private-chat-messages{max-height:calc(100dvh - 330px)!important;min-height:260px!important}
+</style><style>
+/* The enlarged profile photo must match the saved circular crop, never expose the rectangular source. */
+.sgc-photo-lightbox .sgc-cropped-profile-view{display:block!important;width:min(78vw,440px)!important;height:min(78vw,440px)!important;max-width:440px!important;max-height:440px!important;aspect-ratio:1!important;border-radius:50%!important;object-fit:cover!important;object-position:center!important;overflow:hidden!important;background:#f3e5f1!important;margin:20px auto!important}
+.sgc-photo-lightbox-inner{max-width:min(95vw,520px)!important}
 </style></head>
 <body>
 <div class="wrap">
@@ -1254,7 +1258,12 @@ async function sgcCropProfilePhoto(file){
   });
  }finally{URL.revokeObjectURL(url)}
 }
-function sgcViewProfilePhoto(url){const shade=el('div',undefined,'sgc-photo-lightbox'),frame=el('div',undefined,'sgc-photo-lightbox-inner'),img=el('img'),close=el('button','×');img.src=url;img.alt='Full profile picture';close.type='button';close.onclick=()=>shade.remove();shade.onclick=e=>{if(e.target===shade)shade.remove()};frame.append(close,img);shade.append(frame);document.body.append(shade)}
+function sgcViewProfilePhoto(url){
+ const shade=el('div',undefined,'sgc-photo-lightbox'),frame=el('div',undefined,'sgc-photo-lightbox-inner'),img=el('img'),close=el('button','×');
+ img.src=url;img.alt='Cropped profile picture';img.className='sgc-cropped-profile-view';
+ close.type='button';close.onclick=()=>shade.remove();shade.onclick=e=>{if(e.target===shade)shade.remove()};
+ frame.append(close,img);shade.append(frame);document.body.append(shade);
+}
 async function sgcOpenProfile(id=user.id){
  if(!/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(id))throw Error('Invalid member account.');
  const mine=id===user.id;
