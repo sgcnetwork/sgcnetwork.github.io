@@ -510,7 +510,7 @@ html.sgc-members-page-mode #sgc-members-hub[hidden]{display:none!important}
 html.sgc-members-page-mode #sgc-social-modal-root{display:block!important;position:relative!important;z-index:200!important}
 html.sgc-members-page-mode #sgc-social-modal-root .sgc-modal-backdrop{display:flex!important;position:fixed!important;inset:0!important;z-index:10000!important;align-items:center!important;justify-content:center!important;overflow-y:auto!important;padding:15px!important;background:rgba(27,18,28,.65)!important}
 html.sgc-members-page-mode #sgc-social-modal-root .sgc-modal{display:block!important;width:min(96vw,800px)!important;max-height:calc(100dvh - 30px)!important;overflow-y:auto!important;background:#fff!important}
-</style></head>
+</style><style>.sgc-study-group-card{align-items:flex-start!important;flex-wrap:wrap!important}.sgc-study-group-actions{display:flex;gap:7px;flex-wrap:wrap;align-items:center}.sgc-group-request{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:8px 0}.sgc-study-group-card small{display:block;margin-top:5px}.sgc-modal form label{display:block;margin-top:12px}.sgc-modal form input,.sgc-modal form textarea,.sgc-modal form select{display:block;width:100%;max-width:100%;margin-top:5px}</style></head>
 <body>
 <div class="wrap">
 <header>
@@ -1425,12 +1425,58 @@ async function sgcOpenChat(id){
  const refresh=sgcBtn('↻ Refresh messages',load);box.append(refresh);
 }
 async function sgcRenderStudyGroups(){
- const form=el('form'),name=el('input'),description=el('input'),create=el('button','Create study / help group','btn');name.placeholder='Group name';name.maxLength=80;name.required=true;description.placeholder='What will this group help with?';form.append(el('label','Create a group'),name,description,create);sgcHubContent.append(form);
- form.onsubmit=async e=>{e.preventDefault();create.disabled=true;try{const group=check(await sb.from('sgc_study_groups').insert({owner_id:user.id,name:name.value.trim(),description:description.value.trim()}).select('id').single());check(await sb.from('sgc_study_group_members').insert({group_id:group.id,user_id:user.id}));await sgcHubRender()}catch(err){alert(err.message)}finally{create.disabled=false}};
- const groups=check(await sb.from('sgc_study_groups').select('*').order('created_at',{ascending:false}).limit(100));const memberships=check(await sb.from('sgc_study_group_members').select('group_id').eq('user_id',user.id));const joined=new Set(memberships.map(m=>m.group_id));
+ const rpc=async(action,group=null,data={})=>check(await sb.rpc('sgc_study_group_manage',{p_action:action,p_group:group,p_data:data}));
+ const form=el('form'),name=el('input'),description=el('input'),policy=el('select'),create=el('button','Create study / help group','btn');
+ name.placeholder='Group name';name.maxLength=80;name.required=true;description.placeholder='What will this group help with?';description.maxLength=500;
+ for(const [v,label] of [['open','Everyone can join'],['approval','Creator approval required']]){const o=el('option',label);o.value=v;policy.append(o)}
+ form.append(el('label','Create a group'),name,description,el('label','Who can join?'),policy,create);sgcHubContent.append(form);
+ form.onsubmit=async e=>{e.preventDefault();create.disabled=true;try{await rpc('create',null,{name:name.value.trim(),description:description.value.trim(),join_policy:policy.value});await sgcHubRender()}catch(err){alert(err.message)}finally{create.disabled=false}};
+ const groups=check(await sb.from('sgc_study_groups').select('*').order('created_at',{ascending:false}).limit(100));
+ const memberships=check(await sb.from('sgc_study_group_members').select('group_id').eq('user_id',user.id));const joined=new Set(memberships.map(m=>m.group_id));
+ const isAdmin=!!(await sb.rpc('sgc_extra_is_admin')).data;
  if(!groups.length)sgcHubContent.append(el('p','No study groups yet. Create the first one!','muted'));
- for(const g of groups){const actions=el('div',undefined,'row');if(joined.has(g.id))actions.append(sgcBtn('Open group chat',()=>sgcOpenGroup(g)));else actions.append(sgcBtn('Join group',async()=>{check(await sb.from('sgc_study_group_members').insert({group_id:g.id,user_id:user.id}));await sgcHubRender()}));const card=el('div',undefined,'sgc-member-card'),details=el('div');details.append(el('strong',g.name),el('p',g.description||'Study and help together.','muted'));card.append(details,actions);sgcHubContent.append(card)}
+ for(const g of groups){
+  const owner=g.owner_id===user.id,canManage=owner||isAdmin,member=joined.has(g.id)||isAdmin;
+  const card=el('div',undefined,'sgc-member-card sgc-study-group-card'),details=el('div'),actions=el('div',undefined,'sgc-study-group-actions');
+  details.append(el('strong',g.name),el('p',g.description||'Study and help together.','muted'),el('small',g.join_policy==='approval'?'Approval required':'Open to everyone','muted'));
+  if(member)actions.append(sgcBtn('Open group chat',()=>sgcOpenGroup(g),'btn soft'));
+  else{
+   const detailsResult=await rpc('details',g.id);const pending=detailsResult?.mine==='pending';
+   const join=sgcBtn(pending?'Request pending':(g.join_policy==='approval'?'Request to join':'Join group'),async()=>{
+    if(pending)return;try{const result=await rpc('request',g.id);if(result.status==='joined')await sgcHubRender();else{join.textContent='Request pending';join.disabled=true}}catch(err){alert(err.message)}
+   },'btn soft');join.disabled=pending;actions.append(join);
+  }
+  if(canManage){
+   const manage=sgcBtn('Manage group',async()=>{
+    const box=sgcModal('Manage '+g.name),edit=el('form'),nm=el('input'),desc=el('textarea'),access=el('select'),save=el('button','Save changes','btn');
+    nm.value=g.name;nm.required=true;nm.maxLength=80;desc.value=g.description||'';desc.maxLength=500;
+    for(const [v,label] of [['open','Everyone can join'],['approval','Creator approval required']]){const opt=el('option',label);opt.value=v;access.append(opt)}access.value=g.join_policy||'open';
+    edit.append(el('label','Group name'),nm,el('label','Description'),desc,el('label','Joining permissions'),access,save);
+    edit.onsubmit=async e=>{e.preventDefault();try{await rpc('update',g.id,{name:nm.value,description:desc.value,join_policy:access.value});sgcModalRoot.replaceChildren();await sgcHubRender()}catch(err){alert(err.message)}};
+    box.append(edit);
+    const requests=await rpc('details',g.id);
+    const pendingList=el('div');pendingList.append(el('h3','Pending join requests'));
+    if(!requests.requests?.length)pendingList.append(el('p','No pending requests.','muted'));
+    for(const request of requests.requests||[]){
+     const row=el('div',undefined,'sgc-group-request'),profile=await sgcProfile(request.user_id).catch(()=>null);
+     row.append(el('span',profile?.display_name||'SGC member'));
+     for(const action of ['approve','reject'])row.append(sgcBtn(action==='approve'?'Approve':'Decline',async()=>{try{await rpc(action,g.id,{user_id:request.user_id});row.remove()}catch(err){alert(err.message)}},'btn soft'));
+     pendingList.append(row);
+    }
+    box.append(pendingList);
+    const invite=el('div'),memberSelect=el('select'),add=sgcBtn('Add member',async()=>{try{if(!memberSelect.value)throw Error('Choose a member');await rpc('invite',g.id,{user_id:memberSelect.value});alert('Member added to the group.')}catch(err){alert(err.message)}},'btn soft');
+    invite.append(el('h3','Add people or friends'),memberSelect,add);box.append(invite);
+    const people=check(await sb.from('sgc_social_profiles').select('user_id,display_name').order('display_name').limit(250));
+    const placeholder=el('option','Choose a member');placeholder.value='';memberSelect.append(placeholder);
+    for(const p of people.filter(p=>p.user_id!==user.id)){const opt=el('option',p.display_name||'SGC member');opt.value=p.user_id;memberSelect.append(opt)}
+    const del=sgcBtn('Delete group',async()=>{if(!confirm('Delete '+g.name+' and its messages permanently?'))return;try{await rpc('delete',g.id);sgcModalRoot.replaceChildren();await sgcHubRender()}catch(err){alert(err.message)}},'btn');
+    del.style.background='#a34e64';box.append(del);
+   },'btn soft');actions.append(manage);
+  }
+  card.append(details,actions);sgcHubContent.append(card);
+ }
 }
+
 async function sgcOpenGroup(g){
  const box=sgcModal(g.name),messages=el('div',undefined,'sgc-chat-messages'),form=el('form',undefined,'sgc-chat-form'),input=el('input'),send=el('button','Send','btn');input.placeholder='Message your group…';input.required=true;input.maxLength=5000;form.append(input,send);box.append(el('p',g.description,'muted'),messages,form);
  const load=async()=>{const data=check(await sb.from('sgc_study_group_messages').select('user_id,body,created_at').eq('group_id',g.id).order('created_at',{ascending:true}).limit(200));messages.replaceChildren();for(const m of data){const b=el('div',undefined,'sgc-chat-bubble'+(m.user_id===user.id?' mine':''));b.append(el('strong',m.user_id===user.id?'You':sgcName(m.user_id)),el('p',m.body));messages.append(b)}messages.scrollTop=messages.scrollHeight};
