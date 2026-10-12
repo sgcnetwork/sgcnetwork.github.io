@@ -227,7 +227,7 @@ header nav{gap:8px}header nav a{font-size:13px;font-weight:600}
 #sgc-story-strip .sgc-story.sgc-story-seen .story-avatar{border-color:#fff!important;box-shadow:0 0 0 2px #e8e3e8!important}
 </style><style>.sgc-faq-compose{display:grid;gap:10px;margin:12px 0}.sgc-faq-compose input:not([type=file]),.sgc-faq-compose textarea{width:100%;border:1px solid #e8dce8;border-radius:12px;padding:12px;font:inherit}.sgc-faq-compose textarea{min-height:88px}.sgc-faq-compose label{font-size:13px;color:#765e75}.sgc-faq-compose input[type=file]{display:block;margin-top:7px}.sgc-faq-media{display:block;max-width:100%;width:auto;max-height:430px;object-fit:contain;border-radius:10px;margin:12px auto;background:#faf7fa}</style><style>
 .sgc-faq-compose{width:100%;margin:0 0 8px!important}.sgc-comment-input-row{display:flex;align-items:flex-start;gap:10px}.sgc-comment-avatar{width:30px;height:30px;min-width:30px;border-radius:50%;background:#e9e4e8;display:grid;place-items:center;color:#695765;font-size:12px;font-weight:700}.sgc-comment-input-bubble{flex:1;min-width:0;background:#f0f2f5;border-radius:17px;padding:9px 12px 7px}.sgc-comment-input-bubble textarea{background:transparent!important;border:0!important;min-height:26px!important;height:30px;resize:vertical;padding:2px 0!important;box-shadow:none!important;outline:none;font-size:13px!important}.sgc-comment-input-bubble .sgc-comment-heading{background:#fff!important;border:1px solid #e6dce4!important;margin-bottom:7px;font-size:13px}.sgc-comment-input-bubble .sgc-comment-heading[hidden]{display:none!important}.sgc-comment-tools{display:flex;align-items:center;gap:5px;flex-wrap:wrap;position:relative}.sgc-comment-tool{background:transparent;border:0;padding:4px 6px;color:#6d6b73;cursor:pointer;font-size:15px}.sgc-comment-tool:hover{color:#ba5992}.sgc-comment-send{margin-left:auto;border:0;background:transparent;color:#89909c;font-size:19px;cursor:pointer;padding:1px 6px}.sgc-comment-send:hover{color:#d77bab}.sgc-comment-file-name{font-size:11px;color:#8c6985;max-width:125px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sgc-comment-emoji-picker{position:absolute;bottom:32px;left:0;background:white;border:1px solid #e8d9e6;border-radius:12px;box-shadow:0 5px 18px #0002;display:flex;flex-wrap:wrap;max-width:220px;z-index:2;padding:6px}.sgc-faq-compose .sgc-profile-link{font-size:12px;justify-self:end}
-</style></head>
+</style><style>.sgc-faq-author .sgc-faq-delete{margin-left:auto;border:0;background:transparent;color:#8c7885;font-size:23px;cursor:pointer;padding:3px 10px}.sgc-faq-delete-comment{margin-left:12px;color:#9a697e!important;font-size:12px!important}</style></head>
 <body>
 <div class="wrap">
 <header>
@@ -1023,6 +1023,7 @@ async function sgcFaqFeed(){
  const faq=faqGroups.find(g=>g.joined)||faqGroups[0];
  if(!faq.joined){const join=el('button','Join FAQ conversation','btn soft');join.onclick=async()=>{check(await sb.rpc('sgc_join_community',{p_group:faq.id}));faq.joined=true;await sgcFaqFeed()};container.append(join);return}
  const posts=check(await sb.rpc('sgc_social',{p_action:'feed',p_group:faq.id}));
+ const minePosts=await sb.from('community_posts').select('id').eq('group_id',faq.id).eq('user_id',user.id);const ownPostIds=new Set((minePosts.data||[]).map(p=>p.id));
  const compose=(postId=null,commentId=null,after=null)=>{
   const form=el('form',undefined,'sgc-faq-compose'),title=el('input'),input=el('textarea'),file=el('input'),send=el('button',commentId?'Reply':postId?'Comment':'Post','btn');
   title.placeholder='Header (optional)';title.maxLength=150;input.maxLength=10000;input.placeholder=commentId?'Write a reply…':postId?'Write a comment…':'Write a thread or comment…';
@@ -1063,7 +1064,9 @@ async function sgcFaqFeed(){
  for(const post of posts){
   const card=el('article',undefined,'sgc-faq-post');
   const top=el('div',undefined,'sgc-faq-author');top.append(el('span',(post.author||'S').slice(0,1).toUpperCase(),'sgc-faq-avatar'));
-  const who=el('div');who.append(el('strong',post.author||'SGC member'),el('small',new Date(post.created_at).toLocaleString('en-ZA')));top.append(who);card.append(top);
+  const who=el('div');who.append(el('strong',post.author||'SGC member'),el('small',new Date(post.created_at).toLocaleString('en-ZA')));top.append(who);
+  if(ownPostIds.has(post.id)){const del=el('button','⋯','sgc-faq-delete');del.type='button';del.title='Delete your post';del.setAttribute('aria-label','Delete your post');del.onclick=async()=>{if(!confirm('Delete your post and all its comments?'))return;del.disabled=true;try{check(await sb.from('community_posts').delete().eq('id',post.id).eq('user_id',user.id));await sgcFaqFeed()}catch(err){alert(err.message);del.disabled=false}};top.append(del)}
+  card.append(top);
   if(post.title)card.append(el('strong',post.title));
   card.append(el('p',post.body||'','sgc-faq-body'));
   const mediaResult=await sb.from('sgc_post_images').select('path').eq('post_id',post.id);
@@ -1077,12 +1080,12 @@ async function sgcFaqFeed(){
   const thread=el('div',undefined,'sgc-faq-thread');thread.hidden=true;card.append(thread);
   const openThread=async()=>{thread.hidden=false;thread.replaceChildren();const cr=await sb.rpc('sgc_social',{p_action:'comments',p_post:post.id});
    if(cr.error){thread.append(el('p','Comments unavailable: '+cr.error.message,'muted'));return}
-   const comments=cr.data||[],byParent=new Map();for(const cm of comments){const parent=cm.reply_to_comment_id||null;if(!byParent.has(parent))byParent.set(parent,[]);byParent.get(parent).push(cm)}
+   const comments=cr.data||[],ownComments=await sb.from('community_comments').select('id').eq('post_id',post.id).eq('user_id',user.id),ownCommentIds=new Set((ownComments.data||[]).map(x=>x.id)),byParent=new Map();for(const cm of comments){const parent=cm.reply_to_comment_id||null;if(!byParent.has(parent))byParent.set(parent,[]);byParent.get(parent).push(cm)}
    const commentMedia=new Map();if(comments.length){const mr=await sb.from('sgc_comment_media').select('comment_id,path').in('comment_id',comments.map(x=>x.id));for(const m of mr.data||[]){if(!commentMedia.has(m.comment_id))commentMedia.set(m.comment_id,[]);commentMedia.get(m.comment_id).push(m.path)}}
    if(!comments.length)thread.append(el('p','Be the first to comment.','muted'));
    const draw=(parent,depth=0)=>{if(depth>20)return;for(const cm of byParent.get(parent)||[]){const wrap=el('div',undefined,'sgc-faq-comment');wrap.style.marginLeft=Math.min(depth,5)*20+'px';
     const bubble=el('div',undefined,'sgc-chat-message');bubble.append(el('strong',cm.author||'SGC member'),el('p',cm.body));
-    const reply=el('button','Reply');reply.type='button';reply.onclick=()=>compose(post.id,cm.id,wrap);bubble.append(reply);wrap.append(bubble);thread.append(wrap);for(const path of commentMedia.get(cm.id)||[])sgcFaqMedia(path,wrap);draw(cm.id,depth+1)}};draw(null);
+    const reply=el('button','Reply');reply.type='button';reply.onclick=()=>compose(post.id,cm.id,wrap);bubble.append(reply);if(ownCommentIds.has(cm.id)){const del=el('button','Delete','sgc-faq-delete-comment');del.type='button';del.onclick=async()=>{if(!confirm('Delete your comment?'))return;del.disabled=true;try{check(await sb.from('community_comments').delete().eq('id',cm.id).eq('user_id',user.id));await openThread()}catch(err){alert(err.message);del.disabled=false}};bubble.append(del)}wrap.append(bubble);thread.append(wrap);for(const path of commentMedia.get(cm.id)||[])sgcFaqMedia(path,wrap);draw(cm.id,depth+1)}};draw(null);
    const entry=el('div');thread.append(entry);compose(post.id,null,entry);
   };
   commentBtn.onclick=()=>{if(!thread.hidden){thread.hidden=true;thread.replaceChildren()}else openThread()};
