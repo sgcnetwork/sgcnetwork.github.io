@@ -480,6 +480,11 @@ html.sgc-members-page-mode #sgc-members-hub[hidden]{display:none!important}
  .sgc-desktop-join .pill{font-size:11px}
 }
 @media(max-width:700px){.sgc-desktop-join{display:none!important}}
+</style><style>
+/* All community post videos: display the actual video player, never a broken-image thumbnail. */
+#feed .photos video,#sgc-faq-feed-posts video{display:block!important;width:100%!important;height:auto!important;max-height:68vh!important;object-fit:contain!important;background:#151319!important;border-radius:12px!important}
+#feed .photos{overflow:hidden!important;max-width:100%!important}
+#feed .photos video{min-height:140px}
 </style></head>
 <body>
 <div class="wrap">
@@ -741,15 +746,8 @@ async function joinCommunity(){
 }
 
 async function photoElement(path,parent){
- try{
-  const signed=check(await sb.storage.from('sgc-community')
-   .createSignedUrl(path,3600));
-  const img=el('img');
-  img.src=signed.signedUrl;
-  img.alt='Member’s community update';
-  img.loading='lazy';
-  parent.append(img);
- }catch{parent.append(el('p','Photo unavailable.','muted'));}
+ // Posts and FAQ posts share the same media renderer. Videos must not be inserted as images.
+ await sgcFaqMedia(path,parent);
 }
 
 async function feed(){
@@ -1420,7 +1418,7 @@ async function sgcFaqMedia(path,parent){
  if(signed.error){parent.append(el('p','Media unavailable: '+signed.error.message,'muted'));return}
  const url=signed.data.signedUrl;
  const filename=String(path||'').split('?')[0];
- const video=/\.(mp4|webm|mov|m4v)$/i.test(filename);
+ const video=/\.(mp4|webm|mov|m4v|ogv|ogg)$/i.test(filename);
  const renderVideo=()=>{
   const player=el('video');player.src=url;player.className='sgc-faq-media sgc-faq-video';
   player.controls=true;player.playsInline=true;player.preload='metadata';player.setAttribute('controls','');player.setAttribute('playsinline','');player.disablePictureInPicture=false;
@@ -1431,7 +1429,7 @@ async function sgcFaqMedia(path,parent){
  };
  if(video){parent.append(renderVideo());return}
  const img=el('img');img.src=url;img.className='sgc-faq-media';img.loading='lazy';img.alt='Community photo';
- img.onerror=()=>{img.replaceWith(renderVideo())};
+ img.onerror=()=>{if(!img.isConnected)return;img.replaceWith(renderVideo())};
  parent.append(img);
 }
 function sgcConfirmDelete(message='Confirm delete post?'){
