@@ -107,3 +107,35 @@ html[data-sgc-theme="dark"] body :is(
 html[data-sgc-theme="dark"] body :is(
  button:hover,a:hover
 ){border-color:#e8c776!important}
+
+/* Story cards remain visually distinct in black-and-gold mode. */
+html[data-sgc-theme="dark"] #sgc-story-strip .sgc-story{
+ background:linear-gradient(155deg,#2d2618 0%,#191713 65%,#332716 100%)!important;
+ border:1.5px solid #d0ac60!important;
+ border-radius:17px!important;
+ box-shadow:inset 0 0 0 1px #d0ac602b,0 4px 16px #0008!important;
+ color:#f6e5bf!important;
+}
+html[data-sgc-theme="dark"] #sgc-story-strip .sgc-story .story-name{
+ color:#f6e5bf!important;
+}
+html[data-sgc-theme="dark"] #sgc-story-strip .sgc-story:before{
+ color:#d9b76b!important;
+}
+html[data-sgc-theme="dark"] #sgc-story-strip .sgc-story.create{
+ background:linear-gradient(155deg,#292315,#15130f)!important;
+ border:1.5px solid #d0ac60!important;
+}
+html[data-sgc-theme="dark"] #sgc-story-strip .sgc-story .story-avatar{
+ border:3px solid #e0c17c!important;
+ box-shadow:0 0 0 2px #745c2e!important;
+ background:#201b14!important;
+}
+html[data-sgc-theme="dark"] #sgc-story-strip .sgc-story:not(.create):not(.draft):not(.sgc-story-seen) .story-avatar{
+ border-color:#e6c77e!important;
+ box-shadow:0 0 0 2px #d3a94f!important;
+}
+html[data-sgc-theme="dark"] #sgc-story-strip .sgc-story.sgc-story-seen .story-avatar{
+ border-color:#89744d!important;
+ box-shadow:0 0 0 2px #53472f!important;
+}
