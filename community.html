@@ -151,7 +151,7 @@ footer{padding:28px 0 36px;font-size:11px;letter-spacing:.04em}
 <h1>A space to belong.</h1>
 <p class="muted">Good conversations. Fresh ideas. People who get it.<br>Share your journey and grow alongside your community.</p>
 <p id="status" class="muted" role="status" aria-live="polite">Loading your community…</p>
-</section><section class="sgc-unlock-feature" style="max-width:760px;margin:35px auto 45px;padding:42px 34px;text-align:center;border-radius:28px;border:1px solid #e8dce8;background:linear-gradient(125deg,#f5e3e8,#f8f2e9 55%,#e8e0f4);color:#352b35;box-shadow:0 14px 32px #37273b0b"><span style="font-size:10px;letter-spacing:3px;text-transform:uppercase">Your SGC space awaits</span><h2 style="font:normal clamp(30px,5vw,45px)/1.15 Georgia,serif;margin:16px 0">Your community starts here.</h2><p style="max-width:520px;margin:0 auto 24px;line-height:1.8">Join the SGC community with a R150 once-off payment. Connect, share ideas and grow together.</p><a href="shop.html?product=426d6948-d1e3-4afa-bd6c-eb2b194dba56" style="display:inline-block;background:#352735;color:white;text-decoration:none;padding:15px 24px;border-radius:30px">Unlock Community · R150 once-off →</a></section>
+</section>
 
 <div class="layout" id="app" hidden>
 
@@ -391,8 +391,8 @@ async function feed(){
  $('composer-card').hidden=!activeGroup?.joined;
  $('join-control').replaceChildren();
  if(activeGroup){
-  if(activeGroup.joined)$('join-control').append(el('span','Joined ✓','pill'));
-  else $('join-control').append(button('Join '+activeGroup.name,joinCommunity));
+  if(activeGroup.joined)$('join-control').append(el('span','Access included ✓','pill'));
+  else $('join-control').append(el('span','Membership required','pill'));
  }
  $('current-name').textContent=activeGroup?.name||'Choose your space';
  $('current-description').textContent=activeGroup?.description||
