@@ -1,0 +1,13 @@
+html[data-sgc-theme="dark"]{color-scheme:dark!important;--ink:#f8eef7!important;--cream:#17121c!important;--paper:#251c2a!important;--pink:#392637!important;--lav:#3a2b43!important;--butter:#42362c!important;--line:#ffffff29!important;--muted:#c8b6c6!important;--bg:#17121c!important;--surface:#251c2a!important;--text:#f8eef7!important}
+html[data-sgc-theme="dark"] body{background:#17121c!important;color:#f8eef7!important}
+html[data-sgc-theme="dark"] :is(header,nav,.card,.panel,.box,.tile,.story,.post,.sgc-member-card,.sgc-profile-page,.sgc-modal,.sgc-private-chat-view,.sgc-chat-messages,.sgc-private-chat-messages,.sgc-profile-hero,.sgc-profile-summary,.sgc-profile-card,.sgc-profile-tab-content,aside,main>section){border-color:#ffffff24}
+html[data-sgc-theme="dark"] :is(input,textarea,select){background:#2e2334!important;color:#fff2fc!important;border-color:#66516c!important}
+html[data-sgc-theme="dark"] :is(input,textarea)::placeholder{color:#bca9bd!important}
+html[data-sgc-theme="dark"] :is(.card,.sgc-member-card,.sgc-modal,.sgc-private-chat-view,.sgc-chat-messages,.sgc-private-chat-messages,.sgc-profile-page,.sgc-profile-card,.sgc-profile-summary){background:#271e2d!important;color:#f8eef7!important}
+html[data-sgc-theme="dark"] :is(a,button){border-color:#ffffff29}
+html[data-sgc-theme="dark"] :is(.muted,small,.caption){color:#d1bfce}
+html[data-sgc-theme="dark"] :is(.btn.soft,.sgc-chat-bubble,.sgc-private-chat-messages .sgc-chat-bubble){background:#493550!important;color:#fff1fc!important}
+html[data-sgc-theme="dark"] :is(.btn:not(.soft),button.active){color:#fff!important}
+.sgc-theme-switch{position:fixed!important;top:calc(12px + env(safe-area-inset-top,0px))!important;right:12px!important;z-index:2147481000!important;background:#f0e4f0!important;color:#4d354e!important;border:1px solid #d8c4da!important;border-radius:999px!important;padding:9px 13px!important;font:600 12px/1.2 Arial,sans-serif!important;box-shadow:0 4px 15px #2a152a20!important;cursor:pointer!important;width:auto!important;min-width:100px!important;max-width:145px!important;height:auto!important;letter-spacing:0!important}
+html[data-sgc-theme="dark"] .sgc-theme-switch{background:#493550!important;color:#fbeffc!important;border-color:#7c5e7e!important}
+@media(max-width:700px){.sgc-theme-switch{top:auto!important;bottom:calc(85px + env(safe-area-inset-bottom,0px))!important;right:12px!important;padding:9px 12px!important;font-size:11px!important}}
