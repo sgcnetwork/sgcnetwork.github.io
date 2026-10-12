@@ -133,6 +133,11 @@
   skip=button('Skip step',()=>advance(),'sgc-guide-secondary');next=button('Next step',()=>{if(page()!==steps[state.step].page)openStep();else advance();},'sgc-guide-primary');
   all=button('Skip all tutorials',disable,'sgc-guide-text');
   panel.append(close,progress,title,copy,hint,actions,extra);document.body.append(spot,panel,launcher);
+  // Auto-hide only the floating shortcut after ten seconds on every member page.
+  // Never interrupt a tutorial or settings panel that the member opened.
+  window.setTimeout(()=>{if(launcher&&panel?.hidden)launcher.style.display='none';},10000);
+  launcher.addEventListener('click',()=>{launcher.style.display='';});
+
   document.addEventListener('click',interacted,true);document.addEventListener('change',interacted,true);
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!panel.hidden){if(mode==='guide'||mode==='welcome')pause();else hide();}});
   window.addEventListener('scroll',locate,{passive:true});window.addEventListener('resize',locate);
