@@ -1256,22 +1256,18 @@ async function sgcCropProfilePhoto(file){
 }
 function sgcViewProfilePhoto(url){const shade=el('div',undefined,'sgc-photo-lightbox'),frame=el('div',undefined,'sgc-photo-lightbox-inner'),img=el('img'),close=el('button','×');img.src=url;img.alt='Full profile picture';close.type='button';close.onclick=()=>shade.remove();shade.onclick=e=>{if(e.target===shade)shade.remove()};frame.append(close,img);shade.append(frame);document.body.append(shade)}
 async function sgcOpenProfile(id=user.id){
+ if(!/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(id))throw Error('Invalid member account.');
  const mine=id===user.id;
- let profile=await sgcProfile(id);
- // The directory includes accounts that have not created a social profile yet.
- // Resolve their registered username from the authenticated, public-members RPC.
- if(!profile?.display_name){
-  let directoryMember=(Array.isArray(sgcMembers)?sgcMembers:[]).find(m=>m.user_id===id);
-  if(!directoryMember){
-   const result=await sb.rpc('sgc_public_members');
-   if(!result.error)directoryMember=(result.data||[]).find(m=>m.user_id===id);
-  }
-  if(directoryMember)profile={...(profile||{}),display_name:directoryMember.display_name,avatar_path:profile?.avatar_path||directoryMember.avatar_path||null};
- }
+ // Resolve identity by account ID, including members who have never edited a profile.
+ const identity=await sb.rpc('sgc_member_identity',{p_user:id});
+ if(identity.error)throw identity.error;
+ const profile=Array.isArray(identity.data)?identity.data[0]:identity.data;
+ if(!profile||profile.user_id!==id)throw Error('This member account could not be found.');
+
  const box=sgcModal(mine?'My SGC profile':'Member profile'),cover=el('div',undefined,'sgc-profile-cover'),avatar=el('div',undefined,'sgc-profile-avatar');
- avatar.textContent=(profile?.display_name||user.user_metadata?.username||'S').slice(0,1).toUpperCase();
+ avatar.textContent=(profile.display_name||'S').slice(0,1).toUpperCase();
  if(profile?.avatar_path){const url=await sgcImage(profile.avatar_path);if(url){const img=el('img');img.src=url;avatar.replaceChildren(img)}}
- box.append(cover,avatar,el('h3',profile?.display_name|| (mine?(user.user_metadata?.username||user.email):'SGC member')),el('p',profile?.bio||'A member of the SGC community.','muted'));
+ box.append(cover,avatar,el('h3',profile.display_name||'SGC member'),el('p',profile?.bio||'A member of the SGC community.','muted'));
  if(profile?.business_website){const a=el('a','🌐 '+profile.business_website,'sgc-profile-website');a.href=profile.business_website;a.target='_blank';a.rel='noopener noreferrer';box.append(a)}
  if(!mine){
   const actions=el('div',undefined,'sgc-member-profile-actions');
