@@ -69,6 +69,8 @@ if(dynamicId){
   };
   document.getElementById('product').textContent='Loading selected product…';
   document.getElementById('price').textContent='Price verified at checkout';
+  dynamicReady=dynamicReady();
+  dynamicReady.catch(error=>{document.getElementById('status').textContent=error.message;document.getElementById('pay').disabled=true;});
 }
 if(!dynamicId)document.getElementById('product').textContent=selected?.name||name;
 if(!dynamicId)document.getElementById('price').textContent=selected?.display||'Selected product';
