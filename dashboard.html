@@ -100,7 +100,7 @@ footer{padding:35px 0;border-top:1px solid var(--line);font-size:12px;color:var(
 <a class="brand" href="index.html">SGC<small>NETWORK</small></a>
 <nav class="nav-links">
 <a href="shop.html">Shop</a>
-<a class="active" href="dashboard.html">My SGC</a>
+<a class="active" href="dashboard.html" id="dashboard-nav">My SGC</a>
 <a href="academy.html">Academy</a>
 <a href="community.html">Community</a>
 <a href="#my-library" id="library-nav">My library</a>
@@ -152,7 +152,7 @@ footer{padding:35px 0;border-top:1px solid var(--line);font-size:12px;color:var(
 </section>
 
 
-<section id="my-library" class="section">
+<section id="my-library" class="section" hidden>
 <div class="section-head"><div><div class="eyebrow">Your personal collection</div><h2>My library</h2><p class="muted">Your meetings, kits, quiz results and portfolio, together in one place.</p></div></div>
 <div class="library-layout">
 <aside class="library-sidebar"><details open><summary>My library</summary><nav aria-label="My library sections">
@@ -521,7 +521,17 @@ footer{padding:35px 0;border-top:1px solid var(--line);font-size:12px;color:var(
   for(const panel of panels)panel.hidden=panel.id!==id;
   for(const link of links){const active=link.dataset.library===id;link.classList.toggle('active',active);if(active)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');}
  }
- function fromHash(){select(location.hash.slice(1));}
+ function fromHash(){
+  const id=location.hash.slice(1);
+  const libraryActive=id==='my-library'||panels.some(p=>p.id===id);
+  document.getElementById('my-library').hidden=!libraryActive;
+  for(const section of document.querySelectorAll('main > section')){
+   if(section.id!=='my-library')section.hidden=libraryActive;
+  }
+  document.getElementById('library-nav').classList.toggle('active',libraryActive);
+  document.getElementById('dashboard-nav').classList.toggle('active',!libraryActive);
+  select(id);
+ }
  for(const link of links)link.addEventListener('click',()=>select(link.dataset.library));
  document.getElementById('library-nav').addEventListener('click',()=>select('library-meetings'));
  window.addEventListener('hashchange',fromHash);fromHash();
