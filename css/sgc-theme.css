@@ -180,3 +180,6 @@ html[data-sgc-theme="dark"] body :is(
  .sgc-study-group-card button,.sgc-profile-page button,
  .sgc-modal button,.sgc-private-chat-compose button
 ){background-color:#211c12!important;color:#f8dfaa!important}
+
+/* Member profile full-page dark canvas */
+html[data-sgc-theme='dark'].sgc-profile-document-mode,html[data-sgc-theme='dark'].sgc-profile-document-mode body,html[data-sgc-theme='dark'].sgc-profile-document-mode #sgc-social-modal-root,html[data-sgc-theme='dark'].sgc-profile-document-mode .sgc-modal-backdrop,html[data-sgc-theme='dark'].sgc-profile-document-mode .sgc-profile-page{background-color:#080808!important;background-image:none!important;min-height:100vh!important}
