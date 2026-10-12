@@ -104,6 +104,51 @@ footer{padding:35px 0;border-top:1px solid var(--line);font-size:12px;color:var(
 .meeting-toggle:focus-visible{outline:2px solid var(--ink);outline-offset:5px}
 .meeting-detail-row td{padding:18px;background:var(--cream)}
 .meeting-detail-row .card{border:0}
+
+/* My SGC: refined pastel account space */
+:root{--ink:#352c33;--cream:#faf7f1;--paper:#fffdf9;--blush:#f3e2e7;--lav:#eee7f5;--butter:#f5edd4;--line:#47363d16;--muted:#7e737a}
+body{background:radial-gradient(ellipse at 90% 0,#efe5f680,transparent 45%),var(--cream)}
+.wrap{width:min(1280px,calc(100% - 64px))}
+.site-nav{min-height:100px;gap:24px}
+.nav-links{gap:4px;flex-wrap:wrap}
+.nav-links a{opacity:1;padding:10px 15px;border-radius:24px}
+.nav-links a:hover{background:#fff9}
+.nav-links a.active{background:var(--lav)}
+.hero{position:relative;grid-template-columns:1.15fr .85fr;padding:42px 0 20px;gap:40px;align-items:center}
+.hero>div:first-child{padding:40px 32px 40px 0}
+h1{font-size:clamp(46px,5.4vw,73px);line-height:1.05;letter-spacing:-.045em}
+h2{font-size:32px;line-height:1.15;letter-spacing:-.025em}
+.lead{font-size:15px;line-height:1.9;max-width:470px}
+.eyebrow{font-size:10px;letter-spacing:.17em;color:#8d7583}
+.hero-card{position:relative;overflow:hidden;min-height:270px;padding:32px;border:1px solid var(--line);background:linear-gradient(135deg,#f1e3ea,#eee5f2 60%,#f8eed7);border-radius:28px;gap:13px;box-shadow:0 12px 40px #51324905}
+.hero-card #email{font:32px/1.2 Georgia,serif;overflow-wrap:anywhere;letter-spacing:-.025em}
+.hero-card #member-username{margin:0;font-size:11px}
+.hero-card .btn{align-self:flex-start;margin-top:8px}
+.tag{color:#8d7583}
+.daily-sticky{border-radius:22px;background:linear-gradient(120deg,#f1dce3,#f7e8ec);transform:none;box-shadow:none;border:1px solid var(--line);padding:25px 30px}
+.daily-sticky p{font-size:23px}
+.section{padding:22px 0}
+.grid{padding:6px 0 16px;gap:20px}
+.card{padding:28px;border-radius:25px;box-shadow:0 4px 25px #47363d04}
+.grid .card{display:flex;flex-direction:column;align-items:flex-start;min-height:265px}
+.grid .card h3{font-size:25px;line-height:1.3;margin:20px 0 4px;letter-spacing:-.025em}
+.grid .card .muted{flex:1;margin-bottom:22px;font-size:12px;line-height:1.8}
+.grid .card .btn{font-size:12px;max-width:100%;white-space:normal;text-align:center}
+.btn{background:#40313c;border-color:#40313c;transition:transform .2s,background .2s}
+.btn:hover{transform:translateY(-1px)}
+.btn.alt:hover{background:#fff9}
+.pill{font-size:10px;letter-spacing:.04em;padding:8px 12px;border-color:#47363d15}
+#academy-access-status{color:#7c6275;background:#ffffff70}
+.library-sidebar{background:#eee5f2;border-radius:24px;padding:22px}
+.library-sidebar a{font-size:12px}
+.learning-stat,.learning-module,.row{box-shadow:0 4px 22px #47363d03}
+.learning-stat{padding:24px;border-radius:22px}
+footer{margin-top:45px;letter-spacing:.04em;font-size:11px}
+a:focus-visible,button:focus-visible{outline:2px solid #a986aa;outline-offset:4px}
+@media(max-width:900px){.hero{gap:24px}.wrap{width:calc(100% - 36px)}.grid{gap:14px}.card{padding:22px}}
+@media(max-width:800px){.hero{grid-template-columns:1fr;padding-top:22px;gap:15px}.hero>div:first-child{padding:22px 6px 10px}h1{font-size:49px}.lead{font-size:14px}.hero-card{min-height:240px;padding:27px}.site-nav{padding:23px 0;gap:18px}.nav-links a{font-size:12px;padding:9px 11px}.nav-links .btn{padding:10px 13px;font-size:11px}.grid{grid-template-columns:1fr}.grid .card{min-height:230px}.section-head{align-items:flex-start}.row{flex-wrap:wrap}.library-sidebar{position:static}}
+@media(prefers-reduced-motion:reduce){.btn{transition:none}.btn:hover{transform:none}}
+
 </style>
 <link rel="stylesheet" href="css/community-notifications.css"><style>.sgc-notification-toggle{display:none!important}</style><link rel="stylesheet" href="css/sgc-user-guide.css?v=guide1"></head>
 <body>
@@ -122,17 +167,17 @@ footer{padding:35px 0;border-top:1px solid var(--line);font-size:12px;color:var(
 <main>
 <section class="hero">
 <div>
-<div class="eyebrow">Your private account</div>
-<h1>My SGC.</h1>
-<p class="lead">Your purchases, memberships, payments, meetings and Academy access — all in one place.</p>
+<div class="eyebrow">Your space to grow</div>
+<h1>Your next chapter<br>starts here.</h1>
+<p class="lead">A little inspiration. A clear next step.<br>Your learning, community and personal collection, together in one beautiful space.</p>
 </div>
 <div>
 <section id="sgc-daily-quote" class="daily-sticky" hidden></section>
 <div class="hero-card">
 <span class="tag">Signed in as</span>
 <strong id="email">Loading…</strong><p class="muted" id="member-username"></p>
-<span class="muted">Your purchases unlock the access included in each membership.</span>
-<a class="btn" href="academy.html">Enter Academy →</a>
+<span class="muted">Make space for your ideas, your progress and everything you’re becoming.</span>
+<a class="btn" data-academy-entry href="academy.html">Checking Academy access…</a>
 </div>
 </div>
 </section>
@@ -156,9 +201,10 @@ footer{padding:35px 0;border-top:1px solid var(--line);font-size:12px;color:var(
 </div>
 <div class="card butter">
 <span class="pill">Academy</span>
-<h3>Private learning area</h3>
-<p class="muted">Only content your account is entitled to see will be shown.</p>
-<a class="btn" href="academy.html">Open Academy</a>
+<h3 id="academy-access-title">Your next chapter awaits</h3>
+<p class="muted" id="academy-access-copy">SGC Start unlocks Academy for R150 once-off.</p>
+<span id="academy-access-status" class="pill">Checking access…</span>
+<a class="btn" data-academy-entry href="academy.html" style="margin-top:18px">Checking Academy access…</a>
 </div>
 </div>
 </section>
@@ -221,7 +267,7 @@ footer{padding:35px 0;border-top:1px solid var(--line);font-size:12px;color:var(
 <script src="js/config.js"></script>
 <script src="js/supabase-client.js"></script>
 <script src="js/demo-access.js?v=demo2"></script>
-<script src="js/account.js?v=purchased-memberships1"></script>
+<script src="js/account.js?v=start-gate2"></script>
 
 <script>
 (async()=>{
