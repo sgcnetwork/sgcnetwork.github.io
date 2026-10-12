@@ -35,7 +35,7 @@ h3{font:20px Georgia,serif;margin:0 0 8px}
 .card{background:var(--paper);border:1px solid var(--line);border-radius:24px;padding:24px}
 .card.blush{background:var(--blush)}
 .card.lav{background:var(--lav)}
-.card.butter{background:var(--butter}
+.card.butter{background:var(--butter)}
 .metric{font:38px Georgia,serif}
 .muted{color:var(--muted);font-size:13px;line-height:1.6}
 .pill{display:inline-flex;padding:7px 10px;border-radius:999px;background:#fff8;color:var(--ink);font-size:11px;border:1px solid var(--line)}
@@ -81,6 +81,17 @@ footer{padding:35px 0;border-top:1px solid var(--line);font-size:12px;color:var(
 .learning-detail p{margin:4px 0 12px;line-height:1.6}
 .learning-empty{padding:22px;border:1px dashed var(--line);border-radius:18px}
 @media(max-width:650px){.learning-summary{grid-template-columns:1fr}.learning-module>summary{align-items:flex-start;flex-direction:column}}
+
+[hidden]{display:none!important}
+.library-layout{display:grid;grid-template-columns:230px minmax(0,1fr);gap:26px;align-items:start}
+.library-sidebar{position:sticky;top:20px;background:var(--lav);border:1px solid var(--line);border-radius:22px;padding:18px}
+.library-sidebar summary{cursor:pointer;font:22px Georgia,serif;padding:8px}
+.library-sidebar nav{display:grid;gap:8px;margin-top:14px}
+.library-sidebar a{padding:13px 14px;border-radius:12px;font-size:14px}
+.library-sidebar a:hover,.library-sidebar a.active{background:var(--paper)}
+.library-content{min-width:0}.library-content>.section{padding-top:0}
+#my-library{scroll-margin-top:20px}
+@media(max-width:800px){.library-layout{grid-template-columns:1fr}.library-sidebar{position:static}}
 </style>
 </head>
 <body>
@@ -92,6 +103,7 @@ footer{padding:35px 0;border-top:1px solid var(--line);font-size:12px;color:var(
 <a class="active" href="dashboard.html">My SGC</a>
 <a href="academy.html">Academy</a>
 <a href="community.html">Community</a>
+<a href="#my-library" id="library-nav">My library</a>
 <button class="btn alt" id="signout">Sign out</button>
 </nav>
 </header>
@@ -140,7 +152,16 @@ footer{padding:35px 0;border-top:1px solid var(--line);font-size:12px;color:var(
 </section>
 
 
-<section class="section" id="my-learning">
+<section id="my-library" class="section">
+<div class="section-head"><div><div class="eyebrow">Your personal collection</div><h2>My library</h2><p class="muted">Your meetings, kits, quiz results and portfolio, together in one place.</p></div></div>
+<div class="library-layout">
+<aside class="library-sidebar"><details open><summary>My library</summary><nav aria-label="My library sections">
+<a href="#library-meetings" data-library="library-meetings">My meetings</a>
+<a href="#library-kits" data-library="library-kits">Your kits</a>
+<a href="#quiz-results" data-library="quiz-results">Quiz results</a>
+<a href="#my-learning" data-library="my-learning">My portfolio</a>
+</nav></details></aside>
+<div class="library-content"><section class="section" id="my-learning">
 <div class="section-head">
 <div><div class="eyebrow">Your personal learning record</div><h2>My Learning Portfolio</h2>
 <p class="muted">Your completed lessons, saved notes and submitted quizzes, organised by module. Only you can view your learning record.</p></div>
@@ -155,7 +176,7 @@ footer{padding:35px 0;border-top:1px solid var(--line);font-size:12px;color:var(
 <div class="section-head"><div><div class="eyebrow">Private assessment history</div><h2>Quiz Results</h2><p class="muted">Review your submitted answers and the correct answers, grouped by module and lesson.</p></div></div>
 <div id="quiz-review-list"><p class="muted">Loading quiz results…</p></div>
 </section>
-<section class="section">
+<section class="section" id="library-kits">
 <div class="section-head">
 <div><div class="eyebrow">Purchases & balances</div><h2>Your kits</h2></div>
 <a class="btn alt" href="payments.html">Payment history</a>
@@ -165,7 +186,7 @@ footer{padding:35px 0;border-top:1px solid var(--line);font-size:12px;color:var(
 </div>
 </section>
 
-<section class="section">
+<section class="section" id="library-meetings">
 <div class="section-head">
 <div>
 <div class="eyebrow">Appointments & recordings</div>
@@ -179,6 +200,7 @@ footer{padding:35px 0;border-top:1px solid var(--line);font-size:12px;color:var(
 <div class="empty">Loading your meetings…</div>
 </div>
 </section>
+</div></div></section>
 </main>
 <footer>SGC Network · Learn • Build • Grow</footer>
 </div>
@@ -490,5 +512,21 @@ footer{padding:35px 0;border-top:1px solid var(--line);font-size:12px;color:var(
  client?.auth.onAuthStateChange(event=>{if(event==='SIGNED_IN')setTimeout(loadPortfolio,0);});
 })();
 </script>
+<script>
+(()=>{
+ const links=[...document.querySelectorAll('[data-library]')];
+ const panels=links.map(a=>document.getElementById(a.dataset.library));
+ function select(id){
+  if(!panels.some(p=>p.id===id))id='library-meetings';
+  for(const panel of panels)panel.hidden=panel.id!==id;
+  for(const link of links){const active=link.dataset.library===id;link.classList.toggle('active',active);if(active)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');}
+ }
+ function fromHash(){select(location.hash.slice(1));}
+ for(const link of links)link.addEventListener('click',()=>select(link.dataset.library));
+ document.getElementById('library-nav').addEventListener('click',()=>select('library-meetings'));
+ window.addEventListener('hashchange',fromHash);fromHash();
+})();
+</script>
 </body>
 </html>
+
