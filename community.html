@@ -1256,10 +1256,24 @@ async function sgcFaqFeed(){
  }
  }catch(err){container.replaceChildren(el('p','FAQ feed could not load: '+err.message,'muted'))}
 }
+function sgcShowSignIn(){
+ say('Please sign in to view your community.');
+ const status=$('status');
+ if(!document.getElementById('sgc-community-login-button')){
+  const a=document.createElement('a');a.id='sgc-community-login-button';a.href='login.html?redirect='+encodeURIComponent('community.html');a.className='btn';a.textContent='Sign in to Community';a.style.cssText='display:inline-block;margin-top:12px;background:#e56da8;color:white;border-radius:25px;padding:12px 20px;text-decoration:none';status.insertAdjacentElement('afterend',a);
+ }
+}
 async function start(){
  if(!sb)throw Error('Supabase library could not load.');
- user=check(await sb.auth.getUser()).user;
- if(!user){location.href='login.html';return;}
+ const sessionResult=await sb.auth.getSession();
+ if(sessionResult.error)throw sessionResult.error;
+ if(!sessionResult.data?.session){sgcShowSignIn();return}
+ const authResult=await sb.auth.getUser();
+ if(authResult.error||!authResult.data?.user){
+  const refreshed=await sb.auth.refreshSession();
+  if(refreshed.error||!refreshed.data?.session){sgcShowSignIn();return}
+  user=refreshed.data.user;
+ }else user=authResult.data.user;
 
  isAdmin=check(await sb.rpc('sgc_extra_is_admin'));
  $('signed-in').textContent='Signed in as '+(user.user_metadata?.username||user.user_metadata?.full_name||user.email);
@@ -1270,7 +1284,7 @@ async function start(){
  const profileId=new URLSearchParams(location.search).get('profile');if(profileId&&/^[a-f0-9-]{36}$/i.test(profileId))await sgcOpenProfile(profileId);
 }
 
-start().catch(e=>say(e.message));
+start().catch(e=>{console.error('Community startup error',e);if(/auth session missing|jwt expired|refresh token|invalid jwt|not authenticated/i.test(e.message||'')){sgcShowSignIn()}else say('Community could not load: '+(e.message||'Please refresh and try again.'))});
 </script>
 <script src="js/community-notifications.js"></script><script src="js/sgc-user-guide.js?v=guide1"></script></body>
 </html>
