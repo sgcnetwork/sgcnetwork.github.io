@@ -416,9 +416,7 @@ body{background:radial-gradient(ellipse at 90% 4%,#eee4f3 0%,transparent 38%),ra
  let loading=false;
  let expiryTimer;
 
- avatar.style.cursor='pointer';avatar.title='Choose and crop a profile picture';avatar.addEventListener('click',()=>photo.click());
-const photoEditor=document.createElement('div');photoEditor.className='sgc-photo-preview-holder';photo.closest('.sgc-profile-photo').insertAdjacentElement('afterend',photoEditor);
-photo.onchange=()=>{const selected=photo.files?.[0];if(!selected)return;croppedPhoto=null;status.textContent='Preview and resize your photo below before saving.';sgcInlinePhotoEditor(selected,photoEditor,cropped=>{croppedPhoto=cropped;const preview=URL.createObjectURL(cropped);renderAvatar(preview,$('sgc-profile-username').value);setTimeout(()=>URL.revokeObjectURL(preview),60000);status.textContent='Crop ready. Tap Save profile changes to upload.'})};
+
 async function load(){
   if(loading)return;
   loading=true;
@@ -835,6 +833,9 @@ async function sgcCropProfilePhoto(file){
   });
  }finally{URL.revokeObjectURL(url)}
 }
+ avatar.style.cursor='pointer';avatar.title='Choose and crop a profile picture';avatar.addEventListener('click',()=>photo.click());
+const photoEditor=document.createElement('div');photoEditor.className='sgc-photo-preview-holder';photo.closest('.sgc-profile-photo').insertAdjacentElement('afterend',photoEditor);
+photo.onchange=()=>{const selected=photo.files?.[0];if(!selected)return;croppedPhoto=null;status.textContent='Preview and resize your photo below before saving.';sgcInlinePhotoEditor(selected,photoEditor,cropped=>{croppedPhoto=cropped;const preview=URL.createObjectURL(cropped);renderAvatar(preview,$('sgc-profile-username').value);setTimeout(()=>URL.revokeObjectURL(preview),60000);status.textContent='Crop ready. Tap Save profile changes to upload.'})};
 const validPhone=x=>!x||/^\+[1-9]\d{7,14}$/.test(x);
 function renderAvatar(url,name){avatar.replaceChildren();if(url){const im=document.createElement('img');im.src=url;im.alt='Your profile picture';avatar.append(im)}else avatar.textContent=(name||'SGC').slice(0,2).toUpperCase()}
 async function load(){
@@ -849,7 +850,7 @@ if(profile?.avatar_path){const img=await sb.storage.from('sgc-community').create
 }
 
 form.addEventListener('submit',async e=>{
-e.preventDefault();const save=$('sgc-profile-save');save.disabled=true;status.textContent='Saving your profile…';
+e.preventDefault();if(photo.files?.length&&!croppedPhoto){status.textContent='Adjust the preview and tap Use this crop before saving.';photoEditor.scrollIntoView({block:'center',behavior:'smooth'});return}const save=$('sgc-profile-save');save.disabled=true;status.textContent='Saving your profile…';
 try{
 const auth=await sb.auth.getUser();if(auth.error||!auth.data.user)throw Error('Please sign in again.');current=auth.data.user;
 const name=$('sgc-profile-username').value.trim(),email=$('sgc-profile-email').value.trim(),phone=$('sgc-profile-phone').value.trim(),bio=$('sgc-profile-bio').value.trim();
