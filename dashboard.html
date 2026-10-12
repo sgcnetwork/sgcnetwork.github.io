@@ -239,7 +239,7 @@ body{background:radial-gradient(ellipse at 90% 4%,#eee4f3 0%,transparent 38%),ra
 <div class="sgc-profile-shell">
 <div class="sgc-profile-banner"><span class="eyebrow">Your SGC identity</span><h2>My profile</h2><p>Update your account details and the profile other SGC members see.</p></div>
 <form id="sgc-profile-form" class="sgc-profile-form">
-<div class="sgc-profile-photo"><div id="sgc-profile-avatar" class="sgc-profile-avatar">SGC</div><div><label for="sgc-profile-picture">Profile picture</label><input id="sgc-profile-picture" type="file" accept="image/jpeg,image/png,image/webp"><small>JPG, PNG or WebP · up to 5 MB</small></div></div>
+<div class="sgc-profile-photo"><div id="sgc-profile-avatar" class="sgc-profile-avatar">SGC</div><div><label for="sgc-profile-picture">Profile picture</label><button id="sgc-profile-choose-photo" type="button" class="btn soft">📷 Choose photo &amp; crop</button><input id="sgc-profile-picture" type="file" accept="image/jpeg,image/png,image/webp"><small>JPG, PNG or WebP · up to 5 MB</small></div></div>
 <div class="sgc-profile-fields"><label>Username <input id="sgc-profile-username" required minlength="2" maxlength="60" autocomplete="nickname" placeholder="Your display name"></label><label>Email address <input id="sgc-profile-email" type="email" required autocomplete="email"></label><label>Phone number <input id="sgc-profile-phone" type="tel" autocomplete="tel" placeholder="+27…"></label></div>
 <label>Business website (optional)<input id="sgc-profile-website" type="url" maxlength="500" placeholder="https://yourbusiness.co.za"></label>
 <label>About me / Bio<textarea id="sgc-profile-bio" rows="5" maxlength="500" placeholder="Tell the SGC community a little about yourself…"></textarea></label>
@@ -416,8 +416,8 @@ body{background:radial-gradient(ellipse at 90% 4%,#eee4f3 0%,transparent 38%),ra
  let loading=false;
  let expiryTimer;
 
- avatar.style.cursor='pointer';avatar.title='Choose and crop a profile picture';avatar.addEventListener('click',()=>photo.click());
-photo.onchange=async()=>{try{if(!photo.files[0])return;const cropped=await sgcCropProfilePhoto(photo.files[0]);if(cropped){croppedPhoto=cropped;const url=URL.createObjectURL(cropped);renderAvatar(url,$('sgc-profile-username').value);setTimeout(()=>URL.revokeObjectURL(url),60000)}else{photo.value='';croppedPhoto=null}}catch(err){status.textContent=err.message;photo.value=''}};
+ $('sgc-profile-choose-photo').addEventListener('click',()=>photo.click());avatar.style.cursor='pointer';avatar.title='Choose and crop a profile picture';avatar.addEventListener('click',()=>photo.click());
+photo.onchange=async()=>{try{status.textContent='Opening photo crop editor…';if(!photo.files[0])return;const cropped=await sgcCropProfilePhoto(photo.files[0]);if(cropped){croppedPhoto=cropped;const url=URL.createObjectURL(cropped);renderAvatar(url,$('sgc-profile-username').value);setTimeout(()=>URL.revokeObjectURL(url),60000);status.textContent='Photo cropped. Tap Save profile changes to finish.'}else{photo.value='';croppedPhoto=null;status.textContent='Photo change cancelled.'}}catch(err){status.textContent=err.message;photo.value=''}};
 async function load(){
   if(loading)return;
   loading=true;
