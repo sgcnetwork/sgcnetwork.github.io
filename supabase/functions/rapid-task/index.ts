@@ -108,6 +108,25 @@ Deno.serve(async (req) => {
     console.log("Merchant reference:", merchantReference);
 
 
+    // A payment reference identifies a tracked checkout, never the customer's UUID.
+    if (typeof merchantReference === "string" && /^[MSB]-/.test(merchantReference)) {
+      const url=Deno.env.get("SUPABASE_URL"),key=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+      if(!url||!key)throw new Error("Supabase server credentials missing");
+      const db=createClient(url,key);
+      const {data:tx,error:txError}=await db.from("sgc_stitch_transactions").select("*").eq("merchant_reference",merchantReference).single();
+      if(txError||!tx)throw new Error("No tracked membership checkout");
+      if(!tx.user_id)throw new Error("Membership buyer missing");
+      if(tx.stitch_payment_id&&String(tx.stitch_payment_id)!==String(event.linkId))throw new Error("Payment link does not match membership checkout");
+      const expected=Math.round(Number(tx.amount_zar)*100);
+      if(!Number.isSafeInteger(expected)||Number(event.amount)!==expected)throw new Error("Paid amount does not match membership checkout");
+      const paidAt=tx.paid_at||new Date().toISOString();
+      const {error:paidError}=await db.from("sgc_stitch_transactions").update({status:"paid",paid_at:paidAt,updated_at:new Date().toISOString()}).eq("id",tx.id);
+      if(paidError)throw paidError;
+      const {data:activation,error:activationError}=await db.rpc("sgc_activate_paid_membership",{p_transaction_id:tx.id});
+      if(activationError)throw activationError;
+      return Response.json({received:true,verified:true,paymentRecorded:true,...activation});
+    }
+
     // Dynamic product checkouts use the recorded transaction, never a UUID
     // parsed from a payment reference, to identify the buyer and purchased kit.
     if (typeof merchantReference === "string" && merchantReference.startsWith("X-")) {
@@ -133,6 +152,9 @@ Deno.serve(async (req) => {
       const { error: paidError } = await db.from("sgc_stitch_transactions")
         .update({ status: "paid", paid_at: paidAt, updated_at: new Date().toISOString() }).eq("id", tx.id);
       if (paidError) throw paidError;
+      const {data:activation,error:activationError}=await db.rpc("sgc_activate_paid_membership",{p_transaction_id:tx.id});
+      if(activationError)throw activationError;
+      if(activation?.membershipActivated)return Response.json({received:true,verified:true,paymentRecorded:true,...activation});
       if (meta?.category !== "business-kits") {
         return Response.json({received:true,verified:true,paymentRecorded:true});
       }
