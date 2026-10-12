@@ -521,6 +521,13 @@ html.sgc-members-page-mode #sgc-social-modal-root .sgc-modal{display:block!impor
 .sgc-private-chat-messages .sgc-chat-bubble small{display:block;font-size:10px;opacity:.65;margin-top:5px}
 .sgc-private-chat-compose{display:flex!important;gap:8px!important;align-items:center}.sgc-private-chat-compose input{flex:1;min-width:0!important}.sgc-private-chat-compose button{flex-shrink:0}
 @media(max-width:700px){.sgc-private-chat-view{padding:9px;min-height:65dvh}.sgc-private-chat-messages{min-height:45dvh}.sgc-private-chat-compose button{padding:11px!important}}
+</style><style>
+/* Profile dialogs are portaled to body so desktop scroll panes cannot clip them. */
+body>#sgc-social-modal-root{position:relative!important;z-index:2147482000!important;display:block!important}
+body>#sgc-social-modal-root:empty{pointer-events:none!important}
+body>#sgc-social-modal-root .sgc-modal-backdrop{position:fixed!important;inset:0!important;z-index:2147482001!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow-y:auto!important;padding:16px!important;background:rgba(29,19,30,.66)!important}
+body>#sgc-social-modal-root .sgc-modal{position:relative!important;display:block!important;flex:0 1 850px!important;max-width:min(96vw,850px)!important;max-height:calc(100dvh - 32px)!important;overflow-y:auto!important;background:#fff!important}
+@media(max-width:700px){body>#sgc-social-modal-root .sgc-modal{max-width:100%!important;max-height:calc(100dvh - 20px)!important}body>#sgc-social-modal-root .sgc-modal-backdrop{padding:8px!important}}
 </style></head>
 <body>
 <div class="wrap">
@@ -1171,6 +1178,8 @@ window.addEventListener('beforeunload',e=>{
 
 /* Social profiles and 24-hour stories */
 const sgcModalRoot=document.getElementById('sgc-social-modal-root');
+// Dialogs must live outside the independently scrolling feed and its clipping containers.
+if(sgcModalRoot&&sgcModalRoot.parentElement!==document.body)document.body.appendChild(sgcModalRoot);
 function sgcModal(title){sgcModalRoot.replaceChildren();const backdrop=el('div',undefined,'sgc-modal-backdrop'),panel=el('div',undefined,'sgc-modal'),close=el('button','×','close-modal');close.type='button';close.setAttribute('aria-label','Close');close.onclick=()=>sgcModalRoot.replaceChildren();backdrop.onclick=e=>{if(e.target===backdrop)close.click()};panel.append(close,el('h2',title));backdrop.append(panel);sgcModalRoot.append(backdrop);return panel}
 async function sgcProfile(id){const r=await sb.from('sgc_social_profiles').select('*').eq('user_id',id).maybeSingle();if(r.error)throw r.error;return r.data}
 async function sgcImage(path){if(!path)return '';const r=await sb.storage.from('sgc-community').createSignedUrl(path,3600);return r.error?'':r.data.signedUrl}
@@ -1399,10 +1408,10 @@ function sgcAccepted(id){return sgcFriends.some(f=>f.status==='accepted'&&((f.se
 function sgcMemberRow(m,actions){
  const row=el('div',undefined,'sgc-member-card'),who=el('div',undefined,'person');
  const av=el('span',m.display_name.slice(0,1).toUpperCase(),'avatar');
- av.classList.add('sgc-member-avatar');av.title='View '+m.display_name+' profile';av.style.cursor='pointer';av.onclick=()=>sgcOpenProfile(m.user_id);
- const name=sgcBtn(m.display_name,()=>sgcOpenProfile(m.user_id),'sgc-profile-link');
+ av.classList.add('sgc-member-avatar');av.title='View '+m.display_name+' profile';av.style.cursor='pointer';av.onclick=()=>sgcOpenProfile(m.user_id).catch(err=>alert('Unable to open profile: '+err.message));
+ const name=sgcBtn(m.display_name,()=>sgcOpenProfile(m.user_id).catch(err=>alert('Unable to open profile: '+err.message)),'sgc-profile-link');
  const details=el('div',undefined,'sgc-member-identity');
- const view=sgcBtn('View profile',()=>sgcOpenProfile(m.user_id),'sgc-member-view-profile');
+ const view=sgcBtn('View profile',()=>sgcOpenProfile(m.user_id).catch(err=>alert('Unable to open profile: '+err.message)),'sgc-member-view-profile');
  details.append(name,view);who.append(av,details);row.append(who);if(actions)row.append(actions);
  (async()=>{try{
   const profile=await sgcProfile(m.user_id);
