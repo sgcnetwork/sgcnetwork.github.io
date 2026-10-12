@@ -20,9 +20,10 @@ Deno.serve(async req=>{
   }
   let email=identifier;
   if(!identifier.includes("@")){
-   const {data,error}=await admin.from("sgc_login_names").select("user_id").eq("username",identifier).maybeSingle();
+   const {data,error}=await admin.from("sgc_login_names").select("user_id").eq("username",identifier).limit(2);
    if(error)throw error;
-   if(data){const user=await admin.auth.admin.getUserById(data.user_id);email=user.data.user?.email||"invalid@sgcnetwork.co.za";}
+   if(data&&data.length>1)return reply({error:"More than one member uses this name. Please use your email address to log in."},409);
+   if(data&&data.length===1){const user=await admin.auth.admin.getUserById(data[0].user_id);email=user.data.user?.email||"invalid@sgcnetwork.co.za";}
    else email="invalid@sgcnetwork.co.za";
   }
   // Authentication is still performed by Supabase's password endpoint.
