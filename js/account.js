@@ -72,7 +72,7 @@
     }
 
     // Other customers use their real purchase records.
-    const [membershipResult, kitResult] = await Promise.all([
+    const [membershipResult, kitResult, purchasedMembershipResult] = await Promise.all([
       sb.from("memberships")
         .select(
           "membership_type,status,started_at,current_period_end"
@@ -86,7 +86,8 @@
           "id,total_price_zar,amount_paid_zar,status,kits(name)"
         )
         .eq("user_id", user.id)
-        .order("created_at", { ascending: false })
+        .order("created_at", { ascending: false }),
+      sb.rpc("sgc_my_purchased_memberships")
     ]);
 
     if (membershipResult.error) throw membershipResult.error;
@@ -103,7 +104,11 @@
         )
     );
 
-    if (membership) {
+    const purchasedMemberships = purchasedMembershipResult.error ? [] : (purchasedMembershipResult.data || []);
+    if (purchasedMemberships.length) {
+      get("membership-title").textContent = purchasedMemberships.map(plan => plan.name).join(" · ");
+      get("membership-copy").textContent = "Your confirmed purchases unlock the features included in these memberships.";
+    } else if (membership) {
       const plan =
         membership.membership_type === "build"
           ? "Build"
