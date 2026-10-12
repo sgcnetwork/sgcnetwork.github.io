@@ -44,7 +44,7 @@ const type=q.get('type')||'start';
 const name=q.get('name')||(type==='build'?'SGC Build':'SGC Start');
 const requestedAmount=Number(q.get('amount')||0);
 const fixed={
-  start:{name:'SGC Start',price:150,product:'sgc-start-foundations',display:'R150 / month'},
+  start:{name:'SGC Start',price:150,product:'sgc-start-foundations',display:'R150 once-off'},
   build:{name:'SGC Build',price:250,product:'sgc-build-lab',display:'R250 / month'},
   r20:{name:'Business Starter Preview',price:20,product:'preview',display:'R20 once-off'}
 };
