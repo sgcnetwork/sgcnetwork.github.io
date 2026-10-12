@@ -1527,21 +1527,6 @@ start().catch(e=>{console.error('Community startup error',e);if(/auth session mi
 })();
 </script><script>
 (function(){
- const closeGuide=()=>{
-  const launcher=document.querySelector('.sgc-guide-launcher');
-  if(!launcher)return false;
-  window.setTimeout(()=>{
-   const button=document.getElementById('sgc-guide-dismiss-community');
-   if(button&&!button.hidden){button.click();return}
-   launcher.classList.add('sgc-guide-dismissed');
-   const dismiss=document.getElementById('sgc-guide-dismiss-community');if(dismiss)dismiss.hidden=true;
-  },5000);
-  return true;
- };
- if(!closeGuide()){let tries=0;const poll=setInterval(()=>{tries++;if(closeGuide()||tries>=60)clearInterval(poll)},250)}
-})();
-</script><script>
-(function(){
  const write=document.getElementById('sgc-mobile-write-post'),composer=document.getElementById('composer-card'),group=document.getElementById('group'),category=document.getElementById('category');
  if(!write||!composer)return;
  const sync=()=>{write.hidden=composer.hidden;if(composer.hidden)composer.classList.remove('sgc-mobile-composer-open')};
