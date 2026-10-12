@@ -1497,10 +1497,30 @@ async function sgcOpenChat(id){
  identity.append(avatar,label);top.append(back,identity);
  try{const p=await sgcProfile(id);if(p?.avatar_path){const url=await sgcImage(p.avatar_path);if(url){const img=el('img');img.src=url;img.alt='Profile picture';avatar.replaceChildren(img)}}}catch(e){console.warn(e)}
  const msgs=el('div',undefined,'sgc-chat-messages sgc-private-chat-messages'),form=el('form',undefined,'sgc-chat-form sgc-private-chat-compose'),input=el('input'),send=el('button','Send →','btn');
- input.maxLength=5000;input.required=true;input.placeholder='Write a private message…';input.autocomplete='off';form.append(input,send);
+ input.maxLength=5000;input.required=false;input.placeholder='Write a private message…';input.autocomplete='off';
+ const file=document.createElement('input');file.type='file';file.accept='video/mp4,video/webm,video/quicktime,image/jpeg,image/png,image/webp';file.hidden=true;
+ const attach=sgcBtn('📎 Photo / video',()=>file.click(),'btn soft');attach.type='button';
+ const preview=el('div',undefined,'sgc-chat-attachment-preview');
+ file.onchange=()=>{preview.replaceChildren();const chosen=file.files?.[0];if(!chosen)return;
+ if(!['video/mp4','video/webm','video/quicktime','image/jpeg','image/png','image/webp'].includes(chosen.type)||chosen.size>40*1024*1024){alert('Use an MP4, WebM, MOV, JPG, PNG or WebP file under 40 MB.');file.value='';return}
+ const url=URL.createObjectURL(chosen),media=document.createElement(chosen.type.startsWith('video/')?'video':'img');media.src=url;media.style.maxWidth='220px';media.style.maxHeight='180px';if(media.tagName==='VIDEO'){media.controls=true;media.playsInline=true}media.onload=()=>{if(media.tagName==='IMG')URL.revokeObjectURL(url)};preview.append(media,el('small',chosen.name+' · ready to send','muted'));
+ };
+ form.append(input,attach,file,preview,send);
  chat.append(top,msgs,form);hub.append(chat);
- const load=async()=>{const res=await sb.from('sgc_private_messages').select('sender_id,body,created_at').or('and(sender_id.eq.'+user.id+',receiver_id.eq.'+id+'),and(sender_id.eq.'+id+',receiver_id.eq.'+user.id+')').order('created_at',{ascending:true}).limit(200);if(res.error)throw res.error;msgs.replaceChildren();if(!res.data.length)msgs.append(el('p','No messages yet. Say hello!','muted'));for(const m of res.data){const bubble=el('div',undefined,'sgc-chat-bubble'+(m.sender_id===user.id?' mine':''));bubble.append(el('div',m.body),el('small',new Date(m.created_at).toLocaleString()));msgs.append(bubble)}msgs.scrollTop=msgs.scrollHeight};
- form.onsubmit=async e=>{e.preventDefault();const body=input.value.trim();if(!body)return;send.disabled=true;try{check(await sb.from('sgc_private_messages').insert({sender_id:user.id,receiver_id:id,body}));input.value='';await load()}catch(err){alert(err.message)}finally{send.disabled=false;input.focus()}};
+ const load=async()=>{const res=await sb.from('sgc_private_messages').select('sender_id,body,created_at,media_path,media_type').or('and(sender_id.eq.'+user.id+',receiver_id.eq.'+id+'),and(sender_id.eq.'+id+',receiver_id.eq.'+user.id+')').order('created_at',{ascending:true}).limit(200);if(res.error)throw res.error;msgs.replaceChildren();if(!res.data.length)msgs.append(el('p','No messages yet. Say hello!','muted'));for(const m of res.data){const bubble=el('div',undefined,'sgc-chat-bubble'+(m.sender_id===user.id?' mine':''));if(m.body)bubble.append(el('div',m.body));
+ if(m.media_path){const signed=await sb.storage.from('sgc-community').createSignedUrl(m.media_path,3600);if(!signed.error&&signed.data?.signedUrl){const media=document.createElement((m.media_type||'').startsWith('video/')?'video':'img');media.src=signed.data.signedUrl;media.style.maxWidth='min(100%,350px)';media.style.maxHeight='350px';media.style.borderRadius='12px';if(media.tagName==='VIDEO'){media.controls=true;media.playsInline=true;media.preload='metadata'}bubble.append(media)}else bubble.append(el('small','Attachment unavailable','muted'))}
+ bubble.append(el('small',new Date(m.created_at).toLocaleString()));msgs.append(bubble)}msgs.scrollTop=msgs.scrollHeight};
+ form.onsubmit=async e=>{e.preventDefault();const body=input.value.trim(),attachment=file.files?.[0];if(!body&&!attachment)return;send.disabled=true;send.textContent='Sending…';try{
+ let media_path=null,media_type=null;
+ if(attachment){
+  if(!['video/mp4','video/webm','video/quicktime','image/jpeg','image/png','image/webp'].includes(attachment.type)||attachment.size>40*1024*1024)throw Error('Unsupported attachment or over 40 MB.');
+  const ext=attachment.type==='video/mp4'?'mp4':attachment.type==='video/webm'?'webm':attachment.type==='video/quicktime'?'mov':attachment.type==='image/png'?'png':attachment.type==='image/webp'?'webp':'jpg';
+  media_path=user.id+'/private-chat/'+crypto.randomUUID()+'.'+ext;media_type=attachment.type;
+  const uploaded=await sb.storage.from('sgc-community').upload(media_path,attachment,{contentType:attachment.type});if(uploaded.error)throw uploaded.error;
+ }
+ check(await sb.from('sgc_private_messages').insert({sender_id:user.id,receiver_id:id,body,media_path,media_type}));
+ input.value='';file.value='';preview.replaceChildren();await load()
+ }catch(err){alert('Message could not be sent: '+err.message)}finally{send.disabled=false;send.textContent='Send →';input.focus()}};
  try{await load()}catch(err){msgs.textContent='Could not load conversation: '+err.message}
  const refresh=sgcBtn('↻ Refresh messages',()=>load().catch(err=>alert(err.message)),'btn soft');chat.append(refresh);
 }
