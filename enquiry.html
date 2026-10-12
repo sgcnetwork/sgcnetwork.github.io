@@ -1,22 +1,35 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Enquiry | SGC Network</title><meta name="description" content="SGC Network — community, learning material, business starter kits and practical support for aspiring entrepreneurs.">
-<link rel="stylesheet" href="css/style.css"></head><body><nav class="nav"><div class="container nav-inner">
-<a class="logo" href="index.html">SGC<small>NETWORK</small></a>
-<button class="menu" aria-label="Open menu">☰</button>
-<div class="nav-links"><a href="index.html" class="">Home</a><a href="start.html" class="">Start</a><a href="build.html" class="">Build</a><a href="kits.html" class="">Business Kits</a><a href="enquiry.html">Enquire</a><a href="login.html" class="nav-cta">Academy Login</a></div>
-</div></nav>
-<section class="enquiry"><div class="container"><div class="form-wrap">
-<div class="eyebrow">Let's talk</div><h1 style="font-size:clamp(55px,7vw,90px)">Tell us what you're building.</h1>
-<p class="lede">Choose what you're interested in and give us a little context. This is a proper enquiry page — no forced email-app pop-up.</p>
-<form id="enquiryForm"><div class="form-grid">
-<div><label for="name">Your name</label><input id="name" name="name" required></div>
-<div><label for="email">Your email</label><input id="email" name="email" type="email" required></div>
-<div><label for="interest">I'm interested in</label><select id="interest" name="interest"><option>SGC Start</option><option>SGC Build</option><option>Business Kit Preview</option><option>Full Business Kit</option><option>Something else</option></select></div>
-<div><label for="contact">WhatsApp / phone</label><input id="contact" name="contact"></div>
-<div class="full"><label for="message">Tell us a little more</label><textarea id="message" name="message" placeholder="What are you trying to build, improve or figure out?"></textarea></div>
-<div class="full"><button class="btn dark" type="submit">Send enquiry →</button><div class="form-note">This version keeps the enquiry on the website. A secure form backend can be connected later so enquiries arrive directly in your SGC inbox.</div><div id="success" class="success"></div></div>
-</div></form></div></div></section>
-<footer class="footer"><div class="container footer-inner">
-<div><div class="logo">SGC<small>NETWORK</small></div><p>Automate • Streamline • Grow</p></div>
-<div><p>netsgcwork@gmail.com · WhatsApp 064 426 9349 · 078 145 8415</p><p>© 2026 SGC Network. All rights reserved.</p></div>
-</div></footer><script src="script.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="js/config.js"></script><script src="js/supabase-client.js"></script></body></html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Contact Us | SGC Network</title><meta name="description" content="Get in touch with SGC Network. Ask about joining, your account or your next step."><link rel="stylesheet" href="css/style.css"><style>
+:root{--contact-ink:#352b35;--contact-muted:#81727e;--contact-line:#e4d8de}
+body{background:#fbf6ef;color:var(--contact-ink)}
+.nav{background:#fbf6ef}.contact-page{position:relative;overflow:hidden;padding:70px 0 90px;background:radial-gradient(ellipse at 0% 20%,#f3dfe6 0,transparent 44%),radial-gradient(ellipse at 100% 85%,#e8e0f2 0,transparent 44%),#fbf6ef}
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:70px;align-items:center}
+.contact-label{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:#a18354}
+.contact-copy h1{font:clamp(52px,6vw,82px)/1.02 Georgia,serif;letter-spacing:-3px;margin:22px 0}
+.contact-copy h1 em{color:#b78696;font-weight:normal}
+.contact-intro{max-width:480px;font-size:16px;line-height:1.9;color:var(--contact-muted)}
+.contact-note{margin-top:36px;padding:22px 24px;border-left:2px solid #b49463;background:#fffaf380;border-radius:0 15px 15px 0;max-width:450px}
+.contact-note strong{font:22px Georgia,serif}.contact-note p{font-size:13px;line-height:1.8;color:var(--contact-muted);margin:10px 0 0}
+.contact-panel{background:#fffdf9;border:1px solid var(--contact-line);border-radius:26px;padding:35px;box-shadow:0 22px 65px #4a313d0c}
+.contact-panel h2{font:32px Georgia,serif;margin:8px 0 12px;letter-spacing:-.8px}
+.contact-panel>p{font-size:13px;color:var(--contact-muted);line-height:1.8;margin-bottom:25px}
+.contact-method{display:block;border:1px solid var(--contact-line);border-radius:16px;padding:22px;margin:14px 0;text-decoration:none;color:var(--contact-ink);transition:transform .2s,box-shadow .2s}
+.contact-method:hover{transform:translateY(-2px);box-shadow:0 8px 24px #352b350c}
+.contact-method.email{background:#f7e7ec}.contact-method.whatsapp{background:#eee7f5}.contact-method.phone{background:#f7eed0}
+.contact-method .method-top{display:flex;justify-content:space-between;gap:16px;font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px}
+.contact-method strong{font:22px Georgia,serif;overflow-wrap:anywhere;letter-spacing:-.3px}
+.contact-method p{margin:10px 0 0;font-size:12px;line-height:1.7;color:#756673}
+.contact-secondary{font-size:12px;color:var(--contact-muted);margin:21px 2px 0;line-height:1.8}.contact-secondary a{text-decoration:underline;text-underline-offset:4px}
+.contact-bottom{margin-top:54px;padding-top:26px;border-top:1px solid var(--contact-line);display:flex;gap:20px;align-items:center;justify-content:space-between}
+.contact-bottom p{font:22px Georgia,serif;margin:0}.contact-bottom a{font-size:12px;text-decoration:underline;text-underline-offset:4px}
+.contact-page a:focus-visible{outline:2px solid #ad8c58;outline-offset:5px}
+@media(max-width:800px){.contact-page{padding:45px 0 55px}.contact-grid{grid-template-columns:1fr;gap:30px}.contact-copy h1{font-size:58px}.contact-panel{padding:25px}.contact-bottom{align-items:flex-start;flex-direction:column}.contact-note{margin-top:22px}}
+@media(prefers-reduced-motion:reduce){.contact-method{transition:none}}
+</style></head><body><nav class="nav"><div class="container nav-inner"><a class="logo" href="index.html">SGC<small>NETWORK</small></a><button class="menu" aria-label="Open menu">☰</button><div class="nav-links"><a href="index.html">Home</a><a href="start.html">Start</a><a href="enquiry.html" aria-current="page">Contact Us</a><a href="login.html" class="nav-cta">Academy Login</a></div></div></nav>
+<main class="contact-page"><div class="container"><div class="contact-grid"><section class="contact-copy"><span class="contact-label">CONTACT US · SGC NETWORK</span><h1>A conversation.<br><em>A new beginning.</em></h1><p class="contact-intro">A question about joining? A little guidance on your next step? We'd love to hear from you.</p><div class="contact-note"><strong>You don't need it all figured out.</strong><p>Tell us where you are in your journey and what you need help with. We'll help you find your next step.</p></div></section>
+<section class="contact-panel"><span class="contact-label">LET'S CONNECT</span><h2>Say hello.</h2><p>Choose email, WhatsApp or a call to get in touch with SGC Network.</p>
+<a class="contact-method email" href="mailto:netsgcwork@gmail.com?subject=SGC%20Network%20Contact"><span class="method-top"><span>EMAIL US</span><span aria-hidden="true">↗</span></span><strong>netsgcwork@gmail.com</strong><p>For questions, account support and a little more detail.</p></a>
+<a class="contact-method whatsapp" href="https://wa.me/27644269349?text=Hi%20SGC%20Network%2C%20I%20would%20like%20some%20help." target="_blank" rel="noopener"><span class="method-top"><span>CHAT ON WHATSAPP</span><span aria-hidden="true">↗</span></span><strong>064 426 9349</strong><p>Start a conversation about joining or your next step.</p></a>
+<a class="contact-method phone" href="tel:+27781458415"><span class="method-top"><span>GIVE US A CALL</span><span aria-hidden="true">↗</span></span><strong>078 145 8415</strong><p>Prefer to talk? Get in touch directly.</p></a>
+<div class="contact-secondary">Already a member? <a href="login.html">Sign in to your SGC account</a>.</div></section></div>
+<div class="contact-bottom"><p>Your next chapter starts with one step.</p><a href="start.html">Explore SGC Start →</a></div></div></main>
+<footer class="footer"><div class="container footer-inner"><div><div class="logo">SGC<small>NETWORK</small></div><p>Learn • Connect • Grow</p></div><div><p>© 2026 SGC Network. All rights reserved.</p><a href="enquiry.html">Contact Us</a></div></div></footer><script src="script.js"></script></body></html>
