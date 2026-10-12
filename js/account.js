@@ -113,13 +113,13 @@
         `SGC ${plan} — Active`;
 
       get("membership-copy").textContent =
-        "Your purchased membership controls which Academy content you can access.";
+        "Your purchase unlocks the features included in this membership.";
     } else {
       get("membership-title").textContent =
         "No active membership";
 
       get("membership-copy").textContent =
-        "Purchase SGC Start or SGC Build to unlock the corresponding learning level.";
+        "Explore memberships in the shop. A confirmed purchase unlocks the access included in your chosen membership.";
     }
 
     const kits = kitResult.data || [];
