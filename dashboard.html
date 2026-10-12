@@ -241,6 +241,7 @@ body{background:radial-gradient(ellipse at 90% 4%,#eee4f3 0%,transparent 38%),ra
 <form id="sgc-profile-form" class="sgc-profile-form">
 <div class="sgc-profile-photo"><div id="sgc-profile-avatar" class="sgc-profile-avatar">SGC</div><div><label for="sgc-profile-picture">Profile picture</label><input id="sgc-profile-picture" type="file" accept="image/jpeg,image/png,image/webp"><small>JPG, PNG or WebP · up to 5 MB</small></div></div>
 <div class="sgc-profile-fields"><label>Username <input id="sgc-profile-username" required minlength="2" maxlength="60" autocomplete="nickname" placeholder="Your display name"></label><label>Email address <input id="sgc-profile-email" type="email" required autocomplete="email"></label><label>Phone number <input id="sgc-profile-phone" type="tel" autocomplete="tel" placeholder="+27…"></label></div>
+<label>Business website (optional)<input id="sgc-profile-website" type="url" maxlength="500" placeholder="https://yourbusiness.co.za"></label>
 <label>About me / Bio<textarea id="sgc-profile-bio" rows="5" maxlength="500" placeholder="Tell the SGC community a little about yourself…"></textarea></label>
 <p class="muted">Your username, bio and profile photo may be visible to other SGC members. Your email and phone number remain private. Changing your email may require confirmation from your new address. Changing your login phone number may require verification.</p>
 <div class="sgc-profile-actions"><button class="btn" type="submit" id="sgc-profile-save">Save profile changes</button><a class="btn alt" href="dashboard.html">Back to dashboard</a></div><p id="sgc-profile-status" role="status" class="muted"></p>
@@ -806,15 +807,15 @@ const validPhone=x=>!x||/^\+[1-9]\d{7,14}$/.test(x);
 function renderAvatar(url,name){avatar.replaceChildren();if(url){const im=document.createElement('img');im.src=url;im.alt='Your profile picture';avatar.append(im)}else avatar.textContent=(name||'SGC').slice(0,2).toUpperCase()}
 async function load(){
 const auth=await sb.auth.getUser();if(auth.error)throw auth.error;current=auth.data.user;if(!current)return;
-const r=await sb.from('sgc_social_profiles').select('display_name,bio,avatar_path').eq('user_id',current.id).maybeSingle();if(r.error)throw r.error;profile=r.data;
+const r=await sb.from('sgc_social_profiles').select('display_name,bio,avatar_path,business_website').eq('user_id',current.id).maybeSingle();if(r.error)throw r.error;profile=r.data;
 $('sgc-profile-username').value=profile?.display_name||current.user_metadata?.username||current.user_metadata?.full_name||current.email?.split('@')[0]||'SGC member';
 $('sgc-profile-email').value=current.email||'';
 phoneOriginal=current.phone||current.user_metadata?.phone||'';
 $('sgc-profile-phone').value=phoneOriginal;
-$('sgc-profile-bio').value=profile?.bio||'';
+$('sgc-profile-bio').value=profile?.bio||'';$('sgc-profile-website').value=profile?.business_website||'';
 if(profile?.avatar_path){const img=await sb.storage.from('sgc-community').createSignedUrl(profile.avatar_path,3600);renderAvatar(img.data?.signedUrl,$('sgc-profile-username').value)}else renderAvatar('', $('sgc-profile-username').value);
 }
-photo.addEventListener('change',()=>{const f=photo.files?.[0];if(!f)return;if(!['image/jpeg','image/png','image/webp'].includes(f.type)||f.size>5242880){status.textContent='Choose a JPG, PNG or WebP picture under 5 MB.';photo.value='';return}renderAvatar(URL.createObjectURL(f),$('sgc-profile-username').value)});
+photo.addEventListener('change',()=>{const f=croppedPhoto;if(!f)return;if(!['image/jpeg','image/png','image/webp'].includes(f.type)||f.size>5242880){status.textContent='Choose a JPG, PNG or WebP picture under 5 MB.';photo.value='';return}renderAvatar(URL.createObjectURL(f),$('sgc-profile-username').value)});
 form.addEventListener('submit',async e=>{
 e.preventDefault();const save=$('sgc-profile-save');save.disabled=true;status.textContent='Saving your profile…';
 try{
@@ -824,7 +825,7 @@ if(name.length<2||name.length>60)throw Error('Username must be 2–60 characters
 if(!validPhone(phone))throw Error('Use an international phone number, for example +27821234567.');
 let path=profile?.avatar_path||null;const f=photo.files?.[0];
 if(f){if(!['image/jpeg','image/png','image/webp'].includes(f.type)||f.size>5242880)throw Error('Use a JPG, PNG or WebP under 5 MB.');const ext=f.type==='image/png'?'png':f.type==='image/webp'?'webp':'jpg';path=current.id+'/'+crypto.randomUUID()+'.'+ext;const upload=await sb.storage.from('sgc-community').upload(path,f,{contentType:f.type});if(upload.error)throw upload.error;}
-const saved=await sb.from('sgc_social_profiles').upsert({user_id:current.id,display_name:name,bio,avatar_path:path,updated_at:new Date().toISOString()});if(saved.error)throw saved.error;
+const saved=await sb.from('sgc_social_profiles').upsert({user_id:current.id,display_name:name,bio,business_website:$('sgc-profile-website').value.trim()||null,avatar_path:path,updated_at:new Date().toISOString()});if(saved.error)throw saved.error;
 const meta=await sb.auth.updateUser({data:{username:name,phone:phone}});if(meta.error)throw meta.error;
 let notices=[];
 if(email&&email.toLowerCase()!==(current.email||'').toLowerCase()){const changed=await sb.auth.updateUser({email});if(changed.error)notices.push('Email change failed: '+changed.error.message);else notices.push('Check your email to confirm the new address.')}
