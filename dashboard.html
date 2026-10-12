@@ -219,7 +219,7 @@ body{background:radial-gradient(ellipse at 90% 4%,#eee4f3 0%,transparent 38%),ra
 
 #my-profile{max-width:900px;margin:30px auto 55px}.sgc-profile-shell{background:#fffdfa;border:1px solid #e9dbe5;border-radius:30px;overflow:hidden;box-shadow:0 20px 50px #5d3c5d0c}.sgc-profile-banner{padding:38px 38px 60px;background:linear-gradient(125deg,#f8dfe9,#ece2f7 65%,#fff0cf)}.sgc-profile-banner h2{font:44px Georgia,serif;margin:9px 0}.sgc-profile-banner p{color:#71606d}.sgc-profile-form{padding:0 38px 38px;display:grid;gap:22px}.sgc-profile-photo{display:flex;align-items:center;gap:22px;margin-top:-36px}.sgc-profile-avatar{width:110px;height:110px;flex-shrink:0;border-radius:50%;border:5px solid white;background:#d7bcd9;display:grid;place-items:center;color:#543d55;font:25px Georgia,serif;overflow:hidden}.sgc-profile-avatar img{width:100%;height:100%;object-fit:cover}.sgc-profile-form label{font-size:13px;font-weight:600;display:grid;gap:9px}.sgc-profile-photo label{margin-bottom:7px}.sgc-profile-photo small{display:block;font-size:11px;color:#877684;margin-top:7px}.sgc-profile-form input:not([type=file]),.sgc-profile-form textarea{font:14px Arial,sans-serif;width:100%;padding:14px 16px;border-radius:13px;border:1px solid #decfdb;background:#fff;outline-color:#b999b6;color:#332b32}.sgc-profile-form input[type=file]{max-width:100%;font-size:12px}.sgc-profile-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}.sgc-profile-fields label:last-child{grid-column:1/-1}.sgc-profile-actions{display:flex;gap:12px;flex-wrap:wrap}#sgc-profile-status{margin:0}@media(max-width:650px){.sgc-profile-fields{grid-template-columns:1fr}.sgc-profile-fields label:last-child{grid-column:auto}.sgc-profile-banner{padding:28px 23px 55px}.sgc-profile-form{padding:0 23px 30px}.sgc-profile-photo{align-items:flex-start;flex-wrap:wrap}}
 </style>
-<link rel="stylesheet" href="css/community-notifications.css"><style>.sgc-notification-toggle{display:none!important}</style><link rel="stylesheet" href="css/sgc-user-guide.css?v=guide1"></head>
+<link rel="stylesheet" href="css/community-notifications.css"><style>.sgc-notification-toggle{display:none!important}</style><link rel="stylesheet" href="css/sgc-user-guide.css?v=guide1"><style>.sgc-crop-shade{position:fixed;inset:0;z-index:100000;background:#251b27a8;display:flex;align-items:center;justify-content:center;padding:15px}.sgc-crop-panel{width:min(100%,390px);max-height:95vh;overflow:auto;background:#fffafc;border-radius:20px;padding:22px;box-shadow:0 20px 60px #0004;text-align:center}.sgc-crop-panel h3{margin:0 0 8px}.sgc-crop-panel p{font-size:12px;color:#776a75}.sgc-crop-canvas{display:block;max-width:100%;width:280px;height:280px;margin:12px auto;border-radius:50%;touch-action:none;cursor:grab;outline:4px solid #f1d2e2}.sgc-crop-panel label{display:flex;align-items:center;gap:15px;margin:20px 5px}.sgc-crop-panel input[type=range]{flex:1;accent-color:#e56da8}.sgc-crop-buttons{display:flex;gap:10px;justify-content:center}.sgc-crop-buttons button{border:1px solid #eac7da;border-radius:30px;padding:10px 15px;background:white}.sgc-crop-buttons button:last-child{background:#e56da8;color:white;border-color:#e56da8}</style></head>
 <body>
 <div class="wrap">
 <header class="site-nav">
@@ -415,7 +415,8 @@ body{background:radial-gradient(ellipse at 90% 4%,#eee4f3 0%,transparent 38%),ra
  let loading=false;
  let expiryTimer;
 
- async function load(){
+ photo.onchange=async()=>{try{if(!photo.files[0])return;const cropped=await sgcCropProfilePhoto(photo.files[0]);if(cropped){croppedPhoto=cropped;const url=URL.createObjectURL(cropped);renderAvatar(url,$('sgc-profile-username').value);setTimeout(()=>URL.revokeObjectURL(url),60000)}else photo.value=''}catch(err){status.textContent=err.message;photo.value=''}};
+async function load(){
   if(loading)return;
   loading=true;
   $('meetings-refresh').disabled=true;
@@ -770,7 +771,37 @@ body{background:radial-gradient(ellipse at 90% 4%,#eee4f3 0%,transparent 38%),ra
 const sb=window.sgcSupabase||window.supabase?.createClient('https://bxpexanyoyubxeqqlggh.supabase.co','sb_publishable_Z0_Y-Bj_G5qw4hMgDbQlgA__jj8rGGq');
 const $=id=>document.getElementById(id),form=$('sgc-profile-form'),status=$('sgc-profile-status'),photo=$('sgc-profile-picture'),avatar=$('sgc-profile-avatar');
 if(!sb)return;
-let current=null,profile=null,phoneOriginal='';
+let current=null,profile=null,phoneOriginal='',croppedPhoto=null;
+async function sgcCropProfilePhoto(file){
+ if(!file)return null;
+ if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>5242880)throw Error('Choose a JPG, PNG or WebP photo under 5 MB.');
+ const source=URL.createObjectURL(file),img=new Image();
+ try{
+  await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=()=>reject(Error('Could not open this picture.'));img.src=source});
+  return await new Promise(resolve=>{
+   const shade=document.createElement('div');shade.className='sgc-crop-shade';
+   const panel=document.createElement('div');panel.className='sgc-crop-panel';
+   const title=document.createElement('h3');title.textContent='Adjust profile picture';
+   const hint=document.createElement('p');hint.textContent='Drag the photo to position your face, then zoom to fit the circle.';
+   const canvas=document.createElement('canvas');canvas.width=300;canvas.height=300;canvas.className='sgc-crop-canvas';
+   const zoom=document.createElement('input');zoom.type='range';zoom.min='1';zoom.max='3';zoom.step='.01';zoom.value='1';zoom.setAttribute('aria-label','Zoom picture');
+   const label=document.createElement('label');label.textContent='Zoom';label.append(zoom);
+   const buttons=document.createElement('div');buttons.className='sgc-crop-buttons';
+   const cancel=document.createElement('button');cancel.type='button';cancel.textContent='Cancel';
+   const save=document.createElement('button');save.type='button';save.textContent='Use this picture';
+   let offsetX=0,offsetY=0,drag=null;
+   const draw=()=>{const ctx=canvas.getContext('2d'),base=Math.max(300/img.width,300/img.height),scale=base*Number(zoom.value),w=img.width*scale,h=img.height*scale;offsetX=Math.max(-(w-300)/2,Math.min((w-300)/2,offsetX));offsetY=Math.max(-(h-300)/2,Math.min((h-300)/2,offsetY));ctx.clearRect(0,0,300,300);ctx.save();ctx.beginPath();ctx.arc(150,150,150,0,Math.PI*2);ctx.clip();ctx.drawImage(img,(300-w)/2+offsetX,(300-h)/2+offsetY,w,h);ctx.restore()};
+   zoom.oninput=draw;
+   canvas.onpointerdown=e=>{drag={x:e.clientX,y:e.clientY,ox:offsetX,oy:offsetY};canvas.setPointerCapture(e.pointerId)};
+   canvas.onpointermove=e=>{if(!drag)return;const factor=300/canvas.getBoundingClientRect().width;offsetX=drag.ox+(e.clientX-drag.x)*factor;offsetY=drag.oy+(e.clientY-drag.y)*factor;draw()};
+   canvas.onpointerup=()=>{drag=null};canvas.onpointercancel=()=>{drag=null};
+   const close=result=>{shade.remove();resolve(result)};
+   cancel.onclick=()=>close(null);
+   save.onclick=()=>{draw();canvas.toBlob(blob=>{if(!blob){alert('Could not crop picture.');return}close(new File([blob],'profile-picture.png',{type:'image/png'}))},'image/png')};
+   buttons.append(cancel,save);panel.append(title,hint,canvas,label,buttons);shade.append(panel);document.body.append(shade);draw();
+  });
+ }finally{URL.revokeObjectURL(source)}
+}
 const validPhone=x=>!x||/^\+[1-9]\d{7,14}$/.test(x);
 function renderAvatar(url,name){avatar.replaceChildren();if(url){const im=document.createElement('img');im.src=url;im.alt='Your profile picture';avatar.append(im)}else avatar.textContent=(name||'SGC').slice(0,2).toUpperCase()}
 async function load(){
