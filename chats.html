@@ -43,6 +43,10 @@
 body>.sgc-message-options{position:fixed!important;display:flex;flex-direction:column;z-index:2147483000!important;background:#17191a!important;color:#f6e9ce!important;border:1px solid #64563b!important;border-radius:12px!important;overflow-y:auto!important;box-shadow:0 14px 36px #0009!important;padding:6px!important}
 
 .sgc-chat-dialog-shade{position:fixed;inset:0;z-index:2147483600;background:#0009;display:flex;align-items:center;justify-content:center;padding:18px}.sgc-chat-dialog{width:min(390px,100%);background:#191a1b;color:#f8f4eb;border:1px solid #62573c;border-radius:18px;padding:22px;box-shadow:0 18px 50px #0009}.sgc-chat-dialog h3{margin:0 0 10px;font:600 19px Arial,sans-serif}.sgc-chat-dialog p{font-size:13px;line-height:1.5;color:#c8c4bb}.sgc-chat-dialog-actions{display:flex;flex-direction:column;gap:8px;margin-top:16px}.sgc-chat-dialog-actions button{background:#292a2b;color:#f6e9cc;border:1px solid #45413a;border-radius:11px;padding:12px;cursor:pointer;font:600 13px Arial,sans-serif}.sgc-chat-dialog-actions button.danger{color:#ff9ba8}.sgc-chat-dialog-actions button.cancel{color:#d2ad68;background:transparent;border-color:transparent}
+
+/* Desktop hover, mobile hold: native WhatsApp-like interaction */
+@media(hover:hover) and (pointer:fine){.bubble>.sgc-message-toolbar{opacity:0!important;pointer-events:none!important}.bubble:hover>.sgc-message-toolbar,.bubble:focus-within>.sgc-message-toolbar,.bubble>.sgc-message-toolbar:has(details[open]){opacity:1!important;pointer-events:auto!important}}
+@media(hover:none),(pointer:coarse){.bubble>.sgc-message-toolbar{opacity:0!important;pointer-events:none!important}.bubble>.sgc-message-toolbar:has(details[open]){opacity:1!important;pointer-events:auto!important}.bubble{touch-action:pan-y!important;-webkit-touch-callout:none}}
 </style></head><body>
 <header><strong>SGC <span style="color:#b45d95">Chats</span></strong><a href="community.html">← SGC Community</a></header>
 <div class="shell" id="shell"><aside class="sidebar"><div class="sidebar-top"><h2>Messages ♡</h2><div class="actions"><button class="btn primary" id="new-group">＋ New group</button><button class="btn" id="new-chat">＋ Private chat</button></div><input class="search" id="search" placeholder="Search conversations" aria-label="Search conversations"><div class="tabs"><button class="btn selected" id="tab-all">All</button><button class="btn" id="tab-private">Private</button><button class="btn" id="tab-groups">Groups</button></div></div><div id="threads" class="list"></div></aside>
@@ -123,6 +127,19 @@ async function loadMessages(){
  });
 })
  const items=document.createElement('div');items.className='sgc-message-options';menu.append(items);
+ // WhatsApp-style: desktop shows the arrow on hover; mobile opens on long press.
+ let pressTimer=null,pressStart=null,suppressTap=false;
+ const cancelPress=()=>{if(pressTimer!==null){clearTimeout(pressTimer);pressTimer=null}};
+ d.addEventListener('pointerdown',e=>{
+  if(e.pointerType==='mouse'||e.target.closest('button,summary,a,textarea,input,video'))return;
+  cancelPress();pressStart={x:e.clientX,y:e.clientY};
+  pressTimer=setTimeout(()=>{pressTimer=null;suppressTap=true;menu.open=true;if(navigator.vibrate)navigator.vibrate(12)},480);
+ },{passive:true});
+ d.addEventListener('pointermove',e=>{if(pressStart&&Math.hypot(e.clientX-pressStart.x,e.clientY-pressStart.y)>12)cancelPress()},{passive:true});
+ d.addEventListener('pointerup',cancelPress,{passive:true});
+ d.addEventListener('pointercancel',cancelPress,{passive:true});
+ d.addEventListener('contextmenu',e=>{if(e.target.closest('a,video,input,textarea'))return;e.preventDefault();cancelPress();menu.open=true});
+ d.addEventListener('click',e=>{if(suppressTap){e.preventDefault();e.stopPropagation();suppressTap=false}},true);
  const add=(label,fn)=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.onclick=async()=>{menu.open=false;try{await fn()}catch(e){error(e)}};items.append(b)};
  const reply=()=>{replying=m;$('reply-label').textContent='Reply to '+name(m.sender_id)+': '+(m.body||'Media').slice(0,65);$('reply-banner').hidden=false;$('message').focus()};
  const saveAction=async patch=>{if(current.kind!=='dm')return;const res=await sb.from('sgc_chat_message_actions').upsert({message_id:m.id,user_id:me.id,...actions,...patch},{onConflict:'message_id,user_id'});if(res.error)throw res.error;await loadMessages()};
