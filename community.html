@@ -485,6 +485,13 @@ html.sgc-members-page-mode #sgc-members-hub[hidden]{display:none!important}
 #feed .photos video,#sgc-faq-feed-posts video{display:block!important;width:100%!important;height:auto!important;max-height:68vh!important;object-fit:contain!important;background:#151319!important;border-radius:12px!important}
 #feed .photos{overflow:hidden!important;max-width:100%!important}
 #feed .photos video{min-height:140px}
+</style><style>
+/* Unified community feed across General, Niche and FAQ spaces. */
+#feed[hidden],#composer-card[hidden],#sgc-faq-feed a[hidden]{display:none!important}
+#sgc-faq-feed{display:block!important}
+#sgc-faq-feed-posts .sgc-faq-post{width:100%;max-width:100%}
+#sgc-faq-feed-posts .sgc-faq-comment{border-radius:14px}
+#sgc-faq-feed-posts .sgc-faq-actions button{min-height:36px}
 </style></head>
 <body>
 <div class="wrap">
@@ -753,7 +760,7 @@ async function photoElement(path,parent){
 async function feed(){
  say('');
  $('feed').replaceChildren();
- $('composer-card').hidden=!activeGroup?.joined;
+ $('composer-card').hidden=true; // Unified feed uses the same inline composer for every community.
  $('join-control').replaceChildren();
  if(activeGroup){
   if(activeGroup.joined)$('join-control').append(el('span','Access included ✓','pill'));
@@ -769,10 +776,19 @@ async function feed(){
  }[$('category').value];
  // Only display conversations belonging to the selected community.
  const faqSection=document.getElementById('sgc-faq-feed');
- if(faqSection)faqSection.hidden=!activeGroup||$('category').value!=='faq';
+ if(faqSection)faqSection.hidden=false;
  $('feed-count').textContent='';
  $('group-description').textContent=activeGroup?.description||
   'No communities in this category yet.';
+ // One shared Facebook-style feed and comment system for all communities.
+ $('feed').hidden=true;
+ const title=document.querySelector('#sgc-faq-feed h2');
+ if(title)title.textContent=activeGroup?.name ? activeGroup.name+' feed ✦' : 'Community feed ✦';
+ const faqSearch=document.querySelector('#sgc-faq-feed a[href="faqs.html"]');
+ if(faqSearch)faqSearch.hidden=$('category').value!=='faq';
+ await sgcFaqFeed();
+ return;
+
 
  if(!activeGroup){
   const box=el('section',undefined,'card');
@@ -1459,7 +1475,7 @@ function sgcAvatarNode(url,initial,cls){
 async function sgcFaqFeed(){
  const container=document.getElementById('sgc-faq-feed-posts');if(!container)return;container.replaceChildren();
  try{
- if(!activeGroup||$('category').value!=='faq')return;
+ if(!activeGroup)return;
  const faqGroups=groups.filter(g=>g.id===activeGroup.id);
  if(!faqGroups.length){container.append(el('p','No FAQ conversations yet.','muted'));return}
  const faq=faqGroups.find(g=>g.joined)||faqGroups[0];
