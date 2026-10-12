@@ -135,8 +135,14 @@
   panel.append(close,progress,title,copy,hint,actions,extra);document.body.append(spot,panel,launcher);
   // Auto-hide only the floating shortcut after ten seconds on every member page.
   // Never interrupt a tutorial or settings panel that the member opened.
-  window.setTimeout(()=>{if(launcher&&panel?.hidden)launcher.style.display='none';},10000);
-  launcher.addEventListener('click',()=>{launcher.style.display='';});
+  window.setTimeout(()=>{
+    if(!launcher)return;
+    // Keep a guide the member is actively reading open; hide only its floating shortcut.
+    launcher.hidden=true;
+    launcher.style.setProperty('display','none','important');
+    const communityDismiss=document.getElementById('sgc-guide-dismiss-community');
+    if(communityDismiss)communityDismiss.hidden=true;
+  },10000);
 
   document.addEventListener('click',interacted,true);document.addEventListener('change',interacted,true);
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!panel.hidden){if(mode==='guide'||mode==='welcome')pause();else hide();}});
