@@ -450,6 +450,15 @@ html.sgc-members-page-mode #sgc-members-hub[hidden]{display:none!important}
 /* Restore a standard video player with the full image visible and native controls. */
 .sgc-faq-post video.sgc-faq-video{display:block!important;width:100%!important;max-width:100%!important;height:auto!important;max-height:min(68vh,620px)!important;aspect-ratio:auto!important;object-fit:contain!important;background:#151319!important;border-radius:0!important;cursor:auto!important}
 .sgc-faq-post video.sgc-faq-video::-webkit-media-controls{display:flex!important}
+</style><style>
+.sgc-member-card{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;min-height:82px!important;padding:12px 15px!important}
+.sgc-member-card .person{display:flex!important;align-items:center!important;gap:12px!important;min-width:0!important}
+.sgc-member-avatar{display:grid!important;place-items:center!important;flex:0 0 55px!important;width:55px!important;height:55px!important;overflow:hidden!important;border-radius:50%!important;background:#f1e4ef!important;color:#745572!important;font-size:19px!important}
+.sgc-member-avatar img{display:block!important;width:100%!important;height:100%!important;object-fit:cover!important;border-radius:50%!important}
+.sgc-member-identity{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-width:0}
+.sgc-member-identity .sgc-profile-link{font-weight:700!important;font-size:14px!important;text-align:left!important;white-space:normal!important}
+.sgc-member-view-profile{border:0!important;background:transparent!important;padding:2px 0!important;color:#92628b!important;font-size:11px!important;text-decoration:underline!important;cursor:pointer!important}
+@media(max-width:700px){.sgc-member-card{padding:11px!important}.sgc-member-avatar{flex-basis:48px!important;width:48px!important;height:48px!important}.sgc-member-card>.row{gap:4px!important;flex-wrap:wrap!important}}
 </style></head>
 <body>
 <div class="wrap">
@@ -1323,7 +1332,25 @@ const sgcName=id=>sgcMembers.find(x=>x.user_id===id)?.display_name||'SGC member'
 const sgcBtn=(label,fn,cls='btn soft')=>{const b=el('button',label,cls);b.type='button';b.onclick=async()=>{b.disabled=true;try{await fn()}catch(e){alert(e.message)}finally{b.disabled=false}};return b};
 async function sgcLoadMembers(){sgcMembers=check(await sb.rpc('sgc_public_members'));sgcFriends=check(await sb.from('sgc_friend_requests').select('*').or('sender_id.eq.'+user.id+',receiver_id.eq.'+user.id));}
 function sgcAccepted(id){return sgcFriends.some(f=>f.status==='accepted'&&((f.sender_id===user.id&&f.receiver_id===id)||(f.receiver_id===user.id&&f.sender_id===id)))}
-function sgcMemberRow(m,actions){const row=el('div',undefined,'sgc-member-card'),who=el('div',undefined,'person'),av=el('span',m.display_name.slice(0,1).toUpperCase(),'avatar'),name=sgcBtn(m.display_name,()=>sgcOpenProfile(m.user_id),'sgc-profile-link');who.append(av,name);row.append(who);if(actions)row.append(actions);return row}
+function sgcMemberRow(m,actions){
+ const row=el('div',undefined,'sgc-member-card'),who=el('div',undefined,'person');
+ const av=el('span',m.display_name.slice(0,1).toUpperCase(),'avatar');
+ av.classList.add('sgc-member-avatar');av.title='View '+m.display_name+' profile';av.style.cursor='pointer';av.onclick=()=>sgcOpenProfile(m.user_id);
+ const name=sgcBtn(m.display_name,()=>sgcOpenProfile(m.user_id),'sgc-profile-link');
+ const details=el('div',undefined,'sgc-member-identity');
+ const view=sgcBtn('View profile',()=>sgcOpenProfile(m.user_id),'sgc-member-view-profile');
+ details.append(name,view);who.append(av,details);row.append(who);if(actions)row.append(actions);
+ (async()=>{try{
+  const profile=await sgcProfile(m.user_id);
+  if(!profile?.avatar_path||!av.isConnected)return;
+  const url=await sgcImage(profile.avatar_path);
+  if(!url||!av.isConnected)return;
+  const img=el('img');img.alt=m.display_name+' profile picture';img.loading='lazy';img.src=url;
+  img.onerror=()=>{img.remove();av.textContent=m.display_name.slice(0,1).toUpperCase()};
+  av.replaceChildren(img);
+ }catch(err){console.warn('Member avatar unavailable',err)}})();
+ return row;
+}
 async function sgcHubOpen(tab='members'){sgcHub.hidden=false;sgcMemberTab=tab;sgcHub.scrollIntoView({behavior:'smooth',block:'start'});await sgcHubRender()}
 async function sgcHubRender(){
  await sgcLoadMembers();document.querySelectorAll('[data-sgc-tab]').forEach(b=>b.classList.toggle('active',b.dataset.sgcTab===sgcMemberTab));sgcHubContent.replaceChildren();
