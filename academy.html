@@ -589,7 +589,7 @@ async function start(){
  if(location.hash==='#community'){
   location.replace('community.html');return;
  }
- $('email').textContent=user.email;
+ $('email').textContent=user.user_metadata?.username||user.user_metadata?.full_name||user.email;
  await load();
  $('admin').hidden=!check(await sb.rpc('sgc_extra_is_admin'));
  if(location.hash==='#email-preferences')await preferences();

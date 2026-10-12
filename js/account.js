@@ -30,7 +30,8 @@
       return;
     }
 
-    get("email").textContent = user.email;
+    get("email").textContent = user.user_metadata?.username || user.user_metadata?.full_name || user.email;
+    if (get("member-username")) get("member-username").textContent = user.email || "";
 
     // Supabase verifies the authenticated demo account.
     const { data: isDemo, error: demoError } =

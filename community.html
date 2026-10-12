@@ -676,7 +676,7 @@ async function start(){
  if(!user){location.href='login.html';return;}
 
  isAdmin=check(await sb.rpc('sgc_extra_is_admin'));
- $('signed-in').textContent='Signed in as '+user.email;
+ $('signed-in').textContent='Signed in as '+(user.user_metadata?.username||user.user_metadata?.full_name||user.email);
  $('app').hidden=false;
  await refresh();
 }

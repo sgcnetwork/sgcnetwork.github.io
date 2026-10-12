@@ -221,7 +221,7 @@ footer{padding:35px 0;border-top:1px solid var(--line);font-size:12px;color:var(
 <script src="js/config.js"></script>
 <script src="js/supabase-client.js"></script>
 <script src="js/demo-access.js?v=demo2"></script>
-<script src="js/account.js?v=demo2"></script>
+<script src="js/account.js?v=signup-name1"></script>
 
 <script>
 (async()=>{
@@ -592,8 +592,11 @@ footer{padding:35px 0;border-top:1px solid var(--line);font-size:12px;color:var(
 (async()=>{
  const sb=window.sgcSupabase;if(!sb)return;
  try{const auth=await sb.auth.getUser();if(!auth.data.user)return;
- const result=await sb.from('sgc_login_names').select('username').eq('user_id',auth.data.user.id).single();
- if(!result.error)document.getElementById('member-username').textContent='Username: '+result.data.username;
+ const user=auth.data.user;
+ let name=user.user_metadata?.username||user.user_metadata?.full_name;
+ if(!name){const result=await sb.from('sgc_login_names').select('username').eq('user_id',user.id).single();if(!result.error)name=result.data.username;}
+ document.getElementById('email').textContent=name||user.email;
+ document.getElementById('member-username').textContent=user.email||'';
  }catch{}
 })();
 </script><script src="js/community-notifications.js"></script><script src="js/sgc-user-guide.js?v=guide1"></script></body>
