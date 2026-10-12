@@ -312,6 +312,36 @@ header nav{gap:8px}header nav a{font-size:13px;font-weight:600}
  .sgc-mobile-tabs .current{color:#9e5189}
  footer{padding:15px!important;text-align:center}
 }
+</style><style>
+/* Community viewport: the central feed is the sole vertical scrolling pane. */
+@media(min-width:701px){
+ html,body{height:100%;overflow:hidden!important}
+ body>.wrap{height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+ body>.wrap>header{flex:0 0 auto}
+ body>.wrap>.hero{flex:0 0 auto}
+ body>.wrap>.layout{flex:1 1 0;min-height:0;overflow:hidden;padding-bottom:0!important;align-items:stretch!important}
+ .layout>.left,.layout>.right{height:100%;min-height:0;overflow:hidden;align-self:stretch}
+ .layout>main{height:100%;min-height:0;min-width:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain;scrollbar-gutter:stable;padding-bottom:28px}
+ .layout>.left>.card,.layout>.left>.sticky{flex-shrink:0}
+ body>.wrap>footer{display:none}
+}
+@media(max-width:700px){
+ html,body{height:100%;overflow:hidden!important}
+ body{padding-bottom:0!important}
+ body>.wrap{height:100dvh!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
+ body>.wrap>header{flex:0 0 auto}
+ body>.wrap>.hero{flex:0 0 auto}
+ body>.wrap>.layout{flex:1 1 0!important;min-height:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;padding:0!important}
+ .layout>.left{flex:0 0 auto!important;max-height:28dvh;overflow-y:auto!important;overscroll-behavior:contain}
+ .layout>.left>.sticky,.layout>.left>.card:not(:last-child){display:none!important}
+ .layout>.left>.card:last-child{display:block!important;padding:8px 14px!important;margin:0!important;border-radius:0!important;border:0!important;box-shadow:none!important;background:#fff!important}
+ .layout>.left>.card:last-child h3,.layout>.left>.card:last-child p,.layout>.left>.card:last-child #signed-in{display:none!important}
+ .layout>.left>.card:last-child>.eyebrow{font-size:10px!important}
+ .layout>main{order:2!important;flex:1 1 0!important;height:auto!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;padding-bottom:calc(90px + env(safe-area-inset-bottom,0px))!important}
+ .layout>.right{display:none!important}
+ .sgc-mobile-tabs{position:fixed!important;bottom:0}
+ body>.wrap>footer{display:none}
+}
 </style></head>
 <body>
 <div class="wrap">
@@ -338,23 +368,7 @@ header nav{gap:8px}header nav a{font-size:13px;font-weight:600}
 <div class="sgc-mobile-tabs" aria-label="Community mobile navigation"><a href="dashboard.html"><span class="sgc-tab-icon">⌂</span>Home</a><button type="button" id="sgc-mobile-feed"><span class="sgc-tab-icon">▤</span>Feed</button><button type="button" id="sgc-mobile-stories"><span class="sgc-tab-icon">◉</span>Stories</button><a href="shop.html"><span class="sgc-tab-icon">▣</span>Shop</a><button type="button" id="sgc-mobile-community" class="current"><span class="sgc-tab-icon">♧</span>Members</button></div>
 
 <aside class="left">
-<section class="card butter">
-<div class="row">
-<span class="pill">Your spaces</span>
-<button id="refresh" class="btn alt">Refresh feed ↻</button>
-</div>
-<label for="category">Where would you like to connect?</label>
-<select id="category">
-<option value="faq">FAQs & assistance</option>
-<option value="niche">Niche community</option>
-<option value="academy" selected>General community</option>
-</select>
-<label for="group">Choose a community</label>
-<select id="group"></select>
-<p id="group-description" class="muted"></p>
-<div id="join-control"></div>
-<p class="muted">All communities are open to every SGC user. Join a space to take part.</p>
-</section>
+
 
 <section class="sticky">
 <span class="eyebrow">Quote for the day</span>
@@ -380,6 +394,23 @@ header nav{gap:8px}header nav a{font-size:13px;font-weight:600}
 <h3>Support. Share. Grow.</h3>
 <p class="muted">Celebrate progress, be kind when someone is struggling, and share practical help.</p>
 <p id="signed-in" class="muted"></p>
+</section>
+<section class="card butter">
+<div class="row">
+<span class="pill">Your spaces</span>
+<button id="refresh" class="btn alt">Refresh feed ↻</button>
+</div>
+<label for="category">Where would you like to connect?</label>
+<select id="category">
+<option value="faq">FAQs & assistance</option>
+<option value="niche">Niche community</option>
+<option value="academy" selected>General community</option>
+</select>
+<label for="group">Choose a community</label>
+<select id="group"></select>
+<p id="group-description" class="muted"></p>
+<div id="join-control"></div>
+<p class="muted">All communities are open to every SGC user. Join a space to take part.</p>
 </section>
 </aside>
 
