@@ -416,7 +416,8 @@ body{background:radial-gradient(ellipse at 90% 4%,#eee4f3 0%,transparent 38%),ra
  let loading=false;
  let expiryTimer;
 
- photo.onchange=async()=>{try{if(!photo.files[0])return;const cropped=await sgcCropProfilePhoto(photo.files[0]);if(cropped){croppedPhoto=cropped;const url=URL.createObjectURL(cropped);renderAvatar(url,$('sgc-profile-username').value);setTimeout(()=>URL.revokeObjectURL(url),60000)}else photo.value=''}catch(err){status.textContent=err.message;photo.value=''}};
+ avatar.style.cursor='pointer';avatar.title='Choose and crop a profile picture';avatar.addEventListener('click',()=>photo.click());
+photo.onchange=async()=>{try{if(!photo.files[0])return;const cropped=await sgcCropProfilePhoto(photo.files[0]);if(cropped){croppedPhoto=cropped;const url=URL.createObjectURL(cropped);renderAvatar(url,$('sgc-profile-username').value);setTimeout(()=>URL.revokeObjectURL(url),60000)}else{photo.value='';croppedPhoto=null}}catch(err){status.textContent=err.message;photo.value=''}};
 async function load(){
   if(loading)return;
   loading=true;
@@ -815,7 +816,7 @@ $('sgc-profile-phone').value=phoneOriginal;
 $('sgc-profile-bio').value=profile?.bio||'';$('sgc-profile-website').value=profile?.business_website||'';
 if(profile?.avatar_path){const img=await sb.storage.from('sgc-community').createSignedUrl(profile.avatar_path,3600);renderAvatar(img.data?.signedUrl,$('sgc-profile-username').value)}else renderAvatar('', $('sgc-profile-username').value);
 }
-photo.addEventListener('change',()=>{const f=croppedPhoto;if(!f)return;if(!['image/jpeg','image/png','image/webp'].includes(f.type)||f.size>5242880){status.textContent='Choose a JPG, PNG or WebP picture under 5 MB.';photo.value='';return}renderAvatar(URL.createObjectURL(f),$('sgc-profile-username').value)});
+
 form.addEventListener('submit',async e=>{
 e.preventDefault();const save=$('sgc-profile-save');save.disabled=true;status.textContent='Saving your profile…';
 try{
