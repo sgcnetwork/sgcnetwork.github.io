@@ -33,6 +33,17 @@
     get("email").textContent = user.user_metadata?.username || user.user_metadata?.full_name || user.email;
     if (get("member-username")) get("member-username").textContent = user.email || "";
 
+    const access = await sb.rpc("sgc_start_purchased");
+    if (access.error) throw access.error;
+    const unlocked = access.data === true;
+    get("academy-access-title").textContent = unlocked ? "Your Academy is open" : "Your next chapter awaits";
+    get("academy-access-copy").textContent = unlocked ? "Your R150 once-off SGC Start purchase is confirmed. Explore your available modules and lessons." : "Unlock your Academy with SGC Start for R150 once-off. Browse the shop and communities whenever you like.";
+    get("academy-access-status").textContent = unlocked ? "Academy unlocked" : "Academy locked";
+    for (const link of document.querySelectorAll("[data-academy-entry]")) {
+      link.href = unlocked ? "academy.html" : "shop.html?product=426d6948-d1e3-4afa-bd6c-eb2b194dba56";
+      link.textContent = unlocked ? "Enter Academy →" : "Unlock Academy · R150 once-off →";
+    }
+
     // Supabase verifies the authenticated demo account.
     const { data: isDemo, error: demoError } =
       await sb.rpc("sgc_extra_is_demo");
