@@ -255,7 +255,7 @@ header nav{gap:8px}header nav a{font-size:13px;font-weight:600}
 #sgc-story-strip .sgc-story.create:before{display:none!important}
 #sgc-story-strip .sgc-story.create .sgc-create-story-avatar{border:3px solid #fff!important;background:#e9cee3;color:#8b4c7c;font-size:23px}
 @media(max-width:650px){#sgc-story-strip .sgc-story .story-avatar{width:44px!important;height:44px!important;min-width:44px!important}}
-</style></head>
+</style><style>.sgc-crop-shade{z-index:2147483000!important;position:fixed!important;inset:0!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:12px!important;background:rgba(22,15,25,.78)!important}.sgc-crop-panel{position:relative!important;z-index:1!important;width:min(420px,100%)!important;max-height:calc(100dvh - 24px)!important;overflow-y:auto!important;overscroll-behavior:contain!important;background:#fffafc!important;border-radius:22px!important;padding:20px!important;box-sizing:border-box!important}.sgc-crop-canvas{touch-action:none!important}.sgc-crop-buttons{display:flex!important;gap:10px!important;justify-content:flex-end!important;margin-top:16px!important}.sgc-crop-buttons button{padding:12px 16px!important;border-radius:20px!important}</style></head>
 <body>
 <div class="wrap">
 <header>
@@ -902,32 +902,34 @@ async function sgcUpload(file){if(!file)return null;if(!['image/jpeg','image/png
 async function sgcCropProfilePhoto(file){
  if(!file)return null;
  if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>5242880)throw Error('Choose a JPG, PNG or WebP photo under 5 MB.');
- const source=URL.createObjectURL(file),img=new Image();
+ const url=URL.createObjectURL(file),img=new Image();
  try{
-  await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=()=>reject(Error('Could not open this picture.'));img.src=source});
+  await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=()=>reject(Error('Could not open this photo.'));img.src=url});
   return await new Promise(resolve=>{
-   const shade=document.createElement('div');shade.className='sgc-crop-shade';
+   const shade=document.createElement('div');shade.className='sgc-crop-shade';shade.setAttribute('role','dialog');shade.setAttribute('aria-modal','true');
    const panel=document.createElement('div');panel.className='sgc-crop-panel';
-   const title=document.createElement('h3');title.textContent='Adjust profile picture';
-   const hint=document.createElement('p');hint.textContent='Drag the photo to position your face, then zoom to fit the circle.';
-   const canvas=document.createElement('canvas');canvas.width=300;canvas.height=300;canvas.className='sgc-crop-canvas';
-   const zoom=document.createElement('input');zoom.type='range';zoom.min='1';zoom.max='3';zoom.step='.01';zoom.value='1';zoom.setAttribute('aria-label','Zoom picture');
-   const label=document.createElement('label');label.textContent='Zoom';label.append(zoom);
+   const title=document.createElement('h3');title.textContent='Adjust your profile photo';
+   const hint=document.createElement('p');hint.textContent='Drag to reposition. Pinch with two fingers or use the zoom slider to resize.';
+   const canvas=document.createElement('canvas');canvas.width=320;canvas.height=320;canvas.className='sgc-crop-canvas';canvas.style.cssText='touch-action:none!important;user-select:none;-webkit-user-select:none;display:block;max-width:100%;width:min(320px,78vw);height:auto;aspect-ratio:1;border-radius:50%;margin:12px auto;background:#f4e5ed;cursor:grab';
+   const zoom=document.createElement('input');zoom.type='range';zoom.min='1';zoom.max='4';zoom.step='.01';zoom.value='1';zoom.style.width='100%';
+   const zoomLabel=document.createElement('label');zoomLabel.textContent='Zoom photo';zoomLabel.append(zoom);
    const buttons=document.createElement('div');buttons.className='sgc-crop-buttons';
    const cancel=document.createElement('button');cancel.type='button';cancel.textContent='Cancel';
    const save=document.createElement('button');save.type='button';save.textContent='Use this picture';
-   let offsetX=0,offsetY=0,drag=null;
-   const draw=()=>{const ctx=canvas.getContext('2d'),base=Math.max(300/img.width,300/img.height),scale=base*Number(zoom.value),w=img.width*scale,h=img.height*scale;offsetX=Math.max(-(w-300)/2,Math.min((w-300)/2,offsetX));offsetY=Math.max(-(h-300)/2,Math.min((h-300)/2,offsetY));ctx.clearRect(0,0,300,300);ctx.save();ctx.beginPath();ctx.arc(150,150,150,0,Math.PI*2);ctx.clip();ctx.drawImage(img,(300-w)/2+offsetX,(300-h)/2+offsetY,w,h);ctx.restore()};
-   zoom.oninput=draw;
-   canvas.onpointerdown=e=>{drag={x:e.clientX,y:e.clientY,ox:offsetX,oy:offsetY};canvas.setPointerCapture(e.pointerId)};
-   canvas.onpointermove=e=>{if(!drag)return;const factor=300/canvas.getBoundingClientRect().width;offsetX=drag.ox+(e.clientX-drag.x)*factor;offsetY=drag.oy+(e.clientY-drag.y)*factor;draw()};
-   canvas.onpointerup=()=>{drag=null};canvas.onpointercancel=()=>{drag=null};
-   const close=result=>{shade.remove();resolve(result)};
-   cancel.onclick=()=>close(null);
-   save.onclick=()=>{draw();canvas.toBlob(blob=>{if(!blob){alert('Could not crop picture.');return}close(new File([blob],'profile-picture.png',{type:'image/png'}))},'image/png')};
-   buttons.append(cancel,save);panel.append(title,hint,canvas,label,buttons);shade.append(panel);document.body.append(shade);draw();
+   const size=320,base=Math.max(size/img.naturalWidth,size/img.naturalHeight),pointers=new Map();let x=0,y=0,scale=1,drag=null,pinch=null;
+   function draw(){const w=img.naturalWidth*base*scale,h=img.naturalHeight*base*scale;x=Math.max(-(w-size)/2,Math.min((w-size)/2,x));y=Math.max(-(h-size)/2,Math.min((h-size)/2,y));const ctx=canvas.getContext('2d');ctx.clearRect(0,0,size,size);ctx.save();ctx.beginPath();ctx.arc(size/2,size/2,size/2,0,Math.PI*2);ctx.clip();ctx.drawImage(img,(size-w)/2+x,(size-h)/2+y,w,h);ctx.restore()}
+   function dist(){const a=[...pointers.values()];return Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y)}
+   zoom.oninput=()=>{scale=Number(zoom.value);draw()};
+   canvas.addEventListener('pointerdown',e=>{e.preventDefault();canvas.setPointerCapture(e.pointerId);pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pointers.size===1){drag={px:e.clientX,py:e.clientY,x,y};pinch=null}else if(pointers.size===2){pinch={distance:dist(),scale};drag=null}});
+   canvas.addEventListener('pointermove',e=>{if(!pointers.has(e.pointerId))return;e.preventDefault();pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pointers.size===2&&pinch){scale=Math.max(1,Math.min(4,pinch.scale*dist()/Math.max(1,pinch.distance)));zoom.value=String(scale);draw()}else if(pointers.size===1&&drag){const ratio=size/canvas.getBoundingClientRect().width;x=drag.x+(e.clientX-drag.px)*ratio;y=drag.y+(e.clientY-drag.py)*ratio;draw()}});
+   const end=e=>{pointers.delete(e.pointerId);drag=null;pinch=null;if(pointers.size===1){const a=[...pointers.values()][0];drag={px:a.x,py:a.y,x,y}}};
+   canvas.addEventListener('pointerup',end);canvas.addEventListener('pointercancel',end);
+   const finish=value=>{shade.remove();resolve(value)};
+   cancel.onclick=()=>finish(null);
+   save.onclick=()=>{save.disabled=true;draw();canvas.toBlob(blob=>{if(!blob){save.disabled=false;hint.textContent='Could not create photo preview. Please try again.';return}finish(new File([blob],'profile-picture.png',{type:'image/png'}))},'image/png')};
+   buttons.append(cancel,save);panel.append(title,hint,canvas,zoomLabel,buttons);shade.append(panel);document.body.append(shade);draw();
   });
- }finally{URL.revokeObjectURL(source)}
+ }finally{URL.revokeObjectURL(url)}
 }
 function sgcViewProfilePhoto(url){const shade=el('div',undefined,'sgc-photo-lightbox'),frame=el('div',undefined,'sgc-photo-lightbox-inner'),img=el('img'),close=el('button','×');img.src=url;img.alt='Full profile picture';close.type='button';close.onclick=()=>shade.remove();shade.onclick=e=>{if(e.target===shade)shade.remove()};frame.append(close,img);shade.append(frame);document.body.append(shade)}
 async function sgcOpenProfile(id=user.id){
