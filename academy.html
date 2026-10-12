@@ -128,6 +128,12 @@ html[data-academy-theme="light"] .academy-appearance button[aria-pressed="true"]
 </div>
 <p id="status" class="muted notice" role="status" aria-live="polite"></p>
 <div id="other" hidden></div>
+<section id="academy-paywall" class="panel" hidden style="max-width:760px;margin:45px auto;padding:45px;border-radius:24px">
+<span class="eyebrow">Your next chapter</span><h1 style="font-size:48px">Start your SGC journey.</h1>
+<p class="muted">Unlock SGC Academy with SGC Start — R150 once-off. Your lessons, teaching material and classroom will appear here after your payment is confirmed.</p>
+<p class="muted">You can keep exploring the shop and your communities while you decide.</p>
+<a class="btn" href="shop.html?product=426d6948-d1e3-4afa-bd6c-eb2b194dba56">Unlock Academy · R150 once-off →</a>
+<a class="btn alt" href="dashboard.html">Back to My SGC</a></section>
 <div id="empty" class="panel">Loading your Academy…</div>
 
 <div id="classroom" class="classroom" hidden>
@@ -297,6 +303,13 @@ async function load(){
  if(busy||!guard())return;
  busy=true;controls();say('Loading lessons…');
  try{
+  const unlocked=check(await sb.rpc('sgc_start_purchased'));
+  $('academy-paywall').hidden=!!unlocked;
+  if(!unlocked){
+   lessons=[];current=null;sidebar();
+   $('empty').hidden=true;$('classroom').hidden=true;$('other').hidden=true;
+   $('access').textContent='Academy locked · R150 once-off';say('');return;
+  }
   const demo=check(await sb.rpc('sgc_extra_is_demo'));
   const mods=check(await sb.from('sgc_console_modules').select('module_no,title'));
   moduleNames=new Map(mods.map(m=>[m.module_no,m.title]));const covers=check(await sb.rpc('sgc_academy_module_covers'))||[];courseCovers=new Map(covers.filter(c=>c.cover_image_url).map(c=>[c.module_no,c.cover_image_url]));
