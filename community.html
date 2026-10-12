@@ -342,6 +342,19 @@ header nav{gap:8px}header nav a{font-size:13px;font-weight:600}
  .sgc-mobile-tabs{position:fixed!important;bottom:0}
  body>.wrap>footer{display:none}
 }
+</style><style>
+@media(max-width:700px){
+ .sgc-mobile-tabs{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:5px!important;padding:9px 9px calc(8px + env(safe-area-inset-bottom,0px))!important;background:#fffafd!important;border-top:1px solid #e9dce9!important;box-shadow:0 -7px 24px #432c4314!important}
+ .sgc-mobile-tabs a,.sgc-mobile-tabs button{border-radius:15px!important;min-width:0!important;min-height:53px!important;gap:5px!important;font-size:10px!important;font-weight:700!important;color:#786879!important;transition:background .15s ease!important}
+ .sgc-mobile-tabs .sgc-tab-icon{display:grid!important;place-items:center!important;width:34px!important;height:30px!important;font-size:23px!important;font-family:Arial,sans-serif!important;line-height:1!important}
+ .sgc-mobile-tabs .current,.sgc-mobile-tabs a:active,.sgc-mobile-tabs button:active{background:#f1e5f3!important;color:#7e4178!important}
+ .sgc-mobile-tabs .current .sgc-tab-icon{color:#a14e8d!important}
+ body .sgc-guide-launcher{position:fixed!important;bottom:calc(91px + env(safe-area-inset-bottom,0px))!important;right:12px!important;left:auto!important;z-index:55!important;padding:10px 14px!important;min-height:39px!important;max-width:135px!important;border-radius:22px!important;box-shadow:0 5px 16px #4730472b!important;font-size:12px!important}
+ body .sgc-guide-launcher[hidden]{display:none!important}
+ body .sgc-guide-launcher.sgc-guide-dismissed{display:none!important}
+ body .sgc-guide-dismiss{position:fixed!important;bottom:calc(117px + env(safe-area-inset-bottom,0px))!important;right:7px!important;z-index:56!important;width:25px!important;height:25px!important;border-radius:50%!important;border:1px solid #dfcddd!important;background:#fff!important;color:#5b435c!important;box-shadow:0 2px 8px #47304720!important;font-size:17px!important;line-height:20px!important;padding:0!important}
+ body .sgc-guide-dismiss[hidden]{display:none!important}
+}
 </style></head>
 <body>
 <div class="wrap">
@@ -1415,6 +1428,21 @@ start().catch(e=>{console.error('Community startup error',e);if(/auth session mi
  connect('sgc-mobile-profile','sgc-my-profile');
  const jump=(id,target)=>{const button=document.getElementById(id);if(button)button.addEventListener('click',()=>document.getElementById(target)?.scrollIntoView({behavior:'smooth',block:'start'}))};
  jump('sgc-mobile-feed','feed');jump('sgc-mobile-stories','sgc-story-strip');
+})();
+</script><script>
+(function(){
+ const key='sgc-community-guide-hidden';
+ const setup=()=>{
+  const guide=document.querySelector('.sgc-guide-launcher');
+  if(!guide)return false;
+  if(document.getElementById('sgc-guide-dismiss-community'))return true;
+  const close=document.createElement('button');close.id='sgc-guide-dismiss-community';close.className='sgc-guide-dismiss';close.type='button';close.textContent='×';close.setAttribute('aria-label','Hide SGC guide shortcut');
+  const dismissed=()=>{try{return localStorage.getItem(key)==='1'}catch{return false}};
+  const apply=()=>{const hidden=dismissed();guide.classList.toggle('sgc-guide-dismissed',hidden);close.hidden=hidden};
+  close.addEventListener('click',()=>{try{localStorage.setItem(key,'1')}catch{}apply()});
+  guide.insertAdjacentElement('afterend',close);apply();return true;
+ };
+ if(!setup()){let attempts=0;const timer=setInterval(()=>{attempts++;if(setup()||attempts>60)clearInterval(timer)},500)}
 })();
 </script></body>
 </html>
