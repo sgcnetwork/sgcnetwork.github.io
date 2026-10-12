@@ -459,6 +459,17 @@ html.sgc-members-page-mode #sgc-members-hub[hidden]{display:none!important}
 .sgc-member-identity .sgc-profile-link{font-weight:700!important;font-size:14px!important;text-align:left!important;white-space:normal!important}
 .sgc-member-view-profile{border:0!important;background:transparent!important;padding:2px 0!important;color:#92628b!important;font-size:11px!important;text-decoration:underline!important;cursor:pointer!important}
 @media(max-width:700px){.sgc-member-card{padding:11px!important}.sgc-member-avatar{flex-basis:48px!important;width:48px!important;height:48px!important}.sgc-member-card>.row{gap:4px!important;flex-wrap:wrap!important}}
+</style><style>
+@media(max-width:700px){
+ .layout>.left>.card:has(#category){position:relative!important;transition:padding .18s ease!important}
+ body.sgc-community-picker-collapsed .layout>.left>.card:has(#category){padding:7px 15px!important;border-bottom:5px solid #f1edf3!important}
+ body.sgc-community-picker-collapsed .layout>.left>.card:has(#category)>:not(#sgc-compact-community-bar){display:none!important}
+ #sgc-compact-community-bar{display:none}
+ body.sgc-community-picker-collapsed #sgc-compact-community-bar{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;min-height:39px!important;width:100%!important;padding:5px 11px!important;background:#f7eaf3!important;border:1px solid #e8d6e5!important;border-radius:12px!important;color:#694663!important;font:600 12px Arial,sans-serif!important;text-align:left!important}
+ #sgc-compact-community-bar .sgc-compact-name{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+ #sgc-compact-community-bar .sgc-compact-edit{flex-shrink:0;color:#885f83;font-size:11px}
+}
+@media(min-width:701px){#sgc-compact-community-bar{display:none!important}}
 </style></head>
 <body>
 <div class="wrap">
@@ -1666,6 +1677,34 @@ start().catch(e=>{console.error('Community startup error',e);if(/auth session mi
   return true;
  };
  let tries=0;const timer=setInterval(()=>{tries++;if(boot()||tries>100)clearInterval(timer)},100);
+})();
+</script><script>
+(function(){
+ const picker=document.querySelector('.layout>.left>.card:has(#category)');
+ if(!picker)return;
+ const bar=document.createElement('button');bar.type='button';bar.id='sgc-compact-community-bar';
+ bar.setAttribute('aria-label','Expand community selector');
+ bar.innerHTML='<span class="sgc-compact-name"></span><span class="sgc-compact-edit">Change ▾</span>';
+ picker.prepend(bar);
+ const category=document.getElementById('category'),group=document.getElementById('group');
+ const syncName=()=>{const option=group?.selectedOptions?.[0];bar.querySelector('.sgc-compact-name').textContent='📍 '+((option?.textContent||category?.selectedOptions?.[0]?.textContent||'Choose community').replace(/\s*[·•]\s*(Joined|Not joined).*$/i,'').trim())};
+ category?.addEventListener('change',syncName);group?.addEventListener('change',syncName);
+ if(group)new MutationObserver(syncName).observe(group,{childList:true,subtree:true});syncName();
+ let expandedByUser=false,lastY=0;
+ const mobile=()=>window.matchMedia('(max-width:700px)').matches;
+ const scrollY=()=>Math.max(window.scrollY||0,document.querySelector('.layout>main')?.scrollTop||0);
+ const onScroll=()=>{
+  if(!mobile()){document.body.classList.remove('sgc-community-picker-collapsed');return}
+  const y=scrollY();
+  if(y<15){expandedByUser=false;document.body.classList.remove('sgc-community-picker-collapsed')}
+  else if(y>55&&!expandedByUser){document.body.classList.add('sgc-community-picker-collapsed')}
+  lastY=y;
+ };
+ bar.addEventListener('click',()=>{expandedByUser=true;document.body.classList.remove('sgc-community-picker-collapsed');picker.scrollIntoView({behavior:'smooth',block:'start'})});
+ window.addEventListener('scroll',onScroll,{passive:true});
+ document.querySelector('.layout>main')?.addEventListener('scroll',onScroll,{passive:true});
+ window.addEventListener('resize',onScroll);
+ onScroll();
 })();
 </script></body>
 </html>
