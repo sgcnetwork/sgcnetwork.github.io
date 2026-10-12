@@ -38,6 +38,9 @@
 .sgc-message-menu[open] .sgc-message-options{bottom:auto!important;right:auto!important;max-height:calc(100dvh - 20px)!important}
 @media(max-width:700px){.sgc-message-menu[open] .sgc-message-options{bottom:auto!important;right:auto!important;max-height:calc(100dvh - 20px)!important}}
 .avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block}.chat-head #chat-avatar,.chat-head #chat-name{cursor:pointer}.chat-head #chat-avatar:hover{outline:2px solid #bc7b9d;outline-offset:2px}
+
+/* Menu is portaled to body so it cannot be clipped by the chat pane. */
+body>.sgc-message-options{position:fixed!important;display:flex;flex-direction:column;z-index:2147483000!important;background:#17191a!important;color:#f6e9ce!important;border:1px solid #64563b!important;border-radius:12px!important;overflow-y:auto!important;box-shadow:0 14px 36px #0009!important;padding:6px!important}
 </style></head><body>
 <header><strong>SGC <span style="color:#b45d95">Chats</span></strong><a href="community.html">← SGC Community</a></header>
 <div class="shell" id="shell"><aside class="sidebar"><div class="sidebar-top"><h2>Messages ♡</h2><div class="actions"><button class="btn primary" id="new-group">＋ New group</button><button class="btn" id="new-chat">＋ Private chat</button></div><input class="search" id="search" placeholder="Search conversations" aria-label="Search conversations"><div class="tabs"><button class="btn selected" id="tab-all">All</button><button class="btn" id="tab-private">Private</button><button class="btn" id="tab-groups">Groups</button></div></div><div id="threads" class="list"></div></aside>
@@ -85,7 +88,24 @@ async function loadMessages(){
  d.innerHTML=(current.kind==='group'&&!own?'<span class="who">'+esc(name(m.sender_id))+'</span>':'')+(original?'<div class="reply">↪ '+esc(name(original.sender_id))+': '+esc((original.deleted_at?'Message deleted':original.body||'📎 Media').slice(0,100))+'</div>':'')+(deleted?'<em>Message deleted</em>':media+'<span>'+esc(m.body||'')+'</span>')+'<time>'+esc(format(m.created_at))+(m.edited_at&&!deleted?' · Edited':'')+'</time>';
  if(!deleted){
  const bar=document.createElement('div');bar.className='sgc-message-toolbar';
- const menu=document.createElement('details');menu.className='sgc-message-menu';menu.innerHTML='<summary aria-label="Message options" title="Message options"><span>⌄</span></summary>';menu.addEventListener('toggle',()=>{if(!menu.open)return;document.querySelectorAll('.sgc-message-menu[open]').forEach(other=>{if(other!==menu)other.open=false});requestAnimationFrame(()=>{const panel=menu.querySelector('.sgc-message-options');if(!panel)return;const bubble=d.getBoundingClientRect(),viewport=window.visualViewport;const vw=viewport?.width||innerWidth,vh=viewport?.height||innerHeight,offsetX=viewport?.offsetLeft||0,offsetY=viewport?.offsetTop||0;const w=Math.min(245,vw-20),h=Math.min(panel.scrollHeight,vh-20);const rightRoom=vw-(bubble.right-offsetX),leftRoom=bubble.left-offsetX;let left;if(rightRoom>=w+8)left=bubble.right+6;else if(leftRoom>=w+8)left=bubble.left-w-6;else left=Math.max(offsetX+10,Math.min(bubble.right-w,offsetX+vw-w-10));const top=Math.max(offsetY+10,Math.min(bubble.top,offsetY+vh-h-10));panel.style.setProperty('left',left+'px','important');panel.style.setProperty('top',top+'px','important');panel.style.setProperty('right','auto','important');panel.style.setProperty('bottom','auto','important');panel.style.setProperty('max-height',Math.max(100,vh-20)+'px','important')})})
+ const menu=document.createElement('details');menu.className='sgc-message-menu';menu.innerHTML='<summary aria-label="Message options" title="Message options"><span>⌄</span></summary>';menu.addEventListener('toggle',()=>{
+ const panel=menu.querySelector('.sgc-message-options');if(!panel)return;
+ if(!menu.open){if(panel.parentNode===document.body)menu.append(panel);panel.style.display='';return}
+ document.querySelectorAll('.sgc-message-menu[open]').forEach(other=>{if(other!==menu)other.open=false});
+ document.body.append(panel);panel.style.display='flex';
+ requestAnimationFrame(()=>{
+  const rect=d.getBoundingClientRect(),vp=window.visualViewport;
+  const ox=vp?.offsetLeft||0,oy=vp?.offsetTop||0,vw=vp?.width||innerWidth,vh=vp?.height||innerHeight;
+  const w=Math.min(245,vw-24),h=Math.min(panel.scrollHeight,vh-24);
+  const right=rect.right+8,left=rect.left-w-8;
+  const x=right+w<=ox+vw-12?right:left>=ox+12?left:Math.max(ox+12,Math.min(rect.right-w,ox+vw-w-12));
+  const y=Math.max(oy+12,Math.min(rect.top,oy+vh-h-12));
+  panel.style.setProperty('width',w+'px','important');
+  panel.style.setProperty('left',x+'px','important');panel.style.setProperty('top',y+'px','important');
+  panel.style.setProperty('right','auto','important');panel.style.setProperty('bottom','auto','important');
+  panel.style.setProperty('max-height',(vh-24)+'px','important');
+ });
+})
  const items=document.createElement('div');items.className='sgc-message-options';menu.append(items);
  const add=(label,fn)=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.onclick=async()=>{menu.open=false;try{await fn()}catch(e){error(e)}};items.append(b)};
  const reply=()=>{replying=m;$('reply-label').textContent='Reply to '+name(m.sender_id)+': '+(m.body||'Media').slice(0,65);$('reply-banner').hidden=false;$('message').focus()};
@@ -122,6 +142,9 @@ $('compose').onsubmit=async e=>{e.preventDefault();if(!selected)return;const bod
  }catch(err){error(err);if(path)await sb.storage.from('sgc-chat-media').remove([path])}finally{button.disabled=false}};
 
 function showModal(kind){$('modal').hidden=false;$('modal-title').textContent=kind==='group'?'Create a group chat':'Start a private chat';$('modal-content').innerHTML=(kind==='group'?'<label>Group name<input type="text" id="group-name" maxlength="70" placeholder="e.g. Business besties"></label><p>Select members to add:</p>':'<p>Choose a member:</p>')+friends.map(id=>'<label class="friend"><input type="'+(kind==='group'?'checkbox':'radio')+'" name="friends" value="'+esc(id)+'">'+esc(name(id))+'</label>').join('')+(friends.length?'':'<p>No accepted SGC member connections yet. Connect with members first.</p>');$('create').textContent=kind==='group'?'Create group':'Open chat';$('create').onclick=async()=>{try{const ids=[...document.querySelectorAll('input[name=friends]:checked')].map(x=>x.value);if(kind==='group'){const groupName=$('group-name').value.trim();if(!ids.length)throw Error('Select at least one member');const r=await sb.rpc('sgc_create_chat_group',{p_name:groupName,p_members:ids});if(r.error)throw r.error;$('modal').hidden=true;await loadThreads();const t=threads.find(x=>x.kind==='group'&&x.id===r.data);if(t)await openThread(t)}else{if(ids.length!==1)throw Error('Select one member');$('modal').hidden=true;const t={kind:'dm',id:ids[0],label:name(ids[0]),preview:'',updated:''};await openThread(t)}}catch(e){error(e)}}}
+document.addEventListener('pointerdown',e=>{for(const menu of document.querySelectorAll('.sgc-message-menu[open]')){const panel=menu.querySelector('.sgc-message-options');if(!menu.contains(e.target)&&!panel?.contains(e.target))menu.open=false}},true);
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.sgc-message-menu[open]').forEach(menu=>menu.open=false)});
+$('messages').addEventListener('scroll',()=>document.querySelectorAll('.sgc-message-menu[open]').forEach(menu=>menu.open=false),{passive:true});
 $('new-group').onclick=()=>showModal('group');$('new-chat').onclick=()=>showModal('dm');$('cancel').onclick=()=>{$('modal').hidden=true};$('back').onclick=()=>{$('shell').classList.remove('open')};$('search').oninput=renderThreads;
 for(const [id,value] of [['tab-all','all'],['tab-private','private'],['tab-groups','groups']])$(id).onclick=()=>{filter=value;for(const k of ['tab-all','tab-private','tab-groups'])$(k).classList.toggle('selected',k===id);renderThreads()};
 (async()=>{try{const r=await sb.auth.getUser();if(!r.data?.user){location.href='login.html?redirect=chats.html';return}me=r.data.user;await loadFriends();await loadReads();await loadThreads();const withId=new URLSearchParams(location.search).get('with');if(withId&&friends.includes(withId))await openThread({kind:'dm',id:withId,label:name(withId),preview:'',updated:''});timer=setInterval(async()=>{try{if(!document.hidden){await loadReads();await loadThreads();if(selected)await loadMessages()}}catch(e){console.warn(e)}},5000)}catch(e){error(e)}})();
