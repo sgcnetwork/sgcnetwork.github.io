@@ -205,7 +205,24 @@ header nav{gap:8px}header nav a{font-size:13px;font-weight:600}
 <style>
 .sgc-faq-post{background:white;border:1px solid #eee5ec;border-radius:16px;margin:12px 0;padding:16px;box-shadow:0 2px 12px #3b243408}.sgc-faq-author{display:flex;gap:10px;align-items:center}.sgc-faq-author strong{display:block}.sgc-faq-author small{display:block;color:#887b86;margin-top:3px}.sgc-faq-avatar{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:#eee1f1;color:#49374e;font-weight:700}.sgc-faq-body{margin:15px 0;font-size:15px;line-height:1.6}.sgc-faq-summary{display:flex;justify-content:space-between;color:#80737d;font-size:12px;padding:9px 0;border-bottom:1px solid #eee}.sgc-faq-actions{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0}.sgc-faq-reactions{display:flex;flex-wrap:wrap;gap:5px}.sgc-faq-reactions button{font-size:12px!important;padding:6px!important}.sgc-faq-thread{border-top:1px solid #eee;padding-top:12px}.sgc-faq-comment{margin:9px 0}.sgc-faq-compose-top{padding:10px 0}.sgc-faq-thread .sgc-chat-compose{margin-top:10px}
 </style>
-<link rel="stylesheet" href="css/community-notifications.css"><link rel="stylesheet" href="css/sgc-user-guide.css?v=guide1"></head>
+<link rel="stylesheet" href="css/community-notifications.css"><link rel="stylesheet" href="css/sgc-user-guide.css?v=guide1"><style>
+/* Spacious, quieter Facebook-style FAQ feed */
+#sgc-faq-feed{background:transparent;border:0;box-shadow:none;padding:0}
+#sgc-faq-feed>.row,#sgc-faq-feed>p{padding-left:12px;padding-right:12px}
+#sgc-faq-feed-posts{display:flex;flex-direction:column;gap:20px}
+#sgc-faq-feed-posts .sgc-faq-post{margin:0;padding:0;background:#fff;border:1px solid #e5e1e6;border-radius:14px;overflow:hidden;box-shadow:0 2px 7px rgba(30,20,30,.035)}
+#sgc-faq-feed-posts .sgc-faq-author{padding:18px 20px 0;gap:12px}
+#sgc-faq-feed-posts .sgc-faq-body{padding:0 20px;margin:16px 0 22px;line-height:1.7}
+#sgc-faq-feed-posts .sgc-faq-post>strong{display:block;padding:12px 20px 0}
+#sgc-faq-feed-posts .sgc-faq-summary{margin:0 20px;padding:12px 0}
+#sgc-faq-feed-posts .sgc-faq-actions{padding:13px 20px;gap:16px}
+#sgc-faq-feed-posts .sgc-faq-thread{padding:18px 20px 22px;background:#fbf9fc}
+#sgc-faq-feed-posts .sgc-faq-comment{margin:0 0 16px}
+#sgc-faq-feed-posts .sgc-chat-message{padding:14px 17px;line-height:1.65}
+#sgc-faq-feed-posts .sgc-chat-message p{margin:9px 0 11px}
+#sgc-faq-feed-posts .sgc-faq-compose-top{padding:10px 0 6px}
+@media(max-width:600px){#sgc-faq-feed-posts{gap:16px}#sgc-faq-feed-posts .sgc-faq-actions{flex-wrap:wrap}#sgc-faq-feed-posts .sgc-faq-thread{padding:15px}}
+</style></head>
 <body>
 <div class="wrap">
 <header>
