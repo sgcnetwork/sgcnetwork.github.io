@@ -248,7 +248,7 @@ header nav{gap:8px}header nav a{font-size:13px;font-weight:600}
 .sgc-profile-page .sgc-member-profile-section{border:1px solid #ece7ec}
 .sgc-profile-page .sgc-profile-card[hidden]{display:none!important}
 @media(max-width:650px){.sgc-profile-page .sgc-profile-cover{height:140px}.sgc-profile-hero-info{padding:0 16px 15px}.sgc-profile-page .sgc-profile-avatar{height:100px;width:100px;margin-top:-35px}.sgc-profile-names h3{font-size:20px}.sgc-profile-layout{grid-template-columns:1fr;padding:10px}.sgc-profile-tabs{padding:0 8px}}
-</style></head>
+</style><style>.sgc-profile-website{display:inline-block;margin-top:8px;color:#bc5b8b;font-size:13px;overflow-wrap:anywhere;text-decoration:underline}.sgc-photo-lightbox{position:fixed;inset:0;z-index:100010;background:#17111be8;display:flex;align-items:center;justify-content:center;padding:25px}.sgc-photo-lightbox-inner{position:relative;max-width:95vw;max-height:90vh}.sgc-photo-lightbox img{display:block;max-width:95vw;max-height:85vh;object-fit:contain;border-radius:10px}.sgc-photo-lightbox button{position:absolute;right:-12px;top:-16px;border:0;border-radius:50%;width:38px;height:38px;background:white;color:#333;font-size:26px;cursor:pointer}</style></head>
 <body>
 <div class="wrap">
 <header>
@@ -922,11 +922,13 @@ async function sgcCropProfilePhoto(file){
   });
  }finally{URL.revokeObjectURL(source)}
 }
+function sgcViewProfilePhoto(url){const shade=el('div',undefined,'sgc-photo-lightbox'),frame=el('div',undefined,'sgc-photo-lightbox-inner'),img=el('img'),close=el('button','×');img.src=url;img.alt='Full profile picture';close.type='button';close.onclick=()=>shade.remove();shade.onclick=e=>{if(e.target===shade)shade.remove()};frame.append(close,img);shade.append(frame);document.body.append(shade)}
 async function sgcOpenProfile(id=user.id){
  const profile=await sgcProfile(id),mine=id===user.id,box=sgcModal(mine?'My SGC profile':'Member profile'),cover=el('div',undefined,'sgc-profile-cover'),avatar=el('div',undefined,'sgc-profile-avatar');
  avatar.textContent=(profile?.display_name||user.user_metadata?.username||'S').slice(0,1).toUpperCase();
  if(profile?.avatar_path){const url=await sgcImage(profile.avatar_path);if(url){const img=el('img');img.src=url;avatar.replaceChildren(img)}}
  box.append(cover,avatar,el('h3',profile?.display_name|| (mine?(user.user_metadata?.username||user.email):'SGC member')),el('p',profile?.bio||'A member of the SGC community.','muted'));
+ if(profile?.business_website){const a=el('a','🌐 '+profile.business_website,'sgc-profile-website');a.href=profile.business_website;a.target='_blank';a.rel='noopener noreferrer';box.append(a)}
  if(!mine){
   const actions=el('div',undefined,'sgc-member-profile-actions');
   const friendship=await sb.from('sgc_friend_requests').select('*').or('and(sender_id.eq.'+user.id+',receiver_id.eq.'+id+'),and(sender_id.eq.'+id+',receiver_id.eq.'+user.id+')').limit(1);
@@ -948,13 +950,13 @@ async function sgcOpenProfile(id=user.id){
   sgcStyleProfile(box,profile,mine);
   return;
  }
- const form=el('form'),name=el('input'),bio=el('textarea'),file=el('input'),save=el('button','Save my profile','btn'),status=el('p',undefined,'muted');
+ const form=el('form'),name=el('input'),bio=el('textarea'),website=el('input'),file=el('input'),save=el('button','Save my profile','btn'),status=el('p',undefined,'muted');
  name.value=profile?.display_name||user.user_metadata?.username||user.user_metadata?.full_name||user.email.split('@')[0];name.required=true;name.minLength=2;name.maxLength=60;
- bio.value=profile?.bio||'';bio.maxLength=500;bio.placeholder='A little about you and your business journey…';
+ website.type='url';website.placeholder='https://yourbusiness.co.za';website.maxLength=500;website.value=profile?.business_website||'';bio.value=profile?.bio||'';bio.maxLength=500;bio.placeholder='A little about you and your business journey…';
  let croppedPhoto=null;file.onchange=async()=>{try{const selected=file.files[0];if(!selected)return;const cropped=await sgcCropProfilePhoto(selected);if(cropped){croppedPhoto=cropped;const url=URL.createObjectURL(cropped);const image=el('img');image.src=url;image.onload=()=>URL.revokeObjectURL(url);avatar.replaceChildren(image)}else{file.value=''}}catch(err){alert(err.message);file.value=''}};
  file.type='file';file.accept='image/jpeg,image/png,image/webp';
- form.append(el('label','Display name (other members will see this)'),name,el('label','About me'),bio,el('label','Profile picture'),file,save,status);
- form.onsubmit=async e=>{e.preventDefault();save.disabled=true;try{const path=croppedPhoto?await sgcUpload(croppedPhoto):profile?.avatar_path||null;check(await sb.from('sgc_social_profiles').upsert({user_id:user.id,display_name:name.value.trim(),bio:bio.value.trim(),avatar_path:path,updated_at:new Date().toISOString()}));sgcModalRoot.replaceChildren();await sgcStories();await feed();say('Your profile has been updated.')}catch(err){status.textContent=err.message}finally{save.disabled=false}};
+ form.append(el('label','Display name (other members will see this)'),name,el('label','About me'),bio,el('label','Business website (optional)'),website,el('label','Profile picture'),file,save,status);
+ form.onsubmit=async e=>{e.preventDefault();save.disabled=true;try{const path=croppedPhoto?await sgcUpload(croppedPhoto):profile?.avatar_path||null;check(await sb.from('sgc_social_profiles').upsert({user_id:user.id,display_name:name.value.trim(),bio:bio.value.trim(),business_website:website.value.trim()||null,avatar_path:path,updated_at:new Date().toISOString()}));sgcModalRoot.replaceChildren();await sgcStories();await feed();say('Your profile has been updated.')}catch(err){status.textContent=err.message}finally{save.disabled=false}};
  box.append(form);
  sgcStyleProfile(box,profile,mine);
 }
@@ -964,8 +966,8 @@ function sgcStyleProfile(box,profile,mine){
  const cover=box.querySelector('.sgc-profile-cover'),avatar=box.querySelector('.sgc-profile-avatar'),name=box.querySelector(':scope > h3'),bio=box.querySelector(':scope > p');
  const hero=el('div',undefined,'sgc-profile-hero');
  const info=el('div',undefined,'sgc-profile-hero-info'),identity=el('div',undefined,'sgc-profile-identity');
- if(avatar)identity.append(avatar);
- const names=el('div',undefined,'sgc-profile-names');if(name)names.append(name);if(bio)names.append(bio);identity.append(names);
+ if(avatar){identity.append(avatar);const full=avatar.querySelector('img');if(full){avatar.title='View profile picture';avatar.style.cursor='zoom-in';avatar.onclick=()=>sgcViewProfilePhoto(full.src)}}
+ const names=el('div',undefined,'sgc-profile-names');if(name)names.append(name);if(bio)names.append(bio);const website=box.querySelector(':scope > .sgc-profile-website');if(website)names.append(website);identity.append(names);
  info.append(identity);const actions=box.querySelector(':scope > .sgc-member-profile-actions');if(actions)info.append(actions);
  if(cover)hero.append(cover);hero.append(info);
  if(close)hero.append(close);
