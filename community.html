@@ -982,6 +982,13 @@ document.getElementById('sgc-people-nav').onclick=()=>sgcHubOpen('members');
 document.getElementById('sgc-members-close').onclick=()=>{sgcHub.hidden=true};
 document.querySelectorAll('[data-sgc-tab]').forEach(b=>b.onclick=()=>{sgcMemberTab=b.dataset.sgcTab;sgcHubRender().catch(e=>alert(e.message))});
 
+function renderFaqReactions(post,root,groupId){
+ root.replaceChildren();
+ for(const [key,label] of [['like','👍 Like'],['love','💗 Love'],['celebrate','🎉 Celebrate'],['support','🤗 Support']]){
+ const b=el('button',label+' · '+Number(post.reactions?.[key]||0),'sgc-profile-link');b.type='button';b.setAttribute('aria-pressed',String(post.my_reaction===key));if(post.my_reaction===key)b.classList.add('reaction-selected');
+ b.onclick=async()=>{b.disabled=true;try{check(await sb.rpc('sgc_social',{p_action:'react',p_post:post.id,p_reaction:key}));const rows=check(await sb.rpc('sgc_social',{p_action:'feed',p_group:groupId}));const updated=rows.find(p=>p.id===post.id);if(updated)renderFaqReactions(updated,root,groupId)}catch(err){alert(err.message)}finally{b.disabled=false}};root.append(b)
+ }
+}
 async function sgcFaqFeed(){
  const container=document.getElementById('sgc-faq-feed-posts');if(!container)return;container.replaceChildren();container.classList.add('sgc-faq-chat');
  try{
@@ -1000,6 +1007,7 @@ async function sgcFaqFeed(){
  const thread=el('div',undefined,'sgc-chat-thread'),root=el('div',undefined,'sgc-chat-message');
  root.append(el('strong',post.author||'SGC member'));
  root.append(el('p',post.body||post.title||''));
+ const reactRow=el('div',undefined,'row');renderFaqReactions(post,reactRow,faq.id);root.append(reactRow);
  const reply=el('button','↩ Reply');reply.type='button';reply.onclick=()=>setReply(post.id,null,post.author||'member');root.append(reply);thread.append(root);
  const cr=await sb.rpc('sgc_social',{p_action:'comments',p_post:post.id});
  if(!cr.error){const comments=cr.data||[];const byParent=new Map();for(const cm of comments){const parent=cm.reply_to_comment_id||null;if(!byParent.has(parent))byParent.set(parent,[]);byParent.get(parent).push(cm)}
