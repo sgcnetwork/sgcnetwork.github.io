@@ -205,6 +205,7 @@ body{background:radial-gradient(ellipse at 90% 4%,#eee4f3 0%,transparent 38%),ra
 @media(prefers-reduced-motion:reduce){.grid .card,.btn{transition:none}}
 .library-quote-top{display:flex;justify-content:flex-end;margin:0 0 24px}.library-quote-top .daily-sticky{width:min(100%,440px);margin:0!important;padding:25px 30px;border-radius:24px;background:linear-gradient(125deg,#f9e8ee,#f4ebf8);border:1px solid #e9d9e6;box-shadow:0 10px 26px #4934490b}.library-quote-top .quote-text{font-size:clamp(19px,2vw,24px);line-height:1.45}.library-quote-top .quote-credit{text-align:right}@media(max-width:800px){.library-quote-top .daily-sticky{width:100%}}
 .hero-card{min-height:0!important;padding:20px!important;max-width:390px;margin-left:auto}.hero-card #email{font-size:clamp(14px,1.4vw,17px)!important;line-height:1.3;overflow-wrap:anywhere}.hero-card #member-username{font-size:10px!important;opacity:.72}.hero-card .tag{font-size:9px!important}.hero-card>.muted{font-size:12px;line-height:1.5}.hero-card .daily-sticky{margin:0 0 16px!important;padding:17px 20px!important;transform:none!important;border-radius:17px}.hero-card .daily-sticky .quote-text{font-size:18px!important;line-height:1.4;margin:8px 0}.hero-card .daily-sticky .quote-credit{font-size:9px}.hero-card .daily-sticky:before{display:none}@media(max-width:800px){.hero-card{max-width:100%;margin:0}}
+.quote-feature-wrap{display:flex;justify-content:flex-end;margin:26px 0 8px}.quote-feature-wrap .daily-sticky{width:min(100%,590px);padding:35px 42px!important;margin:0!important;border-radius:28px!important;transform:none!important;background:linear-gradient(130deg,#f9e2eb 0%,#f5e9f7 60%,#fff3d8 100%)!important;border:1px solid #e7cfdf;box-shadow:0 15px 36px #60425b15!important}.quote-feature-wrap .quote-text{font-size:clamp(24px,3vw,33px)!important;line-height:1.45!important}.quote-feature-wrap .quote-label{font-size:11px!important}.quote-feature-wrap .quote-credit{font-size:12px!important}.quote-feature-wrap .daily-sticky:before{display:none}@media(max-width:700px){.quote-feature-wrap .daily-sticky{padding:26px!important}}
 </style>
 <link rel="stylesheet" href="css/community-notifications.css"><style>.sgc-notification-toggle{display:none!important}</style><link rel="stylesheet" href="css/sgc-user-guide.css?v=guide1"></head>
 <body>
@@ -229,7 +230,7 @@ body{background:radial-gradient(ellipse at 90% 4%,#eee4f3 0%,transparent 38%),ra
 </div>
 <div>
 
-<div class="hero-card"><section id="sgc-daily-quote" class="daily-sticky" hidden></section>
+<div class="hero-card">
 <span class="tag">Signed in as</span>
 <strong id="email">Loading…</strong><p class="muted" id="member-username"></p>
 <span class="muted">Make space for your ideas, your progress and everything you’re becoming.</span>
@@ -238,6 +239,7 @@ body{background:radial-gradient(ellipse at 90% 4%,#eee4f3 0%,transparent 38%),ra
 </div>
 </section>
 
+<div class="quote-feature-wrap"><section id="sgc-daily-quote" class="daily-sticky" hidden></section></div>
 <section class="section">
 <div class="section-head">
 <div><div class="eyebrow">Overview</div><h2>Your SGC access</h2></div>
