@@ -177,6 +177,32 @@ a:focus-visible,button:focus-visible{outline:2px solid #a986aa;outline-offset:4p
 #learning-modules summary{cursor:pointer;font-weight:700;color:#49364c;padding:7px}
 #learning-modules button,#learning-modules a.btn{border-radius:12px}
 @media(max-width:600px){#my-learning{padding:20px!important}#learning-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* SGC dashboard editorial polish */
+body{background:radial-gradient(ellipse at 90% 4%,#eee4f3 0%,transparent 38%),radial-gradient(ellipse at 4% 45%,#f9e9eb 0%,transparent 38%),#fbf8f3}
+.site-nav{background:#fffdfbbd;backdrop-filter:blur(14px);border-bottom:1px solid #e9dfe7}
+.hero{position:relative;overflow:hidden;border-radius:30px;background:linear-gradient(125deg,#f7e8eb,#faf4e9 54%,#eae2f3);padding:clamp(25px,4vw,48px);border:1px solid #eadfe8;box-shadow:0 14px 38px #4c32450b}
+.hero:before{content:"";position:absolute;width:330px;height:330px;border:1px solid #ffffffa0;border-radius:50%;right:-110px;top:-140px;pointer-events:none}
+.hero h1{font:normal clamp(42px,5vw,72px)/1.07 Georgia,serif;letter-spacing:-.05em;color:#382d3a}
+.hero .lead{line-height:1.85;color:#6f626e}
+.hero-card{border-radius:24px;box-shadow:0 14px 34px #4b314312}
+.section-head h2{font:normal clamp(29px,3.5vw,42px)/1.15 Georgia,serif;letter-spacing:-.035em;color:#392d3b}
+.section-head .eyebrow{letter-spacing:.2em;color:#99788e}
+.grid .card{border:1px solid #e8dce5;border-radius:24px;background:linear-gradient(145deg,#fffdfb,#f8f0f5);box-shadow:0 12px 30px #4934490a;transition:transform .2s,box-shadow .2s}
+.grid .card:nth-child(3n+2){background:linear-gradient(145deg,#fffdf9,#f8f0d9)}
+.grid .card:nth-child(3n){background:linear-gradient(145deg,#fffdfb,#eee8f7)}
+.grid .card:hover{transform:translateY(-3px);box-shadow:0 20px 38px #49344916}
+.library-sidebar{background:linear-gradient(160deg,#f4e7ee,#eee7f8);border:1px solid #e6d9e6;border-radius:26px;box-shadow:0 12px 30px #4934490b}
+.library-sidebar summary{font:normal 25px Georgia,serif;color:#423146}
+.library-sidebar a{border-radius:14px;transition:background .2s}
+.library-sidebar a.active{background:#fffdfb;box-shadow:0 3px 12px #4c344010;font-weight:700}
+.library-content>.section:not(#my-learning){background:#fffdfb;border:1px solid #eadfe6;border-radius:25px;padding:clamp(20px,3vw,36px);margin-bottom:22px;box-shadow:0 10px 32px #49344908}
+.library-content .empty{border-radius:18px;background:linear-gradient(135deg,#faf1f3,#f3edf9);padding:25px}
+.btn{transition:transform .2s,box-shadow .2s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 7px 17px #44304116}
+@media(max-width:800px){.hero{padding:25px}.library-layout{gap:16px}.library-sidebar{position:static}.library-sidebar nav{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:480px){.library-sidebar nav{grid-template-columns:1fr}.hero h1{font-size:43px}}
+@media(prefers-reduced-motion:reduce){.grid .card,.btn{transition:none}}
 </style>
 <link rel="stylesheet" href="css/community-notifications.css"><style>.sgc-notification-toggle{display:none!important}</style><link rel="stylesheet" href="css/sgc-user-guide.css?v=guide1"></head>
 <body>
