@@ -203,6 +203,7 @@ body{background:radial-gradient(ellipse at 90% 4%,#eee4f3 0%,transparent 38%),ra
 @media(max-width:800px){.hero{padding:25px}.library-layout{gap:16px}.library-sidebar{position:static}.library-sidebar nav{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:480px){.library-sidebar nav{grid-template-columns:1fr}.hero h1{font-size:43px}}
 @media(prefers-reduced-motion:reduce){.grid .card,.btn{transition:none}}
+.library-quote-top{display:flex;justify-content:flex-end;margin:0 0 24px}.library-quote-top .daily-sticky{width:min(100%,440px);margin:0!important;padding:25px 30px;border-radius:24px;background:linear-gradient(125deg,#f9e8ee,#f4ebf8);border:1px solid #e9d9e6;box-shadow:0 10px 26px #4934490b}.library-quote-top .quote-text{font-size:clamp(19px,2vw,24px);line-height:1.45}.library-quote-top .quote-credit{text-align:right}@media(max-width:800px){.library-quote-top .daily-sticky{width:100%}}
 </style>
 <link rel="stylesheet" href="css/community-notifications.css"><style>.sgc-notification-toggle{display:none!important}</style><link rel="stylesheet" href="css/sgc-user-guide.css?v=guide1"></head>
 <body>
@@ -226,7 +227,7 @@ body{background:radial-gradient(ellipse at 90% 4%,#eee4f3 0%,transparent 38%),ra
 <p class="lead">A little inspiration. A clear next step.<br>Your learning, community and personal collection, together in one beautiful space.</p>
 </div>
 <div>
-<section id="sgc-daily-quote" class="daily-sticky" hidden></section>
+
 <div class="hero-card">
 <span class="tag">Signed in as</span>
 <strong id="email">Loading…</strong><p class="muted" id="member-username"></p>
@@ -266,7 +267,7 @@ body{background:radial-gradient(ellipse at 90% 4%,#eee4f3 0%,transparent 38%),ra
 
 <section id="my-library" class="section" hidden>
 <div class="section-head"><div><div class="eyebrow">Your personal collection</div><h2>My library</h2><p class="muted">Your meetings, kits, quiz results and portfolio, together in one place.</p></div></div>
-<div class="library-layout">
+<div class="library-quote-top"><section id="sgc-daily-quote" class="daily-sticky" hidden></section></div><div class="library-layout">
 <aside class="library-sidebar"><details open><summary>My library</summary><nav aria-label="My library sections">
 <a href="#library-meetings" data-library="library-meetings">My meetings</a>
 <a href="#library-purchases" data-library="library-purchases">Purchases & billing</a>
