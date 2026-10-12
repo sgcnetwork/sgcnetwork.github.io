@@ -833,6 +833,7 @@ async function sgcOpenProfile(id=user.id){
  box.append(form);
 }
 async function sgcCreateStory(existing=null){
+ if(!existing || typeof existing.id!=='string' || !/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(existing.id))existing=null;
  const box=sgcModal(existing?'Edit your story draft':'Create your story ✦'),form=el('form'),body=el('textarea'),file=el('input'),preview=el('div',undefined,'sgc-story-preview'),status=el('p',undefined,'muted'),controls=el('div',undefined,'sgc-story-controls'),draft=el('button','Save as draft','btn soft'),publish=el('button','Post story to everyone →','btn');
  let objectUrl=null;
  body.maxLength=500;body.placeholder='Share a moment, an update or something inspiring…';body.value=existing?.body||'';
@@ -877,7 +878,7 @@ async function sgcViewStory(story){
 }
 async function sgcStories(){
  const strip=document.getElementById('sgc-story-strip');if(!strip||!user)return;
- strip.replaceChildren();const create=el('button',undefined,'sgc-story create');create.type='button';create.append(el('span','Your story','story-name'));create.onclick=sgcCreateStory;strip.append(create);
+ strip.replaceChildren();const create=el('button',undefined,'sgc-story create');create.type='button';create.append(el('span','Your story','story-name'));create.onclick=()=>sgcCreateStory();strip.append(create);
  const r=await sb.from('sgc_social_stories').select('id,user_id,body,image_path,video_path,status,created_at').gt('expires_at',new Date().toISOString()).order('created_at',{ascending:false}).limit(60);
  if(r.error){strip.append(el('p','Stories are unavailable right now.','muted'));return}
  const ids=[...new Set((r.data||[]).map(x=>x.user_id))],names={};
@@ -886,7 +887,7 @@ async function sgcStories(){
 }
 document.getElementById('sgc-my-profile').onclick=()=>sgcOpenProfile();
 document.getElementById('sgc-composer-profile').onclick=()=>sgcOpenProfile();
-document.getElementById('sgc-composer-story').onclick=sgcCreateStory;
+document.getElementById('sgc-composer-story').onclick=()=>sgcCreateStory();
 
 
 let sgcMemberTab='members',sgcMembers=[],sgcFriends=[],sgcCurrentChat=null;
