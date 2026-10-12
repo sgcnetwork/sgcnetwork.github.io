@@ -953,8 +953,8 @@ async function sgcOpenProfile(id=user.id){
  const form=el('form'),name=el('input'),bio=el('textarea'),website=el('input'),file=el('input'),save=el('button','Save my profile','btn'),status=el('p',undefined,'muted');
  name.value=profile?.display_name||user.user_metadata?.username||user.user_metadata?.full_name||user.email.split('@')[0];name.required=true;name.minLength=2;name.maxLength=60;
  website.type='url';website.placeholder='https://yourbusiness.co.za';website.maxLength=500;website.value=profile?.business_website||'';bio.value=profile?.bio||'';bio.maxLength=500;bio.placeholder='A little about you and your business journey…';
- let croppedPhoto=null;file.onchange=async()=>{try{const selected=file.files[0];if(!selected)return;const cropped=await sgcCropProfilePhoto(selected);if(cropped){croppedPhoto=cropped;const url=URL.createObjectURL(cropped);const image=el('img');image.src=url;image.onload=()=>URL.revokeObjectURL(url);avatar.replaceChildren(image)}else{file.value=''}}catch(err){alert(err.message);file.value=''}};
- file.type='file';file.accept='image/jpeg,image/png,image/webp';
+ let croppedPhoto=null;file.onchange=async()=>{try{const selected=file.files[0];if(!selected)return;const cropped=await sgcCropProfilePhoto(selected);if(cropped){croppedPhoto=cropped;const url=URL.createObjectURL(cropped);const image=el('img');image.src=url;image.onload=()=>URL.revokeObjectURL(url);avatar.replaceChildren(image)}else{file.value='';croppedPhoto=null}}catch(err){alert(err.message);file.value=''}};
+ file.type='file';file.accept='image/jpeg,image/png,image/webp';avatar.title='Click to change and crop your picture';avatar.style.cursor='pointer';avatar.onclick=()=>file.click();
  form.append(el('label','Display name (other members will see this)'),name,el('label','About me'),bio,el('label','Business website (optional)'),website,el('label','Profile picture'),file,save,status);
  form.onsubmit=async e=>{e.preventDefault();save.disabled=true;try{const path=croppedPhoto?await sgcUpload(croppedPhoto):profile?.avatar_path||null;check(await sb.from('sgc_social_profiles').upsert({user_id:user.id,display_name:name.value.trim(),bio:bio.value.trim(),business_website:website.value.trim()||null,avatar_path:path,updated_at:new Date().toISOString()}));sgcModalRoot.replaceChildren();await sgcStories();await feed();say('Your profile has been updated.')}catch(err){status.textContent=err.message}finally{save.disabled=false}};
  box.append(form);
@@ -966,7 +966,7 @@ function sgcStyleProfile(box,profile,mine){
  const cover=box.querySelector('.sgc-profile-cover'),avatar=box.querySelector('.sgc-profile-avatar'),name=box.querySelector(':scope > h3'),bio=box.querySelector(':scope > p');
  const hero=el('div',undefined,'sgc-profile-hero');
  const info=el('div',undefined,'sgc-profile-hero-info'),identity=el('div',undefined,'sgc-profile-identity');
- if(avatar){identity.append(avatar);const full=avatar.querySelector('img');if(full){avatar.title='View profile picture';avatar.style.cursor='zoom-in';avatar.onclick=()=>sgcViewProfilePhoto(full.src)}}
+ if(avatar){identity.append(avatar);const full=avatar.querySelector('img');if(full&&!mine){avatar.title='View profile picture';avatar.style.cursor='zoom-in';avatar.onclick=()=>sgcViewProfilePhoto(full.src)}}
  const names=el('div',undefined,'sgc-profile-names');if(name)names.append(name);if(bio)names.append(bio);const website=box.querySelector(':scope > .sgc-profile-website');if(website)names.append(website);identity.append(names);
  info.append(identity);const actions=box.querySelector(':scope > .sgc-member-profile-actions');if(actions)info.append(actions);
  if(cover)hero.append(cover);hero.append(info);
