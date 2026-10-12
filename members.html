@@ -1,5 +1,2029 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#fbf5f9"><title>Members & Conversations — SGC Network</title>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Members & Conversations — SGC Network</title>
 <style>
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#faf5f9;color:#372b36;font-family:Inter,Arial,sans-serif}header{position:sticky;top:0;z-index:10;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px max(16px,calc((100vw - 1060px)/2));background:#fffafd;border-bottom:1px solid #ebddeb;box-shadow:0 3px 15px #56394a12}a{text-decoration:none;color:inherit}.logo{font:28px Georgia,serif;letter-spacing:.07em}.logo small{display:block;font:9px Arial,sans-serif;letter-spacing:.2em;margin-top:3px}.links{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.links a{padding:10px 13px;border-radius:13px;background:#f2e6f2;color:#6d4c69;font-size:12px;font-weight:700}.links .active{background:#4c3549;color:#fff}h1{font:30px Georgia,serif;margin:18px 0 4px}.intro{max-width:1000px;margin:auto;padding:0 15px}.intro p{font-size:13px;color:#826f7c;margin:0 0 14px}iframe{display:block;width:min(100%,1040px);min-height:calc(100dvh - 155px);height:1100px;margin:0 auto 30px;border:0;background:transparent}nav.mobile{display:none}@media(max-width:700px){header{padding:10px 14px}.logo{font-size:23px}.links{gap:5px}.links a{padding:9px;font-size:11px}h1{font-size:24px;margin:14px 0 5px}iframe{height:calc(100dvh - 185px);min-height:500px;margin:0 auto 75px}nav.mobile{position:fixed;bottom:0;left:0;right:0;display:grid;grid-template-columns:repeat(5,1fr);gap:5px;padding:9px 7px calc(10px + env(safe-area-inset-bottom,0px));background:#fffafd;border-top:1px solid #e7d6e6}nav.mobile a{text-align:center;font-size:11px;font-weight:700;color:#785b74;padding:10px 4px;border-radius:12px}nav.mobile a.active{background:#f1e1f0}}
-</style><link rel="stylesheet" href="css/sgc-theme.css?v=6"><script src="js/sgc-theme.js?v=2"></script></head><body><header><a href="dashboard.html" class="logo">SGC<small>NETWORK</small></a><div class="links"><a href="community.html">← Community</a><a href="members.html" class="active">Members</a><a href="chats.html">💬 Chats</a></div></header><div class="intro"><h1>Members & Conversations</h1><p>Find members, manage friend requests and start private or independent group chats.</p><p><a href="chats.html" style="display:inline-block;padding:12px 18px;background:#b65d96;color:white;border-radius:14px;font-weight:700">💬 Open SGC Chats</a></p></div><iframe src="community.html?view=members" title="SGC members, friend requests and private conversations" loading="eager"></iframe><nav class="mobile"><a href="dashboard.html">Home</a><a href="community.html">Feed</a><a class="active" href="members.html">Members</a><a href="chats.html">Chats</a><a href="shop.html">Shop</a></nav></body></html>
+:root{--ink:#171516;--cream:#fbf5ea;--paper:#fffaf2;--pink:#f4dfe0;--lav:#e7def4;--butter:#f4e7a8;--line:#17151620;--muted:#756e69}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;background:var(--cream);color:var(--ink);font:14px Arial,sans-serif}
+a{color:inherit;text-decoration:none}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+button:disabled{opacity:.5;cursor:wait}
+.wrap{width:min(1380px,calc(100% - 32px));margin:auto}
+header{display:flex;justify-content:space-between;gap:24px;align-items:center;padding:25px 0;border-bottom:1px solid var(--line)}
+.brand{font:30px Georgia,serif;letter-spacing:.08em}
+.brand small{display:block;font:10px Arial;letter-spacing:.28em;margin-top:5px}
+nav{display:flex;gap:18px;align-items:center;flex-wrap:wrap;font-size:13px}
+nav a.active{border-bottom:1px solid var(--ink);padding-bottom:5px}
+.btn{background:var(--ink);color:white;border:1px solid var(--ink);padding:12px 18px;border-radius:25px}
+.btn.alt{background:transparent;color:var(--ink)}
+.btn.soft{background:var(--lav);border-color:transparent;color:var(--ink)}
+h1,h2,h3{font-family:Georgia,serif;font-weight:normal}
+h1{font-size:clamp(40px,6vw,68px);margin:14px 0}
+h2{font-size:27px;margin:0 0 12px}
+h3{font-size:21px}
+.muted{font-size:12px;color:var(--muted);line-height:1.7}
+.eyebrow{text-transform:uppercase;letter-spacing:.16em;font-size:10px}
+.hero{padding:35px 0 20px}
+.layout{display:grid;grid-template-columns:240px minmax(0,1fr) 240px;gap:25px;align-items:start;padding-bottom:60px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:23px;padding:24px;margin-bottom:18px}
+.sticky{background:#f2c9d6;border-radius:3px;transform:rotate(-1deg);box-shadow:3px 4px 0 #0002;margin:8px 0 24px;padding:25px}
+.sticky blockquote{font:25px/1.4 Georgia,serif;margin:18px 0}
+.lav{background:var(--lav)}
+.butter{background:var(--butter)}
+label{display:block;font-size:12px;color:var(--muted);margin:16px 0 7px}
+input,select,textarea{width:100%;padding:13px;border:1px solid var(--line);border-radius:12px;background:#ffffff90;color:var(--ink)}
+textarea{min-height:100px;resize:vertical;line-height:1.7}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.person{display:flex;gap:12px;align-items:center}
+.avatar{width:42px;height:42px;border-radius:50%;background:var(--lav);display:grid;place-items:center;font:23px Georgia;flex-shrink:0}
+.post-body{white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.8;margin:18px 0}
+.photos{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.photos img{width:100%;max-height:430px;object-fit:contain;background:#f3ece2;border-radius:15px}
+.reaction-selected{background:var(--pink)!important;border-color:#a86c89!important}
+.email{font-size:11px;color:var(--muted);overflow-wrap:anywhere}
+.post-heading{font:26px/1.3 Georgia,serif;margin:20px 0 8px}
+.right{position:sticky;top:20px}
+.feed-actions{border-top:1px solid var(--line);padding-top:16px;margin-top:16px}
+.comment{background:var(--lav);border-radius:16px;padding:14px 17px;margin:12px 0}
+.comment p{white-space:pre-wrap;overflow-wrap:anywhere;margin:8px 0}
+.pill{background:#fff8;border:1px solid var(--line);border-radius:30px;padding:8px 13px;font-size:11px}
+#status{white-space:pre-wrap;overflow-wrap:anywhere}
+.suggestion{border-top:1px solid var(--line);padding:18px 0}
+.suggestion p{white-space:pre-wrap}
+footer{border-top:1px solid var(--line);padding:25px 0;color:var(--muted);font-size:12px}
+@media(max-width:1100px){
+.layout{grid-template-columns:230px minmax(0,1fr)}
+.right{grid-column:2}
+}
+@media(max-width:800px){
+.right{grid-column:auto;position:static}
+.layout{grid-template-columns:1fr}
+.left{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:15px}
+.sticky{margin:0 0 18px}
+header{flex-wrap:wrap}
+nav{gap:12px}
+.hero{padding-top:24px}
+}
+
+/* Community: soft SGC editorial styling */
+:root{--ink:#322b2e;--cream:#faf7f1;--paper:#fffdf9;--pink:#f3e0e5;--lav:#eee7f5;--butter:#f5edce;--line:#47363d14;--muted:#797077}
+body{background:radial-gradient(ellipse at 95% 0,#ede5f380,transparent 42%),var(--cream);font-size:14px}
+.wrap{width:min(1400px,calc(100% - 64px))}
+header{padding:26px 0;min-height:98px}
+nav{gap:6px}
+nav a{padding:11px 17px;border-radius:24px;transition:background .2s}
+nav a:hover{background:#fff8}
+nav a.active{border:0;padding-bottom:11px;background:var(--lav)}
+nav .btn{margin-left:10px;padding:10px 18px}
+.hero{position:relative;isolation:isolate;margin:28px 0 32px;padding:40px 46px;overflow:hidden;border:1px solid var(--line);border-radius:30px;background:linear-gradient(110deg,#f3e4e7 0%,#f6eee5 55%,#eae3f1 100%)}
+.hero:after{content:"";position:absolute;z-index:-1;width:330px;height:330px;border:1px solid #ffffff95;border-radius:50%;right:-55px;top:-135px;box-shadow:0 0 0 38px #ffffff20,0 0 0 76px #ffffff15}
+.hero h1{font-size:clamp(40px,5vw,64px);letter-spacing:-.045em;margin:14px 0 12px}
+.hero .muted{font-size:14px;max-width:540px;margin-bottom:0}
+.hero .eyebrow{color:#816572;font-weight:600}
+#status:empty{display:none}
+.layout{grid-template-columns:270px minmax(0,1fr) 250px;gap:24px}
+.card{border-radius:24px;padding:25px;background:var(--paper);box-shadow:0 5px 22px #422b3c04;margin-bottom:22px}
+.card h2{font-size:25px;line-height:1.25;letter-spacing:-.025em}
+.card h3{line-height:1.35;letter-spacing:-.02em}
+.left>.butter{background:#f5efdc}
+.left>.butter .row{justify-content:space-between;gap:8px}
+#refresh{font-size:11px;padding:8px 10px;border-color:#47363d24}
+.btn{background:#3e303a;border-color:#3e303a;box-shadow:0 2px 4px #322b2e08;transition:background .2s,transform .2s}
+.btn:hover:not(:disabled){transform:translateY(-1px);background:#584452}
+.btn.alt:hover:not(:disabled){background:#ffffff90}
+.btn.soft:hover:not(:disabled){background:#e1d5ee}
+input,select,textarea{background:#ffffffbb;border-color:#47363d20;border-radius:13px;line-height:1.5}
+input:focus,select:focus,textarea:focus{outline:2px solid #b29cb6;outline-offset:2px}
+label{font-size:11px;font-weight:600;line-height:1.5}
+.muted{font-size:12px;line-height:1.8}
+#join-control .btn{width:100%;margin:5px 0}
+#join-control .pill{display:inline-block;background:#e4eddf;color:#52614d;border-color:#52614d18}
+.sticky{position:relative;background:linear-gradient(145deg,#f2dce2,#f8e9ec);border:1px solid #a87a8d15;border-radius:24px;transform:none;box-shadow:none;padding:28px;margin:0 0 22px}
+.sticky:before{content:"“";position:absolute;right:20px;top:34px;color:#bc8f9e35;font:95px Georgia,serif;pointer-events:none}
+.sticky blockquote{position:relative;font-size:25px;line-height:1.5;letter-spacing:-.025em}
+.sticky small{color:#886c76}
+#composer-card{padding:28px}
+#composer-card .person{border-bottom:1px solid var(--line);padding-bottom:18px}
+#composer-card .person p{margin:5px 0}
+#composer-card .person strong{font-weight:500;font-size:15px}
+.avatar{width:46px;height:46px;background:linear-gradient(135deg,#eee3f4,#eadbe5);border:3px solid #fff}
+#post-body{min-height:125px}
+#post-photos{font-size:11px}
+#post-photos::file-selector-button{border:0;background:var(--lav);color:var(--ink);border-radius:8px;padding:8px 10px;margin-right:10px}
+#feed>.card{padding:28px}
+#feed>.lav{background:linear-gradient(140deg,#efe8f5,#fbf6ee);padding:38px}
+#feed>.lav h2{font-size:32px;margin-top:12px}
+#feed .row .btn{font-size:11px;padding:9px 12px}
+.post-body{font-size:14px;line-height:1.9}
+.comment{background:#f4eef7;border:1px solid var(--line);padding:18px}
+.pill{font-size:10px;letter-spacing:.035em;border-color:#47363d12}
+.right>.butter{background:#f6efd9}
+.right>.lav,.left>.lav{background:#eee7f2}
+.right h2{font-size:30px}
+#feed-count{border-top:1px solid var(--line);padding-top:16px;margin-top:20px}
+footer{padding:28px 0 36px;font-size:11px;letter-spacing:.04em}
+@media(max-width:1150px){.layout{grid-template-columns:250px minmax(0,1fr)}.right{grid-column:2;position:static;display:grid;grid-template-columns:1fr 1fr;gap:20px}}
+@media(max-width:800px){.wrap{width:calc(100% - 30px)}header{padding:22px 0;gap:20px}nav{gap:2px}nav a{padding:9px 11px;font-size:12px}nav a.active{padding-bottom:9px}nav .btn{font-size:11px;margin-left:4px}.hero{padding:30px 26px;margin:20px 0 24px}.hero h1{font-size:43px}.hero .muted{font-size:13px}.layout{grid-template-columns:1fr;gap:0}.left{display:block}.right{grid-column:auto;display:block}.card,#composer-card,#feed>.card{padding:24px}.photos{grid-template-columns:repeat(auto-fit,minmax(140px,1fr))}}
+@media(prefers-reduced-motion:reduce){.btn,nav a{transition:none}.btn:hover:not(:disabled){transform:none}}
+
+
+/* Social community layout */
+body{background:#f1f2f6!important}
+header{background:#fff;border-radius:0 0 18px 18px;padding:14px 24px!important;box-shadow:0 2px 12px #2c234018;position:sticky;top:0;z-index:10}
+header nav{gap:8px}header nav a{font-size:13px;font-weight:600}
+.hero{padding:25px 36px!important;margin:18px 0 22px!important;background:linear-gradient(115deg,#f4e4ed,#eae5f6,#fff2d7)!important}
+.hero h1{font-size:39px!important}
+.layout{grid-template-columns:250px minmax(0,1fr) 260px!important;gap:20px!important}
+#composer-card{background:white!important;border-radius:20px!important}
+#composer-card .person{padding-bottom:10px!important}
+#post-body{min-height:75px!important;background:#f1f2f6!important;border-radius:25px!important}
+#feed>.card{background:#fff!important;border-radius:18px!important;margin-bottom:18px!important;box-shadow:0 2px 12px #30263d0b}
+#feed .post-heading{font-size:23px}
+.sgc-social-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.sgc-social-actions button{background:#f5edf7;border:0;border-radius:12px;padding:10px 15px;color:#45364a;font-weight:600}
+.sgc-social-top{background:white;border:1px solid #e9e0eb;border-radius:20px;padding:19px;margin-bottom:18px;box-shadow:0 4px 15px #32223b0a}
+.sgc-social-top h2{font:24px Georgia,serif;margin:0 0 15px}
+.sgc-stories{display:flex;gap:12px;overflow-x:auto;padding:3px 2px 8px;scroll-snap-type:x mandatory}
+.sgc-story{position:relative;flex:0 0 132px;height:190px;border:0;border-radius:17px;overflow:hidden;background:linear-gradient(155deg,#e9d6ed,#f7e3e5,#fff0c8);padding:13px;display:flex;flex-direction:column;justify-content:space-between;text-align:left;cursor:pointer;scroll-snap-align:start;color:#302436;box-shadow:0 3px 8px #2e18310e}
+.sgc-story:before{content:'✦';font-size:36px;align-self:center;margin-top:20px;color:#ad7fa3}
+.sgc-story .story-avatar{display:grid;place-items:center;width:39px;height:39px;border:3px solid white;border-radius:50%;background:#d5b9dd;font-weight:700}
+.sgc-story .story-name{font-size:12px;font-weight:700;line-height:1.4;overflow-wrap:anywhere}
+.sgc-story.create{background:linear-gradient(160deg,#f2e5f8,#f8e4eb)}
+.sgc-story.create:before{content:'+';font:48px Arial;color:#745182}
+.sgc-profile-link{border:0;background:none;color:#49374b;text-align:left;padding:0;font-weight:700;cursor:pointer}
+.sgc-profile-link:hover{text-decoration:underline}
+.sgc-modal-backdrop{position:fixed;inset:0;background:#1e1725a8;z-index:40;display:flex;align-items:center;justify-content:center;padding:18px}
+.sgc-modal{background:#fffdfa;border-radius:24px;width:min(530px,100%);max-height:90vh;overflow:auto;padding:28px;box-shadow:0 20px 80px #170f2640}
+.sgc-modal h2{font:30px Georgia,serif;margin:0 0 14px}
+.sgc-modal .close-modal{float:right;border:0;background:#f0e5f2;border-radius:50%;width:36px;height:36px;font-size:23px}
+.sgc-profile-cover{height:120px;background:linear-gradient(115deg,#f3d9e6,#e5ddf5,#f9eccc);border-radius:16px}
+.sgc-profile-avatar{width:76px;height:76px;border:4px solid white;border-radius:50%;background:#e3cfe9;display:grid;place-items:center;font:30px Georgia,serif;margin:-35px 0 10px 18px;overflow:hidden}
+.sgc-profile-avatar img{width:100%;height:100%;object-fit:cover}
+.sgc-story-image{width:100%;max-height:50vh;object-fit:contain;border-radius:14px;margin:12px 0}
+@media(max-width:1150px){.layout{grid-template-columns:220px minmax(0,1fr)!important}.right{grid-column:2!important}}
+@media(max-width:800px){.layout{grid-template-columns:1fr!important}.right{grid-column:auto!important}.hero{padding:25px!important}.sgc-story{flex-basis:116px;height:164px}header{position:static}}
+.sgc-people-toggle{border:0!important;background:#f0e4f5!important;color:#3f3046!important;font-weight:700!important}.sgc-social-tabs{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 18px}.sgc-social-tabs button{border:0;border-radius:15px;padding:11px 15px;background:#eee5f2;color:#3b3040;font-weight:600}.sgc-social-tabs button.active{background:#3e303a;color:white}.sgc-member-card{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid #e9e1e9;border-radius:15px;padding:12px;margin:9px 0;background:#fff}.sgc-member-card .avatar{width:38px;height:38px;font-size:17px}.sgc-member-card button{font-size:11px;padding:9px 12px}.sgc-chat-messages{min-height:150px;max-height:360px;overflow:auto;background:#f8f4f9;padding:15px;border-radius:14px}.sgc-chat-bubble{max-width:85%;background:#e7ddee;border-radius:14px;padding:11px 14px;margin:9px 0;white-space:pre-wrap;overflow-wrap:anywhere}.sgc-chat-bubble.mine{background:#f3e4da;margin-left:auto}.sgc-people-search{margin:12px 0}.sgc-chat-form{display:flex;gap:9px;margin-top:12px}.sgc-chat-form input{flex:1;min-width:0}.sgc-chat-form button{flex-shrink:0}@media(max-width:700px){.sgc-member-card{flex-wrap:wrap}.sgc-chat-form{flex-wrap:wrap}}
+.sgc-story-preview{min-height:190px;display:grid;place-items:center;background:linear-gradient(145deg,#f5e7f5,#fbe8eb);border:1px dashed #d9bfd5;border-radius:18px;padding:16px;margin:14px 0;overflow:hidden}.sgc-story-preview img,.sgc-story-preview video{max-width:100%;max-height:320px;object-fit:contain;border-radius:12px}.sgc-story-preview p{text-align:center;white-space:pre-wrap}.sgc-story-controls{display:flex;gap:10px;flex-wrap:wrap}.sgc-story-controls button{flex:1;min-width:130px}.sgc-story.draft{border:2px dashed #a98fae;background:#f8f1fa}.sgc-story.draft:before{content:'✎'}
+.sgc-story-react{display:flex;gap:8px;flex-wrap:wrap;margin:13px 0}.sgc-story-react button{border:1px solid #e6d6e4;background:#fbf4fa;border-radius:13px;font-size:20px;padding:7px 11px;cursor:pointer}.sgc-story-react button.selected{background:#ecd5e9;border-color:#ae83ad}.sgc-story-comment{background:#f8f3f8;border-radius:14px;padding:10px 13px;margin:8px 0;white-space:pre-wrap;overflow-wrap:anywhere}.sgc-story-comment small{color:#8c798c}.sgc-story-comment-form{display:flex;gap:8px;margin-top:10px}.sgc-story-comment-form input{flex:1;min-width:0}.sgc-story-comment-form button{flex-shrink:0}
+
+/* Immersive Facebook-style story viewer */
+.sgc-modal-backdrop:has(.sgc-story-viewer){background:#08090df5!important;padding:0!important}
+.sgc-modal.sgc-story-viewer{width:min(510px,100vw)!important;height:min(94vh,960px)!important;max-height:100vh!important;padding:0!important;border-radius:14px!important;background:#22252c!important;color:#fff!important;position:relative!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
+.sgc-story-viewer>.close-modal{position:absolute;right:12px;top:14px;z-index:5;color:white;background:#ffffff35;width:37px;height:37px}
+.sgc-story-viewer>h2{display:none}
+.sgc-story-stage{position:relative;min-height:0;flex:1;display:flex;align-items:center;justify-content:center;overflow:hidden;background:linear-gradient(160deg,#6c8089,#a6bbc4)}
+.sgc-story-stage img,.sgc-story-stage video{height:100%;width:100%;object-fit:contain;max-height:100%;border-radius:0;margin:0}
+.sgc-story-stage .sgc-story-text{padding:25px;text-align:center;font:clamp(19px,3vw,28px)/1.5 Georgia,serif;white-space:pre-wrap;overflow-wrap:anywhere;color:#fff;text-shadow:0 2px 7px #0007}
+.sgc-story-top{position:absolute;top:0;left:0;right:0;z-index:3;padding:13px 15px;background:linear-gradient(#0008,transparent);color:#fff}
+.sgc-story-progress{height:4px;background:#ffffff65;border-radius:5px;margin-bottom:13px;overflow:hidden}
+.sgc-story-progress span{display:block;height:100%;width:100%;background:#fff}
+.sgc-story-owner{font-size:14px;font-weight:700;display:flex;align-items:center;gap:9px}
+.sgc-story-owner button{color:#fff!important}
+.sgc-story-bottom{background:#202128;padding:10px 13px 14px;max-height:43%;overflow-y:auto}
+.sgc-story-bottom .sgc-story-react{margin:7px 0;flex-wrap:nowrap;justify-content:space-between}
+.sgc-story-bottom .sgc-story-react button{border:0;background:none;color:white;padding:4px;font-size:24px}
+.sgc-story-bottom .sgc-story-react button.selected{background:#fff3;border-radius:20px}
+.sgc-story-bottom .sgc-story-comment{background:#33353e;color:white}
+.sgc-story-bottom .sgc-story-comment small{color:#c9c5cf}
+.sgc-story-bottom .sgc-story-comment-form input{background:#353741;color:#fff;border:1px solid #aaa7b0;border-radius:25px}
+.sgc-story-bottom .sgc-story-comment-form input::placeholder{color:#ccc}
+.sgc-story-bottom .sgc-story-comment-form button{background:#efcfe1;color:#302631;border-radius:25px}
+.sgc-story-bottom h3{font-size:14px;color:#eee;margin:7px 0}
+.sgc-story-bottom .muted{color:#c9c5cf}
+.sgc-story-bottom .sgc-profile-link{color:#fff}
+.sgc-story-nav{position:absolute;top:45%;border:0;background:#0006;color:#fff;border-radius:50%;height:38px;width:38px;font-size:24px;cursor:pointer;z-index:4}
+.sgc-story-nav.prev{left:8px}.sgc-story-nav.next{right:8px}
+@media(max-width:600px){.sgc-modal.sgc-story-viewer{height:100dvh;width:100vw;border-radius:0!important}.sgc-story-bottom{max-height:45%}}
+.sgc-story-stage{background:linear-gradient(145deg,#f4dce9 0%,#e8dff5 52%,#f8edc9 100%)!important}.sgc-story-stage .sgc-story-text{color:#3d2e3b!important;text-shadow:none!important;background:#fff9f4d9;border:1px solid #e6d4e4;border-radius:20px;box-shadow:0 14px 38px #72567220;max-width:88%;padding:25px 30px!important}.sgc-story-stage:has(img),.sgc-story-stage:has(video){background:#15131a!important}.sgc-story-stage:has(img) .sgc-story-text,.sgc-story-stage:has(video) .sgc-story-text{position:absolute;bottom:10px;background:#201521a8;color:#fff!important;font:15px/1.4 Arial,sans-serif;padding:10px 14px!important;max-width:90%}.sgc-story-stage .sgc-story-progress span{width:0%;transition:none}.sgc-story-stage .sgc-story-owner{padding-right:40px}.sgc-story-playback{margin-left:auto;border:0;background:#ffffff30;color:#fff;border-radius:50%;width:33px;height:33px;cursor:pointer}.sgc-story-stage .sgc-story-nav{font-size:25px}.sgc-story-stage img,.sgc-story-stage video{object-fit:contain!important}
+
+.sgc-faq-chat{display:grid;gap:10px}.sgc-faq-chat .sgc-chat-thread{padding:12px 0;border-bottom:1px solid #e9dfeb}.sgc-chat-message{padding:12px 16px;background:#fff;border:1px solid #e9dfeb;border-radius:18px;line-height:1.5;overflow-wrap:anywhere}.sgc-chat-message.reply{margin:7px 0 0 30px;background:#f2e9f6;border-left:3px solid #c7a5cb}.sgc-chat-message strong{font-size:12px;color:#785d76}.sgc-chat-message p{margin:6px 0}.sgc-chat-message button{background:none;border:0;color:#8e6589;font-size:12px;cursor:pointer;padding:3px}.sgc-chat-compose{display:flex;gap:9px;align-items:center;flex-wrap:wrap}.sgc-chat-compose textarea{flex:1;min-width:180px;min-height:46px;border:1px solid #e2d3e2;border-radius:20px;padding:12px 15px;background:#fff;font:14px Arial,sans-serif}.sgc-chat-compose .btn{align-self:center}.sgc-faq-chat .sgc-chat-status{font-size:12px;color:#8e6589}
+<style>
+.sgc-faq-post{background:white;border:1px solid #eee5ec;border-radius:16px;margin:12px 0;padding:16px;box-shadow:0 2px 12px #3b243408}.sgc-faq-author{display:flex;gap:10px;align-items:center}.sgc-faq-author strong{display:block}.sgc-faq-author small{display:block;color:#887b86;margin-top:3px}.sgc-faq-avatar{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:#eee1f1;color:#49374e;font-weight:700}.sgc-faq-body{margin:15px 0;font-size:15px;line-height:1.6}.sgc-faq-summary{display:flex;justify-content:space-between;color:#80737d;font-size:12px;padding:9px 0;border-bottom:1px solid #eee}.sgc-faq-actions{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0}.sgc-faq-reactions{display:flex;flex-wrap:wrap;gap:5px}.sgc-faq-reactions button{font-size:12px!important;padding:6px!important}.sgc-faq-thread{border-top:1px solid #eee;padding-top:12px}.sgc-faq-comment{margin:9px 0}.sgc-faq-compose-top{padding:10px 0}.sgc-faq-thread .sgc-chat-compose{margin-top:10px}
+</style>
+<link rel="stylesheet" href="css/community-notifications.css"><link rel="stylesheet" href="css/sgc-user-guide.css?v=guide1"><style>
+/* Spacious, quieter Facebook-style FAQ feed */
+#sgc-faq-feed{background:transparent;border:0;box-shadow:none;padding:0}
+#sgc-faq-feed>.row,#sgc-faq-feed>p{padding-left:12px;padding-right:12px}
+#sgc-faq-feed-posts{display:flex;flex-direction:column;gap:20px}
+#sgc-faq-feed-posts .sgc-faq-post{margin:0;padding:0;background:#fff;border:1px solid #e5e1e6;border-radius:14px;overflow:hidden;box-shadow:0 2px 7px rgba(30,20,30,.035)}
+#sgc-faq-feed-posts .sgc-faq-author{padding:18px 20px 0;gap:12px}
+#sgc-faq-feed-posts .sgc-faq-body{padding:0 20px;margin:16px 0 22px;line-height:1.7}
+#sgc-faq-feed-posts .sgc-faq-post>strong{display:block;padding:12px 20px 0}
+#sgc-faq-feed-posts .sgc-faq-summary{margin:0 20px;padding:12px 0}
+#sgc-faq-feed-posts .sgc-faq-actions{padding:13px 20px;gap:16px}
+#sgc-faq-feed-posts .sgc-faq-thread{padding:18px 20px 22px;background:#fbf9fc}
+#sgc-faq-feed-posts .sgc-faq-comment{margin:0 0 16px}
+#sgc-faq-feed-posts .sgc-chat-message{padding:14px 17px;line-height:1.65}
+#sgc-faq-feed-posts .sgc-chat-message p{margin:9px 0 11px}
+#sgc-faq-feed-posts .sgc-faq-compose-top{padding:10px 0 6px}
+@media(max-width:600px){#sgc-faq-feed-posts{gap:16px}#sgc-faq-feed-posts .sgc-faq-actions{flex-wrap:wrap}#sgc-faq-feed-posts .sgc-faq-thread{padding:15px}}
+</style><style>
+#sgc-story-strip .sgc-story:not(.create):not(.draft) .story-avatar{border:4px solid #f49ac5!important;box-shadow:0 0 0 2px #e976af!important;transition:border-color .2s,box-shadow .2s}
+#sgc-story-strip .sgc-story.sgc-story-seen .story-avatar{border-color:#fff!important;box-shadow:0 0 0 2px #e8e3e8!important}
+</style><style>.sgc-faq-compose{display:grid;gap:10px;margin:12px 0}.sgc-faq-compose input:not([type=file]),.sgc-faq-compose textarea{width:100%;border:1px solid #e8dce8;border-radius:12px;padding:12px;font:inherit}.sgc-faq-compose textarea{min-height:88px}.sgc-faq-compose label{font-size:13px;color:#765e75}.sgc-faq-compose input[type=file]{display:block;margin-top:7px}.sgc-faq-media{display:block;max-width:100%;width:auto;max-height:430px;object-fit:contain;border-radius:10px;margin:12px auto;background:#faf7fa}</style><style>
+.sgc-faq-compose{width:100%;margin:0 0 8px!important}.sgc-comment-input-row{display:flex;align-items:flex-start;gap:10px}.sgc-comment-avatar{width:30px;height:30px;min-width:30px;border-radius:50%;background:#e9e4e8;display:grid;place-items:center;color:#695765;font-size:12px;font-weight:700}.sgc-comment-input-bubble{flex:1;min-width:0;background:#f0f2f5;border-radius:17px;padding:9px 12px 7px}.sgc-comment-input-bubble textarea{background:transparent!important;border:0!important;min-height:26px!important;height:30px;resize:vertical;padding:2px 0!important;box-shadow:none!important;outline:none;font-size:13px!important}.sgc-comment-input-bubble .sgc-comment-heading{background:#fff!important;border:1px solid #e6dce4!important;margin-bottom:7px;font-size:13px}.sgc-comment-input-bubble .sgc-comment-heading[hidden]{display:none!important}.sgc-comment-tools{display:flex;align-items:center;gap:5px;flex-wrap:wrap;position:relative}.sgc-comment-tool{background:transparent;border:0;padding:4px 6px;color:#6d6b73;cursor:pointer;font-size:15px}.sgc-comment-tool:hover{color:#ba5992}.sgc-comment-send{margin-left:auto;border:0;background:transparent;color:#89909c;font-size:19px;cursor:pointer;padding:1px 6px}.sgc-comment-send:hover{color:#d77bab}.sgc-comment-file-name{font-size:11px;color:#8c6985;max-width:125px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sgc-comment-emoji-picker{position:absolute;bottom:32px;left:0;background:white;border:1px solid #e8d9e6;border-radius:12px;box-shadow:0 5px 18px #0002;display:flex;flex-wrap:wrap;max-width:220px;z-index:2;padding:6px}.sgc-faq-compose .sgc-profile-link{font-size:12px;justify-self:end}
+</style><style>.sgc-faq-author .sgc-faq-delete{margin-left:auto;border:0;background:transparent;color:#8c7885;font-size:23px;cursor:pointer;padding:3px 10px}.sgc-faq-delete-comment{margin-left:12px;color:#9a697e!important;font-size:12px!important}</style><style>.sgc-comment-send{color:#e56da8!important;font-size:23px!important;font-weight:800!important}.sgc-comment-send:hover{color:#c9488b!important}.sgc-comment-send:disabled{opacity:.5;cursor:wait}</style><style>.sgc-faq-author .sgc-faq-delete{margin-left:auto;border:1px solid #f1cddd!important;background:#fff5fa!important;color:#bc5b8b!important;border-radius:999px;font-size:11px!important;font-weight:600;padding:5px 10px!important;white-space:nowrap}.sgc-faq-delete-comment{border:0;background:transparent;color:#bc5b8b!important;font-size:11px!important;font-weight:600;cursor:pointer}.sgc-faq-author{flex-wrap:wrap}</style><style>.sgc-delete-overlay{position:fixed;inset:0;z-index:99999;background:rgba(29,18,27,.4);display:flex;align-items:center;justify-content:center;padding:20px}.sgc-delete-dialog{background:#fffafc;border:1px solid #f2d6e4;border-radius:18px;padding:25px;width:min(100%,340px);box-shadow:0 20px 55px #0003;text-align:center}.sgc-delete-dialog h3{font-size:17px;margin:0 0 22px;color:#332330}.sgc-delete-buttons{display:flex;justify-content:center;gap:12px}.sgc-delete-buttons button{border:1px solid #ebcddd;border-radius:999px;padding:10px 22px;background:white;cursor:pointer;color:#5e4555}.sgc-delete-buttons .sgc-delete-yes{background:#e56da8;color:white;border-color:#e56da8;font-weight:700}</style><style>.sgc-faq-comment-head{display:flex;align-items:center;gap:9px;margin-bottom:5px}.sgc-faq-avatar,.sgc-comment-avatar{overflow:hidden;flex-shrink:0}.sgc-faq-comment-head .sgc-comment-avatar{width:28px;height:28px;min-width:28px}</style><style>.sgc-member-clickable{cursor:pointer}.sgc-member-name-link{background:transparent;border:0;padding:0;color:inherit;font-weight:700;text-align:left;cursor:pointer}.sgc-member-name-link:hover{text-decoration:underline;color:#b55c8b}.sgc-member-profile-actions{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}.sgc-member-profile-section{padding:16px 0;border-top:1px solid #eadce5}.sgc-member-profile-section h3{margin:0 0 12px}.sgc-member-profile-chips{display:flex;gap:8px;flex-wrap:wrap}.sgc-member-course,.sgc-member-profile-post{padding:12px;background:#fff8fb;border-radius:12px;margin:8px 0}.sgc-member-course p{margin:6px 0}.sgc-member-progress{height:7px;background:#f1e5ed;border-radius:99px;overflow:hidden}.sgc-member-progress span{display:block;height:100%;background:#e56da8;border-radius:99px}.sgc-member-profile-post strong{display:block;margin:6px 0}.sgc-member-profile-post p{white-space:pre-wrap;overflow-wrap:anywhere}</style><style>.sgc-crop-shade{position:fixed;inset:0;z-index:100000;background:#251b27a8;display:flex;align-items:center;justify-content:center;padding:15px}.sgc-crop-panel{width:min(100%,390px);max-height:95vh;overflow:auto;background:#fffafc;border-radius:20px;padding:22px;box-shadow:0 20px 60px #0004;text-align:center}.sgc-crop-panel h3{margin:0 0 8px}.sgc-crop-panel p{font-size:12px;color:#776a75}.sgc-crop-canvas{display:block;max-width:100%;width:280px;height:280px;margin:12px auto;border-radius:50%;touch-action:none;cursor:grab;outline:4px solid #f1d2e2}.sgc-crop-panel label{display:flex;align-items:center;gap:15px;margin:20px 5px}.sgc-crop-panel input[type=range]{flex:1;accent-color:#e56da8}.sgc-crop-buttons{display:flex;gap:10px;justify-content:center}.sgc-crop-buttons button{border:1px solid #eac7da;border-radius:30px;padding:10px 15px;background:white}.sgc-crop-buttons button:last-child{background:#e56da8;color:white;border-color:#e56da8}</style><style>
+.sgc-modal-backdrop:has(.sgc-profile-page){padding:0;background:#f1f2f6;align-items:flex-start;overflow:auto}
+.sgc-modal.sgc-profile-page{width:min(1100px,100%);max-width:1100px;min-height:100vh;max-height:none;margin:0 auto;padding:0!important;border-radius:0!important;background:#f2f3f7;overflow:visible}
+.sgc-profile-hero{background:white;position:relative;padding-bottom:10px}
+.sgc-profile-page .sgc-profile-cover{height:210px;margin:0;border-radius:0;background:linear-gradient(115deg,#f4d9e5,#e6ddf5,#f8eecb)}
+.sgc-profile-hero-info{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;padding:0 30px 16px;flex-wrap:wrap}
+.sgc-profile-identity{display:flex;align-items:center;gap:18px;min-width:0}
+.sgc-profile-page .sgc-profile-avatar{height:140px;width:140px;flex-shrink:0;margin:-52px 0 0;border:5px solid white;font-size:40px;z-index:1}
+.sgc-profile-names{padding-top:12px}.sgc-profile-names h3{font-size:25px;margin:0 0 7px}.sgc-profile-names p{margin:0;color:#786d79}
+.sgc-profile-hero .close-modal{position:absolute;right:18px;top:16px;float:none}
+.sgc-profile-page .sgc-member-profile-actions{margin:0 0 8px}
+.sgc-profile-tabs{background:white;border-top:1px solid #eee;display:flex;gap:4px;padding:0 20px;overflow-x:auto}
+.sgc-profile-tabs button{border:0;background:transparent;padding:16px 14px;font-weight:600;color:#716875;white-space:nowrap;border-bottom:3px solid transparent}
+.sgc-profile-tabs button.active{color:#d85c9a;border-bottom-color:#e56da8}
+.sgc-profile-layout{display:grid;grid-template-columns:minmax(240px,36%) minmax(0,1fr);gap:14px;padding:16px}
+.sgc-profile-left,.sgc-profile-right{min-width:0;display:flex;flex-direction:column;gap:14px}
+.sgc-profile-page .sgc-profile-card{background:white;border:1px solid #ece7ec;border-radius:13px;padding:18px;margin:0;box-shadow:0 1px 4px #2413240a}
+.sgc-profile-page .sgc-profile-card h3{font-size:16px;margin:0 0 12px}
+.sgc-profile-page .sgc-member-profile-section{border:1px solid #ece7ec}
+.sgc-profile-page .sgc-profile-card[hidden]{display:none!important}
+@media(max-width:650px){.sgc-profile-page .sgc-profile-cover{height:140px}.sgc-profile-hero-info{padding:0 16px 15px}.sgc-profile-page .sgc-profile-avatar{height:100px;width:100px;margin-top:-35px}.sgc-profile-names h3{font-size:20px}.sgc-profile-layout{grid-template-columns:1fr;padding:10px}.sgc-profile-tabs{padding:0 8px}}
+</style><style>.sgc-profile-website{display:inline-block;margin-top:8px;color:#bc5b8b;font-size:13px;overflow-wrap:anywhere;text-decoration:underline}.sgc-photo-lightbox{position:fixed;inset:0;z-index:100010;background:#17111be8;display:flex;align-items:center;justify-content:center;padding:25px}.sgc-photo-lightbox-inner{position:relative;max-width:95vw;max-height:90vh}.sgc-photo-lightbox img{display:block;max-width:95vw;max-height:85vh;object-fit:contain;border-radius:10px}.sgc-photo-lightbox button{position:absolute;right:-12px;top:-16px;border:0;border-radius:50%;width:38px;height:38px;background:white;color:#333;font-size:26px;cursor:pointer}</style><style>.sgc-story .story-avatar{overflow:hidden;display:flex;align-items:center;justify-content:center}.sgc-story .story-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block}.sgc-story-owner-avatar{height:36px;width:36px;min-width:36px;border-radius:50%;background:#f3dce9;display:inline-flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer}.sgc-story-owner-avatar img{width:100%;height:100%;object-fit:cover}.sgc-story-owner-details{display:flex;flex-direction:column;gap:2px;min-width:0}.sgc-story-owner{display:flex;align-items:center;gap:9px}.sgc-story-owner .sgc-story-playback{margin-left:auto}</style><style>
+/* Mobile-friendly story avatars: keep image visible within story rings. */
+#sgc-story-strip .sgc-story .story-avatar{display:flex!important;align-items:center;justify-content:center;position:relative;overflow:hidden!important;padding:0!important;width:46px!important;height:46px!important;min-width:46px!important;flex-shrink:0;border-radius:50%!important;box-sizing:border-box}
+#sgc-story-strip .sgc-story .story-avatar img{display:block!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;min-width:0!important;object-fit:cover!important;object-position:center!important;border-radius:50%!important;opacity:1!important;visibility:visible!important}
+#sgc-story-strip .sgc-story.create:before{display:none!important}
+#sgc-story-strip .sgc-story.create .sgc-create-story-avatar{border:3px solid #fff!important;background:#e9cee3;color:#8b4c7c;font-size:23px}
+@media(max-width:650px){#sgc-story-strip .sgc-story .story-avatar{width:44px!important;height:44px!important;min-width:44px!important}}
+</style><style>.sgc-crop-shade{z-index:2147483000!important;position:fixed!important;inset:0!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:12px!important;background:rgba(22,15,25,.78)!important}.sgc-crop-panel{position:relative!important;z-index:1!important;width:min(420px,100%)!important;max-height:calc(100dvh - 24px)!important;overflow-y:auto!important;overscroll-behavior:contain!important;background:#fffafc!important;border-radius:22px!important;padding:20px!important;box-sizing:border-box!important}.sgc-crop-canvas{touch-action:none!important}.sgc-crop-buttons{display:flex!important;gap:10px!important;justify-content:flex-end!important;margin-top:16px!important}.sgc-crop-buttons button{padding:12px 16px!important;border-radius:20px!important}</style><style>.sgc-inline-photo-editor{width:min(100%,390px);padding:16px;margin:12px 0;border:1px solid #e5c9df;border-radius:18px;background:#fff8fc;display:flex;flex-direction:column;gap:10px}.sgc-inline-photo-editor canvas{display:block;width:min(100%,320px);height:auto;aspect-ratio:1;margin:0 auto;border-radius:50%;background:#ecd6e6;touch-action:none;user-select:none;-webkit-user-select:none}.sgc-inline-photo-editor input[type=range]{width:100%;accent-color:#c46b9e}.sgc-inline-photo-editor button{padding:12px;min-height:44px}.sgc-inline-photo-editor p{margin:0;line-height:1.4}</style><style>.sgc-native-choose-photo{display:block!important;width:158px!important;max-width:158px!important;height:43px!important;min-height:43px!important;font-size:0!important;color:transparent!important;overflow:hidden!important;cursor:pointer!important;border:0!important;padding:0!important;background:transparent!important;position:static!important;opacity:1!important;clip-path:none!important;pointer-events:auto!important}.sgc-native-choose-photo::file-selector-button{display:inline-block!important;width:158px!important;height:43px!important;border:0!important;border-radius:999px!important;background:#f0e4f4!important;color:#28202d!important;font-size:13px!important;font-family:Arial,sans-serif!important;cursor:pointer!important;content:'Choose photo'}.sgc-native-choose-photo::-webkit-file-upload-button{width:158px!important;height:43px!important;border:0!important;border-radius:999px!important;background:#f0e4f4!important;color:#28202d!important;font-size:13px!important;cursor:pointer!important}</style><link rel="manifest" href="/manifest.webmanifest"><meta name="theme-color" content="#f4dfe0"><meta name="apple-mobile-web-app-capable" content="yes"><link rel="icon" type="image/svg+xml" href="/sgc-app-icon.svg"><script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/service-worker.js').catch(function(error){console.warn('SGC app setup:',error);});});}</script><style>
+/* SGC Community app-like layout: mobile only, desktop preserved */
+.sgc-mobile-top-actions,.sgc-mobile-tabs{display:none}
+@media(max-width:700px){
+ html,body{max-width:100%;overflow-x:hidden}
+ body{background:#f5f1f5!important;padding-bottom:calc(78px + env(safe-area-inset-bottom,0px))}
+ .wrap{width:100%!important;max-width:100%!important}
+ header{position:sticky!important;top:0!important;z-index:30!important;width:100%;min-height:64px!important;padding:9px 15px!important;gap:8px!important;border-radius:0!important;background:#fffafd!important;flex-wrap:nowrap!important}
+ header .brand{font-size:25px!important;letter-spacing:.025em!important;white-space:nowrap}
+ header .brand small{font-size:8px!important;letter-spacing:.19em!important;margin-top:1px}
+ header nav{display:none!important}
+ .sgc-mobile-top-actions{display:flex;gap:9px;align-items:center;margin-left:auto}
+ .sgc-mobile-top-actions button{height:40px;min-width:40px;padding:8px;border:0;border-radius:50%;background:#f1e7f2;color:#38293a;font-size:19px}
+ .hero{margin:0!important;padding:12px 17px!important;border:0!important;border-radius:0!important;background:#f6ecf5!important}
+ .hero .eyebrow,.hero h1,.hero>.muted{display:none!important}
+ .hero #status{margin:0}
+ .layout{display:flex!important;flex-direction:column!important;gap:0!important;padding:0 0 30px!important}
+ .layout>main{order:2;display:flex;flex-direction:column;min-width:0;width:100%}
+ .layout>.left{order:1;display:block!important;width:100%;padding:0!important}
+ .left>.card:first-child{margin:0!important;border:0!important;border-radius:0!important;padding:10px 15px 12px!important;background:#fff!important;box-shadow:none!important}
+ .left>.card:first-child>.row,.left>.card:first-child>p.muted{display:none!important}
+ .left>.card:first-child label{margin:4px 0!important;font-size:11px}
+ .left>.card:first-child select{padding:10px!important;min-height:41px;background:#f7f3f9}
+ .left>.sticky,.left>.card:not(:first-child),.layout>.right{display:none!important}
+ .layout>main>#composer-card{order:1;margin:0!important;padding:12px 14px!important;border:0!important;border-bottom:8px solid #f1edf3!important;border-radius:0!important;box-shadow:none!important}
+ #composer-card .person{padding-bottom:6px!important}
+ #composer-card .person p{display:none}
+ #composer-card .person strong{font-size:13px!important}
+ #composer-card .sgc-social-actions{margin:8px 0!important}
+ #post-body{min-height:58px!important;padding:12px!important;font-size:14px!important;background:#f7f3f8!important}
+ #composer-card label{margin:8px 0 4px!important}
+ #composer-card #post-title{padding:10px!important}
+ #composer-card .btn{min-height:42px}
+ .layout>main>.sgc-social-top:has(#sgc-story-strip){order:2;margin:0!important;padding:13px 12px!important;border:0!important;border-bottom:8px solid #f1edf3!important;border-radius:0!important;box-shadow:none!important;background:#fff!important}
+ .layout>main>.sgc-social-top:has(#sgc-story-strip) h2{font-size:18px!important;margin:0!important}
+ #sgc-my-profile{padding:8px 12px!important;font-size:11px!important}
+ #sgc-story-strip{gap:8px!important;margin-top:8px!important;padding-bottom:5px!important}
+ #sgc-story-strip .sgc-story{flex:0 0 120px!important;height:190px!important;border-radius:14px!important;padding:9px!important}
+ #sgc-story-strip .sgc-story .story-name{font-size:12px!important}
+ .layout>main>#sgc-members-hub{order:3;margin:0!important;border-radius:0!important}
+ .layout>main>#sgc-faq-feed{order:4;margin:0!important;border:0!important;border-bottom:8px solid #f1edf3!important;border-radius:0!important;padding:15px!important}
+ #sgc-faq-feed h2{font-size:19px!important}
+ .layout>main>#feed{order:5;width:100%}
+ #feed>.card{border:0!important;border-bottom:8px solid #f1edf3!important;border-radius:0!important;margin:0!important;padding:16px!important;box-shadow:none!important}
+ #feed .post-heading{font-size:19px!important}
+ #feed .photos{grid-template-columns:repeat(auto-fit,minmax(120px,1fr))!important}
+ #feed .photos img{border-radius:7px!important}
+ .layout>main>#sgc-social-modal-root{order:6}
+ .layout>main>#review-card{order:7}
+ .sgc-modal-backdrop{padding:8px!important}
+ .sgc-modal{max-height:calc(100dvh - 20px)!important;padding:18px!important;border-radius:18px!important}
+ .sgc-mobile-tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));position:fixed;bottom:0;left:0;right:0;z-index:35;background:#fffafd;border-top:1px solid #e8dce8;padding:8px 5px calc(7px + env(safe-area-inset-bottom,0px));box-shadow:0 -5px 20px #32223b12}
+ .sgc-mobile-tabs a,.sgc-mobile-tabs button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border:0;background:transparent;color:#5d4b60;font-size:10px;font-weight:600;min-height:47px;text-decoration:none;padding:3px}
+ .sgc-mobile-tabs .sgc-tab-icon{font-size:23px;line-height:1.1}
+ .sgc-mobile-tabs .current{color:#9e5189}
+ footer{padding:15px!important;text-align:center}
+}
+</style><style>
+/* Community viewport: the central feed is the sole vertical scrolling pane. */
+@media(min-width:701px){
+ html,body{height:100%;overflow:hidden!important}
+ body>.wrap{height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+ body>.wrap>header{flex:0 0 auto}
+ body>.wrap>.hero{flex:0 0 auto}
+ body>.wrap>.layout{flex:1 1 0;min-height:0;overflow:hidden;padding-bottom:0!important;align-items:stretch!important}
+ .layout>.left,.layout>.right{height:100%;min-height:0;overflow:hidden;align-self:stretch}
+ .layout>main{height:100%;min-height:0;min-width:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain;scrollbar-gutter:stable;padding-bottom:28px}
+ .layout>.left>.card,.layout>.left>.sticky{flex-shrink:0}
+ body>.wrap>footer{display:none}
+}
+@media(max-width:700px){
+ html,body{height:100%;overflow:hidden!important}
+ body{padding-bottom:0!important}
+ body>.wrap{height:100dvh!important;display:flex!important;flex-direction:column!important;overflow:hidden!important}
+ body>.wrap>header{flex:0 0 auto}
+ body>.wrap>.hero{flex:0 0 auto}
+ body>.wrap>.layout{flex:1 1 0!important;min-height:0!important;display:flex!important;flex-direction:column!important;overflow:hidden!important;padding:0!important}
+ .layout>.left{flex:0 0 auto!important;max-height:28dvh;overflow-y:auto!important;overscroll-behavior:contain}
+ .layout>.left>.sticky,.layout>.left>.card:not(:last-child){display:none!important}
+ .layout>.left>.card:last-child{display:block!important;padding:8px 14px!important;margin:0!important;border-radius:0!important;border:0!important;box-shadow:none!important;background:#fff!important}
+ .layout>.left>.card:last-child h3,.layout>.left>.card:last-child p,.layout>.left>.card:last-child #signed-in{display:none!important}
+ .layout>.left>.card:last-child>.eyebrow{font-size:10px!important}
+ .layout>main{order:2!important;flex:1 1 0!important;height:auto!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;padding-bottom:calc(90px + env(safe-area-inset-bottom,0px))!important}
+ .layout>.right{display:none!important}
+ .sgc-mobile-tabs{position:fixed!important;bottom:0}
+ body>.wrap>footer{display:none}
+}
+</style><style>
+@media(max-width:700px){
+ .sgc-mobile-tabs{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:5px!important;padding:9px 9px calc(8px + env(safe-area-inset-bottom,0px))!important;background:#fffafd!important;border-top:1px solid #e9dce9!important;box-shadow:0 -7px 24px #432c4314!important}
+ .sgc-mobile-tabs a,.sgc-mobile-tabs button{border-radius:15px!important;min-width:0!important;min-height:53px!important;gap:5px!important;font-size:10px!important;font-weight:700!important;color:#786879!important;transition:background .15s ease!important}
+ .sgc-mobile-tabs .sgc-tab-icon{display:grid!important;place-items:center!important;width:34px!important;height:30px!important;font-size:23px!important;font-family:Arial,sans-serif!important;line-height:1!important}
+ .sgc-mobile-tabs .current,.sgc-mobile-tabs a:active,.sgc-mobile-tabs button:active{background:#f1e5f3!important;color:#7e4178!important}
+ .sgc-mobile-tabs .current .sgc-tab-icon{color:#a14e8d!important}
+ body .sgc-guide-launcher{position:fixed!important;bottom:calc(91px + env(safe-area-inset-bottom,0px))!important;right:12px!important;left:auto!important;z-index:55!important;padding:10px 14px!important;min-height:39px!important;max-width:135px!important;border-radius:22px!important;box-shadow:0 5px 16px #4730472b!important;font-size:12px!important}
+ body .sgc-guide-launcher[hidden]{display:none!important}
+ body .sgc-guide-launcher.sgc-guide-dismissed{display:none!important}
+ body .sgc-guide-dismiss{position:fixed!important;bottom:calc(117px + env(safe-area-inset-bottom,0px))!important;right:7px!important;z-index:56!important;width:25px!important;height:25px!important;border-radius:50%!important;border:1px solid #dfcddd!important;background:#fff!important;color:#5b435c!important;box-shadow:0 2px 8px #47304720!important;font-size:17px!important;line-height:20px!important;padding:0!important}
+ body .sgc-guide-dismiss[hidden]{display:none!important}
+}
+</style><style>
+@media(max-width:700px){
+ /* Keep community selector compact and separate from the feed. */
+ .layout>.left{max-height:unset!important;overflow:visible!important;flex:0 0 auto!important;background:#fff!important}
+ .layout>.left>.card:last-child{padding:0!important;height:0!important;min-height:0!important;overflow:hidden!important;border:0!important;margin:0!important}
+ .layout>.left>.card:first-child{display:block!important;padding:7px 14px 9px!important;background:#fff!important;margin:0!important}
+ .layout>.left>.card:first-child>.row{display:none!important}
+ .layout>.left>.card:first-child label{font-size:10px!important;margin:3px 0 2px!important;line-height:1.2!important}
+ .layout>.left>.card:first-child select{height:35px!important;min-height:35px!important;padding:5px 11px!important;font-size:12px!important;border-radius:12px!important}
+ .layout>.left>.card:first-child #group-description{display:none!important}
+ .layout>.left>.card:first-child #join-control{margin:0!important}
+ .layout>.left>.card:first-child #join-control .pill{font-size:10px!important;padding:4px 8px!important;margin:3px 0 0!important}
+ .layout>.left>.card:first-child #join-control .btn{padding:6px 9px!important;margin:3px 0 0!important;font-size:11px!important;min-height:30px!important}
+ .layout>main{padding-top:0!important}
+ .sgc-mobile-top-actions{gap:8px!important}
+ .sgc-mobile-top-actions button{height:39px!important;width:39px!important;min-width:39px!important;border:1px solid #e7d5e6!important;background:#f7eaf4!important;color:#7f4775!important;font-size:23px!important;display:grid!important;place-items:center!important;box-shadow:0 2px 7px #6540650b!important}
+ .sgc-mobile-tabs{gap:4px!important;background:#fff9fe!important;border-top:1px solid #ead8e7!important;box-shadow:0 -4px 18px #6e456015!important;padding:6px 8px calc(7px + env(safe-area-inset-bottom,0px))!important}
+ .sgc-mobile-tabs a,.sgc-mobile-tabs button{border-radius:16px!important;font-size:10px!important;min-height:53px!important;gap:3px!important;color:#746477!important}
+ .sgc-mobile-tabs .sgc-tab-icon{height:32px!important;width:39px!important;border-radius:13px!important;font-size:23px!important;color:#9b6c96!important;background:#f8eff8!important}
+ .sgc-mobile-tabs .current{background:#f3e4f1!important;color:#7d3d74!important}
+ .sgc-mobile-tabs .current .sgc-tab-icon{background:#e9d2e5!important;color:#78396e!important}
+ body .sgc-guide-launcher{bottom:calc(105px + env(safe-area-inset-bottom,0px))!important;right:12px!important}
+ body .sgc-guide-dismiss{bottom:calc(130px + env(safe-area-inset-bottom,0px))!important}
+}
+</style><meta name="sgc-community-release" content="2026-10-12-mobile-refresh-1755"><style>
+.sgc-mobile-write-post{display:none}
+@media(max-width:700px){
+ .layout>.left>.card:last-child{height:0!important}
+ .layout>.left>.card:first-child #sgc-mobile-write-post:not([hidden]){display:flex!important;align-items:center!important;gap:10px!important;width:100%!important;min-height:42px!important;padding:9px 12px!important;margin:8px 0 2px!important;background:var(--paper,#fff9fd)!important;border:1px solid #e4d6e6!important;border-radius:14px!important;color:#674a66!important;font-size:13px!important;font-weight:650!important;text-align:left!important}
+ #sgc-mobile-write-post svg{width:19px;height:19px;flex-shrink:0}
+ .layout>main>#composer-card:not(.sgc-mobile-composer-open){display:none!important}
+ .layout>main>#composer-card.sgc-mobile-composer-open{display:block!important;order:3!important;border-top:4px solid #f1e6f0!important}
+ .layout>main>#composer-card.sgc-mobile-composer-open .person{display:none!important}
+ .sgc-mobile-tabs .sgc-tab-icon svg{width:23px!important;height:23px!important}
+ .sgc-mobile-top-actions svg{width:22px!important;height:22px!important}
+ .sgc-mobile-tabs .sgc-tab-icon{display:grid!important;place-items:center!important}
+}
+</style><style>
+@media(max-width:700px){
+ /* Show the actual selected community and post action above stories. */
+ .layout>.left{display:block!important;flex:0 0 auto!important;max-height:unset!important;height:auto!important;overflow:visible!important;order:1!important}
+ .layout>.left>.card.butter:last-child{display:block!important;height:auto!important;max-height:none!important;min-height:0!important;overflow:visible!important;padding:11px 15px 12px!important;margin:0!important;border:0!important;border-bottom:7px solid #f4edf3!important;border-radius:0!important;background:#fff!important}
+ .layout>.left>.card.butter .row{display:none!important}
+ .layout>.left>.card.butter label{display:block!important;margin:4px 0 5px!important;font-size:11px!important;color:#796a78!important}
+ .layout>.left>.card.butter select{display:block!important;width:100%!important;height:38px!important;min-height:38px!important;margin:0 0 6px!important;padding:6px 11px!important;border-radius:12px!important;background:#f9f5fa!important;font-size:13px!important}
+ .layout>.left>.card.butter #group-description,.layout>.left>.card.butter>p.muted{display:none!important}
+ .layout>.left>.card.butter #join-control{margin:2px 0!important}
+ .layout>.left>.card.butter #sgc-mobile-write-post:not([hidden]){display:flex!important;align-items:center!important;gap:9px!important;width:100%!important;margin:7px 0 0!important;min-height:42px!important;border:1px solid #e5cde0!important;border-radius:13px!important;background:#f5e8f3!important;color:#774b72!important;padding:9px 12px!important;font-size:13px!important;font-weight:700!important}
+ .layout>.left>.card.butter #sgc-mobile-write-post svg{width:19px;height:19px}
+ .layout>main{min-height:0!important}
+}
+</style><style>
+#sgc-active-community-banner{display:flex;align-items:center;flex-wrap:wrap;gap:9px;padding:14px 18px;margin:10px 0;border:1px solid #ead7e7;border-radius:17px;background:linear-gradient(115deg,#faeaf3,#f8f0fc,#fff4df);color:#49344a}
+#sgc-active-community-banner .sgc-community-label{font-size:10px;letter-spacing:.12em;color:#8c6485;font-weight:700}
+#sgc-active-community-name{font-size:17px;font-family:Georgia,serif}
+#sgc-active-community-category{font-size:11px;color:#826e7f}
+@media(max-width:700px){#sgc-active-community-banner{order:3!important;display:flex!important;flex-direction:column;align-items:flex-start;gap:4px;margin:0!important;padding:13px 19px!important;border:0!important;border-bottom:7px solid #f1edf3!important;border-radius:0!important}#sgc-active-community-name{font-size:19px!important}.layout>main>#sgc-faq-feed{order:4!important}.layout>main>#composer-card.sgc-mobile-composer-open{order:3!important}}
+</style><style>
+@media(max-width:700px){
+ .layout>main>.sgc-social-top:has(#sgc-story-strip){display:flex!important;flex-direction:column!important;overflow:visible!important}
+ #sgc-active-community-banner{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:5px!important;position:relative!important;order:initial!important;visibility:visible!important;opacity:1!important;width:100%!important;margin:13px 0 0!important;padding:13px 15px!important;background:linear-gradient(110deg,#f9e7f1,#f3eafb,#fff2df)!important;border:1px solid #e8d3e5!important;border-radius:15px!important;min-height:74px!important}
+ #sgc-active-community-name{font-size:19px!important;color:#51354d!important}
+ #sgc-active-community-category{font-size:11px!important}
+}
+</style><style>
+#sgc-my-profile{display:none!important}
+.sgc-desktop-community-picker{display:grid;grid-template-columns:auto minmax(110px,1fr) auto minmax(150px,1.3fr);gap:8px;align-items:center;width:100%;margin-top:9px}
+.sgc-desktop-community-picker label{font-size:11px;color:#765d72;font-weight:600}
+.sgc-desktop-community-picker select{width:100%;min-width:0;padding:9px 10px;border:1px solid #e4d5e3;border-radius:12px;background:#fff9fd;color:#49364a;font-size:12px}
+@media(max-width:700px){.sgc-desktop-community-picker{display:none!important}#sgc-active-community-banner{order:0!important;margin:0 0 12px!important;border-radius:14px!important;padding:10px 12px!important;border:1px solid #ead7e7!important}.layout>main>.sgc-social-top:has(#sgc-story-strip){order:2!important}}
+</style><style>
+/* Dedicated members page view reuses authenticated members/chat implementation. */
+html.sgc-members-page-mode,html.sgc-members-page-mode body{overflow:auto!important;height:auto!important;background:#faf5f9!important}
+html.sgc-members-page-mode body>.wrap{display:block!important;height:auto!important;overflow:visible!important;max-width:1100px!important;margin:auto!important}
+html.sgc-members-page-mode .wrap>header,html.sgc-members-page-mode .wrap>.hero,html.sgc-members-page-mode .layout>.left,html.sgc-members-page-mode .layout>.right,html.sgc-members-page-mode .layout>main>*:not(#sgc-members-hub):not(#sgc-social-modal-root),html.sgc-members-page-mode .sgc-mobile-tabs{display:none!important}
+html.sgc-members-page-mode .layout{display:block!important;height:auto!important;overflow:visible!important;padding:0!important}
+html.sgc-members-page-mode .layout>main{display:block!important;position:static!important;height:auto!important;min-height:100dvh!important;overflow:visible!important;width:100%!important;padding:15px!important}
+html.sgc-members-page-mode #sgc-members-hub{display:block!important;position:static!important;width:100%!important;max-width:900px!important;margin:0 auto!important;padding:20px!important;border-radius:20px!important;background:white!important}
+html.sgc-members-page-mode #sgc-members-hub[hidden]{display:none!important}
+#sgc-faq-feed[hidden]{display:none!important}
+@media(max-width:700px){html.sgc-members-page-mode .layout>main{padding:10px!important}html.sgc-members-page-mode #sgc-members-hub{padding:15px!important;border-radius:16px!important}html.sgc-members-page-mode .sgc-member-card{gap:8px!important}}
+</style><style>
+/* Desktop: independent sidebar scrolling, stationary columns, feed scrolls separately. */
+@media(min-width:701px){
+ body>.wrap>.layout{min-height:0!important;overflow:hidden!important}
+ .layout>.left,.layout>.right{height:100%!important;min-height:0!important;max-height:100%!important;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior-y:contain!important;scrollbar-width:thin;scrollbar-color:#dac5d6 transparent;padding-bottom:28px!important}
+ .layout>.left{display:flex!important;flex-direction:column!important;align-items:stretch!important}
+ .layout>.left>*{flex-shrink:0!important}
+ .layout>.right{position:static!important;top:auto!important;display:flex!important;flex-direction:column!important;align-items:stretch!important}
+ .layout>.right>*{flex-shrink:0!important}
+ .layout>main{height:100%!important;min-height:0!important;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior-y:contain!important}
+}
+/* Restore a standard video player with the full image visible and native controls. */
+.sgc-faq-post video.sgc-faq-video{display:block!important;width:100%!important;max-width:100%!important;height:auto!important;max-height:min(68vh,620px)!important;aspect-ratio:auto!important;object-fit:contain!important;background:#151319!important;border-radius:0!important;cursor:auto!important}
+.sgc-faq-post video.sgc-faq-video::-webkit-media-controls{display:flex!important}
+</style><style>
+.sgc-member-card{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:12px!important;min-height:82px!important;padding:12px 15px!important}
+.sgc-member-card .person{display:flex!important;align-items:center!important;gap:12px!important;min-width:0!important}
+.sgc-member-avatar{display:grid!important;place-items:center!important;flex:0 0 55px!important;width:55px!important;height:55px!important;overflow:hidden!important;border-radius:50%!important;background:#f1e4ef!important;color:#745572!important;font-size:19px!important}
+.sgc-member-avatar img{display:block!important;width:100%!important;height:100%!important;object-fit:cover!important;border-radius:50%!important}
+.sgc-member-identity{display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-width:0}
+.sgc-member-identity .sgc-profile-link{font-weight:700!important;font-size:14px!important;text-align:left!important;white-space:normal!important}
+.sgc-member-view-profile{border:0!important;background:transparent!important;padding:2px 0!important;color:#92628b!important;font-size:11px!important;text-decoration:underline!important;cursor:pointer!important}
+@media(max-width:700px){.sgc-member-card{padding:11px!important}.sgc-member-avatar{flex-basis:48px!important;width:48px!important;height:48px!important}.sgc-member-card>.row{gap:4px!important;flex-wrap:wrap!important}}
+</style><style>
+@media(max-width:700px){
+ .layout>.left>.card:has(#category){position:relative!important;transition:padding .18s ease!important}
+ body.sgc-community-picker-collapsed .layout>.left>.card:has(#category){padding:7px 15px!important;border-bottom:5px solid #f1edf3!important}
+ body.sgc-community-picker-collapsed .layout>.left>.card:has(#category)>:not(#sgc-compact-community-bar){display:none!important}
+ #sgc-compact-community-bar{display:none}
+ body.sgc-community-picker-collapsed #sgc-compact-community-bar{display:flex!important;align-items:center!important;justify-content:space-between!important;gap:10px!important;min-height:39px!important;width:100%!important;padding:5px 11px!important;background:#f7eaf3!important;border:1px solid #e8d6e5!important;border-radius:12px!important;color:#694663!important;font:600 12px Arial,sans-serif!important;text-align:left!important}
+ #sgc-compact-community-bar .sgc-compact-name{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}
+ #sgc-compact-community-bar .sgc-compact-edit{flex-shrink:0;color:#885f83;font-size:11px}
+}
+@media(min-width:701px){#sgc-compact-community-bar{display:none!important}}
+</style><style>
+@media(min-width:701px){
+ .layout>.left>.card.butter{display:none!important}
+ .layout>.left{overflow-y:auto!important}
+ .sgc-desktop-community-picker{grid-template-columns:auto minmax(110px,1fr) auto minmax(150px,1.3fr)!important}
+ .sgc-desktop-join{grid-column:1/-1;display:flex;align-items:center;gap:10px;margin-top:3px}
+ .sgc-desktop-join button{border:0;border-radius:12px;background:#493348;color:white;padding:10px 17px;cursor:pointer;font-weight:700}
+ .sgc-desktop-join .pill{font-size:11px}
+}
+@media(max-width:700px){.sgc-desktop-join{display:none!important}}
+</style><style>
+/* All community post videos: display the actual video player, never a broken-image thumbnail. */
+#feed .photos video,#sgc-faq-feed-posts video{display:block!important;width:100%!important;height:auto!important;max-height:68vh!important;object-fit:contain!important;background:#151319!important;border-radius:12px!important}
+#feed .photos{overflow:hidden!important;max-width:100%!important}
+#feed .photos video{min-height:140px}
+</style><style>
+/* Unified community feed across General, Niche and FAQ spaces. */
+#feed[hidden],#composer-card[hidden],#sgc-faq-feed a[hidden]{display:none!important}
+#sgc-faq-feed{display:block!important}
+#sgc-faq-feed-posts .sgc-faq-post{width:100%;max-width:100%}
+#sgc-faq-feed-posts .sgc-faq-comment{border-radius:14px}
+#sgc-faq-feed-posts .sgc-faq-actions button{min-height:36px}
+</style><style>
+/* Compact, comfortable quote suggestion card in the narrow desktop sidebar. */
+@media(min-width:701px){
+ .layout>.left .sgc-inspiration-card{width:100%!important;min-width:0!important;box-sizing:border-box!important;padding:18px 15px!important;border-radius:19px!important;overflow:visible!important}
+ .sgc-inspiration-card h2{font-size:clamp(17px,1.45vw,21px)!important;line-height:1.2!important;margin:0 0 10px!important;overflow-wrap:break-word}
+ .sgc-inspiration-card p.muted{font-size:12px!important;line-height:1.55!important;margin:0 0 14px!important}
+ .sgc-inspiration-card form{display:flex!important;flex-direction:column!important;gap:7px!important;min-width:0!important;width:100%!important}
+ .sgc-inspiration-card label{font-size:11px!important;margin:3px 0 0!important;line-height:1.4!important}
+ .sgc-inspiration-card textarea,.sgc-inspiration-card input{box-sizing:border-box!important;display:block!important;width:100%!important;max-width:100%!important;min-width:0!important;font-size:12px!important;padding:10px 11px!important;border-radius:12px!important}
+ .sgc-inspiration-card textarea{min-height:92px!important;resize:vertical!important;line-height:1.5!important}
+ .sgc-inspiration-card button{align-self:flex-start!important;max-width:100%!important;white-space:normal!important;font-size:11px!important;padding:11px 14px!important;margin-top:7px!important}
+ .sgc-inspiration-card #suggest-status{overflow-wrap:anywhere}
+}
+</style><style>
+/* Keep profile and chat dialogs available in the dedicated Members view. */
+html.sgc-members-page-mode #sgc-social-modal-root{display:block!important;position:relative!important;z-index:200!important}
+html.sgc-members-page-mode #sgc-social-modal-root .sgc-modal-backdrop{display:flex!important;position:fixed!important;inset:0!important;z-index:10000!important;align-items:center!important;justify-content:center!important;overflow-y:auto!important;padding:15px!important;background:rgba(27,18,28,.65)!important}
+html.sgc-members-page-mode #sgc-social-modal-root .sgc-modal{display:block!important;width:min(96vw,800px)!important;max-height:calc(100dvh - 30px)!important;overflow-y:auto!important;background:#fff!important}
+</style><style>.sgc-study-group-card{align-items:flex-start!important;flex-wrap:wrap!important}.sgc-study-group-actions{display:flex;gap:7px;flex-wrap:wrap;align-items:center}.sgc-group-request{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:8px 0}.sgc-study-group-card small{display:block;margin-top:5px}.sgc-modal form label{display:block;margin-top:12px}.sgc-modal form input,.sgc-modal form textarea,.sgc-modal form select{display:block;width:100%;max-width:100%;margin-top:5px}</style><style>
+.sgc-private-chat-view{display:flex;flex-direction:column;gap:12px;min-height:min(72dvh,640px);width:100%;max-width:100%;border:1px solid #eadce9;border-radius:18px;background:#fff;overflow:hidden;padding:14px}
+.sgc-private-chat-header{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding-bottom:12px;border-bottom:1px solid #f0e3ef}
+.sgc-private-chat-person{display:flex;align-items:center;gap:10px}.sgc-private-chat-person small{display:block;margin-top:4px}
+.sgc-private-chat-avatar{width:44px;height:44px;border-radius:50%;background:#f0e0ee;display:grid;place-items:center;overflow:hidden}.sgc-private-chat-avatar img{width:100%;height:100%;object-fit:cover}
+.sgc-private-chat-messages{flex:1;min-height:300px;max-height:55dvh;overflow-y:auto!important;padding:14px!important;background:#fcf8fc;border-radius:14px}
+.sgc-private-chat-messages .sgc-chat-bubble{max-width:78%;margin:8px 0;padding:10px 13px;border-radius:15px;background:#f0e7f0;overflow-wrap:anywhere}
+.sgc-private-chat-messages .sgc-chat-bubble.mine{margin-left:auto;background:#e9d7eb}
+.sgc-private-chat-messages .sgc-chat-bubble small{display:block;font-size:10px;opacity:.65;margin-top:5px}
+.sgc-private-chat-compose{display:flex!important;gap:8px!important;align-items:center}.sgc-private-chat-compose input{flex:1;min-width:0!important}.sgc-private-chat-compose button{flex-shrink:0}
+@media(max-width:700px){.sgc-private-chat-view{padding:9px;min-height:65dvh}.sgc-private-chat-messages{min-height:45dvh}.sgc-private-chat-compose button{padding:11px!important}}
+</style><style>
+/* Profile dialogs are portaled to body so desktop scroll panes cannot clip them. */
+body>#sgc-social-modal-root{position:relative!important;z-index:2147482000!important;display:block!important}
+body>#sgc-social-modal-root:empty{pointer-events:none!important}
+body>#sgc-social-modal-root .sgc-modal-backdrop{position:fixed!important;inset:0!important;z-index:2147482001!important;display:flex!important;align-items:center!important;justify-content:center!important;overflow-y:auto!important;padding:16px!important;background:rgba(29,19,30,.66)!important}
+body>#sgc-social-modal-root .sgc-modal{position:relative!important;display:block!important;flex:0 1 850px!important;max-width:min(96vw,850px)!important;max-height:calc(100dvh - 32px)!important;overflow-y:auto!important;background:#fff!important}
+@media(max-width:700px){body>#sgc-social-modal-root .sgc-modal{max-width:100%!important;max-height:calc(100dvh - 20px)!important}body>#sgc-social-modal-root .sgc-modal-backdrop{padding:8px!important}}
+</style><style>
+html.sgc-chat-page-mode,html.sgc-chat-page-mode body{height:auto!important;overflow:auto!important;background:#faf5f9!important}
+html.sgc-chat-page-mode body>.wrap{display:block!important;height:auto!important;overflow:visible!important;max-width:1000px!important;margin:0 auto!important}
+html.sgc-chat-page-mode .wrap>header,html.sgc-chat-page-mode .wrap>.hero,html.sgc-chat-page-mode .layout>.left,html.sgc-chat-page-mode .layout>.right,html.sgc-chat-page-mode .layout>main>*:not(#sgc-members-hub),html.sgc-chat-page-mode .sgc-mobile-tabs{display:none!important}
+html.sgc-chat-page-mode .layout{display:block!important;height:auto!important;overflow:visible!important;padding:0!important}
+html.sgc-chat-page-mode .layout>main{display:block!important;height:auto!important;overflow:visible!important;padding:10px!important}
+html.sgc-chat-page-mode #sgc-members-hub{display:block!important;max-width:100%!important;padding:0!important;border:0!important;background:transparent!important}
+html.sgc-chat-page-mode #sgc-members-hub>*:not(#sgc-members-content){display:none!important}
+html.sgc-chat-page-mode .sgc-private-chat-view{min-height:calc(100dvh - 160px)!important}
+html.sgc-chat-page-mode .sgc-private-chat-messages{max-height:calc(100dvh - 330px)!important;min-height:260px!important}
+</style><style>
+/* The enlarged profile photo must match the saved circular crop, never expose the rectangular source. */
+.sgc-photo-lightbox .sgc-cropped-profile-view{display:block!important;width:min(78vw,440px)!important;height:min(78vw,440px)!important;max-width:440px!important;max-height:440px!important;aspect-ratio:1!important;border-radius:50%!important;object-fit:cover!important;object-position:center!important;overflow:hidden!important;background:#f3e5f1!important;margin:20px auto!important}
+.sgc-photo-lightbox-inner{max-width:min(95vw,520px)!important}
+</style><style>
+/* Dedicated member profile document: no Community feed or modal overlay. */
+html.sgc-profile-document-mode,html.sgc-profile-document-mode body{background:#faf5f9!important;overflow:auto!important;height:auto!important}
+html.sgc-profile-document-mode body>.wrap,html.sgc-profile-document-mode .layout{display:none!important}
+html.sgc-profile-document-mode body>#sgc-social-modal-root{display:block!important;position:static!important;z-index:auto!important;pointer-events:auto!important}
+html.sgc-profile-document-mode body>#sgc-social-modal-root .sgc-modal-backdrop{position:static!important;inset:auto!important;display:block!important;overflow:visible!important;min-height:100dvh!important;background:transparent!important;padding:0!important}
+html.sgc-profile-document-mode body>#sgc-social-modal-root .sgc-modal{display:block!important;width:100%!important;max-width:100%!important;max-height:none!important;overflow:visible!important;border:0!important;border-radius:0!important;box-shadow:none!important;padding:0!important}
+html.sgc-profile-document-mode .sgc-profile-page>.sgc-profile-hero{border-radius:0!important}
+html.sgc-profile-document-mode .sgc-modal .close-modal{display:none!important}
+</style><link rel="stylesheet" href="css/sgc-theme.css?v=6"><script src="js/sgc-theme.js?v=2"></script><style>
+.sgc-chat-message-actions{display:flex;gap:8px;flex-wrap:wrap;margin:7px 0}
+.sgc-chat-message-actions button{font-size:12px!important;padding:5px 9px!important}
+.sgc-chat-media-shade{position:fixed!important;inset:0!important;background:#080808e8!important;z-index:2147483000!important;display:flex!important;align-items:center!important;justify-content:center!important;padding:20px!important}
+.sgc-chat-media-panel{position:relative!important;max-width:96vw!important;max-height:94dvh!important;display:flex!important;align-items:center!important;justify-content:center!important}
+.sgc-chat-media-panel img,.sgc-chat-media-panel video{max-width:94vw!important;max-height:85dvh!important;object-fit:contain!important;border-radius:10px!important}
+.sgc-chat-media-close{position:absolute!important;right:0!important;top:-45px!important;border:1px solid #c7a76b!important;border-radius:50%!important;width:38px!important;height:38px!important;background:#18140d!important;color:#fff!important;font-size:26px!important;cursor:pointer!important}
+</style><style>
+/* Dark mode: clearly defined gold story cards on desktop and mobile. */
+html[data-sgc-theme="dark"] #sgc-story-strip .sgc-story,
+html[data-sgc-theme="dark"] #sgc-story-strip button.sgc-story,
+html[data-sgc-theme="dark"] #sgc-story-strip .sgc-story.create {
+  border:2px solid #d7b365!important;
+  border-radius:17px!important;
+  background:#1d1912!important;
+  background-image:linear-gradient(145deg,#282115,#100f0c)!important;
+  box-shadow:inset 0 0 0 1px #f2d18a33,0 3px 12px #0009!important;
+  color:#f8e7c3!important;
+}
+html[data-sgc-theme="dark"] #sgc-story-strip .sgc-story .story-name{color:#f8e7c3!important}
+html[data-sgc-theme="dark"] #sgc-story-strip .sgc-story::before{color:#d7b365!important}
+html[data-sgc-theme="dark"] #sgc-story-strip .sgc-story .story-avatar{
+  border-color:#d7b365!important;box-shadow:0 0 0 2px #705829!important;
+}
+</style><style>
+/* Members is its own full page, not an embedded community page. */
+html.sgc-standalone-members body{overflow:auto!important}
+html.sgc-standalone-members body>.wrap>header,
+html.sgc-standalone-members body>.wrap>.hero,
+html.sgc-standalone-members body>.wrap>.layout>aside,
+html.sgc-standalone-members body>.wrap>.layout>main>section:not(#sgc-members-hub),
+html.sgc-standalone-members body>.wrap>.layout>.right{display:none!important}
+html.sgc-standalone-members .layout{display:block!important;max-width:1100px!important;width:calc(100% - 24px)!important;margin:0 auto!important;height:auto!important;overflow:visible!important}
+html.sgc-standalone-members .layout>main{display:block!important;width:100%!important;height:auto!important;overflow:visible!important;max-height:none!important}
+html.sgc-standalone-members #sgc-members-hub{display:block!important;position:static!important;overflow:visible!important;max-height:none!important;width:100%!important;min-height:60vh!important;margin:16px 0!important}
+html.sgc-standalone-members #sgc-members-close{display:none!important}
+html.sgc-standalone-members #sgc-members-hub .sgc-member-card{cursor:pointer}
+.sgc-members-standalone-header{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px max(18px,calc((100vw - 1100px)/2));background:#fffafc;border-bottom:1px solid #e9dce6}
+.sgc-members-standalone-header a{text-decoration:none;color:#4d3448;font-weight:700}
+html[data-sgc-theme="dark"] .sgc-members-standalone-header{background:#100f0c;border-color:#b09052}
+html[data-sgc-theme="dark"] .sgc-members-standalone-header a{color:#e6c780}
+</style></head>
+<body><div class="sgc-members-standalone-header"><a href="dashboard.html">SGC NETWORK</a><a href="community.html">← Community</a></div>
+<div class="wrap">
+<header>
+<a class="brand" href="index.html">SGC<small>NETWORK</small></a>
+<div class="sgc-mobile-top-actions"><button type="button" id="sgc-mobile-members" aria-label="Members and messages"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M2 20v-2a6 6 0 0 1 12 0v2M17 11a3 3 0 0 0 0-6M17 15a5 5 0 0 1 5 5"/></svg></button><button type="button" id="sgc-mobile-profile" aria-label="My profile"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg></button></div>
+<nav>
+<a id="community-shop-link" href="https://sgcnetwork.co.za/shop.html">Shop</a>
+<a href="dashboard.html">My SGC</a>
+<a href="academy.html">Academy</a>
+<a class="active" href="community.html">Community</a><button type="button" class="btn sgc-people-toggle" id="sgc-people-nav" aria-label="Members and private chats">👥 Members</button>
+<button id="signout" class="btn alt">Sign out</button>
+</nav>
+</header>
+
+<section class="hero">
+<span class="eyebrow">A little support. A lot of possibility.</span>
+<h1>A space to belong.</h1>
+<p class="muted">Good conversations. Fresh ideas. People who get it.<br>Share your journey and grow alongside your community.</p>
+<p id="status" class="muted" role="status" aria-live="polite">Loading your community…</p>
+</section>
+
+<div class="layout" id="app" hidden>
+<div class="sgc-mobile-tabs" aria-label="Community mobile navigation"><a href="dashboard.html"><span class="sgc-tab-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg></span>Home</a><button type="button" id="sgc-mobile-feed"><span class="sgc-tab-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="3" width="16" height="18" rx="3"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></span>Feed</button><button type="button" id="sgc-mobile-stories"><span class="sgc-tab-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 3v2M21 12h-2"/></svg></span>Stories</button><a href="shop.html"><span class="sgc-tab-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9h16v12H4zM3 9l2-6h14l2 6M9 21v-8h6v8"/></svg></span>Shop</a><button type="button" id="sgc-mobile-community" class="current"><span class="sgc-tab-icon"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M2 20v-2a6 6 0 0 1 12 0v2M17 11a3 3 0 0 0 0-6M17 15a5 5 0 0 1 5 5"/></svg></span>Members</button></div>
+
+<aside class="left">
+
+
+<section class="sticky">
+<span class="eyebrow">Quote for the day</span>
+<blockquote id="quote">Your next move changes everything.</blockquote>
+<small id="quote-author">SGC Network</small>
+</section>
+
+<section class="card sgc-inspiration-card">
+<h2>Pass on some inspiration.</h2>
+<p class="muted">Suggest a quote for the day. SGC Network will review it and may feature it later.</p>
+<form id="suggest-form">
+<label for="suggest-text">Your quote</label>
+<textarea id="suggest-text" maxlength="1000" required placeholder="Something someone needs to hear today…"></textarea>
+<label for="suggest-author">Quote author / credit</label>
+<input id="suggest-author" maxlength="120" placeholder="Author’s name, or your own">
+<button class="btn" style="margin-top:15px">Suggest a quote</button>
+<p id="suggest-status" class="muted" role="status"></p>
+</form>
+</section>
+
+<section class="card lav">
+<span class="eyebrow">Community promise</span>
+<h3>Support. Share. Grow.</h3>
+<p class="muted">Celebrate progress, be kind when someone is struggling, and share practical help.</p>
+<p id="signed-in" class="muted"></p>
+</section>
+<section class="card butter">
+<div class="row">
+<span class="pill">Your spaces</span>
+<button id="refresh" class="btn alt">Refresh feed ↻</button>
+</div>
+<label for="category">Where would you like to connect?</label>
+<select id="category">
+<option value="faq">FAQs & assistance</option>
+<option value="niche">Niche community</option>
+<option value="academy" selected>General community</option>
+</select>
+<label for="group">Choose a community</label>
+<select id="group"></select>
+<p id="group-description" class="muted"></p><button type="button" id="sgc-mobile-write-post" class="sgc-mobile-write-post" hidden><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L9 17l-4 1 1-4z"/></svg> <span>Write a post or thread</span></button>
+<div id="join-control"></div>
+<p class="muted">All communities are open to every SGC user. Join a space to take part.</p>
+</section>
+</aside>
+
+<main>
+<section id="sgc-members-hub" class="sgc-social-top" hidden><div class="row" style="justify-content:space-between"><h2>SGC Members & Conversations</h2><button class="btn alt" id="sgc-members-close" type="button">Close</button></div><p class="muted">Connect by username. Email addresses and phone numbers are never shown here.</p><div class="sgc-social-tabs"><button data-sgc-tab="members" class="active">👥 Members</button><button data-sgc-tab="requests">Friend requests</button><button data-sgc-tab="chats">Private chats</button><button data-sgc-tab="groups">Study & help groups</button></div><div id="sgc-members-content"></div></section>
+<section class="sgc-social-top">
+<section id="sgc-active-community-banner" aria-live="polite"><span class="sgc-community-label">YOU’RE CONNECTING IN</span><strong id="sgc-active-community-name">General Community</strong><span id="sgc-active-community-category"></span><div class="sgc-desktop-community-picker"><label for="sgc-desktop-category">Community type</label><select id="sgc-desktop-category"></select><label for="sgc-desktop-group">Post in community</label><select id="sgc-desktop-group"></select></div></section>
+<div class="row" style="justify-content:space-between;margin-bottom:12px">
+<h2>Stories & little moments ✦</h2>
+<button type="button" class="btn soft" id="sgc-my-profile" hidden>My profile</button>
+</div>
+<div id="sgc-story-strip" class="sgc-stories"><div class="muted">Loading stories…</div></div>
+
+</section>
+<section id="sgc-faq-feed" class="sgc-social-top"><div class="row" style="justify-content:space-between;align-items:center;gap:12px"><div><span class="eyebrow">Questions & conversations</span><h2>FAQs feed ✦</h2></div><a class="btn soft" href="faqs.html">Search FAQs →</a></div><p class="muted">A simple conversation. Leave a comment, reply to someone, and follow the thread.</p><div id="sgc-faq-feed-posts"><p class="muted">Loading FAQs…</p></div></section><section id="composer-card" class="card" hidden>
+<div class="person">
+<span class="avatar">S</span>
+<div>
+<strong>A small update can inspire someone.</strong>
+<p class="muted">Progress, questions, wins or struggles—there’s room for all of it.</p>
+</div>
+</div>
+
+<form id="post-form">
+<div class="sgc-social-actions"><button type="button" id="sgc-composer-profile">👤 My profile</button><button type="button" id="sgc-composer-story">✦ Add to story</button></div><label for="post-title">Post heading (optional)</label>
+<input id="post-title" maxlength="150" placeholder="A small win, a big question, a new idea…">
+
+<label for="post-body">Your update</label>
+<textarea id="post-body" maxlength="10000" required placeholder="What’s happening in your business journey?"></textarea>
+
+<label for="post-photos">Add pictures · up to 5 · JPG, PNG or WebP · 5 MB each</label>
+<input id="post-photos" type="file" accept="image/jpeg,image/png,image/webp" multiple>
+<div id="previews" class="photos" style="margin:15px 0"></div>
+
+<button class="btn">Share with community →</button>
+<p id="post-status" class="muted" role="status"></p>
+</form>
+</section>
+
+<div id="feed"></div><div id="sgc-social-modal-root"></div>
+
+<section id="review-card" class="card lav" hidden>
+<h2>SGC · Quote suggestions</h2>
+<p class="muted">Only SGC admins see these suggestions. Publishing replaces the current daily quote on the connected pages.</p>
+<div id="review-list"></div>
+</section>
+</main>
+
+<aside class="right">
+<section class="card" style="background:linear-gradient(140deg,#f6e3eb,#f0e8f8);border:1px solid #ead5e5">
+<span class="eyebrow">Need a little guidance?</span>
+<h2 style="margin:13px 0">Frequently asked questions</h2>
+<p class="muted">Quick answers about memberships, the Academy, business kits, payments and your SGC account.</p>
+<a class="btn" href="faqs.html" style="display:inline-block;margin-top:10px;text-align:center">Explore FAQs →</a>
+</section>
+<section class="card butter">
+<span class="eyebrow">You’re connecting in</span>
+<h2 id="current-name" style="margin-top:15px">Your community</h2>
+<p id="current-description" class="muted"></p>
+<span id="current-category" class="pill"></span>
+<p id="feed-count" class="muted"></p>
+</section>
+
+<section class="card lav">
+<h3>A little encouragement goes a long way.</h3>
+<p class="muted">React to someone’s win, offer support, or start a conversation. Click a reaction again to remove it.</p>
+</section>
+</aside>
+
+</div>
+<footer>SGC Network · Ideas into implementation.</footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const sb=window.supabase?.createClient(
+ 'https://bxpexanyoyubxeqqlggh.supabase.co',
+ 'sb_publishable_Z0_Y-Bj_G5qw4hMgDbQlgA__jj8rGGq'
+);
+
+let user,groups=[],categories={},activeGroup=null;
+let isAdmin=false,working=false,previewURLs=[];
+
+function el(tag,text,cls){
+ const e=document.createElement(tag);
+ if(text!==undefined)e.textContent=text;
+ if(cls)e.className=cls;
+ return e;
+}
+function check(r){if(r.error)throw r.error;return r.data;}
+function say(text){$('status').textContent=text;}
+
+function action(fn){
+ return async event=>{
+  event?.preventDefault();
+  if(working)return;
+  working=true;
+  const controls=[...document.querySelectorAll(
+   'button,input,select,textarea'
+  )].filter(e=>!e.disabled);
+  controls.forEach(e=>e.disabled=true);
+
+  try{await fn();}
+  catch(e){say(e.message||String(e));}
+  finally{
+   controls.forEach(e=>{if(e.isConnected)e.disabled=false;});
+   working=false;
+  }
+ };
+}
+
+function button(text,fn){
+ const b=el('button',text,'btn soft');
+ b.type='button';
+ b.onclick=action(fn);
+ return b;
+}
+
+async function setting(key){
+ const r=check(await sb.from('site_content')
+  .select('content_value').eq('content_key',key).limit(1));
+ try{return JSON.parse(r[0]?.content_value||'{}');}
+ catch{return {};}
+}
+
+async function quote(){
+ const q=await setting('sgc.quote.daily');
+ const today=new Intl.DateTimeFormat('en-CA',{
+  timeZone:'Africa/Johannesburg'
+ }).format(new Date());
+ const show=q.text&&(!q.date||q.date<=today);
+ $('quote').textContent=show?q.text:'Your next move changes everything.';
+ $('quote-author').textContent=show?q.author||'SGC Network':'SGC Network';
+}
+
+function discard(){
+ return !(
+  $('post-title').value.trim()||
+  $('post-body').value.trim()||
+  $('post-photos').files.length
+ )||confirm('Leave this unsent post?');
+}
+
+function clearPost(){
+ previewURLs.forEach(u=>URL.revokeObjectURL(u));
+ previewURLs=[];
+ $('post-form').reset();
+ $('previews').replaceChildren();
+ $('post-status').textContent='';
+}
+
+async function chooseGroups(preferred){
+ const matches=groups.filter(g=>
+  (categories[g.id]||'niche')===$('category').value
+ );
+ $('group').replaceChildren();
+
+ for(const g of matches){
+  const o=el('option',g.name+(g.joined?' · Joined':''));
+  o.value=g.id;
+  $('group').append(o);
+ }
+
+ const requested=new URLSearchParams(location.search).get('group');if(matches.some(g=>g.id===requested))preferred=requested;
+ if(matches.some(g=>g.id===preferred))$('group').value=preferred;
+ activeGroup=matches.find(g=>g.id===$('group').value)||null;
+ await feed();
+}
+
+async function refresh(){
+ const wanted=activeGroup?.id;
+ groups=check(await sb.rpc('sgc_community_spaces',{}));
+ categories=await setting('sgc.community.categories');const requested=new URLSearchParams(location.search).get('group');if(requested&&groups.some(g=>g.id===requested))$('category').value=categories[requested]||'niche';
+ await quote();
+ await chooseGroups(wanted);
+ if(isAdmin)await review();
+}
+
+async function joinCommunity(){
+ if(!activeGroup)return;
+ if(activeGroup.joined){say('You already have access to '+activeGroup.name+'.');return}
+ // Membership must be paid and verified before access is granted.
+ // Never invoke sgc_join_community from an unauthenticated purchase button.
+ const url=new URL('shop.html',location.href);
+ url.searchParams.set('community',activeGroup.id);
+ url.searchParams.set('community_name',activeGroup.name);
+ location.assign(url.href);
+}
+
+async function photoElement(path,parent){
+ // Posts and FAQ posts share the same media renderer. Videos must not be inserted as images.
+ await sgcFaqMedia(path,parent);
+}
+
+async function feed(){
+ say('');
+ $('feed').replaceChildren();
+ $('composer-card').hidden=true; // Unified feed uses the same inline composer for every community.
+ $('join-control').replaceChildren();
+ if(activeGroup){
+  if(activeGroup.joined)$('join-control').append(el('span','Access included ✓','pill'));
+  else $('join-control').append(el('span','Membership required','pill'));
+ }
+ $('current-name').textContent=activeGroup?.name||'Choose your space';
+ $('current-description').textContent=activeGroup?.description||
+  'Select an available community from Your spaces.';
+ $('current-category').textContent={
+  faq:'FAQs & assistance',
+  niche:'Niche community',
+  academy:'General community'
+ }[$('category').value];
+ // Only display conversations belonging to the selected community.
+ const faqSection=document.getElementById('sgc-faq-feed');
+ if(faqSection)faqSection.hidden=false;
+ $('feed-count').textContent='';
+ $('group-description').textContent=activeGroup?.description||
+  'No communities in this category yet.';
+ // One shared Facebook-style feed and comment system for all communities.
+ $('feed').hidden=true;
+ const title=document.querySelector('#sgc-faq-feed h2');
+ if(title)title.textContent=activeGroup?.name ? activeGroup.name+' feed ✦' : 'Community feed ✦';
+ const faqSearch=document.querySelector('#sgc-faq-feed a[href="faqs.html"]');
+ if(faqSearch)faqSearch.hidden=$('category').value!=='faq';
+ await sgcFaqFeed();
+ return;
+
+
+ if(!activeGroup){
+  const box=el('section',undefined,'card');
+  box.append(
+   el('h2','Your next conversation is coming.'),
+   el('p','Choose another category to find your community.','muted')
+  );
+  $('feed').append(box);
+  return;
+ }
+
+ if(!activeGroup.joined){
+  const box=el('section',undefined,'card lav');
+  box.append(el('span','Find your people','eyebrow'),el('h2','Welcome to '+activeGroup.name),
+   el('p','Join this community to read its threads, share ideas and join the conversation.','muted'),
+   button('Join '+activeGroup.name,joinCommunity));
+  $('feed').append(box);
+  return;
+ }
+ const posts=check(await sb.rpc('sgc_social',{
+  p_action:'feed',p_group:activeGroup.id
+ }));
+
+ $('feed-count').textContent=posts.length+' recent posts';
+ let images=[];
+
+ if(posts.length){
+  const r=await sb.from('sgc_post_images')
+   .select('post_id,path').in('post_id',posts.map(p=>p.id));
+  if(r.error)say('Photos could not load: '+r.error.message);
+  else images=r.data;
+ }
+
+ if(!posts.length){
+  const box=el('section',undefined,'card');
+  box.append(
+   el('h2','Be the first to say hello.'),
+   el('p','Introduce yourself or share what you’re working on.','muted')
+  );
+  $('feed').append(box);
+ }
+
+ for(const post of posts){
+  const card=el('article',undefined,'card');card.id='post-'+post.id;
+  const person=el('div',undefined,'person');
+  const details=el('div');
+
+  details.append(
+   el('strong',post.author||'SGC member'),
+   el('div',new Date(post.created_at).toLocaleString('en-ZA'),'muted')
+  );
+
+  person.append(
+   el('span',(post.author||'S').slice(0,1).toUpperCase(),'avatar'),
+   details
+  );
+  card.append(person);
+
+  if(post.title)card.append(el('h3',post.title,'post-heading'));
+  card.append(el('div',post.body,'post-body'));
+
+  const gallery=el('div',undefined,'photos');
+  for(const im of images.filter(i=>i.post_id===post.id)){
+   await photoElement(im.path,gallery);
+  }
+  card.append(gallery);
+
+  const row=el('div',undefined,'row feed-actions');
+  const reactionRow=el('div',undefined,'row');
+  const comments=el('div');
+  comments.hidden=true;
+
+  const commentButton=button(commentLabel(post.comment_count),async()=>{
+   if(!comments.hidden){comments.hidden=true;return;}
+   await renderComments(post.id,comments,commentButton);
+   comments.hidden=false;
+  });
+
+  renderReactions(post,reactionRow);
+  row.append(commentButton);
+  card.append(reactionRow,row,comments);
+  $('feed').append(card);
+ }
+ const wanted=new URLSearchParams(location.search).get('post');
+ if(wanted){const target=document.getElementById('post-'+wanted);if(target){target.scrollIntoView({behavior:'smooth',block:'start'});const button=target.querySelector('.feed-actions button');if(button)button.click();}}
+}
+
+function commentLabel(count){
+ return '💬 +'+Number(count||0)+' '+
+  (Number(count)===1?'comment':'comments');
+}
+
+function renderReactions(post,root){
+ root.replaceChildren();
+
+ for(const [key,label] of [
+  ['like','👍 Like'],
+  ['love','💗 Love'],
+  ['celebrate','🎉 Celebrate'],
+  ['support','🤗 Support']
+ ]){
+  const b=button(label+' · '+Number(post.reactions?.[key]||0),async()=>{
+   check(await sb.rpc('sgc_social',{
+    p_action:'react',p_post:post.id,p_reaction:key
+   }));
+   const rows=check(await sb.rpc('sgc_social',{
+    p_action:'feed',p_group:activeGroup.id
+   }));
+   const updated=rows.find(p=>p.id===post.id);
+   if(updated)renderReactions(updated,root);
+  });
+
+  b.setAttribute('aria-pressed',String(post.my_reaction===key));
+  if(post.my_reaction===key)b.classList.add('reaction-selected');
+  root.append(b);
+ }
+}
+
+async function renderComments(postId,root,countButton){
+ root.replaceChildren();
+ let replyTarget=null;
+ const replyStatus=el('p',undefined,'muted');
+
+ const comments=check(await sb.rpc('sgc_social',{
+  p_action:'comments',p_post:postId
+ }));
+
+ if(!comments.length)root.append(el('p','Start the conversation.','muted'));
+
+ for(const c of comments){
+  const box=el('div',undefined,'comment');
+  box.append(el('strong',c.author||'SGC member'));
+  if(c.title)box.append(el('h3',c.title));
+  if(c.reply_to_comment_id)box.append(el('span','@ Reply','pill'));
+  box.append(el('p',c.body));
+  box.append(button('Reply',async()=>{
+   replyTarget=c.id;replyStatus.textContent='Replying to @'+(c.author||'SGC member');input.focus();
+  }));
+  root.append(box);
+ }
+
+ const form=el('form');
+ const label=el('label','Leave a comment');
+ const headingLabel=el('label','Comment heading (optional)');
+ const heading=el('input');
+ const input=el('textarea');
+
+ heading.maxLength=150;
+ heading.placeholder='Your reply topic';
+ headingLabel.append(heading);
+
+ input.maxLength=10000;
+ input.required=true;
+ input.placeholder='A helpful thought, a question, or a little encouragement…';
+ label.append(input);
+
+ const submit=el('button','Post comment','btn');
+ form.append(replyStatus,headingLabel,label,submit);const cancelReply=button('Cancel reply',async()=>{replyTarget=null;replyStatus.textContent='';});form.append(cancelReply);
+
+ form.onsubmit=action(async()=>{
+  if(!input.value.trim())throw Error('Write your comment first.');
+
+  if(replyTarget)check(await sb.rpc('sgc_reply_comment',{p_comment:replyTarget,p_body:input.value}));
+  else check(await sb.rpc('sgc_social',{
+   p_action:'comment',p_post:postId,p_body:input.value,p_title:heading.value
+  }));
+
+  await renderComments(postId,root,countButton);
+
+  const rows=check(await sb.rpc('sgc_social',{
+   p_action:'feed',p_group:activeGroup.id
+  }));
+  const post=rows.find(p=>p.id===postId);
+  if(post&&countButton){
+   countButton.textContent=commentLabel(post.comment_count);
+  }
+ });
+
+ root.append(form);
+}
+
+$('post-photos').onchange=()=>{
+ previewURLs.forEach(u=>URL.revokeObjectURL(u));
+ previewURLs=[];
+ $('previews').replaceChildren();
+
+ for(const f of [...$('post-photos').files].slice(0,5)){
+  if(!['image/jpeg','image/png','image/webp'].includes(f.type))continue;
+  const img=el('img');
+  img.src=URL.createObjectURL(f);
+  previewURLs.push(img.src);
+  img.alt='Selected photo';
+  $('previews').append(img);
+ }
+};
+
+$('post-form').onsubmit=action(async()=>{
+ if(!activeGroup)throw Error('Choose a community first.');
+
+ const body=$('post-body').value.trim();
+ const files=[...$('post-photos').files];
+
+ if(!body)throw Error('Write your update first.');
+ if(files.length>5)throw Error('Choose up to five photographs.');
+
+ for(const f of files){
+  if(f.size>5242880||!['image/jpeg','image/png','image/webp'].includes(f.type)){
+   throw Error('Pictures must be JPG, PNG or WebP and 5 MB or smaller.');
+  }
+ }
+
+ const paths=[];
+ let saved=false;
+
+ try{
+  for(const f of files){
+   $('post-status').textContent='Uploading photographs…';
+   const ext={
+    'image/jpeg':'jpg','image/png':'png','image/webp':'webp'
+   }[f.type];
+   const path=user.id+'/'+crypto.randomUUID()+'.'+ext;
+
+   check(await sb.storage.from('sgc-community')
+    .upload(path,f,{contentType:f.type}));
+   paths.push(path);
+  }
+
+  check(await sb.rpc('sgc_social',{
+   p_action:'post',
+   p_group:activeGroup.id,
+   p_body:body,
+   p_title:$('post-title').value.trim(),
+   p_paths:paths
+  }));
+
+  saved=true;
+  clearPost();
+ }catch(e){
+  if(!saved&&paths.length){
+   await sb.storage.from('sgc-community').remove(paths);
+  }
+  $('post-status').textContent='Could not publish: '+e.message;
+  throw e;
+ }
+
+ await feed();
+ say('Your update is posted.');
+});
+
+$('suggest-form').onsubmit=action(async()=>{
+ const text=$('suggest-text').value.trim();
+ if(!text)throw Error('Enter your suggested quote.');
+
+ try{
+  check(await sb.rpc('sgc_suggest_quote',{
+   p_quote:text,
+   p_author:$('suggest-author').value.trim()||'SGC member'
+  }));
+
+  $('suggest-form').reset();
+  $('suggest-status').textContent=
+   'Thank you! Your quote is waiting for SGC Network’s review.';
+
+  if(isAdmin)await review();
+ }catch(e){
+  $('suggest-status').textContent=e.message;
+  throw e;
+ }
+});
+
+async function review(){
+ $('review-card').hidden=!isAdmin;
+ if(!isAdmin)return;
+
+ const rows=check(await sb.rpc('sgc_quote_review',{p_action:'list'}));
+ $('review-list').replaceChildren();
+
+ if(!rows.length){
+  $('review-list').append(el('p','No quotes waiting for review.','muted'));
+ }
+
+ for(const q of rows){
+  const box=el('div',undefined,'suggestion');
+  box.append(el('p',q.quote),el('small','Credit: '+q.author));
+
+  const row=el('div',undefined,'row');
+  row.append(
+   button('Publish as today’s quote',async()=>{
+    if(!confirm('Replace today’s quote with this suggestion?'))return;
+    check(await sb.rpc('sgc_quote_review',{
+     p_id:q.id,p_action:'approve'
+    }));
+    await quote();
+    await review();
+    say('Daily quote published. Refresh My SGC to see it there too.');
+   }),
+   button('Decline',async()=>{
+    check(await sb.rpc('sgc_quote_review',{
+     p_id:q.id,p_action:'decline'
+    }));
+    await review();
+   })
+  );
+
+  box.append(row);
+  $('review-list').append(box);
+ }
+}
+
+$('category').onchange=action(async()=>{
+ if(!discard()){
+  $('category').value=activeGroup?
+   categories[activeGroup.id]||'niche':'academy';
+  return;
+ }
+ clearPost();
+ await chooseGroups();
+});
+
+$('group').onchange=action(async()=>{
+ if(!discard()){
+  $('group').value=activeGroup?.id||'';
+  return;
+ }
+ clearPost();
+ activeGroup=groups.find(g=>g.id===$('group').value)||null;
+ await feed();
+});
+
+$('refresh').onclick=action(refresh);
+
+$('signout').onclick=action(async()=>{
+ if(!discard())return;
+ check(await sb.auth.signOut());
+ sessionStorage.removeItem('sgc-extra-session');
+ location.href='login.html';
+});
+
+window.addEventListener('beforeunload',e=>{
+ if(
+  $('post-title').value.trim()||
+  $('post-body').value.trim()||
+  $('post-photos').files.length||
+  $('suggest-text').value.trim()
+ ){
+  e.preventDefault();
+  e.returnValue='';
+ }
+});
+
+
+/* Social profiles and 24-hour stories */
+const sgcModalRoot=document.getElementById('sgc-social-modal-root');
+// Dialogs must live outside the independently scrolling feed and its clipping containers.
+if(sgcModalRoot&&sgcModalRoot.parentElement!==document.body)document.body.appendChild(sgcModalRoot);
+function sgcModal(title){sgcModalRoot.replaceChildren();const backdrop=el('div',undefined,'sgc-modal-backdrop'),panel=el('div',undefined,'sgc-modal'),close=el('button','×','close-modal');close.type='button';close.setAttribute('aria-label','Close');close.onclick=()=>sgcModalRoot.replaceChildren();backdrop.onclick=e=>{if(e.target===backdrop)close.click()};panel.append(close,el('h2',title));backdrop.append(panel);sgcModalRoot.append(backdrop);return panel}
+async function sgcProfile(id){const r=await sb.from('sgc_social_profiles').select('*').eq('user_id',id).maybeSingle();if(r.error)throw r.error;return r.data}
+async function sgcImage(path){if(!path)return '';const r=await sb.storage.from('sgc-community').createSignedUrl(path,3600);return r.error?'':r.data.signedUrl}
+async function sgcUpload(file){if(!file)return null;if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>5242880)throw Error('Use a JPG, PNG or WebP image under 5 MB.');const ext=file.type==='image/png'?'png':file.type==='image/webp'?'webp':'jpg';const path=user.id+'/'+crypto.randomUUID()+'.'+ext;check(await sb.storage.from('sgc-community').upload(path,file,{contentType:file.type}));return path}
+function sgcInlinePhotoEditor(file,host,onReady){
+ host.replaceChildren();
+ if(!file||!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>5242880){host.textContent='Choose a JPG, PNG or WebP image under 5 MB.';return}
+ const url=URL.createObjectURL(file),img=new Image();
+ img.onerror=()=>{host.textContent='Could not preview this photo.';URL.revokeObjectURL(url)};
+ img.onload=()=>{
+  const panel=document.createElement('div');panel.className='sgc-inline-photo-editor';
+  const heading=document.createElement('strong');heading.textContent='Preview and adjust your photo';
+  const hint=document.createElement('p');hint.textContent='Drag to reposition your photo. Use the slider to resize it before saving.';
+  const canvas=document.createElement('canvas');canvas.width=320;canvas.height=320;
+  const zoom=document.createElement('input');zoom.type='range';zoom.min='1';zoom.max='4';zoom.step='.01';zoom.value='1';zoom.setAttribute('aria-label','Resize photo');
+  const label=document.createElement('label');label.textContent='Resize / zoom';label.append(zoom);
+  const apply=document.createElement('button');apply.type='button';apply.textContent='✓ Use this crop';apply.className='btn';
+  const reset=document.createElement('button');reset.type='button';reset.textContent='Reset position';reset.className='btn soft';
+  const info=document.createElement('p');info.className='muted';info.textContent='Nothing uploads until you save your profile.';
+  const w=320,base=Math.max(w/img.naturalWidth,w/img.naturalHeight);let scale=1,dx=0,dy=0,drag=null;const pointers=new Map();let pinch=null;
+  function draw(){const iw=img.naturalWidth*base*scale,ih=img.naturalHeight*base*scale;dx=Math.max(-(iw-w)/2,Math.min((iw-w)/2,dx));dy=Math.max(-(ih-w)/2,Math.min((ih-w)/2,dy));const ctx=canvas.getContext('2d');ctx.clearRect(0,0,w,w);ctx.save();ctx.beginPath();ctx.arc(w/2,w/2,w/2,0,Math.PI*2);ctx.clip();ctx.drawImage(img,(w-iw)/2+dx,(w-ih)/2+dy,iw,ih);ctx.restore()}
+  zoom.oninput=()=>{scale=Number(zoom.value);draw()};
+  reset.onclick=()=>{scale=1;dx=0;dy=0;zoom.value='1';draw()};
+  const distance=()=>{const p=[...pointers.values()];return Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y)};
+  canvas.onpointerdown=e=>{e.preventDefault();canvas.setPointerCapture(e.pointerId);pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pointers.size===1){drag={x:e.clientX,y:e.clientY,dx,dy};pinch=null}else if(pointers.size===2){pinch={distance:distance(),scale};drag=null}};
+  canvas.onpointermove=e=>{if(!pointers.has(e.pointerId))return;e.preventDefault();pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pointers.size===2&&pinch){scale=Math.max(1,Math.min(4,pinch.scale*distance()/Math.max(1,pinch.distance)));zoom.value=String(scale);draw()}else if(pointers.size===1&&drag){const ratio=w/canvas.getBoundingClientRect().width;dx=drag.dx+(e.clientX-drag.x)*ratio;dy=drag.dy+(e.clientY-drag.y)*ratio;draw()}};
+  const end=e=>{pointers.delete(e.pointerId);drag=null;pinch=null;if(pointers.size===1){const p=[...pointers.values()][0];drag={x:p.x,y:p.y,dx,dy}}};canvas.onpointerup=end;canvas.onpointercancel=end;
+  apply.onclick=()=>{draw();canvas.toBlob(blob=>{if(!blob){info.textContent='Could not crop this photo. Try again.';return}onReady(new File([blob],'profile-picture.png',{type:'image/png'}));info.textContent='Crop ready! Save your profile to upload it.';apply.textContent='✓ Crop selected'},'image/png')};
+  panel.append(heading,hint,canvas,label,reset,apply,info);host.append(panel);draw();URL.revokeObjectURL(url);
+ };
+ img.src=url;
+}
+async function sgcCropProfilePhoto(file){
+ if(!file)return null;
+ if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>5242880)throw Error('Choose a JPG, PNG or WebP photo under 5 MB.');
+ const url=URL.createObjectURL(file),img=new Image();
+ try{
+  await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=()=>reject(Error('Could not open this photo.'));img.src=url});
+  return await new Promise(resolve=>{
+   const shade=document.createElement('div');shade.className='sgc-crop-shade';shade.setAttribute('role','dialog');shade.setAttribute('aria-modal','true');
+   const panel=document.createElement('div');panel.className='sgc-crop-panel';
+   const title=document.createElement('h3');title.textContent='Adjust your profile photo';
+   const hint=document.createElement('p');hint.textContent='Drag to reposition. Pinch with two fingers or use the zoom slider to resize.';
+   const canvas=document.createElement('canvas');canvas.width=320;canvas.height=320;canvas.className='sgc-crop-canvas';canvas.style.cssText='touch-action:none!important;user-select:none;-webkit-user-select:none;display:block;max-width:100%;width:min(320px,78vw);height:auto;aspect-ratio:1;border-radius:50%;margin:12px auto;background:#f4e5ed;cursor:grab';
+   const zoom=document.createElement('input');zoom.type='range';zoom.min='1';zoom.max='4';zoom.step='.01';zoom.value='1';zoom.style.width='100%';
+   const zoomLabel=document.createElement('label');zoomLabel.textContent='Zoom photo';zoomLabel.append(zoom);
+   const buttons=document.createElement('div');buttons.className='sgc-crop-buttons';
+   const cancel=document.createElement('button');cancel.type='button';cancel.textContent='Cancel';
+   const save=document.createElement('button');save.type='button';save.textContent='Use this picture';
+   const size=320,base=Math.max(size/img.naturalWidth,size/img.naturalHeight),pointers=new Map();let x=0,y=0,scale=1,drag=null,pinch=null;
+   function draw(){const w=img.naturalWidth*base*scale,h=img.naturalHeight*base*scale;x=Math.max(-(w-size)/2,Math.min((w-size)/2,x));y=Math.max(-(h-size)/2,Math.min((h-size)/2,y));const ctx=canvas.getContext('2d');ctx.clearRect(0,0,size,size);ctx.save();ctx.beginPath();ctx.arc(size/2,size/2,size/2,0,Math.PI*2);ctx.clip();ctx.drawImage(img,(size-w)/2+x,(size-h)/2+y,w,h);ctx.restore()}
+   function dist(){const a=[...pointers.values()];return Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y)}
+   zoom.oninput=()=>{scale=Number(zoom.value);draw()};
+   canvas.addEventListener('pointerdown',e=>{e.preventDefault();canvas.setPointerCapture(e.pointerId);pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pointers.size===1){drag={px:e.clientX,py:e.clientY,x,y};pinch=null}else if(pointers.size===2){pinch={distance:dist(),scale};drag=null}});
+   canvas.addEventListener('pointermove',e=>{if(!pointers.has(e.pointerId))return;e.preventDefault();pointers.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pointers.size===2&&pinch){scale=Math.max(1,Math.min(4,pinch.scale*dist()/Math.max(1,pinch.distance)));zoom.value=String(scale);draw()}else if(pointers.size===1&&drag){const ratio=size/canvas.getBoundingClientRect().width;x=drag.x+(e.clientX-drag.px)*ratio;y=drag.y+(e.clientY-drag.py)*ratio;draw()}});
+   const end=e=>{pointers.delete(e.pointerId);drag=null;pinch=null;if(pointers.size===1){const a=[...pointers.values()][0];drag={px:a.x,py:a.y,x,y}}};
+   canvas.addEventListener('pointerup',end);canvas.addEventListener('pointercancel',end);
+   const finish=value=>{shade.remove();resolve(value)};
+   cancel.onclick=()=>finish(null);
+   save.onclick=()=>{save.disabled=true;draw();canvas.toBlob(blob=>{if(!blob){save.disabled=false;hint.textContent='Could not create photo preview. Please try again.';return}finish(new File([blob],'profile-picture.png',{type:'image/png'}))},'image/png')};
+   buttons.append(cancel,save);panel.append(title,hint,canvas,zoomLabel,buttons);shade.append(panel);document.body.append(shade);draw();
+  });
+ }finally{URL.revokeObjectURL(url)}
+}
+function sgcViewProfilePhoto(url){
+ const shade=el('div',undefined,'sgc-photo-lightbox'),frame=el('div',undefined,'sgc-photo-lightbox-inner'),img=el('img'),close=el('button','×');
+ img.src=url;img.alt='Cropped profile picture';img.className='sgc-cropped-profile-view';
+ close.type='button';close.onclick=()=>shade.remove();shade.onclick=e=>{if(e.target===shade)shade.remove()};
+ frame.append(close,img);shade.append(frame);document.body.append(shade);
+}
+async function sgcOpenProfile(id=user.id){
+ if(!/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(id))throw Error('Invalid member account.');
+ const mine=id===user.id;
+ // Resolve identity by account ID, including members who have never edited a profile.
+ const identity=await sb.rpc('sgc_member_identity',{p_user:id});
+ if(identity.error)throw identity.error;
+ const profile=Array.isArray(identity.data)?identity.data[0]:identity.data;
+ if(!profile||profile.user_id!==id)throw Error('This member account could not be found.');
+
+ const box=sgcModal(mine?'My SGC profile':'Member profile'),cover=el('div',undefined,'sgc-profile-cover'),avatar=el('div',undefined,'sgc-profile-avatar');
+ avatar.textContent=(profile.display_name||'S').slice(0,1).toUpperCase();
+ if(profile?.avatar_path){const url=await sgcImage(profile.avatar_path);if(url){const img=el('img');img.src=url;avatar.replaceChildren(img)}}
+ box.append(cover,avatar,el('h3',profile.display_name||'SGC member'),el('p',profile?.bio||'A member of the SGC community.','muted'));
+ if(profile?.business_website){const a=el('a','🌐 '+profile.business_website,'sgc-profile-website');a.href=profile.business_website;a.target='_blank';a.rel='noopener noreferrer';box.append(a)}
+ if(!mine){
+  const actions=el('div',undefined,'sgc-member-profile-actions');
+  const friendship=await sb.from('sgc_friend_requests').select('*').or('and(sender_id.eq.'+user.id+',receiver_id.eq.'+id+'),and(sender_id.eq.'+id+',receiver_id.eq.'+user.id+')').limit(1);
+  const request=friendship.data?.[0];
+  if(request?.status==='accepted')actions.append(sgcBtn('💬 Private message',()=>sgcOpenChat(id),'btn'));
+  else if(request?.status==='pending'&&request.receiver_id===user.id)actions.append(sgcBtn('Accept member',async()=>{check(await sb.from('sgc_friend_requests').update({status:'accepted'}).eq('id',request.id));sgcModalRoot.replaceChildren();await sgcOpenProfile(id)},'btn'));
+  else if(request?.status==='pending')actions.append(el('span','Request sent','pill'));
+  else if(request?.status==='declined')actions.append(el('span','Request declined','pill'));
+  else actions.append(sgcBtn('＋ Add member',async()=>{check(await sb.from('sgc_friend_requests').insert({sender_id:user.id,receiver_id:id,status:'pending'}));sgcModalRoot.replaceChildren();await sgcOpenProfile(id)},'btn'));
+  box.append(actions);
+  const info=await sb.rpc('sgc_member_public_summary',{p_user:id});
+  if(info.error){box.append(el('p','Member activity is unavailable.','muted'));return}
+  const data=info.data||{};
+  const section=(heading)=>{const area=el('section',undefined,'sgc-member-profile-section');area.append(el('h3',heading));box.append(area);return area};
+  const membership=section('Membership');membership.append(el('p',data.membership||'No active membership'));
+  const communities=section('Communities');if(data.communities?.length){const chips=el('div',undefined,'sgc-member-profile-chips');for(const g of data.communities)chips.append(el('span',g,'pill'));communities.append(chips)}else communities.append(el('p','No communities joined yet.','muted'));
+  const courses=section('Course progress');if(data.courses?.length){for(const course of data.courses){const item=el('div',undefined,'sgc-member-course');const total=Number(course.total||0),done=Number(course.completed||0),pct=total?Math.round(done/total*100):0;item.append(el('strong',course.title),el('p',done+' of '+total+' lessons completed · '+pct+'%','muted'));const bar=el('div',undefined,'sgc-member-progress'),fill=el('span');fill.style.width=pct+'%';bar.append(fill);item.append(bar);courses.append(item)}}else courses.append(el('p','No enrolled courses yet.','muted'));
+  const posts=section('Recent posts');if(data.posts?.length){for(const post of data.posts){const item=el('article',undefined,'sgc-member-profile-post');if(post.community)item.append(el('small',post.community));if(post.title)item.append(el('strong',post.title));item.append(el('p',post.body||''));posts.append(item)}}else posts.append(el('p','No visible posts yet.','muted'));
+  sgcStyleProfile(box,profile,mine);
+  return;
+ }
+ const form=el('form'),name=el('input'),bio=el('textarea'),website=el('input'),file=el('input'),save=el('button','Save my profile','btn'),status=el('p',undefined,'muted');
+ name.value=profile?.display_name||user.user_metadata?.username||user.user_metadata?.full_name||user.email.split('@')[0];name.required=true;name.minLength=2;name.maxLength=60;
+ website.type='url';website.placeholder='https://yourbusiness.co.za';website.maxLength=500;website.value=profile?.business_website||'';bio.value=profile?.bio||'';bio.maxLength=500;bio.placeholder='A little about you and your business journey…';
+ let croppedPhoto=null;const photoEditor=el('div');photoEditor.className='sgc-photo-preview-holder';
+ file.onchange=()=>{const selected=file.files?.[0];if(!selected)return;croppedPhoto=null;status.textContent='Preview your photo, adjust it, then choose Use this crop.';sgcInlinePhotoEditor(selected,photoEditor,cropped=>{croppedPhoto=cropped;const preview=URL.createObjectURL(cropped);const image=el('img');image.src=preview;image.onload=()=>URL.revokeObjectURL(preview);avatar.replaceChildren(image);status.textContent='Crop ready. Tap Save my profile to upload.'})};
+ file.type='file';file.accept='image/jpeg,image/png,image/webp';file.className='sgc-native-choose-photo';file.setAttribute('aria-label','Choose photo');const editPhoto=el('button','📷 Choose photo','btn soft');editPhoto.type='button';editPhoto.onclick=()=>file.click();const cropHelp=el('p','Choose a photo, preview it below, drag or resize it, then select Use this crop.','muted');avatar.title='Click to change and crop your picture';avatar.style.cursor='pointer';avatar.onclick=()=>file.click();
+ form.append(el('label','Display name (other members will see this)'),name,el('label','About me'),bio,el('label','Business website (optional)'),website,el('label','Profile picture'),file,cropHelp,photoEditor,save,status);
+ form.onsubmit=async e=>{e.preventDefault();if(file.files?.length&&!croppedPhoto){status.textContent='Please select Use this crop before saving your photo.';photoEditor.scrollIntoView({block:'center',behavior:'smooth'});return}save.disabled=true;try{const path=croppedPhoto?await sgcUpload(croppedPhoto):profile?.avatar_path||null;check(await sb.from('sgc_social_profiles').upsert({user_id:user.id,display_name:name.value.trim(),bio:bio.value.trim(),business_website:website.value.trim()||null,avatar_path:path,updated_at:new Date().toISOString()}));sgcModalRoot.replaceChildren();await sgcStories();await feed();say('Your profile has been updated.')}catch(err){status.textContent=err.message}finally{save.disabled=false}};
+ box.append(form);
+ sgcStyleProfile(box,profile,mine);
+}
+function sgcStyleProfile(box,profile,mine){
+ box.classList.add('sgc-profile-page');
+ const close=box.querySelector('.close-modal');const oldHeading=box.querySelector(':scope > h2');if(oldHeading)oldHeading.remove();
+ const cover=box.querySelector('.sgc-profile-cover'),avatar=box.querySelector('.sgc-profile-avatar'),name=box.querySelector(':scope > h3'),bio=box.querySelector(':scope > p');
+ const hero=el('div',undefined,'sgc-profile-hero');
+ const info=el('div',undefined,'sgc-profile-hero-info'),identity=el('div',undefined,'sgc-profile-identity');
+ if(avatar){identity.append(avatar);const full=avatar.querySelector('img');if(full&&!mine){avatar.title='View profile picture';avatar.style.cursor='zoom-in';avatar.onclick=()=>sgcViewProfilePhoto(full.src)}}
+ const names=el('div',undefined,'sgc-profile-names');if(name)names.append(name);if(bio)names.append(bio);const website=box.querySelector(':scope > .sgc-profile-website');if(website)names.append(website);identity.append(names);
+ info.append(identity);const actions=box.querySelector(':scope > .sgc-member-profile-actions');if(actions)info.append(actions);
+ if(cover)hero.append(cover);hero.append(info);
+ if(close)hero.append(close);
+ const tabs=el('nav',undefined,'sgc-profile-tabs');
+ const tabNames=mine?['All','About','Photos']:['All','About','Communities','Courses','Photos'];
+ const body=el('div',undefined,'sgc-profile-layout'),left=el('aside',undefined,'sgc-profile-left'),right=el('main',undefined,'sgc-profile-right');
+ const sections=[...box.querySelectorAll(':scope > .sgc-member-profile-section')];
+ const about=el('section',undefined,'sgc-profile-card sgc-profile-about');
+ about.append(el('h3','About'));
+ about.append(el('p',profile?.bio||'No bio added yet.','muted'));
+ if(!mine){
+  for(const section of sections){if(/membership|communities|course progress/i.test(section.querySelector('h3')?.textContent||'')){section.classList.add('sgc-profile-card');left.append(section)}else{section.classList.add('sgc-profile-card');right.append(section)}}
+  left.prepend(about);
+ }else{
+  const form=box.querySelector(':scope > form');if(form){form.classList.add('sgc-profile-card');right.append(form)}
+  left.append(about);
+ }
+ if(!right.children.length){const empty=el('section',undefined,'sgc-profile-card');empty.append(el('h3','Posts'),el('p','No visible posts yet.','muted'));right.append(empty)}
+ body.append(left,right);
+ const allSections=[...left.children,...right.children];
+ const showTab=tab=>{
+  for(const b of tabs.querySelectorAll('button'))b.classList.toggle('active',b.textContent===tab);
+  for(const node of allSections)node.hidden=false;
+  if(tab==='About'){for(const node of allSections)node.hidden=!(node===about||node.tagName==='FORM'||/membership/i.test(node.querySelector('h3')?.textContent||''))}
+  if(tab==='Communities'||tab==='Courses'){for(const node of allSections)node.hidden=!((node.querySelector('h3')?.textContent||'').toLowerCase().includes(tab==='Courses'?'course':'communit'))}
+  if(tab==='Photos'){for(const node of allSections)node.hidden=true;const note=el('section',undefined,'sgc-profile-card sgc-profile-photos-empty');note.append(el('h3','Photos'),el('p','Shared photos will appear here when available.','muted'));right.append(note)}
+  else right.querySelector('.sgc-profile-photos-empty')?.remove();
+ };
+ for(const label of tabNames){const b=el('button',label);b.type='button';b.onclick=()=>showTab(label);tabs.append(b)}
+ box.replaceChildren(hero,tabs,body);showTab('All');
+}
+async function sgcCreateStory(existing=null){
+ if(!existing || typeof existing.id!=='string' || !/^[0-9a-f]{8}-[0-9a-f-]{27,}$/i.test(existing.id))existing=null;
+ const box=sgcModal(existing?'Edit your story draft':'Create your story ✦'),form=el('form'),body=el('textarea'),file=el('input'),preview=el('div',undefined,'sgc-story-preview'),status=el('p',undefined,'muted'),controls=el('div',undefined,'sgc-story-controls'),draft=el('button','Save as draft','btn soft'),publish=el('button','Post story to everyone →','btn');
+ let objectUrl=null;
+ body.maxLength=500;body.placeholder='Share a moment, an update or something inspiring…';body.value=existing?.body||'';
+ file.type='file';file.accept='image/*,video/*,.mp4,.webm,.mov';
+ draft.type='button';publish.type='button';
+ const draw=async()=>{preview.replaceChildren();if(objectUrl){URL.revokeObjectURL(objectUrl);objectUrl=null}const selected=file.files[0];let url='',isVideo=false;if(selected){objectUrl=URL.createObjectURL(selected);url=objectUrl;isVideo=selected.type.startsWith('video/')}else if(existing?.video_path){url=await sgcImage(existing.video_path);isVideo=true}else if(existing?.image_path){url=await sgcImage(existing.image_path)}
+ if(url){const media=el(isVideo?'video':'img');media.src=url;if(isVideo){media.controls=true;media.playsInline=true;media.preload='metadata'}preview.append(media)}
+ const text=body.value.trim();if(text)preview.append(el('p',text));if(!url&&!text)preview.append(el('p','Your story preview will appear here. Add a photo, video or text.','muted'))};
+ file.onchange=draw;body.oninput=draw;
+ controls.append(draft,publish);
+ form.append(el('label','Your story caption (optional)'),body,el('label','Photo or video (MP4, WebM or MOV)'),file,el('p','Preview your story before posting. Videos up to 40 MB; photos up to 5 MB. Published stories are visible to signed-in SGC members for 24 hours.','muted'),preview,controls,status);
+ const save=async mode=>{draft.disabled=true;publish.disabled=true;try{
+ const authResult=await sb.auth.getUser();if(authResult.error)throw authResult.error;
+ const authenticatedId=authResult.data?.user?.id;
+ if(!authenticatedId||!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(authenticatedId))throw Error('Your session has expired. Please sign in again.');
+ const selected=file.files[0];let image_path=existing?.image_path||null,video_path=existing?.video_path||null;if(selected){const video=selected.type.startsWith('video/');const allowed=video?['video/mp4','video/webm','video/quicktime']:['image/jpeg','image/png','image/webp'];if(!allowed.includes(selected.type)||selected.size>(video?41943040:5242880))throw Error('Use an MP4, WebM or MOV video under 40 MB, or a JPG, PNG or WebP image under 5 MB.');const ext=selected.type==='video/mp4'?'mp4':selected.type==='video/webm'?'webm':selected.type==='video/quicktime'?'mov':selected.type==='image/png'?'png':selected.type==='image/webp'?'webp':'jpg';const path=authenticatedId+'/'+crypto.randomUUID()+'.'+ext;check(await sb.storage.from('sgc-community').upload(path,selected,{contentType:selected.type}));image_path=video?null:path;video_path=video?path:null}
+ if(!body.value.trim()&&!image_path&&!video_path)throw Error('Add text, a photo or a video first.');
+ const payload={user_id:authenticatedId,body:body.value.trim(),image_path,video_path,status:mode,expires_at:new Date(Date.now()+86400000).toISOString()};
+ if(existing)check(await sb.from('sgc_social_stories').update(payload).eq('id',existing.id).eq('user_id',authenticatedId));else check(await sb.from('sgc_social_stories').insert(payload));
+ if(objectUrl)URL.revokeObjectURL(objectUrl);sgcModalRoot.replaceChildren();await sgcStories();say(mode==='draft'?'Story saved as a private draft.':'Your story is now visible to SGC members for 24 hours.');
+ }catch(err){status.textContent=err.message;console.error('SGC story save failed',err)}finally{draft.disabled=false;publish.disabled=false}};
+ draft.onclick=()=>save('draft');publish.onclick=()=>save('published');box.append(form);await draw();
+}
+let sgcStorySequence=[],sgcStoryPlayback=null,sgcStoryViewToken=0;
+function sgcStopStoryPlayback(){if(sgcStoryPlayback){sgcStoryPlayback();sgcStoryPlayback=null}}
+async function sgcViewStory(story){
+ sgcStopStoryPlayback();const viewToken=++sgcStoryViewToken;
+ if(story.status==='published'&&user){try{localStorage.setItem('sgc-story-seen:'+user.id+':'+story.id,'1');const storyCard=document.querySelector('[data-story-id="'+story.id+'"]');if(storyCard){storyCard.classList.remove('sgc-story-unseen');storyCard.classList.add('sgc-story-seen')}}catch(e){console.warn('Story view status could not be saved',e)}}
+ const p=await sgcProfile(story.user_id);if(viewToken!==sgcStoryViewToken)return;const box=sgcModal(p?.display_name||'SGC member');
+ box.classList.add('sgc-story-viewer');const stage=el('div',undefined,'sgc-story-stage'),top=el('div',undefined,'sgc-story-top'),progress=el('div',undefined,'sgc-story-progress'),bar=el('span'),owner=el('div',undefined,'sgc-story-owner'),bottom=el('div',undefined,'sgc-story-bottom');progress.append(bar);const pause=el('button','Ⅱ','sgc-story-playback');pause.type='button';pause.title='Pause story';const ownerBtn=el('button',p?.display_name||(story.user_id===user.id?'You':'SGC member'),'sgc-profile-link');ownerBtn.onclick=()=>sgcOpenProfile(story.user_id);const ownerAvatar=el('span',(p?.display_name||'S').slice(0,1).toUpperCase(),'sgc-story-owner-avatar');if(p?.avatar_path){const photoUrl=await sgcImage(p.avatar_path);if(photoUrl){const im=el('img');im.src=photoUrl;im.alt='Story author profile picture';im.onerror=()=>im.remove();ownerAvatar.replaceChildren(im)}}ownerAvatar.onclick=()=>sgcOpenProfile(story.user_id);const ownerDetails=el('div',undefined,'sgc-story-owner-details');ownerDetails.append(ownerBtn,el('small',new Date(story.created_at).toLocaleString('en-ZA')));owner.append(ownerAvatar,ownerDetails);owner.append(pause);top.append(progress,owner);stage.append(top);box.append(stage,bottom);
+ if(story.image_path||story.video_path){const isVideo=!!story.video_path,url=await sgcImage(story.video_path||story.image_path);if(url){const media=el(isVideo?'video':'img',undefined,'sgc-story-image');media.src=url;if(isVideo){media.playsInline=true;media.preload='auto';media.muted=false}stage.append(media)}}
+ if(story.body)stage.append(el('div',story.body,'sgc-story-text'));
+ if(story.user_id===user.id){if(story.status==='draft')bottom.append(sgcBtn('Edit or publish draft',()=>sgcCreateStory(story)));const del=el('button','Delete story','btn alt');del.onclick=async()=>{if(!confirm('Delete this story?'))return;check(await sb.from('sgc_social_stories').delete().eq('id',story.id));sgcModalRoot.replaceChildren();await sgcStories()};bottom.append(del)}
+ if(story.status==='published'){
+ const reactions=el('div',undefined,'sgc-story-react'),counts=el('p',undefined,'muted'),heading=el('h3','Comments'),comments=el('div'),form=el('form',undefined,'sgc-story-comment-form'),input=el('input'),send=el('button','Comment','btn');
+ input.required=true;input.maxLength=1000;input.placeholder='Write a comment…';form.append(input,send);
+ const refresh=async()=>{
+ const [rr,cr]=await Promise.all([sb.from('sgc_story_reactions').select('user_id,reaction').eq('story_id',story.id),sb.from('sgc_story_comments').select('id,user_id,body,created_at').eq('story_id',story.id).order('created_at',{ascending:true}).limit(200)]);
+ if(rr.error)throw rr.error;if(cr.error)throw cr.error;
+ const mine=rr.data.find(x=>x.user_id===user.id)?.reaction;
+ reactions.replaceChildren();for(const emoji of ['❤️','😂','😍','👏','🔥','😮']){const btn=el('button',emoji+(rr.data.filter(x=>x.reaction===emoji).length||''),mine===emoji?'selected':'');btn.type='button';btn.title='React '+emoji;btn.onclick=async()=>{btn.disabled=true;try{if(mine===emoji)check(await sb.from('sgc_story_reactions').delete().eq('story_id',story.id).eq('user_id',user.id));else check(await sb.from('sgc_story_reactions').upsert({story_id:story.id,user_id:user.id,reaction:emoji}));await refresh()}catch(err){alert(err.message)}finally{btn.disabled=false}};reactions.append(btn)}
+ counts.textContent=rr.data.length+' reactions · '+cr.data.length+' comments';comments.replaceChildren();
+ const ids=[...new Set(cr.data.map(x=>x.user_id))];let names={};if(ids.length){const pr=await sb.from('sgc_social_profiles').select('user_id,display_name').in('user_id',ids);for(const x of pr.data||[])names[x.user_id]=x.display_name}
+ for(const cm of cr.data){const item=el('div',undefined,'sgc-story-comment'),top=el('div',undefined,'row'),who=el('button',names[cm.user_id]||(cm.user_id===user.id?'You':'SGC member'),'sgc-profile-link');who.type='button';who.onclick=()=>sgcOpenProfile(cm.user_id);top.append(who,el('small',new Date(cm.created_at).toLocaleString('en-ZA')));if(cm.user_id===user.id||story.user_id===user.id){const remove=el('button','Delete','btn alt');remove.type='button';remove.onclick=async()=>{if(!confirm('Delete this comment?'))return;check(await sb.from('sgc_story_comments').delete().eq('id',cm.id));await refresh()};top.append(remove)}item.append(top,el('p',cm.body));comments.append(item)}
+ };
+ form.onsubmit=async e=>{e.preventDefault();send.disabled=true;try{check(await sb.from('sgc_story_comments').insert({story_id:story.id,user_id:user.id,body:input.value.trim()}));input.value='';await refresh()}catch(err){alert(err.message)}finally{send.disabled=false}};
+ bottom.append(reactions,counts,heading,comments,form);await refresh();
+ }
+ const profileBtn=el('button','View profile','btn soft');profileBtn.onclick=()=>sgcOpenProfile(story.user_id);bottom.append(profileBtn);
+ const current=sgcStorySequence.findIndex(s=>s.id===story.id),next=()=>{if(viewToken!==sgcStoryViewToken)return;const following=sgcStorySequence.slice(current+1).find(s=>s.status==='published');if(following)sgcViewStory(following);else{sgcStopStoryPlayback();sgcModalRoot.replaceChildren()}};
+ if(current>0){const prev=el('button','‹','sgc-story-nav prev');prev.type='button';prev.onclick=()=>sgcViewStory(sgcStorySequence[current-1]);stage.append(prev)}
+ if(current>=0&&current<sgcStorySequence.length-1){const forward=el('button','›','sgc-story-nav next');forward.type='button';forward.onclick=next;stage.append(forward)}
+ let paused=false,elapsed=0,last=performance.now(),frame=0;const video=stage.querySelector('video');
+ const tick=now=>{if(viewToken!==sgcStoryViewToken||!sgcModalRoot.contains(box))return;if(!paused){elapsed+=Math.min(now-last,250);bar.style.width=Math.min(100,elapsed/30000*100)+'%';if(elapsed>=30000){next();return}}last=now;frame=requestAnimationFrame(tick)};
+ pause.onclick=()=>{paused=!paused;pause.textContent=paused?'▶':'Ⅱ';pause.title=paused?'Resume story':'Pause story';if(video){if(paused)video.pause();else video.play().catch(()=>{})}};
+ if(video){video.addEventListener('ended',()=>{video.pause();video.currentTime=0;if(!paused)video.play().catch(()=>{})});video.play().catch(()=>{video.muted=true;video.play().catch(()=>{})})}
+ frame=requestAnimationFrame(tick);sgcStoryPlayback=()=>{cancelAnimationFrame(frame);if(video)video.pause()};
+ const close=box.querySelector('.close-modal');if(close){const old=close.onclick;close.onclick=()=>{sgcStopStoryPlayback();sgcStoryViewToken++;if(old)old()}};
+}
+async function sgcStories(){
+ const strip=document.getElementById('sgc-story-strip');if(!strip||!user)return;
+ strip.replaceChildren();const create=el('button',undefined,'sgc-story create');create.type='button';const createAvatar=el('span','+','story-avatar');createAvatar.classList.add('sgc-create-story-avatar');create.append(createAvatar,el('span','Your story','story-name'));create.onclick=()=>sgcCreateStory();strip.append(create);
+ const r=await sb.from('sgc_social_stories').select('id,user_id,body,image_path,video_path,status,created_at').gt('expires_at',new Date().toISOString()).order('created_at',{ascending:false}).limit(60);
+ if(r.error){strip.append(el('p','Stories are unavailable right now.','muted'));return}
+ const ids=[...new Set([user.id,...(r.data||[]).map(x=>x.user_id)])],names={},avatars={};
+ if(ids.length){const profiles=await sb.from('sgc_social_profiles').select('user_id,display_name,avatar_path').in('user_id',ids);if(profiles.error)console.warn('Story profile load:',profiles.error.message);await Promise.all((profiles.data||[]).map(async p=>{names[p.user_id]=p.display_name;if(p.avatar_path)avatars[p.user_id]=await sgcImage(p.avatar_path)}))}
+ if(avatars[user.id]){const im=el('img');im.src=avatars[user.id];im.alt='Your profile picture';im.onerror=()=>im.remove();createAvatar.replaceChildren(im)}
+ sgcStorySequence=(r.data||[]).filter(s=>s.status==='published').slice().reverse();
+ for(const s of (r.data||[]).filter(s=>s.status==='published'||s.user_id===user.id)){const name=names[s.user_id]||(s.user_id===user.id?'You':'SGC member'),card=el('button',undefined,'sgc-story');card.type='button';card.dataset.storyId=s.id;if(s.status==='draft')card.classList.add('draft');else{let seen=false;try{seen=localStorage.getItem('sgc-story-seen:'+user.id+':'+s.id)==='1'}catch(e){}card.classList.add(seen?'sgc-story-seen':'sgc-story-unseen')}const storyAvatar=el('span',name.slice(0,1).toUpperCase(),'story-avatar');if(avatars[s.user_id]){const im=el('img');im.src=avatars[s.user_id];im.alt=name+' profile picture';im.onerror=async()=>{const p=await sgcProfile(s.user_id);const refreshed=p?.avatar_path?await sgcImage(p.avatar_path):'';if(refreshed&&refreshed!==im.src){im.onerror=()=>{im.remove();storyAvatar.textContent=name.slice(0,1).toUpperCase()};im.src=refreshed}else{im.remove();storyAvatar.textContent=name.slice(0,1).toUpperCase()}};storyAvatar.replaceChildren(im)}card.append(storyAvatar,el('span',s.status==='draft'?'Your draft · Edit':name,'story-name'));card.onclick=()=>sgcViewStory(s);strip.append(card)}
+}
+document.getElementById('sgc-my-profile').onclick=()=>sgcOpenProfile();
+document.getElementById('sgc-composer-profile').onclick=()=>sgcOpenProfile();
+document.getElementById('sgc-composer-story').onclick=()=>sgcCreateStory();
+
+
+let sgcMemberTab='members',sgcMembers=[],sgcFriends=[],sgcCurrentChat=null;
+const sgcHub=document.getElementById('sgc-members-hub'),sgcHubContent=document.getElementById('sgc-members-content');
+const sgcName=id=>sgcMembers.find(x=>x.user_id===id)?.display_name||'SGC member';
+const sgcBtn=(label,fn,cls='btn soft')=>{const b=el('button',label,cls);b.type='button';b.onclick=async()=>{b.disabled=true;try{await fn()}catch(e){alert(e.message)}finally{b.disabled=false}};return b};
+async function sgcLoadMembers(){sgcMembers=check(await sb.rpc('sgc_public_members'));sgcFriends=check(await sb.from('sgc_friend_requests').select('*').or('sender_id.eq.'+user.id+',receiver_id.eq.'+user.id));}
+function sgcAccepted(id){return sgcFriends.some(f=>f.status==='accepted'&&((f.sender_id===user.id&&f.receiver_id===id)||(f.receiver_id===user.id&&f.sender_id===id)))}
+function sgcViewMemberProfile(id){
+ const url=new URL('profile.html',location.href);
+ url.searchParams.set('user',id);
+ try{window.top.location.assign(url.href)}catch(e){window.location.assign(url.href)}
+}
+
+function sgcMemberRow(m,actions){
+ const row=el('div',undefined,'sgc-member-card'),who=el('div',undefined,'person');
+ const av=el('span',m.display_name.slice(0,1).toUpperCase(),'avatar');
+ av.classList.add('sgc-member-avatar');av.title='View '+m.display_name+' profile';av.style.cursor='pointer';av.onclick=()=>sgcViewMemberProfile(m.user_id);
+ const name=sgcBtn(m.display_name,()=>sgcViewMemberProfile(m.user_id),'sgc-profile-link');
+ const details=el('div',undefined,'sgc-member-identity');
+ const view=sgcBtn('View profile',()=>sgcViewMemberProfile(m.user_id),'sgc-member-view-profile');
+ details.append(name,view);who.append(av,details);row.append(who);if(actions)row.append(actions);
+ (async()=>{try{
+  const profile=await sgcProfile(m.user_id);
+  if(!profile?.avatar_path||!av.isConnected)return;
+  const url=await sgcImage(profile.avatar_path);
+  if(!url||!av.isConnected)return;
+  const img=el('img');img.alt=m.display_name+' profile picture';img.loading='lazy';img.src=url;
+  img.onerror=()=>{img.remove();av.textContent=m.display_name.slice(0,1).toUpperCase()};
+  av.replaceChildren(img);
+ }catch(err){console.warn('Member avatar unavailable',err)}})();
+ return row;
+}
+async function sgcHubOpen(tab='members'){sgcHub.hidden=false;sgcMemberTab=tab;sgcHub.scrollIntoView({behavior:'smooth',block:'start'});await sgcHubRender()}
+async function sgcHubRender(){
+ await sgcLoadMembers();document.querySelectorAll('[data-sgc-tab]').forEach(b=>b.classList.toggle('active',b.dataset.sgcTab===sgcMemberTab));sgcHubContent.replaceChildren();
+ if(sgcMemberTab==='members'){
+ const search=el('input');search.placeholder='Search members by username…';search.className='sgc-people-search';sgcHubContent.append(search);const list=el('div');sgcHubContent.append(list);
+ const render=()=>{list.replaceChildren();const matches=sgcMembers.filter(m=>m.user_id!==user.id&&m.display_name.toLowerCase().includes(search.value.toLowerCase()));if(!matches.length)list.append(el('p','No members found.','muted'));for(const m of matches){const req=sgcFriends.find(f=>(f.sender_id===user.id&&f.receiver_id===m.user_id)||(f.receiver_id===user.id&&f.sender_id===m.user_id));const actions=el('div',undefined,'row');if(sgcAccepted(m.user_id))actions.append(sgcBtn('💬 Message',()=>sgcOpenChat(m.user_id)));else if(req?.status==='pending'&&req.receiver_id===user.id)actions.append(sgcBtn('Accept request',async()=>{check(await sb.from('sgc_friend_requests').update({status:'accepted'}).eq('id',req.id));await sgcHubRender()}));else if(req?.status==='pending')actions.append(el('span','Request sent','pill'));else if(req?.status==='declined')actions.append(el('span','Request declined','pill'));else actions.append(sgcBtn('Add friend',async()=>{check(await sb.from('sgc_friend_requests').insert({sender_id:user.id,receiver_id:m.user_id}));await sgcHubRender()}));list.append(sgcMemberRow(m,actions))}};search.oninput=render;render();
+ }else if(sgcMemberTab==='requests'){
+ const requests=sgcFriends.filter(f=>f.status==='pending'&&f.receiver_id===user.id);if(!requests.length)sgcHubContent.append(el('p','No new friend requests.','muted'));for(const f of requests){const m=sgcMembers.find(x=>x.user_id===f.sender_id)||{user_id:f.sender_id,display_name:'SGC member'};const actions=el('div',undefined,'row');for(const status of ['accepted','declined'])actions.append(sgcBtn(status==='accepted'?'Accept':'Decline',async()=>{check(await sb.from('sgc_friend_requests').update({status}).eq('id',f.id));await sgcHubRender()}));sgcHubContent.append(sgcMemberRow(m,actions))}
+ }else if(sgcMemberTab==='chats'){
+ const ids=[...new Set(sgcFriends.filter(f=>f.status==='accepted').map(f=>f.sender_id===user.id?f.receiver_id:f.sender_id))];if(!ids.length)sgcHubContent.append(el('p','Add a friend to start a private conversation.','muted'));for(const id of ids){const m=sgcMembers.find(x=>x.user_id===id)||{user_id:id,display_name:'SGC member'};sgcHubContent.append(sgcMemberRow(m,sgcBtn('Open chat',()=>sgcOpenChat(id))))}
+ }else if(sgcMemberTab==='groups'){await sgcRenderStudyGroups()}
+}
+async function sgcOpenChat(id){
+ const params=new URLSearchParams(location.search);
+ if(params.get('view')!=='chat'||params.get('with')!==id){
+  const url=new URL('chat.html',location.href);url.searchParams.set('with',id);
+  try{window.top.location.assign(url.href)}catch(e){window.location.assign(url.href)}
+  return;
+ }
+
+ if(!sgcAccepted(id)){alert('You must be friends to chat privately.');return}
+ // Keep the conversation on the dedicated Members page, not in an overlay.
+ const hub=sgcHubContent;hub.replaceChildren();
+ const chat=el('section',undefined,'sgc-private-chat-view'),top=el('div',undefined,'sgc-private-chat-header');
+ const back=sgcBtn('← Private chats',()=>{sgcMemberTab='chats';sgcHubRender()},'btn soft');
+ const identity=el('div',undefined,'sgc-private-chat-person');
+ const avatar=el('span',sgcName(id).slice(0,1).toUpperCase(),'sgc-private-chat-avatar');
+ const label=el('div');label.append(el('strong',sgcName(id)),el('small','Private conversation · only you two','muted'));
+ identity.append(avatar,label);top.append(back,identity);
+ try{const p=await sgcProfile(id);if(p?.avatar_path){const url=await sgcImage(p.avatar_path);if(url){const img=el('img');img.src=url;img.alt='Profile picture';avatar.replaceChildren(img)}}}catch(e){console.warn(e)}
+ const msgs=el('div',undefined,'sgc-chat-messages sgc-private-chat-messages'),form=el('form',undefined,'sgc-chat-form sgc-private-chat-compose'),input=el('input'),send=el('button','Send →','btn');
+ input.maxLength=5000;input.required=false;input.placeholder='Write a private message…';input.autocomplete='off';
+ const file=document.createElement('input');file.type='file';file.accept='video/mp4,video/webm,video/quicktime,image/jpeg,image/png,image/webp';file.hidden=true;
+ const attach=sgcBtn('📎 Photo / video',()=>file.click(),'btn soft');attach.type='button';
+ const preview=el('div',undefined,'sgc-chat-attachment-preview');
+ file.onchange=()=>{preview.replaceChildren();const chosen=file.files?.[0];if(!chosen)return;
+ if(!['video/mp4','video/webm','video/quicktime','image/jpeg','image/png','image/webp'].includes(chosen.type)||chosen.size>40*1024*1024){alert('Use an MP4, WebM, MOV, JPG, PNG or WebP file under 40 MB.');file.value='';return}
+ const url=URL.createObjectURL(chosen),media=document.createElement(chosen.type.startsWith('video/')?'video':'img');media.src=url;media.style.maxWidth='220px';media.style.maxHeight='180px';if(media.tagName==='VIDEO'){media.controls=true;media.playsInline=true}media.onload=()=>{if(media.tagName==='IMG')URL.revokeObjectURL(url)};preview.append(media,el('small',chosen.name+' · ready to send','muted'));
+ };
+ form.append(input,attach,file,preview,send);
+ chat.append(top,msgs,form);hub.append(chat);
+ const showChatMedia=(url,isVideo)=>{
+  const shade=el('div',undefined,'sgc-chat-media-shade'),panel=el('div',undefined,'sgc-chat-media-panel'),close=sgcBtn('×',()=>shade.remove(),'sgc-chat-media-close');
+  close.type='button';close.setAttribute('aria-label','Close image or video');
+  const media=document.createElement(isVideo?'video':'img');media.src=url;
+  if(isVideo){media.controls=true;media.playsInline=true;media.autoplay=false}
+  panel.append(close,media);shade.append(panel);shade.onclick=e=>{if(e.target===shade)shade.remove()};
+  document.body.append(shade);
+ };
+ const load=async()=>{
+  const res=await sb.from('sgc_private_messages').select('id,sender_id,body,created_at,edited_at,deleted_at,media_path,media_type')
+   .or('and(sender_id.eq.'+user.id+',receiver_id.eq.'+id+'),and(sender_id.eq.'+id+',receiver_id.eq.'+user.id+')')
+   .order('created_at',{ascending:true}).limit(200);
+  if(res.error)throw res.error;msgs.replaceChildren();
+  if(!res.data.length)msgs.append(el('p','No messages yet. Say hello!','muted'));
+  for(const m of res.data){
+   const own=m.sender_id===user.id,deleted=!!m.deleted_at;
+   const bubble=el('div',undefined,'sgc-chat-bubble'+(own?' mine':''));
+   if(deleted){
+    bubble.append(el('em','Message deleted','muted'));
+   }else{
+    if(m.body)bubble.append(el('div',m.body));
+    if(m.media_path){
+     const signed=await sb.storage.from('sgc-community').createSignedUrl(m.media_path,3600);
+     if(!signed.error&&signed.data?.signedUrl){
+      const isVideo=(m.media_type||'').startsWith('video/');
+      const media=document.createElement(isVideo?'video':'img');media.src=signed.data.signedUrl;
+      media.style.maxWidth='min(100%,350px)';media.style.maxHeight='350px';media.style.borderRadius='12px';
+      if(isVideo){media.controls=true;media.playsInline=true;media.preload='metadata'}
+      else{media.style.cursor='zoom-in';media.title='View image';media.onclick=()=>showChatMedia(signed.data.signedUrl,false)}
+      bubble.append(media);
+      if(isVideo){const open=sgcBtn('⛶ Expand video',()=>showChatMedia(signed.data.signedUrl,true),'btn soft');open.type='button';bubble.append(open)}
+     }else bubble.append(el('small','Attachment unavailable','muted'));
+    }
+    if(own){
+     const actions=el('div',undefined,'sgc-chat-message-actions');
+     if(m.body&&Date.now()-new Date(m.created_at).getTime()<15*60*1000){
+      const edit=sgcBtn('Edit',async()=>{
+       const next=prompt('Edit your message (within 15 minutes of sending):',m.body);
+       if(next===null||next.trim()===m.body)return;
+       if(!next.trim()||next.length>5000){alert('Message must be 1–5000 characters.');return}
+       try{check(await sb.from('sgc_private_messages').update({body:next.trim()}).eq('id',m.id).eq('sender_id',user.id));await load()}catch(err){alert('Could not edit message: '+err.message)}
+      },'btn soft');edit.type='button';actions.append(edit);
+     }
+     const del=sgcBtn('Delete',async()=>{
+      if(!confirm('Delete this message for both people? It will show as “Message deleted”.'))return;
+      try{check(await sb.from('sgc_private_messages').update({deleted_at:new Date().toISOString()}).eq('id',m.id).eq('sender_id',user.id));await load()}catch(err){alert('Could not delete message: '+err.message)}
+     },'btn soft');del.type='button';actions.append(del);
+     bubble.append(actions);
+    }
+   }
+   const meta=el('small',new Date(m.created_at).toLocaleString()+(m.edited_at&&!deleted?' · Edited':''));
+   bubble.append(meta);msgs.append(bubble);
+  }
+  msgs.scrollTop=msgs.scrollHeight;
+ };
+ form.onsubmit=async e=>{e.preventDefault();const body=input.value.trim(),attachment=file.files?.[0];if(!body&&!attachment)return;send.disabled=true;send.textContent='Sending…';try{
+ let media_path=null,media_type=null;
+ if(attachment){
+  if(!['video/mp4','video/webm','video/quicktime','image/jpeg','image/png','image/webp'].includes(attachment.type)||attachment.size>40*1024*1024)throw Error('Unsupported attachment or over 40 MB.');
+  const ext=attachment.type==='video/mp4'?'mp4':attachment.type==='video/webm'?'webm':attachment.type==='video/quicktime'?'mov':attachment.type==='image/png'?'png':attachment.type==='image/webp'?'webp':'jpg';
+  media_path=user.id+'/private-chat/'+crypto.randomUUID()+'.'+ext;media_type=attachment.type;
+  const uploaded=await sb.storage.from('sgc-community').upload(media_path,attachment,{contentType:attachment.type});if(uploaded.error)throw uploaded.error;
+ }
+ check(await sb.from('sgc_private_messages').insert({sender_id:user.id,receiver_id:id,body,media_path,media_type}));
+ input.value='';file.value='';preview.replaceChildren();await load()
+ }catch(err){alert('Message could not be sent: '+err.message)}finally{send.disabled=false;send.textContent='Send →';input.focus()}};
+ try{await load()}catch(err){msgs.textContent='Could not load conversation: '+err.message}
+ const refresh=sgcBtn('↻ Refresh messages',()=>load().catch(err=>alert(err.message)),'btn soft');chat.append(refresh);
+}
+async function sgcRenderStudyGroups(){
+ const rpc=async(action,group=null,data={})=>check(await sb.rpc('sgc_study_group_manage',{p_action:action,p_group:group,p_data:data}));
+ const form=el('form'),name=el('input'),description=el('input'),policy=el('select'),create=el('button','Create study / help group','btn');
+ name.placeholder='Group name';name.maxLength=80;name.required=true;description.placeholder='What will this group help with?';description.maxLength=500;
+ for(const [v,label] of [['open','Everyone can join'],['approval','Creator approval required']]){const o=el('option',label);o.value=v;policy.append(o)}
+ form.append(el('label','Create a group'),name,description,el('label','Who can join?'),policy,create);sgcHubContent.append(form);
+ form.onsubmit=async e=>{e.preventDefault();create.disabled=true;try{await rpc('create',null,{name:name.value.trim(),description:description.value.trim(),join_policy:policy.value});await sgcHubRender()}catch(err){alert(err.message)}finally{create.disabled=false}};
+ const groups=check(await sb.from('sgc_study_groups').select('*').order('created_at',{ascending:false}).limit(100));
+ const memberships=check(await sb.from('sgc_study_group_members').select('group_id').eq('user_id',user.id));const joined=new Set(memberships.map(m=>m.group_id));
+ const isAdmin=!!(await sb.rpc('sgc_extra_is_admin')).data;
+ if(!groups.length)sgcHubContent.append(el('p','No study groups yet. Create the first one!','muted'));
+ for(const g of groups){
+  const owner=g.owner_id===user.id,canManage=owner||isAdmin,member=joined.has(g.id)||isAdmin;
+  const card=el('div',undefined,'sgc-member-card sgc-study-group-card'),details=el('div'),actions=el('div',undefined,'sgc-study-group-actions');
+  details.append(el('strong',g.name),el('p',g.description||'Study and help together.','muted'),el('small',g.join_policy==='approval'?'Approval required':'Open to everyone','muted'));
+  if(member)actions.append(sgcBtn('Open group chat',()=>sgcOpenGroup(g),'btn soft'));
+  else{
+   const detailsResult=await rpc('details',g.id);const pending=detailsResult?.mine==='pending';
+   const join=sgcBtn(pending?'Request pending':(g.join_policy==='approval'?'Request to join':'Join group'),async()=>{
+    if(pending)return;try{const result=await rpc('request',g.id);if(result.status==='joined')await sgcHubRender();else{join.textContent='Request pending';join.disabled=true}}catch(err){alert(err.message)}
+   },'btn soft');join.disabled=pending;actions.append(join);
+  }
+  if(canManage){
+   const manage=sgcBtn('Manage group',async()=>{
+    const box=sgcModal('Manage '+g.name),edit=el('form'),nm=el('input'),desc=el('textarea'),access=el('select'),save=el('button','Save changes','btn');
+    nm.value=g.name;nm.required=true;nm.maxLength=80;desc.value=g.description||'';desc.maxLength=500;
+    for(const [v,label] of [['open','Everyone can join'],['approval','Creator approval required']]){const opt=el('option',label);opt.value=v;access.append(opt)}access.value=g.join_policy||'open';
+    edit.append(el('label','Group name'),nm,el('label','Description'),desc,el('label','Joining permissions'),access,save);
+    edit.onsubmit=async e=>{e.preventDefault();try{await rpc('update',g.id,{name:nm.value,description:desc.value,join_policy:access.value});sgcModalRoot.replaceChildren();await sgcHubRender()}catch(err){alert(err.message)}};
+    box.append(edit);
+    const requests=await rpc('details',g.id);
+    const pendingList=el('div');pendingList.append(el('h3','Pending join requests'));
+    if(!requests.requests?.length)pendingList.append(el('p','No pending requests.','muted'));
+    for(const request of requests.requests||[]){
+     const row=el('div',undefined,'sgc-group-request'),profile=await sgcProfile(request.user_id).catch(()=>null);
+     row.append(el('span',profile?.display_name||'SGC member'));
+     for(const action of ['approve','reject'])row.append(sgcBtn(action==='approve'?'Approve':'Decline',async()=>{try{await rpc(action,g.id,{user_id:request.user_id});row.remove()}catch(err){alert(err.message)}},'btn soft'));
+     pendingList.append(row);
+    }
+    box.append(pendingList);
+    const invite=el('div'),memberSelect=el('select'),add=sgcBtn('Add member',async()=>{try{if(!memberSelect.value)throw Error('Choose a member');await rpc('invite',g.id,{user_id:memberSelect.value});alert('Member added to the group.')}catch(err){alert(err.message)}},'btn soft');
+    invite.append(el('h3','Add people or friends'),memberSelect,add);box.append(invite);
+    const people=check(await sb.from('sgc_social_profiles').select('user_id,display_name').order('display_name').limit(250));
+    const placeholder=el('option','Choose a member');placeholder.value='';memberSelect.append(placeholder);
+    for(const p of people.filter(p=>p.user_id!==user.id)){const opt=el('option',p.display_name||'SGC member');opt.value=p.user_id;memberSelect.append(opt)}
+    const del=sgcBtn('Delete group',async()=>{if(!confirm('Delete '+g.name+' and its messages permanently?'))return;try{await rpc('delete',g.id);sgcModalRoot.replaceChildren();await sgcHubRender()}catch(err){alert(err.message)}},'btn');
+    del.style.background='#a34e64';box.append(del);
+   },'btn soft');actions.append(manage);
+  }
+  card.append(details,actions);sgcHubContent.append(card);
+ }
+}
+
+async function sgcOpenGroup(g){
+ const box=sgcModal(g.name),messages=el('div',undefined,'sgc-chat-messages'),form=el('form',undefined,'sgc-chat-form'),input=el('input'),send=el('button','Send','btn');input.placeholder='Message your group…';input.required=true;input.maxLength=5000;form.append(input,send);box.append(el('p',g.description,'muted'),messages,form);
+ const load=async()=>{const data=check(await sb.from('sgc_study_group_messages').select('user_id,body,created_at').eq('group_id',g.id).order('created_at',{ascending:true}).limit(200));messages.replaceChildren();for(const m of data){const b=el('div',undefined,'sgc-chat-bubble'+(m.user_id===user.id?' mine':''));b.append(el('strong',m.user_id===user.id?'You':sgcName(m.user_id)),el('p',m.body));messages.append(b)}messages.scrollTop=messages.scrollHeight};
+ form.onsubmit=async e=>{e.preventDefault();send.disabled=true;try{check(await sb.from('sgc_study_group_messages').insert({group_id:g.id,user_id:user.id,body:input.value.trim()}));input.value='';await load()}catch(err){alert(err.message)}finally{send.disabled=false}};await load();box.append(sgcBtn('↻ Refresh group chat',load));
+}
+document.getElementById('sgc-people-nav').onclick=()=>{location.href='members.html'};
+document.getElementById('sgc-members-close').onclick=()=>{sgcHub.hidden=true};
+document.querySelectorAll('[data-sgc-tab]').forEach(b=>b.onclick=()=>{sgcMemberTab=b.dataset.sgcTab;sgcHubRender().catch(e=>alert(e.message))});
+
+function renderFaqReactions(post,root,groupId){
+ root.replaceChildren();
+ for(const [key,label] of [['like','👍 Like'],['love','💗 Love'],['celebrate','🎉 Celebrate'],['support','🤗 Support']]){
+ const b=el('button',label+' · '+Number(post.reactions?.[key]||0),'sgc-profile-link');b.type='button';b.setAttribute('aria-pressed',String(post.my_reaction===key));if(post.my_reaction===key)b.classList.add('reaction-selected');
+ b.onclick=async()=>{b.disabled=true;try{check(await sb.rpc('sgc_social',{p_action:'react',p_post:post.id,p_reaction:key}));const rows=check(await sb.rpc('sgc_social',{p_action:'feed',p_group:groupId}));const updated=rows.find(p=>p.id===post.id);if(updated)renderFaqReactions(updated,root,groupId)}catch(err){alert(err.message)}finally{b.disabled=false}};root.append(b)
+ }
+}
+async function sgcFaqMedia(path,parent){
+ const signed=await sb.storage.from('sgc-community').createSignedUrl(path,3600);
+ if(signed.error){parent.append(el('p','Media unavailable: '+signed.error.message,'muted'));return}
+ const url=signed.data.signedUrl;
+ const filename=String(path||'').split('?')[0];
+ const video=/\.(mp4|webm|mov|m4v|ogv|ogg)$/i.test(filename);
+ const renderVideo=()=>{
+  const player=el('video');player.src=url;player.className='sgc-faq-media sgc-faq-video';
+  player.controls=true;player.playsInline=true;player.preload='metadata';player.setAttribute('controls','');player.setAttribute('playsinline','');player.disablePictureInPicture=false;
+  player.setAttribute('aria-label','Play community video with sound');
+  player.style.cssText='display:block;width:100%;height:auto;max-height:620px;object-fit:contain;background:#18151a;border-radius:0';
+  player.onerror=()=>{const msg=el('p','This video could not play. Please upload an MP4 with H.264 video and AAC audio.','muted');player.insertAdjacentElement('afterend',msg)};
+  return player;
+ };
+ if(video){parent.append(renderVideo());return}
+ const img=el('img');img.src=url;img.className='sgc-faq-media';img.loading='lazy';img.alt='Community photo';
+ img.onerror=()=>{if(!img.isConnected)return;img.replaceWith(renderVideo())};
+ parent.append(img);
+}
+function sgcConfirmDelete(message='Confirm delete post?'){
+ return new Promise(resolve=>{
+  const overlay=document.createElement('div');overlay.className='sgc-delete-overlay';
+  const dialog=document.createElement('div');dialog.className='sgc-delete-dialog';dialog.setAttribute('role','dialog');dialog.setAttribute('aria-modal','true');
+  const heading=document.createElement('h3');heading.textContent=message;
+  const buttons=document.createElement('div');buttons.className='sgc-delete-buttons';
+  const cancel=document.createElement('button');cancel.type='button';cancel.textContent='Cancel';
+  const yes=document.createElement('button');yes.type='button';yes.textContent='Delete';yes.className='sgc-delete-yes';
+  const done=value=>{document.removeEventListener('keydown',esc);overlay.remove();resolve(value)};
+  const esc=e=>{if(e.key==='Escape')done(false)};
+  cancel.onclick=()=>done(false);yes.onclick=()=>done(true);overlay.onclick=e=>{if(e.target===overlay)done(false)};
+  buttons.append(cancel,yes);dialog.append(heading,buttons);overlay.append(dialog);document.body.append(overlay);document.addEventListener('keydown',esc);cancel.focus();
+ });
+}
+async function sgcMemberAvatars(){
+ const r=await sb.from('sgc_social_profiles').select('user_id,display_name,avatar_path');const map=new Map();
+ for(const p of r.data||[]){if(!p.avatar_path)continue;const signed=await sb.storage.from('sgc-community').createSignedUrl(p.avatar_path,3600);if(!signed.error)map.set(p.user_id,signed.data.signedUrl)}
+ return map;
+}
+function sgcAvatarNode(url,initial,cls){
+ const node=el('span',initial,cls);
+ if(url){const img=el('img');img.src=url;img.alt='Member profile picture';img.style.cssText='width:100%;height:100%;border-radius:50%;object-fit:cover;display:block';img.onerror=()=>img.remove();node.replaceChildren(img)}
+ return node;
+}
+async function sgcFaqFeed(){
+ const container=document.getElementById('sgc-faq-feed-posts');if(!container)return;container.replaceChildren();
+ try{
+ if(!activeGroup)return;
+ const faqGroups=groups.filter(g=>g.id===activeGroup.id);
+ if(!faqGroups.length){container.append(el('p','No FAQ conversations yet.','muted'));return}
+ const faq=faqGroups.find(g=>g.joined)||faqGroups[0];
+ if(!faq.joined){const join=el('button','Join FAQ conversation','btn soft');join.onclick=()=>joinCommunity();container.append(join);return}
+ const posts=check(await sb.rpc('sgc_social',{p_action:'feed',p_group:faq.id}));
+ const memberAvatars=await sgcMemberAvatars();
+ const minePosts=await sb.from('community_posts').select('id').eq('group_id',faq.id).eq('user_id',user.id);const ownPostIds=new Set((minePosts.data||[]).map(p=>p.id));
+ const compose=(postId=null,commentId=null,after=null)=>{
+  const form=el('form',undefined,'sgc-faq-compose'),title=el('input'),input=el('textarea'),file=el('input'),send=el('button',commentId?'Reply':postId?'Comment':'Post','btn');
+  title.placeholder='Header (optional)';title.maxLength=150;input.maxLength=10000;input.placeholder=commentId?'Write a reply…':postId?'Write a comment…':'Write a thread or comment…';
+  file.type='file';file.accept='image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime';file.setAttribute('aria-label','Attach a photo or video');
+  const bubble=el('div',undefined,'sgc-comment-input-bubble'),tools=el('div',undefined,'sgc-comment-tools'),row=el('div',undefined,'sgc-comment-input-row'),avatar=sgcAvatarNode(memberAvatars.get(user.id),(user.user_metadata?.username||user.email||'S').slice(0,1).toUpperCase(),'sgc-comment-avatar');
+  const iconButton=(label,tip,fn)=>{const b=el('button',label,'sgc-comment-tool');b.type='button';b.title=tip;b.setAttribute('aria-label',tip);b.onclick=fn;return b};
+  title.classList.add('sgc-comment-heading');title.hidden=true;
+  const headerToggle=iconButton('✎','Add optional header',()=>{title.hidden=!title.hidden;if(!title.hidden)title.focus()});
+  const emojiPicker=iconButton('☺','Insert emoji',()=>{const emojis=['💗','😊','😂','👏','🎉','✨','❤️','👍'];const pick=el('div',undefined,'sgc-comment-emoji-picker');for(const emoji of emojis){pick.append(iconButton(emoji,'Add '+emoji,()=>{input.value+=emoji;pick.remove();input.focus()}))}tools.append(pick)});
+  const photo=iconButton('📷','Upload a photo',()=>{file.accept='image/jpeg,image/png,image/webp';file.click()});
+  const video=iconButton('🎥','Upload a video',()=>{file.accept='video/*,.mp4,.webm,.mov';file.click()});
+  const attach=iconButton('♧','Attach photo or video',()=>{file.accept='image/*,video/*,.mp4,.webm,.mov';file.click()});
+  const fileName=el('span','','sgc-comment-file-name');file.onchange=()=>{const selected=file.files[0];fileName.textContent=selected?'📎 '+selected.name:'';if(selected)input.placeholder='Add a caption (optional)…'};
+  file.hidden=true;send.textContent='➤';send.className='sgc-comment-send';send.title='Send '+(commentId?'reply':postId?'comment':'thread');send.setAttribute('aria-label',send.title);
+  tools.append(headerToggle,emojiPicker,photo,video,attach,fileName,send);
+  bubble.append(title,input,tools,file);row.append(avatar,bubble);form.append(row);
+  if(postId){const cancel=el('button','Cancel','sgc-profile-link');cancel.type='button';cancel.onclick=()=>form.remove();form.append(cancel)}
+  form.onsubmit=async ev=>{ev.preventDefault();send.disabled=true;let uploaded=null;try{
+   const body=input.value.trim(),heading=title.value.trim(),f=file.files[0];
+   if(!body&&!f){throw Error('Write a comment or attach a photo/video.')}
+   if(f){const image=['image/jpeg','image/png','image/webp'].includes(f.type)||/\.(jpe?g|png|webp)$/i.test(f.name),video=['video/mp4','video/webm','video/quicktime'].includes(f.type)||/\.(mp4|webm|mov)$/i.test(f.name);if(!image&&!video)throw Error('Use a JPG, PNG, WebP, MP4, WebM or MOV file.');if(f.size>(image?5:30)*1024*1024)throw Error(image?'Photo must be under 5 MB.':'Video must be under 30 MB.');const ext=image?(f.type==='image/png'?'png':f.type==='image/webp'?'webp':'jpg'):(f.type==='video/quicktime'?'mov':f.type==='video/webm'?'webm':'mp4');uploaded={path:user.id+'/'+crypto.randomUUID()+'.'+ext,type:image?'image':'video'};const uploadResult=await sb.storage.from('sgc-community').upload(uploaded.path,f,{contentType:f.type|| (image?'image/jpeg':'video/mp4'),upsert:false});if(uploadResult.error)throw Error('Upload failed: '+uploadResult.error.message);}
+   const textBody=body||(uploaded?.type==='video'?'🎥 Video':'📷 Photo');
+   if(commentId||postId){
+    if(commentId)check(await sb.rpc('sgc_reply_comment',{p_comment:commentId,p_body:textBody}));
+    else check(await sb.rpc('sgc_social',{p_action:'comment',p_post:postId,p_body:textBody,p_title:heading}));
+    if(uploaded){const q=await sb.from('community_comments').select('id').eq('post_id',postId).eq('user_id',user.id).eq('body',textBody).order('created_at',{ascending:false}).limit(1);if(q.error||!q.data?.length)throw Error('Comment saved but attachment could not be linked.');check(await sb.from('sgc_comment_media').insert({comment_id:q.data[0].id,path:uploaded.path,media_type:uploaded.type}));}
+   }else{
+    const created=check(await sb.rpc('sgc_social',{p_action:'post',p_group:faq.id,p_body:textBody,p_title:heading}));
+    if(uploaded){if(!created?.id)throw Error('Thread saved but attachment could not be linked.');check(await sb.from('sgc_post_images').insert({post_id:created.id,path:uploaded.path}));}
+   }
+   await sgcFaqFeed();
+  }catch(err){alert(err.message);send.disabled=false}};
+  if(after)after.append(form);else container.prepend(form);input.focus();
+ };
+ const intro=el('div',undefined,'sgc-faq-compose-top');
+ compose(null,null,intro);container.append(intro);
+ if(!posts.length)container.append(el('p','No conversations yet. Start one above.','muted'));
+ for(const post of posts){
+  const card=el('article',undefined,'sgc-faq-post');
+  const top=el('div',undefined,'sgc-faq-author');const postAvatar=sgcAvatarNode(memberAvatars.get(post.user_id),(post.author||'S').slice(0,1).toUpperCase(),'sgc-faq-avatar');postAvatar.classList.add('sgc-member-clickable');postAvatar.onclick=()=>sgcOpenProfile(post.user_id);top.append(postAvatar);
+  const who=el('div');const postName=el('button',post.author||'SGC member','sgc-member-name-link');postName.type='button';postName.onclick=()=>sgcOpenProfile(post.user_id);who.append(postName,el('small',new Date(post.created_at).toLocaleString('en-ZA')));top.append(who);
+  if(ownPostIds.has(post.id)){const del=el('button','Delete thread','sgc-faq-delete');del.type='button';del.title='Delete your thread';del.setAttribute('aria-label','Delete your thread');del.onclick=async()=>{if(!await sgcConfirmDelete('Confirm delete post?'))return;del.disabled=true;try{check(await sb.from('community_posts').delete().eq('id',post.id).eq('user_id',user.id));await sgcFaqFeed()}catch(err){alert(err.message);del.disabled=false}};top.append(del)}
+  card.append(top);
+  if(post.title)card.append(el('strong',post.title));
+  card.append(el('p',post.body||'','sgc-faq-body'));
+  const mediaResult=await sb.from('sgc_post_images').select('path').eq('post_id',post.id);
+  for(const item of mediaResult.data||[])await sgcFaqMedia(item.path,card);
+  const summary=el('div',undefined,'sgc-faq-summary');
+  const total=Object.values(post.reactions||{}).reduce((n,v)=>n+Number(v||0),0);
+  summary.append(el('span',total?'👍 💗 · '+total+' reactions':''),el('span',Number(post.comment_count||0)+' comments'));card.append(summary);
+  const actions=el('div',undefined,'sgc-faq-actions'),react=el('div',undefined,'sgc-faq-reactions');renderFaqReactions(post,react,faq.id);
+  const commentBtn=el('button','💬 Comment','sgc-profile-link');commentBtn.type='button';
+  actions.append(react,commentBtn);card.append(actions);
+  const thread=el('div',undefined,'sgc-faq-thread');thread.hidden=true;card.append(thread);
+  const openThread=async()=>{thread.hidden=false;thread.replaceChildren();const cr=await sb.rpc('sgc_social',{p_action:'comments',p_post:post.id});
+   if(cr.error){thread.append(el('p','Comments unavailable: '+cr.error.message,'muted'));return}
+   const comments=cr.data||[],ownComments=await sb.from('community_comments').select('id').eq('post_id',post.id).eq('user_id',user.id),ownCommentIds=new Set((ownComments.data||[]).map(x=>x.id)),byParent=new Map();for(const cm of comments){const parent=cm.reply_to_comment_id||null;if(!byParent.has(parent))byParent.set(parent,[]);byParent.get(parent).push(cm)}
+   const commentMedia=new Map();if(comments.length){const mr=await sb.from('sgc_comment_media').select('comment_id,path').in('comment_id',comments.map(x=>x.id));for(const m of mr.data||[]){if(!commentMedia.has(m.comment_id))commentMedia.set(m.comment_id,[]);commentMedia.get(m.comment_id).push(m.path)}}
+   if(!comments.length)thread.append(el('p','Be the first to comment.','muted'));
+   const draw=(parent,depth=0)=>{if(depth>20)return;for(const cm of byParent.get(parent)||[]){const wrap=el('div',undefined,'sgc-faq-comment');wrap.style.marginLeft=Math.min(depth,5)*20+'px';
+    const bubble=el('div',undefined,'sgc-chat-message');const commentHead=el('div',undefined,'sgc-faq-comment-head');const commentAvatar=sgcAvatarNode(memberAvatars.get(cm.user_id),(cm.author||'S').slice(0,1).toUpperCase(),'sgc-comment-avatar');commentAvatar.classList.add('sgc-member-clickable');commentAvatar.onclick=()=>sgcOpenProfile(cm.user_id);const commentName=el('button',cm.author||'SGC member','sgc-member-name-link');commentName.type='button';commentName.onclick=()=>sgcOpenProfile(cm.user_id);commentHead.append(commentAvatar,commentName);bubble.append(commentHead,el('p',cm.body));
+    const reply=el('button','Reply');reply.type='button';reply.onclick=()=>compose(post.id,cm.id,wrap);bubble.append(reply);if(ownCommentIds.has(cm.id)){const del=el('button','Delete comment','sgc-faq-delete-comment');del.type='button';del.onclick=async()=>{if(!await sgcConfirmDelete('Confirm delete comment?'))return;del.disabled=true;try{check(await sb.from('community_comments').delete().eq('id',cm.id).eq('user_id',user.id));await openThread()}catch(err){alert(err.message);del.disabled=false}};bubble.append(del)}wrap.append(bubble);thread.append(wrap);for(const path of commentMedia.get(cm.id)||[])sgcFaqMedia(path,wrap);draw(cm.id,depth+1)}};draw(null);
+   const entry=el('div');thread.append(entry);compose(post.id,null,entry);
+  };
+  commentBtn.onclick=()=>{if(!thread.hidden){thread.hidden=true;thread.replaceChildren()}else openThread()};
+  summary.style.cursor='pointer';summary.onclick=()=>commentBtn.click();
+  container.append(card);
+ }
+ }catch(err){container.replaceChildren(el('p','FAQ feed could not load: '+err.message,'muted'))}
+}
+function sgcShowSignIn(){
+ say('Please sign in to view your community.');
+ const status=$('status');
+ if(!document.getElementById('sgc-community-login-button')){
+  const a=document.createElement('a');a.id='sgc-community-login-button';a.href='login.html?redirect='+encodeURIComponent('community.html');a.className='btn';a.textContent='Sign in to Community';a.style.cssText='display:inline-block;margin-top:12px;background:#e56da8;color:white;border-radius:25px;padding:12px 20px;text-decoration:none';status.insertAdjacentElement('afterend',a);
+ }
+}
+async function start(){
+ if(!sb)throw Error('Supabase library could not load.');
+ const sessionResult=await sb.auth.getSession();
+ if(sessionResult.error)throw sessionResult.error;
+ if(!sessionResult.data?.session){sgcShowSignIn();return}
+ const authResult=await sb.auth.getUser();
+ if(authResult.error||!authResult.data?.user){
+  const refreshed=await sb.auth.refreshSession();
+  if(refreshed.error||!refreshed.data?.session){sgcShowSignIn();return}
+  user=refreshed.data.user;
+ }else user=authResult.data.user;
+
+ isAdmin=check(await sb.rpc('sgc_extra_is_admin'));
+ $('signed-in').textContent='Signed in as '+(user.user_metadata?.username||user.user_metadata?.full_name||user.email);
+ $('app').hidden=false;
+ document.documentElement.classList.add('sgc-standalone-members');
+ sgcHub.hidden=false;
+ await sgcHubRender();
+ if(new URLSearchParams(location.search).get('view')==='profile')document.documentElement.classList.add('sgc-profile-document-mode');
+ const profileId=new URLSearchParams(location.search).get('profile');
+ if(profileId&&/^[a-f0-9-]{36}$/i.test(profileId)){
+  try{await sgcOpenProfile(profileId)}catch(err){console.error('Profile open error',err);alert('Unable to load this member profile: '+err.message)}
+ }
+}
+
+start().catch(e=>{console.error('Community startup error',e);if(/auth session missing|jwt expired|refresh token|invalid jwt|not authenticated/i.test(e.message||'')){sgcShowSignIn()}else say('Community could not load: '+(e.message||'Please refresh and try again.'))});
+</script>
+<script src="js/community-notifications.js"></script><script src="js/sgc-user-guide.js?v=guide1"></script><script>
+(function(){
+ const connect=(source,target)=>{const button=document.getElementById(source);if(button)button.addEventListener('click',()=>{const original=document.getElementById(target);if(original)original.click()})};
+ document.getElementById('sgc-mobile-members')?.addEventListener('click',()=>{location.href='members.html'});
+ document.getElementById('sgc-mobile-community')?.addEventListener('click',()=>{location.href='members.html'});
+ connect('sgc-mobile-profile','sgc-my-profile');
+ const jump=(id,target)=>{const button=document.getElementById(id);if(button)button.addEventListener('click',()=>document.getElementById(target)?.scrollIntoView({behavior:'smooth',block:'start'}))};
+ // Reload from the very top, including the community picker and stories.
+ const refreshTab=(id)=>{
+  document.getElementById(id)?.addEventListener('click',()=>{
+   const category=document.getElementById('category')?.value||'';
+   const group=document.getElementById('group')?.value||'';
+   try{sessionStorage.setItem('sgc-community-refresh-selection',JSON.stringify({category,group}))}catch(_){}
+   window.location.href=window.location.pathname+'?v='+Date.now();
+  });
+ };
+ refreshTab('sgc-mobile-feed');
+ refreshTab('sgc-mobile-stories');
+ const restoreTop=()=>{
+  const pane=document.querySelector('.layout>main');
+  if(pane)pane.scrollTop=0;
+  document.documentElement.scrollTop=0;document.body.scrollTop=0;
+  window.scrollTo(0,0);
+ };
+ window.addEventListener('pageshow',restoreTop);
+ requestAnimationFrame(restoreTop);
+ let attempts=0;
+ const topTimer=setInterval(()=>{restoreTop();if(++attempts>=15)clearInterval(topTimer)},200);
+ 
+})();
+</script><script>
+(function(){
+ const key='sgc-community-guide-hidden';
+ const setup=()=>{
+  const guide=document.querySelector('.sgc-guide-launcher');
+  if(!guide)return false;
+  if(document.getElementById('sgc-guide-dismiss-community'))return true;
+  const close=document.createElement('button');close.id='sgc-guide-dismiss-community';close.className='sgc-guide-dismiss';close.type='button';close.textContent='×';close.setAttribute('aria-label','Hide SGC guide shortcut');
+  const dismissed=()=>{try{return localStorage.getItem(key)==='1'}catch{return false}};
+  const apply=()=>{const hidden=dismissed();guide.classList.toggle('sgc-guide-dismissed',hidden);close.hidden=hidden};
+  close.addEventListener('click',()=>{try{localStorage.setItem(key,'1')}catch{}apply()});
+  guide.insertAdjacentElement('afterend',close);apply();return true;
+ };
+ if(!setup()){let attempts=0;const timer=setInterval(()=>{attempts++;if(setup()||attempts>60)clearInterval(timer)},500)}
+})();
+</script><script>
+(function(){
+ const write=document.getElementById('sgc-mobile-write-post'),composer=document.getElementById('composer-card'),group=document.getElementById('group'),category=document.getElementById('category');
+ if(!write||!composer)return;
+ const sync=()=>{write.hidden=composer.hidden;if(composer.hidden)composer.classList.remove('sgc-mobile-composer-open')};
+ const observer=new MutationObserver(sync);observer.observe(composer,{attributes:true,attributeFilter:['hidden']});sync();
+ write.addEventListener('click',()=>{if(composer.hidden)return;composer.classList.toggle('sgc-mobile-composer-open');if(composer.classList.contains('sgc-mobile-composer-open')){composer.scrollIntoView({behavior:'smooth',block:'start'});setTimeout(()=>document.getElementById('post-body')?.focus({preventScroll:true}),300)}});
+ document.getElementById('post-form')?.addEventListener('submit',()=>{setTimeout(()=>{if(!document.getElementById('post-body')?.value.trim())composer.classList.remove('sgc-mobile-composer-open')},1300)});
+ group?.addEventListener('change',()=>composer.classList.remove('sgc-mobile-composer-open'));
+ category?.addEventListener('change',()=>composer.classList.remove('sgc-mobile-composer-open'));
+})();
+</script><script>
+(function(){
+ const categoryNames={faq:'FAQs & assistance',niche:'Niche community',academy:'General community'};
+ function updateCommunityBanner(){
+  const group=document.getElementById('group'),category=document.getElementById('category'),name=document.getElementById('sgc-active-community-name'),type=document.getElementById('sgc-active-community-category'),banner=document.getElementById('sgc-active-community-banner');
+  if(!group||!category||!name||!type||!banner)return;
+  const selected=group.options[group.selectedIndex];
+  const clean=(selected?.textContent||'').replace(/\s*[·•]\s*(Joined|Not joined|Membership required|Access included).*$/i,'').trim();
+  name.textContent=clean||categoryNames[category.value]||'Select a community';
+  type.textContent=categoryNames[category.value]||'';
+ }
+ const group=document.getElementById('group'),category=document.getElementById('category');
+ group?.addEventListener('change',updateCommunityBanner);category?.addEventListener('change',()=>setTimeout(updateCommunityBanner,50));
+ if(group)new MutationObserver(updateCommunityBanner).observe(group,{childList:true,subtree:true,attributes:true,attributeFilter:['selected']});
+ updateCommunityBanner();
+})();
+</script><script>
+(function(){
+ let saved=null;try{saved=JSON.parse(sessionStorage.getItem('sgc-community-refresh-selection')||'null');sessionStorage.removeItem('sgc-community-refresh-selection')}catch(_){}
+ if(!saved)return;
+ const category=document.getElementById('category'),group=document.getElementById('group');
+ if(!category||!group)return;
+ if(saved.category&&category.value!==saved.category){category.value=saved.category;category.dispatchEvent(new Event('change',{bubbles:true}))}
+ let n=0;const poll=setInterval(()=>{
+  if(saved.group&&[...group.options].some(o=>o.value===saved.group)){
+   if(group.value!==saved.group){group.value=saved.group;group.dispatchEvent(new Event('change',{bubbles:true}))}
+   clearInterval(poll);
+  }else if(++n>40)clearInterval(poll);
+ },200);
+})();
+</script><script>
+(function(){
+ const srcType=document.getElementById('category'),srcGroup=document.getElementById('group');
+ const destType=document.getElementById('sgc-desktop-category'),destGroup=document.getElementById('sgc-desktop-group');
+ if(!srcType||!srcGroup||!destType||!destGroup)return;
+ const copy=(src,dst)=>{const current=src.value;dst.replaceChildren(...Array.from(src.options,o=>o.cloneNode(true)));dst.value=current};
+ const sync=()=>{copy(srcType,destType);copy(srcGroup,destGroup)};
+ destType.addEventListener('change',()=>{srcType.value=destType.value;srcType.dispatchEvent(new Event('change',{bubbles:true}));sync()});
+ destGroup.addEventListener('change',()=>{srcGroup.value=destGroup.value;srcGroup.dispatchEvent(new Event('change',{bubbles:true}));sync()});
+ srcType.addEventListener('change',()=>setTimeout(sync,0));srcGroup.addEventListener('change',sync);
+ new MutationObserver(sync).observe(srcGroup,{childList:true,subtree:true});
+ sync();
+})();
+</script><script>
+(function(){
+ if(new URLSearchParams(location.search).get('view')!=='members')return;
+ document.documentElement.classList.add('sgc-members-page-mode');
+ const boot=()=>{
+  const hub=document.getElementById('sgc-members-hub'),app=document.getElementById('app');
+  if(!hub||!app||app.hidden)return false;
+  if(!hub.dataset.membersBooted){
+   hub.dataset.membersBooted='1';
+   const trigger=document.getElementById('sgc-members-close');
+   if(trigger)trigger.style.display='none';
+   const nav=document.getElementById('sgc-people-nav');
+   if(nav)nav.click=undefined;
+   // Open the existing members experience without duplicating its auth and chat logic.
+   if(typeof sgcHubOpen==='function')sgcHubOpen('members').catch(e=>console.error(e));
+  }
+  return true;
+ };
+ let tries=0;const timer=setInterval(()=>{tries++;if(boot()||tries>100)clearInterval(timer)},100);
+})();
+</script><script>
+(function(){
+ const picker=document.querySelector('.layout>.left>.card:has(#category)');
+ if(!picker)return;
+ const bar=document.createElement('button');bar.type='button';bar.id='sgc-compact-community-bar';
+ bar.setAttribute('aria-label','Expand community selector');
+ bar.innerHTML='<span class="sgc-compact-name"></span><span class="sgc-compact-edit">Change ▾</span>';
+ picker.prepend(bar);
+ const category=document.getElementById('category'),group=document.getElementById('group');
+ const syncName=()=>{const option=group?.selectedOptions?.[0];bar.querySelector('.sgc-compact-name').textContent='📍 '+((option?.textContent||category?.selectedOptions?.[0]?.textContent||'Choose community').replace(/\s*[·•]\s*(Joined|Not joined).*$/i,'').trim())};
+ category?.addEventListener('change',syncName);group?.addEventListener('change',syncName);
+ if(group)new MutationObserver(syncName).observe(group,{childList:true,subtree:true});syncName();
+ let expandedByUser=false,lastY=0;
+ const mobile=()=>window.matchMedia('(max-width:700px)').matches;
+ const scrollY=()=>Math.max(window.scrollY||0,document.querySelector('.layout>main')?.scrollTop||0);
+ const onScroll=()=>{
+  if(!mobile()){document.body.classList.remove('sgc-community-picker-collapsed');return}
+  const y=scrollY();
+  if(y<15){expandedByUser=false;document.body.classList.remove('sgc-community-picker-collapsed')}
+  else if(y>55&&!expandedByUser){document.body.classList.add('sgc-community-picker-collapsed')}
+  lastY=y;
+ };
+ bar.addEventListener('click',()=>{expandedByUser=true;document.body.classList.remove('sgc-community-picker-collapsed');picker.scrollIntoView({behavior:'smooth',block:'start'})});
+ window.addEventListener('scroll',onScroll,{passive:true});
+ document.querySelector('.layout>main')?.addEventListener('scroll',onScroll,{passive:true});
+ window.addEventListener('resize',onScroll);
+ onScroll();
+})();
+</script><script>
+(function(){
+ const picker=document.querySelector('.sgc-desktop-community-picker');
+ if(!picker)return;
+ const host=document.createElement('div');host.className='sgc-desktop-join';picker.append(host);
+ const render=()=>{
+  const group=document.getElementById('group'),id=group?.value;
+  const selected=typeof groups!=='undefined'?groups.find(g=>g.id===id):null;
+  host.replaceChildren();
+  if(!selected)return;
+  if(selected.joined){const label=document.createElement('span');label.className='pill';label.textContent='Access included ✓';host.append(label);return}
+  const button=document.createElement('button');button.type='button';button.textContent='Join '+selected.name+' →';button.addEventListener('click',()=>joinCommunity());host.append(button);
+ };
+ document.getElementById('group')?.addEventListener('change',render);
+ document.getElementById('category')?.addEventListener('change',()=>setTimeout(render,80));
+ const group=document.getElementById('group');if(group)new MutationObserver(render).observe(group,{childList:true,subtree:true});
+ setTimeout(render,600);
+})();
+</script><script>
+(function(){
+ const params=new URLSearchParams(location.search);
+ if(params.get('view')!=='chat')return;
+ document.documentElement.classList.add('sgc-chat-page-mode');
+ const id=params.get('with');
+ if(!id||!/^[a-f0-9-]{36}$/i.test(id))return;
+ let count=0;
+ const interval=setInterval(async()=>{
+  count++;
+  if(count>120){clearInterval(interval);return}
+  if(!document.getElementById('app')||document.getElementById('app').hidden||typeof user==='undefined'||!user)return;
+  clearInterval(interval);
+  try{await sgcLoadMembers();await sgcOpenChat(id)}catch(e){console.error(e);alert('Unable to open chat: '+e.message)}
+ },100);
+})();
+</script></body>
+</html>
