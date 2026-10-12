@@ -41,6 +41,8 @@
 
 /* Menu is portaled to body so it cannot be clipped by the chat pane. */
 body>.sgc-message-options{position:fixed!important;display:flex;flex-direction:column;z-index:2147483000!important;background:#17191a!important;color:#f6e9ce!important;border:1px solid #64563b!important;border-radius:12px!important;overflow-y:auto!important;box-shadow:0 14px 36px #0009!important;padding:6px!important}
+
+.sgc-chat-dialog-shade{position:fixed;inset:0;z-index:2147483600;background:#0009;display:flex;align-items:center;justify-content:center;padding:18px}.sgc-chat-dialog{width:min(390px,100%);background:#191a1b;color:#f8f4eb;border:1px solid #62573c;border-radius:18px;padding:22px;box-shadow:0 18px 50px #0009}.sgc-chat-dialog h3{margin:0 0 10px;font:600 19px Arial,sans-serif}.sgc-chat-dialog p{font-size:13px;line-height:1.5;color:#c8c4bb}.sgc-chat-dialog-actions{display:flex;flex-direction:column;gap:8px;margin-top:16px}.sgc-chat-dialog-actions button{background:#292a2b;color:#f6e9cc;border:1px solid #45413a;border-radius:11px;padding:12px;cursor:pointer;font:600 13px Arial,sans-serif}.sgc-chat-dialog-actions button.danger{color:#ff9ba8}.sgc-chat-dialog-actions button.cancel{color:#d2ad68;background:transparent;border-color:transparent}
 </style></head><body>
 <header><strong>SGC <span style="color:#b45d95">Chats</span></strong><a href="community.html">← SGC Community</a></header>
 <div class="shell" id="shell"><aside class="sidebar"><div class="sidebar-top"><h2>Messages ♡</h2><div class="actions"><button class="btn primary" id="new-group">＋ New group</button><button class="btn" id="new-chat">＋ Private chat</button></div><input class="search" id="search" placeholder="Search conversations" aria-label="Search conversations"><div class="tabs"><button class="btn selected" id="tab-all">All</button><button class="btn" id="tab-private">Private</button><button class="btn" id="tab-groups">Groups</button></div></div><div id="threads" class="list"></div></aside>
@@ -73,10 +75,24 @@ async function loadThreads(){
 function renderThreads(){const q=$('search').value.toLowerCase();$('threads').innerHTML='';const visible=threads.filter(t=>(filter==='all'||(filter==='groups'?t.kind==='group':t.kind==='dm'))&&t.label.toLowerCase().includes(q));if(!visible.length){$('threads').innerHTML='<div class="notice">No conversations yet. Start a private chat or create a group.</div>';return}
  for(const t of visible){const b=document.createElement('button');b.className='thread'+(selected?.id===t.id&&selected.kind===t.kind?' active':'');b.innerHTML=avatar(t.label,t.kind==='dm'?t.id:null)+'<span class="info"><strong>'+esc(t.label)+'</strong><small>'+esc(t.preview||'')+'</small></span>'+(t.unread?'<span class="badge">'+(t.unread>99?'99+':t.unread)+'</span>':'');b.onclick=()=>openThread(t);$('threads').append(b)}}
 async function openThread(t){$('messages').dataset.renderSignature='';selected=t;replying=null;$('reply-banner').hidden=true;await markRead(t);$('shell').classList.add('open');$('chat-name').textContent=t.label;await loadProfiles(t.kind==='dm'?[t.id]:[]);const headAvatar=$('chat-avatar');headAvatar.innerHTML=t.kind==='dm'&&avatarUrls[t.id]?'<img src="'+esc(avatarUrls[t.id])+'" alt="'+esc(t.label)+'">':esc(t.label.slice(0,1).toUpperCase());const profileLink=t.kind==='dm'?'profile.html?user='+encodeURIComponent(t.id):null;headAvatar.style.cursor=profileLink?'pointer':'default';$('chat-name').style.cursor=profileLink?'pointer':'default';headAvatar.title=profileLink?'View member profile':'';$('chat-name').title=headAvatar.title;headAvatar.onclick=profileLink?()=>location.href=profileLink:null;$('chat-name').onclick=profileLink?()=>location.href=profileLink:null;renderThreads();await loadMessages();$('message').focus()}
+function sgcChatDialog(title,description,choices){
+ return new Promise(resolve=>{
+  const shade=document.createElement('div');shade.className='sgc-chat-dialog-shade';
+  const dialog=document.createElement('section');dialog.className='sgc-chat-dialog';dialog.setAttribute('role','dialog');dialog.setAttribute('aria-modal','true');
+  const heading=document.createElement('h3');heading.textContent=title;dialog.append(heading);
+  if(description){const p=document.createElement('p');p.textContent=description;dialog.append(p)}
+  const buttons=document.createElement('div');buttons.className='sgc-chat-dialog-actions';
+  let finished=false;
+  function finish(value){if(finished)return;finished=true;shade.remove();document.removeEventListener('keydown',onKey);resolve(value)}
+  function onKey(e){if(e.key==='Escape')finish(null)}
+  for(const choice of choices){const b=document.createElement('button');b.type='button';b.textContent=choice.label;b.className=choice.kind||'';b.onclick=()=>finish(choice.value);buttons.append(b)}
+  dialog.append(buttons);shade.append(dialog);document.body.append(shade);shade.addEventListener('pointerdown',e=>{if(e.target===shade)finish(null)});document.addEventListener('keydown',onKey);buttons.querySelector('button')?.focus()
+ })
+}
 async function loadMessages(){
  if(!selected)return;const current=selected;
  const r=current.kind==='group'?await sb.from('sgc_chat_group_messages').select('id,sender_id,body,created_at,media_path,media_type,reply_to').eq('group_id',current.id).order('created_at',{ascending:true}).limit(300):await sb.from('sgc_private_messages').select('id,sender_id,body,created_at,media_path,media_type,reply_to,edited_at,deleted_at').or('and(sender_id.eq.'+me.id+',receiver_id.eq.'+current.id+'),and(sender_id.eq.'+current.id+',receiver_id.eq.'+me.id+')').order('created_at',{ascending:true}).limit(300);
- if(r.error)throw r.error;if(current!==selected)return;const msgs=r.data||[];await loadProfiles(msgs.map(x=>x.sender_id));const byId=new Map(msgs.map(x=>[x.id,x]));
+ if(r.error)throw r.error;if(current!==selected)return;const hiddenIds=new Set(JSON.parse(localStorage.getItem('sgc-chat-hidden:'+me.id)||'[]'));const msgs=(r.data||[]).filter(m=>!hiddenIds.has(m.id));await loadProfiles(msgs.map(x=>x.sender_id));const byId=new Map(msgs.map(x=>[x.id,x]));
  const actionMap=new Map();
  if(current.kind==='dm'&&msgs.length){
  const a=await sb.from('sgc_chat_message_actions').select('message_id,reaction,starred,pinned').eq('user_id',me.id).in('message_id',msgs.map(x=>x.id));
@@ -118,10 +134,31 @@ async function loadMessages(){
  add('➦ Forward',()=>{const text='Forwarded message: '+(m.body||'[Attachment]');$('message').value=text;$('message').focus()});
  add(actions.pinned?'Unpin':'📌 Pin',()=>saveAction({pinned:!actions.pinned}));
  add(actions.starred?'Unstar':'☆ Star',()=>saveAction({starred:!actions.starred}));
- add('⚑ Report',async()=>{const reason=prompt('Why are you reporting this message?');if(!reason?.trim())return;const res=await sb.from('sgc_chat_message_reports').insert({message_id:m.id,reporter_id:me.id,reason:reason.trim().slice(0,1000)});if(res.error)throw res.error;alert('Report submitted for review.')});
+ add('⚑ Report',async()=>{
+ const reason=await sgcChatDialog('Report message','Select a reason. Your report will be sent to SGC moderators.',[
+ {label:'Harassment or bullying',value:'Harassment or bullying'},
+ {label:'Spam or scam',value:'Spam or scam'},
+ {label:'Inappropriate content',value:'Inappropriate content'},
+ {label:'Other concern',value:'Other concern'},
+ {label:'Cancel',value:null,kind:'cancel'}]);
+ if(!reason)return;
+ const res=await sb.from('sgc_chat_message_reports').insert({message_id:m.id,reporter_id:me.id,reason});
+ if(res.error)throw res.error;
+ await sgcChatDialog('Report submitted','SGC moderators can review your report.',[{label:'Done',value:true}])
+});
  if(own){
  if(m.body&&Date.now()-new Date(m.created_at).getTime()<900000)add('✎ Edit message',()=>{const text=d.querySelector('.sgc-edit-inline');if(text)return;const editor=document.createElement('div');editor.className='sgc-edit-inline';d.classList.add('sgc-is-editing');const field=document.createElement('textarea');field.value=m.body;field.maxLength=5000;field.rows=2;field.setAttribute('aria-label','Edit message');const controls=document.createElement('div');controls.className='sgc-edit-controls';const cancel=document.createElement('button');cancel.type='button';cancel.textContent='Cancel';cancel.onclick=()=>{editor.remove();d.classList.remove('sgc-is-editing')};const save=document.createElement('button');save.type='button';save.textContent='✓ Save';save.onclick=async()=>{const next=field.value.trim();if(!next){error(Error('Message cannot be blank'));return}if(next===m.body){editor.remove();return}save.disabled=true;const res=await sb.from('sgc_private_messages').update({body:next}).eq('id',m.id).eq('sender_id',me.id);if(res.error){save.disabled=false;error(res.error);return}box.dataset.renderSignature='';await loadMessages()};controls.append(cancel,save);editor.append(field,controls);d.insertBefore(editor,d.querySelector('.sgc-message-toolbar'));$('messages').scrollTop=$('messages').scrollHeight;field.focus();field.setSelectionRange(field.value.length,field.value.length)});
- add('🗑 Delete',async()=>{if(!confirm('Delete this message for both people?'))return;const res=await sb.from('sgc_private_messages').update({deleted_at:new Date().toISOString()}).eq('id',m.id).eq('sender_id',me.id);if(res.error)throw res.error;box.dataset.renderSignature='';await loadMessages()});
+ add('🗑 Delete',async()=>{
+ const choice=await sgcChatDialog('Delete message?','Choose what happens to this message.',[
+ {label:'Delete for everyone',value:'everyone',kind:'danger'},
+ {label:'Delete for me',value:'me'},
+ {label:'Cancel',value:null,kind:'cancel'}]);
+ if(!choice)return;
+ if(choice==='me'){
+  const k='sgc-chat-hidden:'+me.id;const hidden=JSON.parse(localStorage.getItem(k)||'[]');if(!hidden.includes(m.id))hidden.push(m.id);localStorage.setItem(k,JSON.stringify(hidden));box.dataset.renderSignature='';await loadMessages();return
+ }
+ const res=await sb.from('sgc_private_messages').update({deleted_at:new Date().toISOString()}).eq('id',m.id).eq('sender_id',me.id);if(res.error)throw res.error;box.dataset.renderSignature='';await loadMessages()
+});
  }
  }
  bar.append(menu);
