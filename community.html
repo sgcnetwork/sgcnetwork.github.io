@@ -76,7 +76,7 @@ nav{gap:12px}
 <header>
 <a class="brand" href="index.html">SGC<small>NETWORK</small></a>
 <nav>
-<a href="kits.html">Shop</a>
+<a href="shop.html">Shop</a>
 <a href="dashboard.html">My SGC</a>
 <a href="academy.html">Academy</a>
 <a class="active" href="community.html">Community</a>
@@ -108,6 +108,8 @@ nav{gap:12px}
 <label for="group">Choose a community</label>
 <select id="group"></select>
 <p id="group-description" class="muted"></p>
+<div id="join-control"></div>
+<p class="muted">All communities are open to every SGC user. Join a space to take part.</p>
 </section>
 
 <section class="sticky">
@@ -278,7 +280,7 @@ async function chooseGroups(preferred){
  $('group').replaceChildren();
 
  for(const g of matches){
-  const o=el('option',g.name);
+  const o=el('option',g.name+(g.joined?' · Joined':''));
   o.value=g.id;
   $('group').append(o);
  }
@@ -291,11 +293,22 @@ async function chooseGroups(preferred){
 
 async function refresh(){
  const wanted=activeGroup?.id;
- groups=check(await sb.rpc('sgc_community',{}));
+ groups=check(await sb.rpc('sgc_community_spaces',{}));
  categories=await setting('sgc.community.categories');const requested=new URLSearchParams(location.search).get('group');if(requested&&groups.some(g=>g.id===requested))$('category').value=categories[requested]||'niche';
  await quote();
  await chooseGroups(wanted);
  if(isAdmin)await review();
+}
+
+async function joinCommunity(){
+ if(!activeGroup)return;
+ const id=activeGroup.id;
+ check(await sb.rpc('sgc_join_community',{p_group:id}));
+ activeGroup.joined=true;
+ const option=[...$('group').options].find(o=>o.value===id);
+ if(option)option.textContent=activeGroup.name+' · Joined';
+ await feed();
+ say('You’ve joined '+activeGroup.name+'. Welcome to the conversation!');
 }
 
 async function photoElement(path,parent){
@@ -313,7 +326,12 @@ async function photoElement(path,parent){
 async function feed(){
  say('');
  $('feed').replaceChildren();
- $('composer-card').hidden=!activeGroup;
+ $('composer-card').hidden=!activeGroup?.joined;
+ $('join-control').replaceChildren();
+ if(activeGroup){
+  if(activeGroup.joined)$('join-control').append(el('span','Joined ✓','pill'));
+  else $('join-control').append(button('Join '+activeGroup.name,joinCommunity));
+ }
  $('current-name').textContent=activeGroup?.name||'Choose your space';
  $('current-description').textContent=activeGroup?.description||
   'Select an available community from Your spaces.';
@@ -324,18 +342,26 @@ async function feed(){
  }[$('category').value];
  $('feed-count').textContent='';
  $('group-description').textContent=activeGroup?.description||
-  'No communities in this category are available for your current access.';
+  'No communities in this category yet.';
 
  if(!activeGroup){
   const box=el('section',undefined,'card');
   box.append(
    el('h2','Your next conversation is coming.'),
-   el('p','Your eligible community spaces will appear here when SGC opens them.','muted')
+   el('p','Choose another category to find your community.','muted')
   );
   $('feed').append(box);
   return;
  }
 
+ if(!activeGroup.joined){
+  const box=el('section',undefined,'card lav');
+  box.append(el('span','Find your people','eyebrow'),el('h2','Welcome to '+activeGroup.name),
+   el('p','Join this community to read its threads, share ideas and join the conversation.','muted'),
+   button('Join '+activeGroup.name,joinCommunity));
+  $('feed').append(box);
+  return;
+ }
  const posts=check(await sb.rpc('sgc_social',{
   p_action:'feed',p_group:activeGroup.id
  }));
