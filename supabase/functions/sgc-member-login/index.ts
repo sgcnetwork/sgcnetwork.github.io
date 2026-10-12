@@ -18,17 +18,32 @@ Deno.serve(async req=>{
    const {data:allowed,error:limitError}=await admin.rpc("sgc_login_attempt",{p_key:rateKey});
    if(limitError||!allowed)return reply({error:"Too many sign-in attempts. Try again in 10 minutes."},429);
   }
-  let email=identifier;
-  if(!identifier.includes("@")){
-   const {data,error}=await admin.from("sgc_login_names").select("user_id").eq("username",identifier).limit(2);
-   if(error)throw error;
-   if(data&&data.length>1)return reply({error:"More than one member uses this name. Please use your email address to log in."},409);
-   if(data&&data.length===1){const user=await admin.auth.admin.getUserById(data[0].user_id);email=user.data.user?.email||"invalid@sgcnetwork.co.za";}
-   else email="invalid@sgcnetwork.co.za";
+  const emails:string[]=[];
+  if(identifier.includes("@"))emails.push(identifier);
+  else{
+   for(let offset=0;;offset+=100){
+    const {data,error}=await admin.from("sgc_login_names").select("user_id").eq("username",identifier).range(offset,offset+99);
+    if(error)throw error;
+    for(const row of data||[]){
+     const result=await admin.auth.admin.getUserById(row.user_id);
+     if(result.error)throw result.error;
+     if(result.data.user?.email)emails.push(result.data.user.email);
+    }
+    if(!data||data.length<100)break;
+   }
   }
-  // Authentication is still performed by Supabase's password endpoint.
-  const auth=await admin.auth.signInWithPassword({email,password});
-  if(auth.error||!auth.data.session)return reply({error:"Email, username or password is incorrect. Check that your email is confirmed."},401);
-  return reply({access_token:auth.data.session.access_token,refresh_token:auth.data.session.refresh_token});
+  if(!emails.length)emails.push("invalid@sgcnetwork.co.za");
+  const matches:{client:ReturnType<typeof createClient>,session:any}[]=[];
+  for(const email of emails){
+   const client=createClient(url,key,{auth:{persistSession:false,autoRefreshToken:false}});
+   const auth=await client.auth.signInWithPassword({email,password});
+   if(!auth.error&&auth.data.session)matches.push({client,session:auth.data.session});
+  }
+  if(matches.length>1){
+   await Promise.all(matches.map(match=>match.client.auth.signOut({scope:"local"})));
+   return reply({error:"This username and password match more than one account. Use your email for this sign-in, then choose a different password to keep username login unambiguous."},409);
+  }
+  if(!matches.length)return reply({error:"Email, username or password is incorrect. Check that your email is confirmed."},401);
+  return reply({access_token:matches[0].session.access_token,refresh_token:matches[0].session.refresh_token});
  }catch{return reply({error:"Unable to sign in. Please try again."},400);}
 });
