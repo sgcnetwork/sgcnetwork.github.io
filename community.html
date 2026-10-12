@@ -412,6 +412,13 @@ header nav{gap:8px}header nav a{font-size:13px;font-weight:600}
 #sgc-active-community-name{font-size:17px;font-family:Georgia,serif}
 #sgc-active-community-category{font-size:11px;color:#826e7f}
 @media(max-width:700px){#sgc-active-community-banner{order:3!important;display:flex!important;flex-direction:column;align-items:flex-start;gap:4px;margin:0!important;padding:13px 19px!important;border:0!important;border-bottom:7px solid #f1edf3!important;border-radius:0!important}#sgc-active-community-name{font-size:19px!important}.layout>main>#sgc-faq-feed{order:4!important}.layout>main>#composer-card.sgc-mobile-composer-open{order:3!important}}
+</style><style>
+@media(max-width:700px){
+ .layout>main>.sgc-social-top:has(#sgc-story-strip){display:flex!important;flex-direction:column!important;overflow:visible!important}
+ #sgc-active-community-banner{display:flex!important;flex-direction:column!important;align-items:flex-start!important;gap:5px!important;position:relative!important;order:initial!important;visibility:visible!important;opacity:1!important;width:100%!important;margin:13px 0 0!important;padding:13px 15px!important;background:linear-gradient(110deg,#f9e7f1,#f3eafb,#fff2df)!important;border:1px solid #e8d3e5!important;border-radius:15px!important;min-height:74px!important}
+ #sgc-active-community-name{font-size:19px!important;color:#51354d!important}
+ #sgc-active-community-category{font-size:11px!important}
+}
 </style></head>
 <body>
 <div class="wrap">
@@ -492,8 +499,9 @@ header nav{gap:8px}header nav a{font-size:13px;font-weight:600}
 <button type="button" class="btn soft" id="sgc-my-profile">My profile</button>
 </div>
 <div id="sgc-story-strip" class="sgc-stories"><div class="muted">Loading stories…</div></div>
+<section id="sgc-active-community-banner" aria-live="polite"><span class="sgc-community-label">YOU’RE CONNECTING IN</span><strong id="sgc-active-community-name">General Community</strong><span id="sgc-active-community-category"></span></section>
 </section>
-<section id="sgc-active-community-banner" aria-live="polite"><span class="sgc-community-label">YOU’RE CONNECTING IN</span><strong id="sgc-active-community-name">General Community</strong><span id="sgc-active-community-category"></span></section><section id="sgc-faq-feed" class="sgc-social-top"><div class="row" style="justify-content:space-between;align-items:center;gap:12px"><div><span class="eyebrow">Questions & conversations</span><h2>FAQs feed ✦</h2></div><a class="btn soft" href="faqs.html">Search FAQs →</a></div><p class="muted">A simple conversation. Leave a comment, reply to someone, and follow the thread.</p><div id="sgc-faq-feed-posts"><p class="muted">Loading FAQs…</p></div></section><section id="composer-card" class="card" hidden>
+<section id="sgc-faq-feed" class="sgc-social-top"><div class="row" style="justify-content:space-between;align-items:center;gap:12px"><div><span class="eyebrow">Questions & conversations</span><h2>FAQs feed ✦</h2></div><a class="btn soft" href="faqs.html">Search FAQs →</a></div><p class="muted">A simple conversation. Leave a comment, reply to someone, and follow the thread.</p><div id="sgc-faq-feed-posts"><p class="muted">Loading FAQs…</p></div></section><section id="composer-card" class="card" hidden>
 <div class="person">
 <span class="avatar">S</span>
 <div>
@@ -1484,30 +1492,27 @@ start().catch(e=>{console.error('Community startup error',e);if(/auth session mi
  connect('sgc-mobile-community','sgc-people-nav');
  connect('sgc-mobile-profile','sgc-my-profile');
  const jump=(id,target)=>{const button=document.getElementById(id);if(button)button.addEventListener('click',()=>document.getElementById(target)?.scrollIntoView({behavior:'smooth',block:'start'}))};
- // Reload fresh data, then scroll the independent feed pane to the requested section.
- const refreshTab=(id,section)=>{
-  const button=document.getElementById(id);
-  button?.addEventListener('click',()=>{
-   sessionStorage.setItem('sgc-community-tab-target',section);
-   location.reload();
+ // Reload from the very top, including the community picker and stories.
+ const refreshTab=(id)=>{
+  document.getElementById(id)?.addEventListener('click',()=>{
+   const category=document.getElementById('category')?.value||'';
+   const group=document.getElementById('group')?.value||'';
+   try{sessionStorage.setItem('sgc-community-refresh-selection',JSON.stringify({category,group}))}catch(_){}
+   window.location.href=window.location.pathname+'?v='+Date.now();
   });
  };
- refreshTab('sgc-mobile-feed','sgc-active-community-banner');
- refreshTab('sgc-mobile-stories','sgc-story-strip');
- const target=sessionStorage.getItem('sgc-community-tab-target');
- if(target){
-  sessionStorage.removeItem('sgc-community-tab-target');
-  let tries=0;
-  const seek=()=>{
-   const section=document.getElementById(target),pane=document.querySelector('.layout>main');
-   if(!section||!pane||pane.clientHeight<100||document.getElementById('app')?.hidden)return false;
-   const paneTop=pane.getBoundingClientRect().top;
-   const sectionTop=section.getBoundingClientRect().top;
-   pane.scrollTop+=sectionTop-paneTop;
-   return true;
-  };
-  const poll=setInterval(()=>{tries++;if(seek()||tries>=60)clearInterval(poll)},150);
- }
+ refreshTab('sgc-mobile-feed');
+ refreshTab('sgc-mobile-stories');
+ const restoreTop=()=>{
+  const pane=document.querySelector('.layout>main');
+  if(pane)pane.scrollTop=0;
+  document.documentElement.scrollTop=0;document.body.scrollTop=0;
+  window.scrollTo(0,0);
+ };
+ window.addEventListener('pageshow',restoreTop);
+ requestAnimationFrame(restoreTop);
+ let attempts=0;
+ const topTimer=setInterval(()=>{restoreTop();if(++attempts>=15)clearInterval(topTimer)},200);
  
 })();
 </script><script>
@@ -1551,6 +1556,20 @@ start().catch(e=>{console.error('Community startup error',e);if(/auth session mi
  group?.addEventListener('change',updateCommunityBanner);category?.addEventListener('change',()=>setTimeout(updateCommunityBanner,50));
  if(group)new MutationObserver(updateCommunityBanner).observe(group,{childList:true,subtree:true,attributes:true,attributeFilter:['selected']});
  updateCommunityBanner();
+})();
+</script><script>
+(function(){
+ let saved=null;try{saved=JSON.parse(sessionStorage.getItem('sgc-community-refresh-selection')||'null');sessionStorage.removeItem('sgc-community-refresh-selection')}catch(_){}
+ if(!saved)return;
+ const category=document.getElementById('category'),group=document.getElementById('group');
+ if(!category||!group)return;
+ if(saved.category&&category.value!==saved.category){category.value=saved.category;category.dispatchEvent(new Event('change',{bubbles:true}))}
+ let n=0;const poll=setInterval(()=>{
+  if(saved.group&&[...group.options].some(o=>o.value===saved.group)){
+   if(group.value!==saved.group){group.value=saved.group;group.dispatchEvent(new Event('change',{bubbles:true}))}
+   clearInterval(poll);
+  }else if(++n>40)clearInterval(poll);
+ },200);
 })();
 </script></body>
 </html>
