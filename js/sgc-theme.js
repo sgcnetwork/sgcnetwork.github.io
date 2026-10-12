@@ -6,6 +6,9 @@ function apply(mode){root.setAttribute('data-sgc-theme',mode);root.style.colorSc
 apply(current());
 window.addEventListener('storage',e=>{if(e.key===KEY)apply(current())});
 document.addEventListener('DOMContentLoaded',()=>{
+ // The theme setting is managed exclusively from My SGC dashboard.
+ // Other pages still honour the saved theme without displaying a switch.
+ if(!/^\/dashboard\.html$/i.test(location.pathname))return;
  const b=document.createElement('button');b.type='button';b.setAttribute('data-sgc-theme-toggle','');b.className='sgc-theme-switch';b.onclick=()=>{const next=current()==='dark'?'light':'dark';try{localStorage.setItem(KEY,next)}catch(e){}apply(next);document.querySelectorAll('iframe').forEach(f=>{try{f.contentWindow.postMessage({type:'sgc-theme',mode:next},location.origin)}catch(e){}})};
  document.body.appendChild(b);apply(current());
 });
