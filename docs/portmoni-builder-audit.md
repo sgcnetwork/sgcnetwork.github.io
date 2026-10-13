@@ -47,3 +47,16 @@ The code is staged in GitHub only. There is no newly deployed preview or live re
 Publishing, SGC subdomain routing, domain verification/SSL, payment-verified cart/checkout/orders/digital delivery, remaining content CRUD, analytics collection, real social sharing and all-customer administration are unfinished. Product and service dedicated views are currently private preview views, not public pages. Do not label the platform production-ready.
 
 To roll back the code release, restore only the changed builder files to the base commit. Retain existing website JSON data. The additive private bucket should remain private; do not purge uploaded files as part of a rollback.
+
+
+## Approved deployment — 13 October 2026
+
+The owner approved this first release and private storage setup in chat. PR #3 was merged as `d580eebdf6eb3f7c4f0e22cb47ee69cf73b3333b`. Supabase migration `builder_private_digital_storage` was applied successfully; the digital bucket is private with a 50 MiB file limit. Follow-up commits `2c2045a52d55ceb85198f3046a302362d2ce566b` and `47ffdc3ae0105a5d52fafeeb1fdb5b37de8434ba` fix hidden preview elements and stylesheet caching. All three GitHub Pages deployments succeeded.
+
+Live demo-account verification covered picture upload, protected digital-file upload, create/save/reload/edit/duplicate/delete for a product, variant-specific price and stock, service save and dedicated preview, booking-action preview without submitting a booking, and Yes/No deletion. Temporary catalogue records were removed and their absence was confirmed in the database. Tiny disposable upload fixtures remain in Storage; no customer records were used.
+
+Anonymous public access to the uploaded digital file was rejected. Authenticated-role checks verified that another user cannot read its Storage metadata. Mobile/tablet/desktop preview widths were measured as 390/768/1154 px in the desktop test browser. Academy lessons, Shop categories, Community and the signed-in dashboard loaded successfully.
+
+Live builder: https://sgcnetwork.co.za/website-builder.html?v=47ffdc3
+
+This release still does not provide public customer-site publishing, checkout, paid digital fulfilment, custom domains, or all remaining content-management sections. The earlier pre-release observations above are retained as historical audit evidence; this deployment note supersedes their pending-release status.
