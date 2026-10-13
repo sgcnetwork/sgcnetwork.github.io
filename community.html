@@ -585,7 +585,7 @@ html[data-sgc-theme="dark"] #sgc-story-strip .sgc-story .story-avatar{
 <a id="community-shop-link" href="https://sgcnetwork.co.za/shop.html">Shop</a>
 <a href="dashboard.html">My SGC</a>
 <a href="academy.html">Academy</a>
-<a class="active" href="community.html">Community</a><button type="button" class="btn sgc-people-toggle" id="sgc-people-nav" aria-label="Members and private chats" hidden style="display:none!important">Members</button>
+<a class="active" href="community.html">Community</a><button type="button" class="btn sgc-people-toggle" id="sgc-people-nav" aria-label="Members and private chats">👥 Members</button>
 <button id="signout" class="btn alt">Sign out</button>
 </nav>
 </header>
@@ -1827,7 +1827,7 @@ async function start(){
 
 start().catch(e=>{console.error('Community startup error',e);if(/auth session missing|jwt expired|refresh token|invalid jwt|not authenticated/i.test(e.message||'')){sgcShowSignIn()}else say('Community could not load: '+(e.message||'Please refresh and try again.'))});
 </script>
-<script src="js/community-notifications.js"></script><script src="js/sgc-user-guide.js?v=guide1"></script><script>
+<script src="js/sgc-user-guide.js?v=guide1"></script><script>
 (function(){
  const connect=(source,target)=>{const button=document.getElementById(source);if(button)button.addEventListener('click',()=>{const original=document.getElementById(target);if(original)original.click()})};
  document.getElementById('sgc-mobile-members')?.addEventListener('click',()=>{location.href='members.html'});
