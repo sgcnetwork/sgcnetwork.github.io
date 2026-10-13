@@ -6,7 +6,7 @@ const ids=['name','slug','desc','font','primary','accent','product','price'];con
 </script><script>
 (function(){
 const sections=[
-['branding','Logo, menu, colours & fonts','Upload a logo and personalise the look of your website.',[['logo','Logo image URL','url'],['tagline','Business tagline','text'],['menu','Menu labels (comma-separated)','text']]],
+['branding','Logo, menu, colours & fonts','Configure logo, navigation, collapsed menu, extra buttons and favicon.',[["logoStyle","Logo style","choice:Text|Logo / image|Hidden"],["logoText","Navigation text (20 characters max.)","text"],["logo","Logo image URL","url"],["logoSize","Text logo font size (px)","number"],["logoSpacing","Text logo letter spacing (px)","number"],["logoColorMode","Text logo colour","choice:Theme color|Custom color"],["logoColor","Custom logo colour","color"],["menuPosition","Menu items alignment","choice:Left|Center|Right"],["menuSize","Menu font size (px)","number"],["menuColorMode","Menu text and icons","choice:Dark|Custom color"],["menuColor","Custom menu text colour","color"],["menuBackgroundMode","Menu background","choice:White|Custom color"],["menuBackground","Custom menu background colour","color"],["stickyMenu","Sticky menu","choice:Yes|No"],["alwaysCollapsed","Always show collapsed hamburger menu","choice:No|Yes"],["hamburgerPosition","Hamburger icon alignment","choice:Left|Center|Right"],["hamburgerIcon","Hamburger icon","choice:☰|≡|⋮"],["showSearch","Show search button","choice:No|Yes"],["showCart","Show cart button in preview","choice:Yes|No"],["favicon","Favicon image URL","url"]]],
 ['homepage','Homepage preferences','Edit the headline, welcome message and homepage call to action.',[['headline','Homepage headline','text'],['welcome','Welcome message','textarea'],['cta','Button label','text']]],
 ['services','Services','List the services your business provides.',[['services','Services (one per line)','textarea']]],
 ['products','Products & online store','Add your product catalogue details. Checkout and payment setup are not yet connected.',[['catalogue','Products (one per line: name | price)','textarea'],['delivery','Delivery and collection information','textarea']]],
@@ -25,10 +25,37 @@ const menu=document.getElementById('studio-menu'),editor=document.getElementById
 let active=null, userId=null, draft={};
 const escape=s=>String(s).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 sections.forEach(([id,title])=>{const b=document.createElement('button');b.type='button';b.className='studio-option';b.setAttribute('aria-expanded','false');b.innerHTML='<span>'+escape(title)+'</span><span aria-hidden="true">›</span>';b.addEventListener('click',()=>open(id));menu.append(b);});
-function open(id){active=id;const s=sections.find(x=>x[0]===id);editor.hidden=false;document.getElementById('studio-editor-title').textContent=s[1];document.getElementById('studio-editor-hint').textContent=s[2];fields.replaceChildren();status.textContent='';[...menu.children].forEach((b,i)=>b.setAttribute('aria-expanded',String(sections[i][0]===id)));if(!s[3].length){fields.textContent='Use the Business details fields above to edit your site name and address.';}else s[3].forEach(([key,label,type])=>{const l=document.createElement('label');l.textContent=label;l.htmlFor='studio-'+key;const input=document.createElement(type==='textarea'?'textarea':'input');input.id='studio-'+key;if(type!=='textarea')input.type=type;input.value=draft[key]||'';fields.append(l,input);});editor.scrollIntoView({behavior:'smooth',block:'nearest'});}
-document.getElementById('studio-section-save').addEventListener('click',()=>{if(!userId){status.textContent='Sign in and unlock Website Studio before saving.';return;}const s=sections.find(x=>x[0]===active);s[3].forEach(([key])=>draft[key]=document.getElementById('studio-'+key).value);try{localStorage.setItem('sgc-builder-sections-'+userId,JSON.stringify(draft));status.textContent='Saved on this device. Cloud sync and live publishing for these sections are not available yet.';}catch(e){status.textContent='Unable to save on this device.';}});
-window.sgcInitBuilderSections=function(id){userId=id;try{const d=JSON.parse(localStorage.getItem('sgc-builder-sections-'+id)||'{}');draft=d&&typeof d==='object'&&!Array.isArray(d)?d:{};}catch(e){draft={};}};
+function open(id){active=id;const s=sections.find(x=>x[0]===id);editor.hidden=false;document.getElementById('studio-editor-title').textContent=s[1];document.getElementById('studio-editor-hint').textContent=s[2];fields.replaceChildren();status.textContent='';[...menu.children].forEach((b,i)=>b.setAttribute('aria-expanded',String(sections[i][0]===id)));if(!s[3].length){fields.textContent='Use the Business details fields above to edit your site name and address.';}else s[3].forEach(([key,label,type])=>{const l=document.createElement('label');l.textContent=label;l.htmlFor='studio-'+key;let input;if(type.startsWith('choice:')){input=document.createElement('select');type.slice(7).split('|').forEach(option=>{const o=document.createElement('option');o.value=option;o.textContent=option;input.append(o);});}else{input=document.createElement(type==='textarea'?'textarea':'input');if(type!=='textarea')input.type=type;if(type==='color')input.value='#443344';if(type==='number'){input.step='1';input.min=key==='logoSpacing'?'-20':'0';input.max='120';}}input.id='studio-'+key;const defaults={logoStyle:'Text',logoSize:'24',logoSpacing:'0',menuPosition:'Right',menuSize:'14',logoColorMode:'Theme color',menuColorMode:'Dark',menuBackgroundMode:'White',stickyMenu:'No',alwaysCollapsed:'No',hamburgerPosition:'Right',hamburgerIcon:'☰',showSearch:'No',showCart:'Yes',logoColor:'#443344',menuColor:'#342b35',menuBackground:'#ffffff'};input.value=draft[key]??defaults[key]??'';if(key==='logoText')input.maxLength=20;fields.append(l,input);});editor.scrollIntoView({behavior:'smooth',block:'nearest'});}
+document.getElementById('studio-section-save').addEventListener('click',()=>{if(!userId){status.textContent='Sign in and unlock Website Studio before saving.';return;}const s=sections.find(x=>x[0]===active);s[3].forEach(([key])=>draft[key]=document.getElementById('studio-'+key).value);try{localStorage.setItem('sgc-builder-sections-'+userId,JSON.stringify(draft));if(active==='branding')window.sgcDrawMenuPreferences?.(draft);status.textContent='Saved on this device. Cloud sync and live publishing for these sections are not available yet.';}catch(e){status.textContent='Unable to save on this device.';}});
+window.sgcInitBuilderSections=function(id){userId=id;try{const d=JSON.parse(localStorage.getItem('sgc-builder-sections-'+id)||'{}');draft=d&&typeof d==='object'&&!Array.isArray(d)?d:{};}catch(e){draft={};}window.sgcDrawMenuPreferences?.(draft);};
 })();
+</script><script>
+window.sgcDrawMenuPreferences=function(p){
+const top=document.querySelector('#preview .preview-top'),brand=document.getElementById('pname');
+if(!top||!brand)return;
+brand.textContent=(p.logoText||document.getElementById('name').value||'Your Business').slice(0,20);
+brand.style.fontSize=(Math.min(120,Math.max(8,Number(p.logoSize)||24)))+'px';
+brand.style.letterSpacing=(Math.min(20,Math.max(-20,Number(p.logoSpacing)||0)))+'px';
+brand.style.color=p.logoColorMode==='Custom color'?(p.logoColor||'#443344'):'';
+brand.style.display=p.logoStyle==='Hidden'?'none':'';
+let logo=top.querySelector('.sgc-preview-logo');
+if(!logo){logo=document.createElement('img');logo.className='sgc-preview-logo';logo.alt='Business logo';logo.style.cssText='max-height:56px;max-width:150px;object-fit:contain';top.insertBefore(logo,brand);}
+const showImage=p.logoStyle==='Logo / image'&&/^https:\/\//i.test(p.logo||'');
+logo.style.display=showImage?'block':'none';if(showImage)logo.src=p.logo;brand.style.display=p.logoStyle==='Hidden'||showImage?'none':'';
+top.style.background=p.menuBackgroundMode==='Custom color'?(p.menuBackground||'#fff'):'#fff';
+top.style.color=p.menuColorMode==='Custom color'?(p.menuColor||'#342b35'):'#342b35';
+top.style.justifyContent=p.menuPosition==='Center'?'center':p.menuPosition==='Left'?'flex-start':'space-between';
+top.style.position=p.stickyMenu==='Yes'?'sticky':'relative';top.style.top='0';top.style.zIndex='2';
+let actions=top.querySelector('.sgc-preview-actions');
+if(!actions){actions=document.createElement('span');actions.className='sgc-preview-actions';top.append(actions);}
+actions.replaceChildren();
+if(p.showSearch==='Yes'){const s=document.createElement('span');s.textContent='⌕';s.style.marginRight='12px';actions.append(s);}
+if(p.showCart!=='No'){const s=document.createElement('span');s.textContent='🛒';s.style.marginRight='12px';actions.append(s);}
+const hamburger=document.createElement('span');hamburger.textContent=p.hamburgerIcon||'☰';hamburger.style.fontSize=(Number(p.menuSize)||14)+'px';actions.append(hamburger);
+if(p.hamburgerPosition==='Left')top.prepend(actions);
+else if(p.hamburgerPosition==='Center'){top.insertBefore(actions,top.children[Math.floor(top.children.length/2)]);}
+let fav=document.querySelector('link[data-sgc-favicon]');if(!fav){fav=document.createElement('link');fav.rel='icon';fav.dataset.sgcFavicon='true';document.head.append(fav);}if(/^https:\/\//i.test(p.favicon||''))fav.href=p.favicon;
+};
 </script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script>
 (async function(){
  const gate=document.getElementById('gate'),msg=document.getElementById('gate-message'),builder=document.getElementById('builder');
