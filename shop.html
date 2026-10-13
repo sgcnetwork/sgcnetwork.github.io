@@ -57,6 +57,22 @@ label[for="category-menu"]{font-size:11px;text-transform:uppercase;letter-spacin
 .kit-outcome,.kit-delivery{padding:24px 0;border-top:1px solid var(--line)}
 .kit-delivery-note{font-size:13px;line-height:1.7;background:#eee7ef;border-radius:5px;padding:18px;color:#59465b}
 @media(max-width:600px){.kit-inclusion-grid{grid-template-columns:1fr}.kit-inclusions h2{font-size:30px}}
+
+.kit-picker{margin:12px 0 22px;padding-top:25px;border-top:1px solid var(--line)}
+.kit-picker h2{font:32px/1.15 Georgia,serif;margin:12px 0}
+.kit-choice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:24px 0}
+.kit-choice{display:flex;flex-direction:column;gap:16px;text-align:left;width:100%;margin:0;padding:20px;background:#faf5f8;color:var(--ink);border:1px solid #e6dae4;border-radius:15px;transition:background .2s,border-color .2s,box-shadow .2s}
+.kit-choice:nth-child(3n+2){background:#f3eff9}.kit-choice:nth-child(3n){background:#fcf6e8}
+.kit-choice:hover{border-color:#ab829e;box-shadow:0 5px 18px #76506912}
+.kit-choice:focus-visible{outline:3px solid #9d7499;outline-offset:3px}
+.kit-choice.selected{background:#ece0ec;border:2px solid #91688a;padding:19px;box-shadow:0 4px 15px #76506918}
+.kit-choice-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;width:100%}
+.kit-choice-name{font:21px/1.2 Georgia,serif}.kit-choice-price{font:12px Arial,sans-serif;color:#796575}
+.kit-choice-check{display:grid;place-items:center;flex-shrink:0;width:23px;height:23px;border:1px solid #d6c4d3;border-radius:50%;color:transparent;font:13px Arial,sans-serif}
+.kit-choice.selected .kit-choice-check{background:#91688a;border-color:#91688a;color:white}
+.kit-purchase{width:100%;padding:17px 20px;border-radius:12px;background:#443346}
+@media(max-width:480px){.kit-choice-grid{gap:10px}.kit-choice{padding:15px}.kit-choice.selected{padding:14px}.kit-choice-name{font-size:18px}.kit-choice-top{gap:7px}.kit-choice-check{width:20px;height:20px}.kit-choice-price{font-size:11px}}
+@media(prefers-reduced-motion:reduce){.kit-choice{transition:none}}
 </style>
 <link rel="stylesheet" href="css/sgc-user-guide.css?v=guide1"><link rel="manifest" href="/manifest.webmanifest"><meta name="theme-color" content="#f4dfe0"><meta name="apple-mobile-web-app-capable" content="yes"><link rel="icon" type="image/svg+xml" href="/sgc-app-icon.svg"><script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/service-worker.js').catch(function(error){console.warn('SGC app setup:',error);});});}</script><style>
 .sgc-shop-mobile-nav{display:none}
@@ -161,13 +177,12 @@ function productCard(product,detail=false){const card=node('article',undefined,'
  body.append(node('span',title,'badge'),node(detail?'h1':'h3',product.name));
  if(detail)body.append(node('p',product.description||'','muted'));
  body.append(node('p',price(product),'price'));card.append(body);if(detail&&product.kitOptions){
- const label=node('label','Choose your kit type');label.htmlFor='business-kit-type';
- const select=node('select');select.id='business-kit-type';select.append(new Option('Select a kit type',''));
- for(const kit of product.kitOptions)select.append(new Option(kit.name+' — '+price(kit),kit.id));
- const description=node('p','Choose a kit to see its description and price.','muted');
- const contents=node('div');const buy=node('button','Choose a kit to continue');buy.type='button';buy.disabled=true;
- select.onchange=()=>{const kit=product.kitOptions.find(k=>k.id===select.value);contents.replaceChildren();buy.disabled=!kit;buy.textContent=kit?'Buy '+kit.name:'Choose a kit to continue';description.textContent=kit?.description||'Choose a kit to see its description and price.';body.querySelector('.price').textContent=kit?price(kit):'From R'+Math.min(...product.kitOptions.map(k=>Number(k.price_zar))).toFixed(2)+' once-off';if(kit){const detail=kitContents(kit);if(detail)contents.append(detail);}buy.onclick=()=>{if(kit)buyProduct(kit);};};
- card.append(label,select,description,contents,buy);body.querySelector('.price').textContent='From R'+Number(product.price_zar).toFixed(2)+' once-off';return card;
+ const section=node('section',undefined,'kit-picker');section.append(node('span','FIND YOUR FIT','eyebrow'),node('h2','Choose your business kit'),node('p','Select the kit for the business you’re building.','muted'));
+ const choices=node('div',undefined,'kit-choice-grid');choices.setAttribute('role','group');choices.setAttribute('aria-label','Choose your business kit');
+ const description=node('p','Select a kit above to explore what’s included.','muted');description.setAttribute('aria-live','polite');
+ const contents=node('div');const buy=node('button','Select your kit');buy.className='kit-purchase';buy.type='button';buy.disabled=true;
+ for(const kit of product.kitOptions){const choice=node('button',undefined,'kit-choice');choice.type='button';choice.setAttribute('aria-pressed','false');const top=node('span',undefined,'kit-choice-top');top.append(node('span',kit.name.replace(/ Business Kit$| Startup Kit$| Kit$/,''),'kit-choice-name'),node('span','✓','kit-choice-check'));choice.append(top,node('span',price(kit),'kit-choice-price'));choice.onclick=()=>{for(const other of choices.children){other.classList.remove('selected');other.setAttribute('aria-pressed','false');}choice.classList.add('selected');choice.setAttribute('aria-pressed','true');contents.replaceChildren();buy.disabled=false;buy.textContent='Continue with '+kit.name+' →';description.textContent=kit.description||'';body.querySelector('.price').textContent=price(kit);const detail=kitContents(kit);if(detail)contents.append(detail);buy.onclick=()=>buyProduct(kit);};choices.append(choice);}
+ section.append(choices,description);card.append(section,contents,buy);body.querySelector('.price').textContent='From R'+Number(product.price_zar).toFixed(2)+' once-off';return card;
  }if(detail){if(category(product)==='business-kits'){const contents=kitContents(product);if(contents)card.append(contents);}const meta=settings.get(product.id);if(meta?.delivery==='appointment'){card.querySelector('.price').textContent='R'+Number(product.price_zar).toFixed(2)+' / hour · '+meta.duration_minutes+' minute session';card.append(bookingForm(product,meta));return card;}if(meta?.delivery==='task'){card.append(taskForm(product));}const variants=kitVariants.get(product.id)||[];if(variants.length){const section=node('section');section.append(node('h3','Available kit variants'));for(const v of variants){const line=node('p',v.name+' — R'+Number(v.price_zar).toFixed(2),'muted');section.append(line);}section.append(node('p','Variant checkout is being connected. Contact SGC Network for variant-specific purchases; the button below purchases the standard kit only.','muted'));card.append(section);}if(meta?.scheduled_at)card.append(node('p','Scheduled: '+new Date(meta.scheduled_at).toLocaleString('en-ZA',{timeZone:'Africa/Johannesburg'}),'muted'));const buy=node('button','Buy');buy.type='button';buy.onclick=()=>buyProduct(product);card.append(buy);}else{const buy=node('button','Buy');buy.type='button';buy.onclick=()=>buyProduct(product);const actions=node('div',undefined,'product-actions');actions.append(buy);const info=node('a','Explore kit ↗','product-details');info.href=shopLink(category(product),product.id);actions.append(info);body.append(actions);}return card;}
 $('category-menu').onchange=()=>location.assign(shopLink($('category-menu').value));
 
