@@ -136,7 +136,7 @@ label[for="category-menu"]{font-size:11px;text-transform:uppercase;letter-spacin
 const $=id=>document.getElementById(id);
 const sb=window.supabase?.createClient('https://bxpexanyoyubxeqqlggh.supabase.co','sb_publishable_Z0_Y-Bj_G5qw4hMgDbQlgA__jj8rGGq');
 const sections=[['business-kits','Business Kits','Practical business implementation kits and resources.'],['memberships','Memberships','Your access to learning and implementation.'],['extras','Extras','Useful extras for your next step.'],['addons','Add-ons','Add more tools and support to your journey.'],['assistance','Assistance','Practical help when you need a hand.'],['coaching','Personal Coaching','Dedicated support for you and your business.'],['manuals','Manuals','Step-by-step implementation guides.'],['textbooks','Textbooks','Learning material to build your knowledge.']];
-let catalogueSignature='',catalogueRefreshBusy=false;let kitVariants=new Map();let user=null,paymentBusy=false,settings=new Map();const params=new URLSearchParams(location.search);let selected=params.get('category')||'';let currentProduct=null;
+let membershipSignature='',catalogueSignature='',catalogueRefreshBusy=false;let kitVariants=new Map();let user=null,paymentBusy=false,settings=new Map();const params=new URLSearchParams(location.search);let selected=params.get('category')||'';let currentProduct=null;
 function node(tag,text,cls){const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(cls)e.className=cls;return e;}
 function check(r){if(r.error)throw r.error;return r.data;}
 function price(p){if(settings.get(p.id)?.delivery==='appointment')return 'R'+Number(p.price_zar).toFixed(2)+' / hour';return 'R'+Number(p.price_zar).toFixed(2)+(p.billing==='monthly'?' / month':' once-off');}
@@ -227,8 +227,8 @@ async function showNamedMemberships(){
   const host=$('catalogue');
   const section=node('section',undefined,'section');section.append(node('h2','SGC Memberships'));
   const grid=node('div',undefined,'grid');section.append(grid);
-  const response=await sb.from('sgc_named_membership_plans').select('id,name,price_zar,billing,description,features').eq('state','published').order('created_at');
-  if(response.error){section.append(node('p','Membership catalogue is temporarily unavailable.','muted'));host.append(section);return;}
+  const response=await sb.from('sgc_named_membership_plans').select('id,name,price_zar,billing,description,features').eq('state','published').is('deleted_at',null).order('created_at');
+  membershipSignature=JSON.stringify(response.data||[]);if(response.error){section.append(node('p','Membership catalogue is temporarily unavailable.','muted'));host.append(section);return;}
   let featureNames=new Map([
     ['business_classes','Business classes'],['qa','Q&As'],['community','Academy community'],
     ['recorded_lessons','Recorded lessons'],['live_discussions','Live discussions']
@@ -265,7 +265,7 @@ async function bookingPayment(booking,product){$('checkout-title').textContent=b
 function taskForm(product){const form=node('form');form.append(node('h3','Tell us what you need assistance with'),node('p','After purchasing or receiving access, submit your assistance task here.','muted'));const body=node('textarea');body.required=true;body.minLength=10;body.maxLength=5000;body.setAttribute('aria-label','Assistance task');const send=node('button','Submit assistance task');send.type='submit';const message=node('p');form.append(body,send,message);form.onsubmit=async e=>{e.preventDefault();if(!user){message.textContent='Sign in first.';return;}send.disabled=true;try{check(await sb.rpc('sgc_service_request',{p_product:product.id,p_body:body.value.trim()}));body.value='';message.textContent='Your assistance task has been saved for SGC.';}catch(e){message.textContent=e.message;}finally{send.disabled=false;}};return form;}
 async function refreshCatalogue(){
  if(params.get('studioPreview')==='1'||catalogueRefreshBusy||document.visibilityState==='hidden')return;catalogueRefreshBusy=true;
- try{const products=check(await sb.from('sgc_products').select('*').eq('active',true).is('deleted_at',null).order('created_at'));if(JSON.stringify(products)!==catalogueSignature){await start();if(cartDialog.open)await showKitCart();}}catch(e){console.warn('Catalogue refresh:',e.message);}finally{catalogueRefreshBusy=false;}
+ try{const products=check(await sb.from('sgc_products').select('*').eq('active',true).is('deleted_at',null).order('created_at'));let membershipsChanged=false;if(selected==='memberships'){const plans=check(await sb.from('sgc_named_membership_plans').select('id,name,price_zar,billing,description,features').eq('state','published').is('deleted_at',null).order('created_at'));membershipsChanged=JSON.stringify(plans)!==membershipSignature;}if(JSON.stringify(products)!==catalogueSignature||membershipsChanged){await start();if(cartDialog.open)await showKitCart();}}catch(e){console.warn('Catalogue refresh:',e.message);}finally{catalogueRefreshBusy=false;}
 }
 if(params.get('studioPreview')!=='1'){setInterval(refreshCatalogue,20000);window.addEventListener('focus',refreshCatalogue);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refreshCatalogue();});window.addEventListener('storage',event=>{if(event.key==='sgc-catalogue-changed')refreshCatalogue();});}
 if(params.get('studioPreview')==='1'){
