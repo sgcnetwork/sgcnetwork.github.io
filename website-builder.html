@@ -9,7 +9,8 @@ const ids=['name','slug','desc','font','primary','accent','product','price'];con
  const {data:{user},error:authError}=await sb.auth.getUser();if(authError||!user){msg.textContent='Please sign in to My SGC before opening Website Studio.';return;}
  const {data:sub,error:subError}=await sb.from('sgc_website_subscriptions').select('status,current_period_end').eq('user_id',user.id).maybeSingle();
  if(subError){msg.textContent='Unable to verify your R199/month Website Builder subscription. Please try again later.';return;}
- if(!sub||sub.status!=='active'||!sub.current_period_end||new Date(sub.current_period_end)<=new Date()){msg.textContent='An active R199/month Website Builder subscription is required. Your Academy membership alone does not unlock this feature.';return;}
+ const {data:demo,error:demoError}=await sb.from('sgc_demo_entitlements').select('user_id').eq('user_id',user.id).maybeSingle();if(demoError){msg.textContent='Unable to verify demo access. Please try again later.';return;}
+ if(!demo&&(!sub||sub.status!=='active'||!sub.current_period_end||new Date(sub.current_period_end)<=new Date())){msg.textContent='An active R199/month Website Builder subscription is required. Your Academy membership alone does not unlock this feature.';return;}
  const {data:site,error:siteError}=await sb.from('sgc_student_websites').select('*').eq('user_id',user.id).maybeSingle();
  if(siteError)throw siteError;
  if(site){const map={name:'business_name',slug:'slug',desc:'description',font:'font',primary:'primary_color',accent:'accent_color',product:'product_name',price:'product_price'};for(const [id,key] of Object.entries(map))if(site[key]!=null)document.getElementById(id).value=site[key];draw();}
