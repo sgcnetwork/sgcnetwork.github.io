@@ -203,13 +203,14 @@ body:not(:has(#editor-workspace)) main:has(#builder:not(.hidden)) .studio-menu,
 body:not(:has(#editor-workspace)) main:has(#builder:not(.hidden)) #builder>.layout{display:none!important}
 body:has(#editor-workspace) #builder>.studio-menu{display:none!important}
 </style>
-<script src="builder-sidebar.js?v=56b00fd7" defer></script><script>
+<script src="builder-sidebar.js?v=3974edf6" defer></script><script>
 (function(){
 const page=new URLSearchParams(location.search).get('editor');
 if(!page)return;
 const config={
 logo:['branding','Logo settings'],menu:['menu-content','Menu settings'],
 'colour-theme':['theme','Colour theme'],font:['theme','Font settings'],
+'announcement-bar':['bars','Announcement bar settings'],
 homepage:['homepage','Home page preferences'],services:['services','Services'],
 products:['products','Products and online store'],gallery:['gallery','Photo gallery'],
 medias:['media','Media files'],posts:['blog','News and blog posts'],
@@ -254,14 +255,15 @@ return;
 }
 workspace.append(editor);
 button.click();
-if(['logo','menu','colour-theme','font'].includes(page)){
+if(['logo','menu','colour-theme','font','announcement-bar'].includes(page)){
  const fields=document.getElementById('studio-editor-fields');
  const section=document.getElementById('studio-editor');
  const fieldSets={
  logo:['logoStyle','logoText','logo','logoSize','logoSpacing','logoColorMode','logoColor','favicon'],
  menu:['menuPosition','menuSize','menuColorMode','menuColor','menuBackgroundMode','menuBackground','stickyMenu','alwaysCollapsed','hamburgerPosition','hamburgerIcon','showSearch','showCart'],
  'colour-theme':['siteTheme','siteBackground'],
- font:['siteFont']
+ font:['siteFont'],
+ 'announcement-bar':['announcementEnabled','announcementText','announcementTextColor','announcementBgMode','announcementBg','contactBarEnabled']
  };
  const allowed=new Set(fieldSets[page]);
  if(fields){
@@ -280,7 +282,7 @@ if(['logo','menu','colour-theme','font'].includes(page)){
  const title=document.getElementById('studio-editor-title');
  const hint=document.getElementById('studio-editor-hint');
  if(title)title.textContent=config[page][1];
- if(hint)hint.textContent=page==='logo'?'Choose a text logo or upload your logo image.':page==='menu'?'Manage your website navigation and menu buttons.':page==='font'?'Choose the font used across your website.':'Set your website colours and background.';
+ if(hint)hint.textContent=page==='logo'?'Choose a text logo or upload your logo image.':page==='menu'?'Manage your website navigation and menu buttons.':page==='font'?'Choose the font used across your website.':page==='announcement-bar'?'Manage your top announcement and contact bar.':'Set your website colours and background.';
  if(section)section.hidden=false;
 }
 },200);
