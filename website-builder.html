@@ -203,7 +203,7 @@ body:not(:has(#editor-workspace)) main:has(#builder:not(.hidden)) .studio-menu,
 body:not(:has(#editor-workspace)) main:has(#builder:not(.hidden)) #builder>.layout{display:none!important}
 body:has(#editor-workspace) #builder>.studio-menu{display:none!important}
 </style>
-<script src="builder-sidebar.js?v=880ffa91" defer></script><script>
+<script src="builder-sidebar.js?v=56b00fd7" defer></script><script>
 (function(){
 const page=new URLSearchParams(location.search).get('editor');
 if(!page)return;
@@ -264,6 +264,13 @@ if(!allowed.some(w=>label.includes(w)||key.includes(w)))el.hidden=true;
 });
 }
 },200);
+})();
+</script><script>
+(function(){
+const name=new URLSearchParams(location.search).get('workspace');
+const ids={dashboard:'site-preview-panel',visitors:'site-analytics',orders:'site-orders',domain:'domain-settings'};
+if(!ids[name])return;
+const css=document.createElement('style');css.textContent='body>header,main>.eyebrow,main>h1,main>.lead,#sgc-builder-sidebar,#builder>.status,#builder>.studio-menu,#builder>.layout{display:none!important}main{margin:0!important;padding:12px!important;max-width:none!important}#builder:not(.hidden){display:block!important}#builder>section.panel{display:none!important}#builder>section.panel#'+ids[name]+'{display:block!important;max-width:1100px;margin:0 auto!important}';document.head.append(css);
 })();
 </script></body></html>
 
