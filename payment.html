@@ -45,7 +45,8 @@ const name=q.get('name')||(type==='build'?'SGC Build':'SGC Start');
 const requestedAmount=Number(q.get('amount')||0);
 const fixed={
   start:{name:'SGC Start',price:150,product:'sgc-start-foundations',display:'R150 once-off'},
-  build:{name:'SGC Build',price:250,product:'sgc-build-lab',display:'R250 / month'},
+  build:{name:'Academy Full Access',price:450,product:'sgc-build-lab',display:'R450 / month'},
+  builder:{name:'Website Builder',price:199,product:'website-builder',display:'R199 / month'},
   r20:{name:'Business Starter Preview',price:20,product:'preview',display:'R20 once-off'}
 };
 let selected=fixed[type];
@@ -60,12 +61,13 @@ if(dynamicId){
   dynamicReady=async()=>{
     if(!window.sgcSupabase)throw Error('SGC account connection is unavailable.');
     const table=membershipId?'sgc_named_membership_plans':'sgc_products';
-    const query=window.sgcSupabase.from(table).select('id,name,price_zar,billing'+(membershipId?',state':',active')).eq('id',dynamicId);
+    const query=window.sgcSupabase.from(table).select('id,name,price_zar,billing'+(membershipId?',state':',active')).eq('id',dynamicId).is('deleted_at',null);
     const {data,error}=await query.single();
     if(error||!data||(membershipId?data.state!=='published':!data.active))throw Error('This product is not available for purchase.');
     selected={name:data.name,price:Number(data.price_zar),display:'R'+Number(data.price_zar).toFixed(2)+(data.billing==='monthly'?' / month':' once-off'),dynamic:true};
     document.getElementById('product').textContent=selected.name;
     document.getElementById('price').textContent=selected.display;
+    if(data.billing==='monthly')document.getElementById('checkoutCopy').textContent='Verified payment unlocks one month of access automatically. Automatic debit renewals are not enabled yet; renew with a new payment before access expires.';
   };
   document.getElementById('product').textContent='Loading selected product…';
   document.getElementById('price').textContent='Price verified at checkout';
@@ -77,6 +79,7 @@ if(!dynamicId)document.getElementById('price').textContent=selected?.display||'S
 const btn=document.getElementById('pay');
 const status=document.getElementById('status');
 const copy=document.getElementById('checkoutCopy');
+if(type==='build'||type==='builder')copy.textContent='Verified payment unlocks one month of access automatically. Automatic debit renewals are not enabled yet; renew with a new payment before access expires.';
 let amountInput=null;
 if(selected?.flexible){
   copy.textContent='Choose how much you want to pay toward this kit today, then continue to Stitch.';

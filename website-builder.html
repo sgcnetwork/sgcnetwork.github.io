@@ -166,6 +166,8 @@ window.sgcLoadBuilderPromotion=async(sb,siteId)=>{currentSb=sb;currentSite=siteI
  const {data:sub,error:subError}=await sb.from('sgc_website_subscriptions').select('status,current_period_end').eq('user_id',user.id).maybeSingle();
  if(subError){msg.textContent='Unable to verify your R199/month Website Builder subscription. Please try again later.';return;}
  const {data:demo,error:demoError}=await sb.from('sgc_demo_entitlements').select('user_id').eq('user_id',user.id).maybeSingle();if(demoError){msg.textContent='Unable to verify demo access. Please try again later.';return;}
+ const {data:entry,error:entryError}=await sb.rpc('sgc_start_purchased');if(entryError)throw entryError;
+ if(!demo&&!entry){msg.textContent='Purchase the R150 once-off SGC Membership before subscribing to Website Builder.';return;}
  if(!demo&&(!sub||sub.status!=='active'||!sub.current_period_end||new Date(sub.current_period_end)<=new Date())){msg.textContent='An active R199/month Website Builder subscription is required. Your Academy membership alone does not unlock this feature.';return;}
  const {data:site,error:siteError}=await sb.from('sgc_student_websites').select('*').eq('user_id',user.id).maybeSingle();
  if(siteError)throw siteError;
