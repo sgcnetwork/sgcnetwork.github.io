@@ -32,6 +32,7 @@ function setup(){
  ];
  const jump=el=>{el?.scrollIntoView({behavior:'smooth',block:'start'});};
  entries.forEach(([label,id])=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.onclick=()=>{
+ if(id==='branding'){window.location.href='website-builder-logo.html';return;}
  const buttons=Array.from(menu.querySelectorAll('button.studio-option'));
  const titles={'branding':'Logo, menu, colours & fonts','menu-content':'Edit menu content','theme':'Colour theme & font','homepage':'Homepage preferences','home-layout':'Homepage header & sections','services':'Edit / add services','products':'Products & online store','gallery':'Photo gallery','media':'Media: video, audio & PDF','blog':'News & blog posts','team':'About us & team members','contact':'Contact, chat & social media','bars':'Announcement & contact bars','extras':'Other sections: donations & forms','settings':'Newsletter, footer & settings','shopping':'Google Shopping & store options','advanced':'Advanced options & custom code','site-name':'Site name & address'};
  const match=buttons.find(x=>x.textContent.includes(titles[id]));
