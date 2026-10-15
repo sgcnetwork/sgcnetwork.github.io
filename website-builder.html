@@ -41,11 +41,45 @@ const sectionNames=['Services','Products','Pictures','About us','Contact us','Ne
 function makeCatalogueEditor(kind){window.sgcCatalogueEditor(kind,draft,fields,status);}
 function makeSortableEditor(kind){
  const key=kind==='menu-content'?'menuEntries':'homeSections';
- const items=Array.isArray(draft[key])?draft[key]:kind==='menu-content'?defaultEntries():sectionNames.map(name=>({id:name,label:name,visible:true}));
+ const items=Array.isArray(draft[key])?draft[key].map(x=>({...x})):kind==='menu-content'?defaultEntries():sectionNames.map(name=>({id:name,label:name,visible:true}));
  const holder=document.createElement('div');holder.className='sgc-sort-list';
- const render=()=>{holder.replaceChildren();items.forEach((item,i)=>{const line=document.createElement('div');line.className='sgc-sort-item';const cb=document.createElement('input');cb.type='checkbox';cb.checked=item.visible!==false;cb.title='Show '+item.id;cb.addEventListener('change',()=>{item.visible=cb.checked;sync();});const input=document.createElement('input');input.type='text';input.maxLength=45;input.value=item.label;input.setAttribute('aria-label','Menu label for '+item.id);input.addEventListener('input',()=>{item.label=input.value;sync();});const up=document.createElement('button');up.type='button';up.textContent='↑';up.title='Move up';up.disabled=i===0;up.onclick=()=>{[items[i-1],items[i]]=[items[i],items[i-1]];sync();render();};const down=document.createElement('button');down.type='button';down.textContent='↓';down.title='Move down';down.disabled=i===items.length-1;down.onclick=()=>{[items[i+1],items[i]]=[items[i],items[i+1]];sync();render();};line.append(cb,input,up,down);holder.append(line);});};
+ holder.setAttribute('aria-label','Drag to reorder menu items');
  const sync=()=>{draft[key]=items.map(x=>({...x}));window.sgcRenderFullPreview?.(draft);};
- fields.append(holder);render();sync();
+ let dragged=-1;
+ const render=()=>{
+  holder.replaceChildren();
+  items.forEach((item,i)=>{
+   const line=document.createElement('div');line.className='sgc-sort-item';line.dataset.index=i;
+   line.style.cssText='display:flex;align-items:center;gap:8px;padding:9px;margin:6px 0;border:1px solid #eadde6;border-radius:12px;background:#fff;transition:background .15s';
+   const grip=document.createElement('span');grip.textContent='⠿';grip.title='Drag to rearrange';grip.setAttribute('aria-label','Drag handle');grip.draggable=true;grip.style.cssText='font-size:23px;color:#a68b9d;cursor:grab;touch-action:none;user-select:none;padding:5px';
+   grip.addEventListener('dragstart',e=>{dragged=i;e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',String(i));line.style.opacity='.45';});
+   grip.addEventListener('dragend',()=>{dragged=-1;line.style.opacity='1';holder.querySelectorAll('.sgc-sort-item').forEach(n=>n.style.background='#fff');});
+   line.addEventListener('dragover',e=>{if(dragged<0)return;e.preventDefault();e.dataTransfer.dropEffect='move';line.style.background='#f5e8f0';});
+   line.addEventListener('dragleave',()=>{line.style.background='#fff';});
+   line.addEventListener('drop',e=>{e.preventDefault();const from=dragged;dragged=-1;if(from<0||from===i)return;const [moved]=items.splice(from,1);items.splice(i,0,moved);sync();render();});
+   const cb=document.createElement('input');cb.type='checkbox';cb.checked=item.visible!==false;cb.title='Show '+item.id;cb.addEventListener('change',()=>{item.visible=cb.checked;sync();});
+   const input=document.createElement('input');input.type='text';input.maxLength=45;input.value=item.label;input.style.cssText='flex:1;min-width:0';input.setAttribute('aria-label','Menu label for '+item.id);input.addEventListener('input',()=>{item.label=input.value;sync();});
+   const up=document.createElement('button');up.type='button';up.textContent='↑';up.title='Move up';up.disabled=i===0;up.onclick=()=>{[items[i-1],items[i]]=[items[i],items[i-1]];sync();render();};
+   const down=document.createElement('button');down.type='button';down.textContent='↓';down.title='Move down';down.disabled=i===items.length-1;down.onclick=()=>{[items[i+1],items[i]]=[items[i],items[i+1]];sync();render();};
+   line.append(grip,cb,input,up,down);
+   if(kind==='menu-content'&&String(item.id).startsWith('custom-')){
+    const remove=document.createElement('button');remove.type='button';remove.textContent='×';remove.title='Delete custom menu item';remove.setAttribute('aria-label','Delete '+item.label);
+    remove.onclick=()=>{if(!confirm('Remove this menu item?'))return;items.splice(i,1);sync();render();};line.append(remove);
+   }
+   holder.append(line);
+  });
+ };
+ fields.append(holder);
+ if(kind==='menu-content'){
+  const controls=document.createElement('div');controls.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin:15px 0';
+  const name=document.createElement('input');name.type='text';name.maxLength=45;name.placeholder='New menu item name';name.setAttribute('aria-label','New menu item name');name.style.cssText='flex:1;min-width:140px';
+  const add=document.createElement('button');add.type='button';add.textContent='+ Add menu item';add.className='button';
+  add.onclick=()=>{const label=name.value.trim();if(!label){name.focus();return;}items.push({id:'custom-'+Date.now().toString(36)+'-'+items.length,label,visible:true});name.value='';sync();render();};
+  name.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();add.click();}});
+  controls.append(name,add);fields.append(controls);
+  const help=document.createElement('p');help.className='sgc-logo-help';help.textContent='Drag the dotted handle to change order. Rename items directly, tick to show them, or add your own. Save your changes when finished.';fields.append(help);
+ }
+ render();sync();
 }
 
 const escape=s=>String(s).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
