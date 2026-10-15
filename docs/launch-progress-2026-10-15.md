@@ -1,6 +1,6 @@
 # SGC launch implementation — 15 October 2026
 
-Status: first tested repair batch prepared for review. The whole platform is not launch-ready.
+Status: approved backend fixes deployed; frontend changes remain in draft PR #4. The whole platform is not launch-ready.
 
 ## Baseline and rollback
 
@@ -61,3 +61,13 @@ No charges, checkout links, customer messages, customer uploads or production de
 ## Release plan
 
 Keep this branch isolated until reviewed. Merge frontend changes only after browser QA of the branch preview. Deploy each Edge Function separately from GitHub Pages. Apply the access correction explicitly and verify entry-only/active/expired cases again. Revert changed frontend files to the recorded base for rollback; restore the recorded original function for a database rollback, preserving all customer data.
+
+## Approved backend deployment — 15 October 2026
+
+The owner approved applying the premium-access correction and deploying the payment fixes. Supabase migration launch_premium_lesson_access succeeded. create-stitch-payment version 31 and rapid-task version 30 are ACTIVE; downloaded deployed source exactly matches the tested source in the review branch. Existing verify_jwt=false settings are preserved: checkout performs its own user checks and the webhook verifies Svix signatures.
+
+Post-deployment checks passed against the installed database function: entry lesson allowed, entry-only premium denied, active premium allowed, expired premium denied. Fixtures were rolled back; zero fixture lessons/transactions remain and membership row count is unchanged. The entry-to-premium bypass is absent from the installed function.
+
+Live HTTP smoke checks: checkout OPTIONS 200; checkout GET 405; unauthenticated product checkout POST 401; unsigned webhook POST 400. No payment link or real charge was created. All 15 local regression tests passed again before deployment. Security advisors were retrieved after deployment; the pre-existing advisor findings still require a broader review. Real signed sandbox events, provider approval and complete customer journeys remain outstanding.
+
+This note supersedes the earlier pending-backend-deployment statements. Shop/dashboard frontend changes have not been merged or deployed. Pricing, recurring billing, builder publication and other remaining work are unchanged.
