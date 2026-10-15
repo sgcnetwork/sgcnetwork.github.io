@@ -48,8 +48,17 @@ function render(data){
  const fonts={'Open Sans':'Arial,sans-serif','Arial':'Arial,sans-serif','Georgia':'Georgia,serif','Trebuchet MS':'Trebuchet MS,sans-serif','Verdana':'Verdana,sans-serif','Georgia,serif':'Georgia,serif'};document.body.style.fontFamily=fonts[p.siteFont]||fonts[site.font]||'Arial,sans-serif';
  root.replaceChildren();if(p.announcementEnabled==='Yes'&&p.announcementText)node('div',p.announcementText,root,'announcement');
  const header=node('header',null,root,'site-header'),brand=node('a',p.logoText||site.business_name,header,'brand');brand.href='#';if(p.logoStyle==='Logo / image'&&url(p.logo)){brand.textContent='';image(p.logo,site.business_name,brand);}if(p.logoStyle==='Hidden')brand.hidden=true;
- const nav=node('nav',null,header);nav.setAttribute('aria-label','Main navigation');const entries=list(p.menuEntries).length?p.menuEntries:[{id:'Products',label:'Products'},{id:'Services',label:'Services'},{id:'About us',label:'About us'},{id:'Contact us',label:'Contact'}];const paths={'Products':'products','Services':'services','About us':'about','Contact us':'contact','Pictures':'gallery'};
- entries.filter(e=>e.visible!==false&&paths[e.id]).forEach(e=>{if(e.id==='Products'&&!site.products.length||e.id==='Services'&&(p.servicesMenuVisible==='No'||!site.services.length))return;const a=node('a',e.label||e.id,nav);a.href='#'+paths[e.id];});
+ const nav=node('nav',null,header);nav.setAttribute('aria-label','Main navigation');
+ header.style.background=p.menuBackgroundMode==='Custom color'?colour(p.menuBackground,'#ffffff'):'#ffffff';
+ header.style.color=p.menuColorMode==='Custom color'?colour(p.menuColor,'#342b35'):'#342b35';
+ header.style.position=p.stickyMenu==='Yes'?'sticky':'relative';
+ header.style.top=p.stickyMenu==='Yes'?'0':'auto';
+ header.style.zIndex='40';
+ nav.style.display='flex';nav.style.alignItems='center';nav.style.flexWrap='wrap';nav.style.gap='10px';
+ nav.style.justifyContent=p.menuPosition==='Left'?'flex-start':p.menuPosition==='Center'?'center':'flex-end';
+ nav.style.fontSize=Math.max(8,Math.min(48,Number(p.menuSize)||14))+'px';
+const entries=list(p.menuEntries).length?p.menuEntries:[{id:'Products',label:'Products'},{id:'Services',label:'Services'},{id:'About us',label:'About us'},{id:'Contact us',label:'Contact'}];const paths={'Products':'products','Services':'services','About us':'about','Contact us':'contact','Pictures':'gallery'};
+ entries.filter(e=>e.visible!==false&&paths[e.id]).forEach(e=>{if(e.id==='Products'&&!site.products.length||e.id==='Services'&&(p.servicesMenuVisible==='No'||!site.services.length))return;const a=node('a',e.label||e.id,nav);a.href='#'+paths[e.id];a.style.color='inherit';a.style.fontSize='inherit';});
  const hero=node('div',null,root,'hero');node('h1',p.headline||site.business_name,hero);node('p',p.welcome||site.description,hero);const cta=node('a',p.homeButtonText||p.cta||'Get in touch',hero,'button');cta.href='#'+(paths[p.homeButtonTarget]||'contact');
  main=node('main',null,root);route();const footer=node('footer',null,root,'site-footer');if(p.footer)node('p',p.footer,footer);link('Hosted by SGC Network','https://sgcnetwork.co.za',footer);root.hidden=false;status.hidden=true;
 }
