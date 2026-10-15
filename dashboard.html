@@ -409,7 +409,6 @@ body{background:radial-gradient(ellipse at 90% 4%,#eee4f3 0%,transparent 38%),ra
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/config.js"></script>
 <script src="js/supabase-client.js"></script>
-<script src="js/demo-access.js?v=demo2"></script>
 <script src="js/account.js?v=start-gate2"></script>
 
 <script>
@@ -668,7 +667,7 @@ async function load(){
  const client=window.sgcSupabase||window.supabase?.createClient('https://bxpexanyoyubxeqqlggh.supabase.co','sb_publishable_Z0_Y-Bj_G5qw4hMgDbQlgA__jj8rGGq');
  const el=(tag,content,cls)=>{const n=document.createElement(tag);if(content!==undefined)n.textContent=content;if(cls)n.className=cls;return n;};
  const date=d=>d?new Date(d).toLocaleDateString('en-ZA',{year:'numeric',month:'short',day:'numeric'}):'';
- const required=async promise=>{const r=await promise;if(r.error)throw r.error;return r.data||[];};
+ const required=async promise=>{const r=await promise;if(r.error)throw r.error;return r.data??[];};
  async function loadPortfolio(){
   const root=$('learning-modules'),status=$('learning-status'),summary=$('learning-summary');
   if(!client){status.textContent='Unable to connect to your account. Refresh to retry.';return;}
@@ -718,7 +717,7 @@ async function load(){
      if(n?.updated_at)detail.append(el('p','Last updated '+date(n.updated_at),'muted'));
      detail.append(el('h4','Quiz / assessment'));
      if(q){
-      detail.append(el('p','Latest submitted quiz: '+q.score+' / '+q.maximum+(q.maximum?' ('+Math.round(q.score/q.maximum*100)+'%)':'')+' · '+date(q.submitted_at)));
+      detail.append(el('p','Quiz submitted · '+date(q.submitted_at)));
       detail.append(el('p','Your answers have been submitted and saved. See Quiz Results below for your question-by-question review.','muted'));
      }else detail.append(el('p','No submitted quiz for this lesson.','muted'));
      const link=el('a','Open in Academy →','btn alt');link.href='academy.html';detail.append(link);
@@ -951,8 +950,8 @@ try{await load()}catch(e){status.textContent='Could not load your profile: '+e.m
  async function check(){
   if(busy||!client||!me||document.hidden)return;busy=true;
   try{
-   const res=await client.from('sgc_private_messages').select('id,sender_id,created_at,body').eq('receiver_id',me.id).order('created_at',{ascending:false}).limit(1);
-   if(res.error)return;const msg=res.data?.[0];if(!msg)return;
+   const res=await client.from('sgc_private_messages').select('id,sender_id,created_at').eq('receiver_id',me.id).order('created_at',{ascending:false}).limit(1);
+   if(res.error)return;const msg=res.data?.[0];if(!msg){initialised=true;return;}
    const ts=new Date(msg.created_at).getTime();
    if(!initialised){lastSeen=ts;initialised=true;return}
    if(ts>lastSeen){lastSeen=ts;banner.textContent='New private message · Open chats';banner.hidden=false;

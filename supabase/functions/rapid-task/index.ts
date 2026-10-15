@@ -1,5 +1,5 @@
 import { Webhook } from "https://esm.sh/svix@1.76.1";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.117.3";
 
 Deno.serve(async (req) => {
   if (req.method !== "POST") {
@@ -34,7 +34,7 @@ Deno.serve(async (req) => {
       "svix-signature": svixSignature,
     });
 
-    console.log("Verified Stitch event:", event);
+    console.log("Verified Stitch event received");
 
     if (event.status !== "PAID") {
       return Response.json({
@@ -71,7 +71,7 @@ Deno.serve(async (req) => {
     const tokenResult = await tokenResponse.json();
 
     if (!tokenResponse.ok || !tokenResult?.data?.accessToken) {
-      console.error("Stitch token error:", tokenResult);
+      console.error("Stitch token error:", tokenResponse.status);
       throw new Error("Could not authenticate with Stitch");
     }
 
@@ -93,7 +93,7 @@ Deno.serve(async (req) => {
     const paymentResult = await paymentResponse.json();
 
     if (!paymentResponse.ok) {
-      console.error("Payment lookup failed:", paymentResult);
+      console.error("Payment lookup failed:", paymentResponse.status);
       throw new Error("Could not retrieve Stitch payment");
     }
 
@@ -226,133 +226,31 @@ Deno.serve(async (req) => {
       }
     }
 
-    // -----------------------------
-    // 3. IDENTIFY USER + MEMBERSHIP
-    // -----------------------------
-    // New references will look like:
-    // S-USER_UUID
-    // B-USER_UUID
-
-    const match = merchantReference?.match(
-      /^([SB])-([0-9a-fA-F-]{36})$/
-    );
-
-    if (!match) {
-      throw new Error(
-        `Invalid SGC merchant reference: ${merchantReference}`
-      );
-    }
-
-    const membershipCode = match[1];
-    const userId = match[2];
-
-    const membershipType =
-      membershipCode === "S" ? "start" : "build";
-
-    const paymentType =
-      membershipCode === "S"
-        ? "start_subscription"
-        : "build_subscription";
-
-    // -----------------------------
-    // 4. CONNECT TO SUPABASE
-    // -----------------------------
-    const supabaseUrl = Deno.env.get("SUPABASE_URL");
-    const serviceRoleKey =
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-
-    if (!supabaseUrl || !serviceRoleKey) {
-      throw new Error("Supabase server credentials missing");
-    }
-
-    const supabase = createClient(
-      supabaseUrl,
-      serviceRoleKey
-    );
-
-    // -----------------------------
-    // 5. PREVENT DUPLICATE PAYMENT
-    // -----------------------------
-    const { data: existingPayment } = await supabase
-      .from("payments")
-      .select("id")
-      .eq("paystack_reference", event.id)
-      .maybeSingle();
-
-    if (!existingPayment) {
-      const amountZar = Number(event.amount) / 100;
-
-      const { error: paymentError } = await supabase
-        .from("payments")
-        .insert({
-          user_id: userId,
-          payment_type: paymentType,
-          amount_zar: amountZar,
-          status: "paid",
-          paystack_reference: event.id,
-          paid_at: new Date().toISOString(),
-
-          metadata: {
-            provider: "stitch",
-            stitch_payment_id: event.id,
-            stitch_link_id: event.linkId,
-            merchant_reference: merchantReference,
-            payer_email: payment.payerEmailAddress,
-            payer_name: payment.payerName,
-          },
-        });
-
-      if (paymentError) {
-        console.error("Payment insert error:", paymentError);
-        throw paymentError;
+    // Legacy previews, R1 tests, kits and lay-by checkouts are also tracked.
+    // Recording payment does not itself grant membership or deliver kit content.
+    if (typeof merchantReference === "string" && /^[TPKGL]-/.test(merchantReference)) {
+      const url = Deno.env.get("SUPABASE_URL");
+      const key = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+      if (!url || !key) throw new Error("Supabase server credentials missing");
+      const db = createClient(url, key);
+      const { data: tx, error } = await db.from("sgc_stitch_transactions")
+        .select("*").eq("merchant_reference", merchantReference).single();
+      if (error || !tx) throw new Error("No tracked checkout");
+      if (!tx.stitch_payment_id || String(tx.stitch_payment_id) !== String(event.linkId)) {
+        throw new Error("Payment link does not match checkout");
       }
+      const expected = Math.round(Number(tx.amount_zar) * 100);
+      if (!Number.isSafeInteger(expected) || expected < 1 || Number(event.amount) !== expected) {
+        throw new Error("Paid amount does not match checkout");
+      }
+      const { error: saveError } = await db.from("sgc_stitch_transactions")
+        .update({ status: "paid", paid_at: tx.paid_at || new Date().toISOString(),
+          updated_at: new Date().toISOString() }).eq("id", tx.id);
+      if (saveError) throw saveError;
+      return Response.json({ received: true, verified: true, paymentRecorded: true,
+        membershipActivated: false });
     }
-
-    // -----------------------------
-    // 6. ACTIVATE MEMBERSHIP
-    // -----------------------------
-    const { data: existingMembership } = await supabase
-      .from("memberships")
-      .select("id")
-      .eq("user_id", userId)
-      .eq("membership_type", membershipType)
-      .maybeSingle();
-
-    if (existingMembership) {
-      const { error } = await supabase
-        .from("memberships")
-        .update({
-          status: "active",
-          started_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", existingMembership.id);
-
-      if (error) throw error;
-    } else {
-      const { error } = await supabase
-        .from("memberships")
-        .insert({
-          user_id: userId,
-          membership_type: membershipType,
-          status: "active",
-          price_zar: Number(event.amount) / 100,
-          started_at: new Date().toISOString(),
-        });
-
-      if (error) throw error;
-    }
-
-    console.log(
-      `Membership activated: ${userId} → ${membershipType}`
-    );
-
-    return Response.json({
-      received: true,
-      verified: true,
-      paymentRecorded: true,
-      membershipActivated: true,
-    });
+    throw new Error("Unrecognised tracked checkout reference");
 
   } catch (error) {
     console.error("Webhook error:", error);
