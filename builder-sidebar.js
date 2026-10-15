@@ -2,14 +2,20 @@
 'use strict';
 const css=document.createElement('style');
 css.textContent=`
-#sgc-builder-sidebar{position:fixed;top:83px;left:12px;bottom:18px;width:225px;overflow-y:auto;z-index:30;background:#fff;border:1px solid #e9dfe6;border-radius:19px;box-shadow:0 12px 32px #60445a16;padding:13px}
+#sgc-builder-sidebar{position:fixed;top:83px;left:12px;bottom:18px;width:225px;overflow-y:auto;z-index:30;background:#fff;border:1px solid #e9dfe6;border-radius:21px;box-shadow:0 14px 36px #60445a18;padding:14px}
 #sgc-builder-sidebar h2{font:20px Georgia,serif;margin:8px 9px 16px}
 #sgc-builder-sidebar details{border-bottom:1px solid #eee5ed;padding:4px 0}
-#sgc-builder-sidebar summary{font-weight:700;cursor:pointer;padding:11px 9px;list-style:none;border-radius:9px}
+#sgc-builder-sidebar summary{font-weight:700;cursor:pointer;padding:13px 14px;list-style:none;border-radius:13px;background:#f6eef5;color:#3f3040;transition:background .2s,box-shadow .2s}
 #sgc-builder-sidebar summary::after{content:'⌄';float:right}
 #sgc-builder-sidebar details[open]>summary::after{content:'⌃'}
-#sgc-builder-sidebar button{display:block;width:100%;text-align:left;background:transparent;border:0;border-radius:9px;padding:10px 12px;font:13px Arial,sans-serif;color:#4b3d4d;cursor:pointer}
-#sgc-builder-sidebar button:hover,#sgc-builder-sidebar button:focus-visible{background:#f3e2e9}
+#sgc-builder-sidebar button{display:block;width:100%;text-align:left;background:transparent;border:0;border-radius:11px;padding:12px 13px;font:500 13px Arial,sans-serif;color:#4b3d4d;cursor:pointer;transition:background .18s,transform .18s,box-shadow .18s;margin:3px 0}
+#sgc-builder-sidebar button:hover,#sgc-builder-sidebar button:focus-visible{background:#f3e2e9;transform:translateX(2px);box-shadow:0 2px 8px #60445a12;outline:none}
+#sgc-builder-sidebar summary:hover,#sgc-builder-sidebar summary:focus-visible{background:#eedfeb;outline:2px solid #d9bed0;outline-offset:2px}
+#sgc-builder-sidebar details[open]>summary{background:#eee0ec;margin-bottom:9px}
+#sgc-builder-sidebar details>button{padding-left:18px;font-size:12.5px}
+#sgc-builder-sidebar details>button::before{content:'›';display:inline-block;margin-right:9px;color:#9e7896;font-size:16px;vertical-align:-1px}
+#sgc-builder-sidebar>button{background:#fbf8fc;border:1px solid #f0e6ef;margin-top:9px;font-weight:650!important;padding:13px 14px}
+#sgc-builder-sidebar>button::after{content:'→';float:right;color:#98758e}
 @media(min-width:1200px){body:has(#builder:not(.hidden)) main{margin-left:255px;max-width:none;margin-right:24px}}
 @media(max-width:1199px){#sgc-builder-sidebar{position:static;width:auto;max-height:320px;margin:16px 20px 0}#sgc-builder-sidebar details[open]{max-height:250px;overflow-y:auto}}
 `;
@@ -19,7 +25,8 @@ function setup(){
  if(!builder||!menu||document.getElementById('sgc-builder-sidebar'))return;
  const side=document.createElement('nav');side.id='sgc-builder-sidebar';side.setAttribute('aria-label','Website builder navigation');
  const title=document.createElement('h2');title.textContent='Website Builder';side.append(title);
- const group=document.createElement('details');group.open=true;
+ const jump=el=>el?.scrollIntoView({behavior:'smooth',block:'start'});
+ const group=document.createElement('details');group.open=false;
  const summary=document.createElement('summary');summary.textContent='Edit your website';group.append(summary);
  const entries=[
  ['Logo','logo'],['Menu','menu'],['Colour theme','colour-theme'],['Font','font'],
