@@ -197,5 +197,10 @@ if(site?.id){window.sgcLoadBuilderReports?.(sb,site.id);window.sgcLoadBuilderPro
  });
  }catch(e){msg.textContent='Website Studio could not load: '+e.message;}
 })();
-</script><script src="builder-sidebar.js?v=7be2d2b" defer></script></body></html>
+</script><script src="builder-sidebar.js?v=7be2d2b" defer></script><script>
+if(new URLSearchParams(location.search).get('editor')==='logo'){
+const st=document.createElement('style');st.textContent='body>header,main>.eyebrow,main>h1,main>.lead,#sgc-builder-sidebar,#builder>.status,#builder>.layout,#site-analytics,#site-orders,#promote-site,#domain-settings{display:none!important}main{margin:0!important;padding:12px!important;max-width:none!important}#builder:not(.hidden){display:grid!important;grid-template-columns:minmax(280px,390px) minmax(300px,1fr);gap:18px}#logo-edit-workspace{grid-column:1;grid-row:1}#site-preview-panel{grid-column:2;grid-row:1}@media(max-width:750px){#builder:not(.hidden){grid-template-columns:1fr}#site-preview-panel{grid-column:1;grid-row:2}}';document.head.append(st);
+const wait=setInterval(()=>{const menu=document.getElementById('studio-menu'),editor=document.getElementById('studio-editor'),builder=document.getElementById('builder');if(!menu||!editor||!builder)return;const b=Array.from(menu.querySelectorAll('button.studio-option')).find(x=>x.textContent.includes('Logo, menu, colours & fonts'));if(!b)return;clearInterval(wait);const workspace=document.createElement('section');workspace.id='logo-edit-workspace';workspace.className='panel';const heading=document.createElement('h2');heading.textContent='Edit logo';workspace.append(heading);builder.prepend(workspace);workspace.append(editor);b.click();},200);
+}
+</script></body></html>
 
