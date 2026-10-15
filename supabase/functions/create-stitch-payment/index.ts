@@ -1,5 +1,5 @@
 
-import { createClient } from "npm:@supabase/supabase-js@2";
+import { createClient } from "npm:@supabase/supabase-js@2.117.3";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "https://sgcnetwork.co.za",
@@ -171,6 +171,7 @@ Deno.serve(async (req) => {
         .select("id,name,price_zar,billing,state")
         .eq("id", membershipId)
         .eq("state", "published")
+        .is("deleted_at", null)
         .single();
 
       if (error || !data) {
@@ -201,6 +202,7 @@ Deno.serve(async (req) => {
         .select("id,name,price_zar,billing,active")
         .eq("id", productId)
         .eq("active", true)
+        .is("deleted_at", null)
         .single();
 
       if (error || !data) {
