@@ -43,7 +43,7 @@ function setup(){
  ];
  entries.forEach(([label,id])=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.onclick=()=>{location.href='website-builder-'+id+'.html';};group.append(b);});
  side.append(group);
- [['Dashboard','site-preview-panel'],['Visitors','site-analytics'],['Orders','site-orders'],['Domain','domain-settings']].forEach(([label,id])=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.style.fontWeight='700';b.onclick=()=>jump(document.getElementById(id));side.append(b);});
+ [['Dashboard','dashboard'],['Visitors','visitors'],['Orders','orders'],['Domain','domain']].forEach(([label,id])=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.style.fontWeight='700';b.onclick=()=>{location.href='website-builder-'+id+'.html';};side.append(b);});
  document.body.insertBefore(side,document.querySelector('main'));
  const obs=new MutationObserver(()=>{side.hidden=builder.classList.contains('hidden');});obs.observe(builder,{attributes:true,attributeFilter:['class']});side.hidden=builder.classList.contains('hidden');
 }
