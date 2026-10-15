@@ -197,7 +197,13 @@ if(site?.id){window.sgcLoadBuilderReports?.(sb,site.id);window.sgcLoadBuilderPro
  });
  }catch(e){msg.textContent='Website Studio could not load: '+e.message;}
 })();
-</script><script src="builder-sidebar.js?v=7be2d2b" defer></script><script>
+</script><style>
+/* The landing page is a dashboard, not an inline editor. Editing lives on dedicated pages. */
+body:not(:has(#editor-workspace)) main:has(#builder:not(.hidden)) .studio-menu,
+body:not(:has(#editor-workspace)) main:has(#builder:not(.hidden)) #builder>.layout{display:none!important}
+body:has(#editor-workspace) #builder>.studio-menu{display:none!important}
+</style>
+<script src="builder-sidebar.js?v=sgc-sidebar-20261015b" defer></script><script>
 (function(){
 const page=new URLSearchParams(location.search).get('editor');
 if(!page)return;
