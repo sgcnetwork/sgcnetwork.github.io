@@ -541,7 +541,7 @@ const css=document.createElement('style');css.textContent='body>header,main>.eye
   let used=0;const overflow=[];
   links.forEach((el,i)=>{
    const w=el.getBoundingClientRect().width+6;
-   if(mobile||force||used+w>available){el.style.display='none';overflow.push(labels[i]);}
+   if(mobile||force||i>=4||used+w>available){el.style.display='none';overflow.push(labels[i]);}
    else used+=w;
   });
   const show=mobile||force||overflow.length>0;
