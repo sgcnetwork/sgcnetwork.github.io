@@ -273,16 +273,13 @@ if(['logo','menu','colour-theme','font','announcement-bar'].includes(page)){
  };
  const allowed=new Set(fieldSets[page]);
  if(fields){
-  const nodes=Array.from(fields.children);
-  for(let i=0;i<nodes.length;i++){
-   const node=nodes[i];
-   if(node.tagName!=='LABEL')continue;
-   const input=nodes[i+1];
-   const key=(input?.id||'').replace(/^studio-/,'');
-   const visible=allowed.has(key);
-   node.hidden=!visible;
-   if(input)input.hidden=!visible;
-   i++;
+  const all=Array.from(fields.querySelectorAll('[id^="studio-"]'));
+  for(const input of all){
+   const key=input.id.replace(/^studio-/,'');
+   if(allowed.has(key))continue;
+   const label=Array.from(fields.querySelectorAll('label')).find(x=>x.htmlFor===input.id);
+   if(label)label.remove();
+   input.remove();
   }
  }
  const title=document.getElementById('studio-editor-title');
