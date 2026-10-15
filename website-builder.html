@@ -243,7 +243,7 @@ builder.prepend(workspace);
 if(page==='site-name'){
 const original=document.getElementById('name')?.closest('section');
 if(original){workspace.append(original);original.style.padding='0';original.style.border='0';original.style.boxShadow='none';}
-const note=document.createElement('p');note.className='muted';note.textContent='Save your changes in Website Builder before publishing.';workspace.append(note);
+const note=document.createElement('p');note.className='muted';note.textContent='Save your business name and website address before publishing.';workspace.append(note);const save=document.createElement('button');save.type='button';save.className='button';save.textContent='Save site name';save.onclick=()=>{const originalSave=Array.from(document.querySelectorAll('#builder .layout button')).find(b=>b.textContent==='Save my website design');if(originalSave)originalSave.click();else note.textContent='Open the main Website Builder to save your changes.';};workspace.append(save);
 return;
 }
 workspace.append(editor);
