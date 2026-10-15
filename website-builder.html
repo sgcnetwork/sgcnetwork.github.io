@@ -255,13 +255,33 @@ return;
 workspace.append(editor);
 button.click();
 if(['logo','menu','colour-theme','font'].includes(page)){
-const fields=document.getElementById('studio-editor-fields');
-const allowed=page==='logo'?['logo','favicon']:page==='menu'?['menu','hamburger','search','cart','sticky']:page==='font'?['font']:['theme','background','colour','color'];
-Array.from(fields.children).forEach(el=>{
-const label=(el.tagName==='LABEL'?el.textContent:el.previousElementSibling?.textContent||'').toLowerCase();
-const key=el.name?.toLowerCase()||el.id?.toLowerCase()||'';
-if(!allowed.some(w=>label.includes(w)||key.includes(w)))el.hidden=true;
-});
+ const fields=document.getElementById('studio-editor-fields');
+ const section=document.getElementById('studio-editor');
+ const fieldSets={
+ logo:['logoStyle','logoText','logo','logoSize','logoSpacing','logoColorMode','logoColor','favicon'],
+ menu:['menuPosition','menuSize','menuColorMode','menuColor','menuBackgroundMode','menuBackground','stickyMenu','alwaysCollapsed','hamburgerPosition','hamburgerIcon','showSearch','showCart'],
+ 'colour-theme':['siteTheme','siteBackground'],
+ font:['siteFont']
+ };
+ const allowed=new Set(fieldSets[page]);
+ if(fields){
+  const nodes=Array.from(fields.children);
+  for(let i=0;i<nodes.length;i++){
+   const node=nodes[i];
+   if(node.tagName!=='LABEL')continue;
+   const input=nodes[i+1];
+   const key=(input?.id||'').replace(/^studio-/,'');
+   const visible=allowed.has(key);
+   node.hidden=!visible;
+   if(input)input.hidden=!visible;
+   i++;
+  }
+ }
+ const title=document.getElementById('studio-editor-title');
+ const hint=document.getElementById('studio-editor-hint');
+ if(title)title.textContent=config[page][1];
+ if(hint)hint.textContent=page==='logo'?'Choose a text logo or upload your logo image.':page==='menu'?'Manage your website navigation and menu buttons.':page==='font'?'Choose the font used across your website.':'Set your website colours and background.';
+ if(section)section.hidden=false;
 }
 },200);
 })();
