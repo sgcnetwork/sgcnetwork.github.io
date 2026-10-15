@@ -2,7 +2,7 @@
 'use strict';
 const css=document.createElement('style');
 css.textContent=`
-#sgc-builder-sidebar{position:fixed;top:83px;left:12px;bottom:18px;width:225px;overflow-y:auto;z-index:30;background:#fff;border:1px solid #e9dfe6;border-radius:21px;box-shadow:0 14px 36px #60445a18;padding:14px}
+#sgc-builder-sidebar{position:fixed;top:83px;left:12px;bottom:18px;width:252px;overflow-y:auto;z-index:30;background:#fff;border:1px solid #e9dfe6;border-radius:21px;box-shadow:0 14px 36px #60445a18;padding:14px}
 #sgc-builder-sidebar h2{font:20px Georgia,serif;margin:8px 9px 16px}
 #sgc-builder-sidebar details{border-bottom:1px solid #eee5ed;padding:4px 0}
 #sgc-builder-sidebar summary{font-weight:700;cursor:pointer;padding:13px 14px;list-style:none;border-radius:13px;background:#f6eef5;color:#3f3040;transition:background .2s,box-shadow .2s}
@@ -13,10 +13,14 @@ css.textContent=`
 #sgc-builder-sidebar summary:hover,#sgc-builder-sidebar summary:focus-visible{background:#eedfeb;outline:2px solid #d9bed0;outline-offset:2px}
 #sgc-builder-sidebar details[open]>summary{background:#eee0ec;margin-bottom:9px}
 #sgc-builder-sidebar details>button{padding-left:18px;font-size:12.5px}
-#sgc-builder-sidebar details>button::before{content:'›';display:inline-block;margin-right:9px;color:#9e7896;font-size:16px;vertical-align:-1px}
+#sgc-builder-sidebar details>button::before{content:none!important;display:none!important}
+#sgc-builder-sidebar details>button{padding:11px 13px!important;background:#fcf9fb;border:1px solid transparent;border-radius:12px;line-height:1.45;font-size:13px!important;letter-spacing:.01em;color:#473b49;overflow-wrap:break-word}
+#sgc-builder-sidebar details>button:nth-of-type(even){background:#f8f2f7}
+#sgc-builder-sidebar details>button:hover,#sgc-builder-sidebar details>button:focus-visible{background:#efe1eb;border-color:#e5cddd;transform:translateX(2px);box-shadow:0 3px 10px #69476114}
+#sgc-builder-sidebar details>button:active{background:#e8d5e3;transform:translateX(1px)}
 #sgc-builder-sidebar>button{background:#fbf8fc;border:1px solid #f0e6ef;margin-top:9px;font-weight:650!important;padding:13px 14px}
 #sgc-builder-sidebar>button::after{content:'→';float:right;color:#98758e}
-@media(min-width:1200px){body:has(#builder:not(.hidden)) main{margin-left:255px;max-width:none;margin-right:24px}}
+@media(min-width:1200px){body:has(#builder:not(.hidden)) main{margin-left:282px;max-width:none;margin-right:24px}}
 @media(max-width:1199px){#sgc-builder-sidebar{position:static;width:auto;max-height:320px;margin:16px 20px 0}#sgc-builder-sidebar details[open]{max-height:250px;overflow-y:auto}}
 `;
 document.head.append(css);
