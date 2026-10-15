@@ -22,22 +22,15 @@ function setup(){
  const group=document.createElement('details');group.open=true;
  const summary=document.createElement('summary');summary.textContent='Edit your website';group.append(summary);
  const entries=[
- ['Logo','branding'],['Menu','menu-content'],['Colour theme','theme'],['Font','theme'],
- ['Home page preferences','homepage'],['Home page layout','home-layout'],
- ['Services','services'],['Products','products'],['Photo gallery','gallery'],
- ['Media & files','media'],['News & blog','blog'],['About us & team','team'],
- ['Contact & social media','contact'],['Announcement bar','bars'],
- ['Donations & forms','extras'],['Newsletter & footer','settings'],
- ['Online store settings','shopping'],['Advanced options','advanced'],['Site name','site-name']
+ ['Logo','logo'],['Menu','menu'],['Colour theme','colour-theme'],['Font','font'],
+ ['Home page preferences','homepage'],['Services','services'],['Products + online store options','products'],
+ ['Photo gallery','gallery'],['Media: audio, video, PDF files','medias'],
+ ['News + blog posts','posts'],['About us + team members','about'],
+ ['Contact + live chat + social media','contact'],['Other sections: donations, forms','other-sections'],
+ ['Other settings: newsletter, footer','settings'],['Advanced options: custom code','advanced'],
+ ['Advanced store options: Google Shopping','advanced-store'],['Site name','site-name']
  ];
- const jump=el=>{el?.scrollIntoView({behavior:'smooth',block:'start'});};
- entries.forEach(([label,id])=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.onclick=()=>{
- if(id==='branding'){window.location.href='website-builder-logo.html';return;}
- const buttons=Array.from(menu.querySelectorAll('button.studio-option'));
- const titles={'branding':'Logo, menu, colours & fonts','menu-content':'Edit menu content','theme':'Colour theme & font','homepage':'Homepage preferences','home-layout':'Homepage header & sections','services':'Edit / add services','products':'Products & online store','gallery':'Photo gallery','media':'Media: video, audio & PDF','blog':'News & blog posts','team':'About us & team members','contact':'Contact, chat & social media','bars':'Announcement & contact bars','extras':'Other sections: donations & forms','settings':'Newsletter, footer & settings','shopping':'Google Shopping & store options','advanced':'Advanced options & custom code','site-name':'Site name & address'};
- const match=buttons.find(x=>x.textContent.includes(titles[id]));
- if(match){match.click();jump(document.getElementById('studio-editor'));}else jump(menu);
- };group.append(b);});
+ entries.forEach(([label,id])=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.onclick=()=>{location.href='website-builder-'+id+'.html';};group.append(b);});
  side.append(group);
  [['Dashboard','site-preview-panel'],['Visitors','site-analytics'],['Orders','site-orders'],['Domain','domain-settings']].forEach(([label,id])=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.style.fontWeight='700';b.onclick=()=>jump(document.getElementById(id));side.append(b);});
  document.body.insertBefore(side,document.querySelector('main'));
