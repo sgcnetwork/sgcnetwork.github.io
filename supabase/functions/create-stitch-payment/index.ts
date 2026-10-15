@@ -1,5 +1,5 @@
 
-import { createClient } from "npm:@supabase/supabase-js@2";
+import { createClient } from "npm:@supabase/supabase-js@2.117.3";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "https://sgcnetwork.co.za",
@@ -27,9 +27,10 @@ const legacyProducts: Record<string, LegacyProduct> = {
   "sgc-start-foundations": { code: "S", price: 150 },
   start: { code: "S", price: 150 },
 
-  "sgc-build-lab": { code: "B", price: 250 },
-  build: { code: "B", price: 250 },
+  "sgc-build-lab": { code: "B", price: 450 },
+  build: { code: "B", price: 450 },
 
+  "website-builder": { code: "W", price: 199 },
   preview: { code: "P", price: 20 },
   "r20-preview": { code: "P", price: 20 },
 
@@ -153,6 +154,7 @@ Deno.serve(async (req) => {
     let selectedId = "";
     let referenceCode = "";
     let billing = "once";
+    let entitlementKey: string | null = null;
 
     if (membershipId) {
       if (!authenticatedUser) {
@@ -171,6 +173,7 @@ Deno.serve(async (req) => {
         .select("id,name,price_zar,billing,state")
         .eq("id", membershipId)
         .eq("state", "published")
+        .is("deleted_at", null)
         .single();
 
       if (error || !data) {
@@ -198,9 +201,10 @@ Deno.serve(async (req) => {
 
       const { data, error } = await supabase
         .from("sgc_products")
-        .select("id,name,price_zar,billing,active")
+        .select("id,name,price_zar,billing,active,access_level")
         .eq("id", productId)
         .eq("active", true)
+        .is("deleted_at", null)
         .single();
 
       if (error || !data) {
@@ -213,6 +217,7 @@ Deno.serve(async (req) => {
       selectedName = data.name;
       selectedId = data.id;
       referenceCode = "X";
+      entitlementKey = data.access_level || null;
       billing = data.billing || "once";
 
     } else {
@@ -231,16 +236,23 @@ Deno.serve(async (req) => {
       selectedName = product;
       selectedId = product;
       referenceCode = selected.code;
-      if (["S","B"].includes(selected.code) && !authenticatedUser) {
+      entitlementKey = ({S:"start",B:"build",W:"website_builder"} as Record<string,string>)[selected.code] || null;
+      if (["S","B","W"].includes(selected.code) && !authenticatedUser) {
         return respond({success:false,error:"Please sign in before purchasing a membership"},401);
       }
 
       if (
         product === "build" ||
-        product === "sgc-build-lab"
+        product === "sgc-build-lab" || product === "website-builder"
       ) {
         billing = "monthly";
       }
+    }
+
+    if (entitlementKey === "build" || entitlementKey === "website_builder") {
+      const { data: allowed, error } = await supabase.rpc("sgc_checkout_membership_allowed", { p_user: authenticatedUser.id });
+      if (error) throw new Error("Unable to verify SGC membership. Please try again.");
+      if (allowed !== true) return respond({success:false,error:"Purchase the R150 once-off SGC Membership first."},403);
     }
 
     // =========================================
@@ -414,6 +426,7 @@ Deno.serve(async (req) => {
           product_name: selectedName,
           amount_zar: finalAmount,
           billing,
+          entitlement_key: entitlementKey,
           checkout_url: checkoutUrl,
           status: "pending",
         })
