@@ -35,7 +35,7 @@ The Worker ignores reserved service hostnames, allows only its own public HTML/J
 
 `node --test tests/*.test.cjs`: 21 tests passed, including six new publishing/router tests. `tests/publishing-access.sql` passed in rolled-back transactions, including under the actual `service_role`: paid-access enforcement, private-field exclusion, snapshot isolation, republish, expiry, unpublish and reserved hostnames. All fixture writes were rolled back. Security advisors show no new externally exposed publication table/function findings; the private RLS table intentionally has no client policies.
 
-Direct HTTP verification of the Edge Function from this workspace/browser was blocked by network controls. Deployment was confirmed by the Supabase connector. A real signed-in Publish → anonymous page journey still needs live UI verification after the Pages release; subdomain verification requires the Cloudflare account steps above.
+Release PR #6 was merged as `b94ca8ba50859f4b51bb04ab0bf486adfcdb5859`. GitHub Pages run `38728660754` completed successfully. The live public page successfully called the deployed service and displayed its expected unavailable response for a nonexistent site. The live builder enforced sign-in. A real signed-in Publish → anonymous page journey still needs live UI verification; subdomain verification requires the Cloudflare account steps above. Direct navigation to the Supabase endpoint was restricted by browser network controls; calling it from the site worked.
 
 ## Rollback
 
