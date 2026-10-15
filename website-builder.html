@@ -342,6 +342,61 @@ if(['logo','menu','colour-theme','font','announcement-bar'].includes(page)){
   colorMode?.addEventListener('change',updateVisibility);
   updateVisibility();
  }
+ if(page==='menu' && fields){
+  const labels={
+   menuPosition:'The horizontal position of the menu items *',
+   menuSize:'The font size for the menu items (px) *',
+   menuColorMode:'The colour of the text and icons in the menu *',
+   menuColor:'Custom menu text colour',
+   menuBackgroundMode:'The background colour of the menu *',
+   menuBackground:'Custom menu background colour',
+   stickyMenu:'Does the menu stick to the top of the screen? *',
+   alwaysCollapsed:'Always collapse the menu (always display a hamburger menu) *',
+   hamburgerPosition:'The horizontal position of the hamburger menu icon *',
+   hamburgerIcon:'The icon for the hamburger menu *',
+   showSearch:'Show the search button in the top menu',
+   showCart:'Show the cart button in the top menu'
+  };
+  const groups=[
+   ['Menu preferences',['menuPosition','menuSize','menuColorMode','menuColor','menuBackgroundMode','menuBackground','stickyMenu']],
+   ['Collapsed menu preferences',['alwaysCollapsed','hamburgerPosition','hamburgerIcon']],
+   ['Extra buttons preferences',['showSearch','showCart']]
+  ];
+  const helps={
+   menuSize:'Suggested size: 14px.',
+   stickyMenu:'When enabled, the menu stays visible as visitors scroll down.',
+   alwaysCollapsed:'When enabled, the hamburger menu is used even on large screens.',
+   showCart:'The cart appears when your online store is active and has products. Manage store visibility in Products + online store options.'
+  };
+  for(const [heading,keys] of groups){
+   const h=document.createElement('h3');h.textContent=heading;h.className='sgc-logo-subheading';fields.append(h);
+   for(const key of keys){
+    const input=document.getElementById('studio-'+key);
+    const label=Array.from(fields.querySelectorAll('label')).find(x=>x.htmlFor==='studio-'+key);
+    if(!input||!label)continue;
+    label.textContent=labels[key];
+    fields.append(label,input);
+    if(helps[key]){const p=document.createElement('p');p.className='sgc-logo-help';p.textContent=helps[key];input.insertAdjacentElement('afterend',p);}
+    if(key==='menuSize'){input.placeholder='14';input.min='1';}
+    if(key==='menuPosition'||key==='hamburgerPosition')Array.from(input.options).forEach(o=>{if(o.value==='Right')o.textContent='Right (default)';});
+    if(key==='menuColorMode')Array.from(input.options).forEach(o=>{if(o.value==='Dark')o.textContent='Dark (default)';});
+    if(key==='menuBackgroundMode')Array.from(input.options).forEach(o=>{if(o.value==='White')o.textContent='White (default)';});
+    if(key==='showCart')Array.from(input.options).forEach(o=>{if(o.value==='Yes')o.textContent='Yes';});
+   }
+  }
+  const modes=[['menuColorMode','menuColor','Custom color'],['menuBackgroundMode','menuBackground','Custom color']];
+  function toggle(){
+   for(const [modeKey,colorKey,match] of modes){
+    const mode=document.getElementById('studio-'+modeKey),input=document.getElementById('studio-'+colorKey);
+    const label=Array.from(fields.querySelectorAll('label')).find(x=>x.htmlFor==='studio-'+colorKey);
+    const visible=mode?.value===match;
+    if(input)input.hidden=!visible;
+    if(label)label.hidden=!visible;
+   }
+  }
+  modes.forEach(([key])=>document.getElementById('studio-'+key)?.addEventListener('change',toggle));
+  toggle();
+ }
  if(section)section.hidden=false;
 }
 },200);
