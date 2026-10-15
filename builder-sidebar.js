@@ -33,7 +33,7 @@ function setup(){
  const group=document.createElement('details');group.open=false;
  const summary=document.createElement('summary');summary.textContent='Edit your website';group.append(summary);
  const entries=[
- ['Logo','logo'],['Menu','menu'],['Colour theme','colour-theme'],['Font','font'],
+ ['Logo','logo'],['Menu','menu'],['Announcement bar','announcement-bar'],['Colour theme','colour-theme'],['Font','font'],
  ['Home page preferences','homepage'],['Services','services'],['Products + online store options','products'],
  ['Photo gallery','gallery'],['Media: audio, video, PDF files','medias'],
  ['News + blog posts','posts'],['About us + team members','about'],
