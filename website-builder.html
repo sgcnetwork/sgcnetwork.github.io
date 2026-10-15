@@ -198,9 +198,66 @@ if(site?.id){window.sgcLoadBuilderReports?.(sb,site.id);window.sgcLoadBuilderPro
  }catch(e){msg.textContent='Website Studio could not load: '+e.message;}
 })();
 </script><script src="builder-sidebar.js?v=7be2d2b" defer></script><script>
-if(new URLSearchParams(location.search).get('editor')==='logo'){
-const st=document.createElement('style');st.textContent='body>header,main>.eyebrow,main>h1,main>.lead,#sgc-builder-sidebar,#builder>.status,#builder>.layout,#site-analytics,#site-orders,#promote-site,#domain-settings{display:none!important}main{margin:0!important;padding:12px!important;max-width:none!important}#builder:not(.hidden){display:grid!important;grid-template-columns:minmax(280px,390px) minmax(300px,1fr);gap:18px}#logo-edit-workspace{grid-column:1;grid-row:1}#site-preview-panel{grid-column:2;grid-row:1}@media(max-width:750px){#builder:not(.hidden){grid-template-columns:1fr}#site-preview-panel{grid-column:1;grid-row:2}}';document.head.append(st);
-const wait=setInterval(()=>{const menu=document.getElementById('studio-menu'),editor=document.getElementById('studio-editor'),builder=document.getElementById('builder');if(!menu||!editor||!builder)return;const b=Array.from(menu.querySelectorAll('button.studio-option')).find(x=>x.textContent.includes('Logo, menu, colours & fonts'));if(!b)return;clearInterval(wait);const workspace=document.createElement('section');workspace.id='logo-edit-workspace';workspace.className='panel';const heading=document.createElement('h2');heading.textContent='Edit logo';workspace.append(heading);builder.prepend(workspace);workspace.append(editor);b.click();},200);
+(function(){
+const page=new URLSearchParams(location.search).get('editor');
+if(!page)return;
+const config={
+logo:['branding','Logo settings'],menu:['menu-content','Menu settings'],
+'colour-theme':['theme','Colour theme'],font:['theme','Font settings'],
+homepage:['homepage','Home page preferences'],services:['services','Services'],
+products:['products','Products and online store'],gallery:['gallery','Photo gallery'],
+medias:['media','Media files'],posts:['blog','News and blog posts'],
+about:['team','About us and team members'],contact:['contact','Contact and social media'],
+'other-sections':['extras','Other sections'],settings:['settings','Newsletter and footer'],
+advanced:['advanced','Advanced options'],'advanced-store':['shopping','Advanced store options'],
+'site-name':['site-name','Site name and address']
+};
+if(!config[page])return;
+const css=document.createElement('style');
+css.textContent=`
+body>header,main>.eyebrow,main>h1,main>.lead,#sgc-builder-sidebar,#builder>.status,#builder>.layout,#site-analytics,#site-orders,#promote-site,#domain-settings{display:none!important}
+main{margin:0!important;padding:12px!important;max-width:none!important}
+#builder:not(.hidden){display:grid!important;grid-template-columns:minmax(300px,420px) minmax(300px,1fr);gap:18px;align-items:start}
+#editor-workspace{grid-column:1;grid-row:1;min-width:0}
+#site-preview-panel{grid-column:2;grid-row:1;position:sticky;top:10px}
+#editor-workspace .studio-editor{display:block!important;margin-top:14px;padding:0;border:0;box-shadow:none}
+#editor-workspace input,#editor-workspace select,#editor-workspace textarea{max-width:100%}
+#site-preview-panel .row-preview-heading h2{font-size:23px}
+@media(max-width:780px){#builder:not(.hidden){grid-template-columns:1fr}#site-preview-panel{grid-column:1;grid-row:2;position:static}#editor-workspace{grid-column:1;grid-row:1}}
+`;
+document.head.append(css);
+let attempts=0;
+const timer=setInterval(()=>{
+if(++attempts>100){clearInterval(timer);return;}
+const builder=document.getElementById('builder'),menu=document.getElementById('studio-menu'),editor=document.getElementById('studio-editor');
+if(!builder||!menu||!editor||builder.classList.contains('hidden'))return;
+const buttons=Array.from(menu.querySelectorAll('button.studio-option'));
+const names={'branding':'Logo, menu, colours & fonts','menu-content':'Edit menu content',theme:'Colour theme & font',homepage:'Homepage preferences',services:'Edit / add services',products:'Products & online store',gallery:'Photo gallery',media:'Media: video, audio & PDF',blog:'News & blog posts',team:'About us & team members',contact:'Contact, chat & social media',extras:'Other sections: donations & forms',settings:'Newsletter, footer & settings',advanced:'Advanced options & custom code',shopping:'Google Shopping & store options','site-name':'Site name & address'};
+const [section,title]=config[page];
+const button=buttons.find(b=>b.textContent.includes(names[section]));
+if(!button)return;
+clearInterval(timer);
+const workspace=document.createElement('section');workspace.id='editor-workspace';workspace.className='panel';
+const heading=document.createElement('h2');heading.textContent=title;workspace.append(heading);
+builder.prepend(workspace);
+if(page==='site-name'){
+const original=document.getElementById('name')?.closest('section');
+if(original){workspace.append(original);original.style.padding='0';original.style.border='0';original.style.boxShadow='none';}
+const note=document.createElement('p');note.className='muted';note.textContent='Save your changes in Website Builder before publishing.';workspace.append(note);
+return;
 }
+workspace.append(editor);
+button.click();
+if(['logo','menu','colour-theme','font'].includes(page)){
+const fields=document.getElementById('studio-editor-fields');
+const allowed=page==='logo'?['logo','favicon']:page==='menu'?['menu','hamburger','search','cart','sticky']:page==='font'?['font']:['theme','background','colour','color'];
+Array.from(fields.children).forEach(el=>{
+const label=(el.tagName==='LABEL'?el.textContent:el.previousElementSibling?.textContent||'').toLowerCase();
+const key=el.name?.toLowerCase()||el.id?.toLowerCase()||'';
+if(!allowed.some(w=>label.includes(w)||key.includes(w)))el.hidden=true;
+});
+}
+},200);
+})();
 </script></body></html>
 
