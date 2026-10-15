@@ -478,6 +478,8 @@ const css=document.createElement('style');css.textContent='body>header,main>.eye
 #preview .sgc-mobile-dropdown a{padding:12px 14px;border-radius:10px;color:inherit;text-decoration:none;font-size:14px}
 #preview .sgc-mobile-dropdown a:hover{background:#f6edf4}
 #preview-shell.mobile .sgc-preview-navlinks,#preview-shell.mobile .sgc-preview-actions>.sgc-cart-outside{display:none!important}
+#preview-shell.mobile .sgc-preview-actions>span:not(.sgc-preview-menu-toggle){display:none!important}
+#preview-shell.mobile .sgc-preview-actions{display:flex;align-items:center}
 #preview-shell.mobile .preview-top{position:relative}
 #preview-shell.mobile .sgc-preview-menu-toggle{display:inline-block!important}
 </style>
@@ -490,14 +492,25 @@ function update(){
  let button=actions.querySelector('.sgc-preview-menu-toggle');
  if(!button){button=document.createElement('button');button.type='button';button.className='sgc-preview-menu-toggle';button.setAttribute('aria-label','Open navigation menu');button.setAttribute('aria-expanded','false');button.textContent='☰';actions.append(button);}
  const spans=Array.from(actions.children).filter(n=>n!==button);
- spans.forEach(n=>{if(n.textContent.includes('🛒'))n.classList.add('sgc-cart-outside');if(n.textContent.trim()==='☰'||n.textContent.trim()==='≡'||n.textContent.trim()==='⋮')n.remove();});
+ spans.forEach(n=>{if(n.textContent.includes('🛒'))n.classList.add('sgc-cart-outside');if(['☰','≡','⋮'].includes(n.textContent.trim()))n.remove();});
  let panel=top.querySelector('.sgc-mobile-dropdown');if(!panel){panel=document.createElement('nav');panel.className='sgc-mobile-dropdown';panel.id='sgc-preview-dropdown';top.append(panel);}
  button.setAttribute('aria-controls',panel.id);
  button.onclick=e=>{e.stopPropagation();open=!open;panel.classList.toggle('is-open',open);button.setAttribute('aria-expanded',String(open));button.setAttribute('aria-label',open?'Close navigation menu':'Open navigation menu');button.textContent=open?'✕':'☰';};
  const nav=root.querySelector('.sgc-preview-navlinks');panel.replaceChildren();
  const links=nav?Array.from(nav.children).map(n=>n.textContent.trim()).filter(Boolean):['Home','Products','Services','Contact'];
- links.forEach(label=>{const a=document.createElement('a');a.href='#';a.textContent=label;a.onclick=e=>{e.preventDefault();open=false;panel.classList.remove('is-open');button.setAttribute('aria-expanded','false');button.textContent='☰';};panel.append(a);});
- const cart=document.createElement('a');cart.href='#';cart.textContent='🛒 Cart';cart.setAttribute('aria-label','Cart');cart.onclick=e=>{e.preventDefault();};panel.append(cart);
+ const destinations={'Home':'','Products':'products','Services':'services','Contact':'contact','Contact us':'contact','About us':'about','Pictures':'gallery','Photo gallery':'gallery','News':'news','Team members':'team'};
+ const slug=(document.getElementById('slug')?.value||'').trim().toLowerCase();
+ const published=slug&&/^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)?'https://'+slug+'.sgcnetwork.co.za/':'';
+ links.forEach(label=>{
+  const a=document.createElement('a');a.textContent=label;
+  const path=destinations[label];
+  if(path!==undefined&&published){a.href=published+(path?'#'+path:'');a.target='_blank';a.rel='noopener noreferrer';}
+  else{a.href='#';a.title='This menu item needs a linked page';a.onclick=e=>{e.preventDefault();};}
+  panel.append(a);
+ });
+ const cart=document.createElement('a');cart.href=published?published+'#cart':'#';cart.textContent='🛒 Cart';cart.setAttribute('aria-label','Cart');
+ if(!published)cart.onclick=e=>e.preventDefault();
+ panel.append(cart);
  panel.classList.toggle('is-open',open);button.textContent=open?'✕':'☰';
 }
 let pending=false;const observer=new MutationObserver(()=>{if(pending)return;pending=true;requestAnimationFrame(()=>{pending=false;observer.disconnect();update();observer.observe(root,{childList:true,subtree:true});});});
