@@ -127,7 +127,7 @@ const sections=[
 ['bars','Announcement & contact bars','Configure top announcement and contact information bars.',[['announcementEnabled','Show announcement bar','choice:No|Yes'],['announcementText','Announcement text','text'],['announcementTextColor','Announcement text colour','color'],['announcementBgMode','Announcement background','choice:Theme color|Custom color'],['announcementBg','Custom announcement background','color'],['contactBarEnabled','Show contact details bar','choice:No|Yes']]],
 ['theme','Colour theme & font','Choose your site-wide colour palette and font.',[['siteFont','Site font','choice:Open Sans|Arial|Georgia|Trebuchet MS|Verdana'],['siteTheme','Theme','choice:Pastel|Classic|Minimal|Dark'],['siteBackground','Custom site background','color'],['themePrimary','Your primary colour','color'],['themeSecondary','Your secondary colour','color'],['themeMode','Colour selection','choice:Predefined|Custom']]],
 ['home-layout','Homepage header & sections','Control the header and which homepage sections appear, their titles and order.',[['homeButtonTarget','Header button destination','choice:Products|Services|Contact us|About us'],['homeButtonText','Header button text','text'],['homeBackgroundType','Header background type','choice:Theme color|Custom color'],['homeBackground','Header background colour','color']]],
-['homepage','Homepage preferences','Edit the headline, welcome message and homepage call to action.',[['headline','Homepage headline','text'],['welcome','Welcome message','textarea'],['cta','Button label','text'],['homeMediaUrl','Header media URL','url'],['homeMediaType','Header media type','choice:Image|Video']]],
+['homepage','Homepage preferences','Edit the headline, welcome message and homepage call to action.',[['headline','Homepage headline','text'],['welcome','Welcome message','textarea'],['cta','Button label','text'],['homeMediaUrl','Header media URL','url'],['homeMediaType','Header media type','choice:Image|Video'],['homeMediaX','Header horizontal position','number'],['homeMediaY','Header vertical position','number']]],
 ['services','Edit / add services','Manage your services and how the section appears on your website.',[['servicesTitle','Section title','text'],['servicesMobileColumns','Items side-by-side on mobile','choice:1|2'],['servicesDesktopColumns','Items side-by-side on desktop','choice:3|4'],['servicesMenuVisible','Show services in top menu','choice:Yes|No'],['servicesMenuLabel','Menu label','text'],['servicesHideEmpty','Hide menu link when there are no services','choice:Yes|No'],['servicesHomeVisible','Show services on homepage','choice:Yes|No'],['servicesPageHeader','Show title on services page','choice:Yes|No'],['servicesHeaderBackgroundMode','Page title background','choice:Light|Dark|Theme color|Custom color'],['servicesHeaderBackground','Custom header background colour','color'],['servicesHeaderTextMode','Page title text colour','choice:Light|Dark|Theme color|Custom color'],['servicesHeaderText','Custom title text colour','color'],['servicesHeaderFontSize','Page title font size (px)','number'],['servicesHeaderAlignment','Page title alignment','choice:Left|Center|Right'],['servicesHeaderMargin','Page title margin','choice:Normal (60px)|Custom'],['servicesHeaderCustomMargin','Custom title margin (px)','number'],['servicesDescription','Services section description','textarea']]],
 ['products','Products & online store','Create products with descriptions, images, variants, stock and prices.',[['delivery','Delivery and collection information','textarea']]],
 ['gallery','Photo gallery','Add photo links for your gallery.',[['photos','Image URLs (one per line)','textarea']]],
@@ -473,7 +473,7 @@ workspace.append(editor);
 button.click();
 if(page==='homepage'){
  const fields=document.getElementById('studio-editor-fields');
- for(const key of ['homeMediaUrl','homeMediaType']){
+ for(const key of ['homeMediaUrl','homeMediaType','homeMediaX','homeMediaY']){
   const input=document.getElementById('studio-'+key);if(input){input.hidden=true;input.style.display='none';}
   fields.querySelector('label[for="studio-'+key+'"]')?.remove();
  }
@@ -492,6 +492,48 @@ if(page==='homepage'){
  };
  remove.onclick=()=>{apply('','Image');note.textContent='Header media removed. Save this section to keep the change.';};
  fields.append(label,upload,note,remove);
+ const position=document.createElement('button');position.type='button';position.className='button soft';position.textContent='Move picture';position.style.margin='12px 8px 0 0';
+ const savePosition=document.createElement('button');savePosition.type='button';savePosition.className='button';savePosition.textContent='Save picture position';savePosition.hidden=true;
+ const help=document.createElement('p');help.className='muted';help.setAttribute('role','status');
+ fields.append(position,savePosition,help);
+ const hero=document.getElementById('hero');
+ let editing=false,drag=null,moved=false;
+ const clamp=value=>Math.max(0,Math.min(100,value));
+ function setPosition(x,y){
+  const draft=window.sgcGetBuilderDraft?.();if(!draft)return;
+  draft.homeMediaX=clamp(x);draft.homeMediaY=clamp(y);
+  document.getElementById('studio-homeMediaX').value=draft.homeMediaX;
+  document.getElementById('studio-homeMediaY').value=draft.homeMediaY;
+  const media=hero.querySelector('img[data-header-media],video[data-header-media]');
+  if(media)media.style.objectPosition=draft.homeMediaX+'% '+draft.homeMediaY+'%';
+ }
+ function edit(value){
+  editing=value;hero.style.cursor=value?'grab':'';hero.style.touchAction=value?'none':'';
+  position.textContent=value?'Finish moving':'Move picture';savePosition.hidden=!value;
+ }
+ position.onclick=()=>{
+  if(!hero.querySelector('img[data-header-media],video[data-header-media]')){help.textContent='Upload a picture or video first.';return;}
+  edit(!editing);help.textContent=editing?'Drag the picture in the preview to frame it. Then save its position.':'';
+ };
+ hero.addEventListener('pointerdown',event=>{
+  if(!editing||event.button!==0)return;
+  const media=hero.querySelector('img[data-header-media],video[data-header-media]');if(!media)return;
+  event.preventDefault();event.stopPropagation();
+  const draft=window.sgcGetBuilderDraft?.()||{};
+  const width=media.naturalWidth||media.videoWidth||hero.clientWidth,height=media.naturalHeight||media.videoHeight||hero.clientHeight;
+  const scale=Math.max(hero.clientWidth/width,hero.clientHeight/height);
+  drag={id:event.pointerId,x:event.clientX,y:event.clientY,px:Number(draft.homeMediaX??50),py:Number(draft.homeMediaY??50),cropX:Math.max(0,width*scale-hero.clientWidth),cropY:Math.max(0,height*scale-hero.clientHeight)};
+  moved=false;hero.setPointerCapture(event.pointerId);hero.style.cursor='grabbing';
+ },true);
+ hero.addEventListener('pointermove',event=>{
+  if(!drag||event.pointerId!==drag.id)return;event.preventDefault();
+  const dx=event.clientX-drag.x,dy=event.clientY-drag.y;moved=moved||Math.abs(dx)+Math.abs(dy)>3;
+  setPosition(drag.cropX>0?drag.px-dx/drag.cropX*100:drag.px,drag.cropY>0?drag.py-dy/drag.cropY*100:drag.py);
+ });
+ const finish=event=>{if(!drag||event.pointerId!==drag.id)return;drag=null;if(hero.hasPointerCapture(event.pointerId))hero.releasePointerCapture(event.pointerId);hero.style.cursor=editing?'grab':'';help.textContent='Position adjusted. Click Save picture position to keep it.';};
+ hero.addEventListener('pointerup',finish);hero.addEventListener('pointercancel',finish);
+ hero.addEventListener('click',event=>{if(editing||moved){event.preventDefault();event.stopImmediatePropagation();moved=false;}},true);
+ savePosition.onclick=()=>{edit(false);document.getElementById('studio-section-save').click();help.textContent='Position included in your design. Check the save status below.';};
 }
 if(['logo','menu','colour-theme','font','announcement-bar'].includes(page)){
  const fields=document.getElementById('studio-editor-fields');
@@ -882,6 +924,9 @@ const css=document.createElement('style');css.textContent='body>header,main>.eye
    if(/^https:\/\//i.test(p.homeMediaUrl||'')){
     const media=document.createElement(p.homeMediaType==='Video'?'video':'img');media.dataset.headerMedia='true';media.src=p.homeMediaUrl;
     media.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2';
+    const coordinate=value=>Math.max(0,Math.min(100,Number.isFinite(Number(value))&&value!==''?Number(value):50));
+    media.style.objectPosition=coordinate(p.homeMediaX??50)+'% '+coordinate(p.homeMediaY??50)+'%';
+    media.draggable=false;
     if(media.tagName==='VIDEO'){media.autoplay=true;media.muted=true;media.loop=true;media.playsInline=true;media.setAttribute('muted','');media.setAttribute('playsinline','');}else media.alt='';
     const shade=document.createElement('div');shade.dataset.headerMedia='true';shade.style.cssText='position:absolute;inset:0;background:rgba(0,0,0,.4);z-index:-1;pointer-events:none';
     hero.prepend(media,shade);hero.style.color='#ffffff';
