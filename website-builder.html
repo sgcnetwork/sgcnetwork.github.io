@@ -683,6 +683,16 @@ const css=document.createElement('style');css.textContent='body>header,main>.eye
   // Always place the actions after the navigation at the far right.
   top.append(actions);
   Array.from(actions.children).forEach(el=>{if(!el.classList.contains('sgc-preview-menu-toggle'))el.remove();});
+  const currentSettings=window.sgcGetBuilderDraft?.()||{};
+  for(const item of [{key:'showSearch',label:'Search',glyph:'⌕'},{key:'showCart',label:'Cart',glyph:'🛒'}]){
+    if((currentSettings[item.key]|| (item.key==='showCart'?'Yes':'No'))!=='Yes')continue;
+    const extra=document.createElement('button');
+    extra.type='button';extra.textContent=item.glyph;
+    extra.setAttribute('aria-label',item.label);
+    extra.style.cssText='border:0;background:transparent;padding:4px 7px;cursor:pointer;font-size:19px;color:inherit';
+    extra.onclick=()=>navigate(item.label);
+    actions.append(extra);
+  }
   let button=actions.querySelector('.sgc-preview-menu-toggle');
   if(!button){button=document.createElement('button');button.type='button';button.className='sgc-preview-menu-toggle';button.setAttribute('aria-label','Open menu');actions.append(button);}
   // Render the dropdown outside the clipped preview so the menu remains visible.
@@ -726,7 +736,7 @@ const css=document.createElement('style');css.textContent='body>header,main>.eye
   panel.style.setProperty('--sgc-menu-ink',currentMenuColor);
   panel.replaceChildren();
   (mobile||force?labels:overflow).forEach(label=>{const item=document.createElement('button');item.type='button';item.textContent=label;item.style.setProperty('color',currentMenuColor,'important');item.onclick=()=>navigate(label);panel.append(item);});
-  if(show){const cart=document.createElement('button');cart.type='button';cart.textContent='🛒 Cart';cart.style.setProperty('color',currentMenuColor,'important');cart.onclick=()=>navigate('Cart');panel.append(cart);}
+  if(show&&currentSettings.showCart!=='No'){const cart=document.createElement('button');cart.type='button';cart.textContent='🛒 Cart';cart.style.setProperty('color',currentMenuColor,'important');cart.onclick=()=>navigate('Cart');panel.append(cart);}
   button.onclick=e=>{e.stopPropagation();opened=!opened;panel.classList.toggle('is-open',opened);button.textContent=opened?'✕':(typeof draft!=='undefined'&&draft.hamburgerIcon||'☰');button.setAttribute('aria-expanded',String(opened));};
   button.textContent=opened?'✕':(typeof draft!=='undefined'&&draft.hamburgerIcon||'☰');button.setAttribute('aria-expanded',String(opened));
   panel.classList.toggle('is-open',opened&&show);
