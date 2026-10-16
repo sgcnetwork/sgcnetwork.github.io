@@ -127,7 +127,7 @@ const sections=[
 ['bars','Announcement & contact bars','Configure top announcement and contact information bars.',[['announcementEnabled','Show announcement bar','choice:No|Yes'],['announcementText','Announcement text','text'],['announcementTextColor','Announcement text colour','color'],['announcementBgMode','Announcement background','choice:Theme color|Custom color'],['announcementBg','Custom announcement background','color'],['contactBarEnabled','Show contact details bar','choice:No|Yes']]],
 ['theme','Colour theme & font','Choose your site-wide colour palette and font.',[['siteFont','Site font','choice:Open Sans|Arial|Georgia|Trebuchet MS|Verdana'],['siteTheme','Theme','choice:Pastel|Classic|Minimal|Dark'],['siteBackground','Custom site background','color'],['themePrimary','Your primary colour','color'],['themeSecondary','Your secondary colour','color'],['themeMode','Colour selection','choice:Predefined|Custom']]],
 ['home-layout','Homepage header & sections','Control the header and which homepage sections appear, their titles and order.',[['homeButtonTarget','Header button destination','choice:Products|Services|Contact us|About us'],['homeButtonText','Header button text','text'],['homeBackgroundType','Header background type','choice:Theme color|Custom color'],['homeBackground','Header background colour','color']]],
-['homepage','Homepage preferences','Edit the headline, welcome message and homepage call to action.',[['headline','Homepage headline','text'],['welcome','Welcome message','textarea'],['cta','Button label','text']]],
+['homepage','Homepage preferences','Edit the headline, welcome message and homepage call to action.',[['headline','Homepage headline','text'],['welcome','Welcome message','textarea'],['cta','Button label','text'],['homeMediaUrl','Header media URL','url'],['homeMediaType','Header media type','choice:Image|Video']]],
 ['services','Edit / add services','Manage your services and how the section appears on your website.',[['servicesTitle','Section title','text'],['servicesMobileColumns','Items side-by-side on mobile','choice:1|2'],['servicesDesktopColumns','Items side-by-side on desktop','choice:3|4'],['servicesMenuVisible','Show services in top menu','choice:Yes|No'],['servicesMenuLabel','Menu label','text'],['servicesHideEmpty','Hide menu link when there are no services','choice:Yes|No'],['servicesHomeVisible','Show services on homepage','choice:Yes|No'],['servicesPageHeader','Show title on services page','choice:Yes|No'],['servicesHeaderBackgroundMode','Page title background','choice:Light|Dark|Theme color|Custom color'],['servicesHeaderBackground','Custom header background colour','color'],['servicesHeaderTextMode','Page title text colour','choice:Light|Dark|Theme color|Custom color'],['servicesHeaderText','Custom title text colour','color'],['servicesHeaderFontSize','Page title font size (px)','number'],['servicesHeaderAlignment','Page title alignment','choice:Left|Center|Right'],['servicesHeaderMargin','Page title margin','choice:Normal (60px)|Custom'],['servicesHeaderCustomMargin','Custom title margin (px)','number'],['servicesDescription','Services section description','textarea']]],
 ['products','Products & online store','Create products with descriptions, images, variants, stock and prices.',[['delivery','Delivery and collection information','textarea']]],
 ['gallery','Photo gallery','Add photo links for your gallery.',[['photos','Image URLs (one per line)','textarea']]],
@@ -390,7 +390,7 @@ window.sgcLoadBuilderPromotion=async(sb,siteId)=>{currentSb=sb;currentSite=siteI
  gate.classList.add('hidden');builder.classList.remove('hidden');if(window.sgcInitBuilderSections)window.sgcInitBuilderSections(user.id);
 window.sgcSaveBuilderPreferences=async preferences=>{const {data:saved,error}=await sb.from('sgc_student_websites').upsert({user_id:user.id,builder_preferences:preferences,updated_at:new Date().toISOString()},{onConflict:'user_id'}).select('id').single();if(error)throw error;if(!saved)throw Error('Your changes were not saved. Check your subscription.');};
 window.sgcUploadBuilderDigital=async(file,itemId)=>{if(file.size>52428800)throw Error('Digital files must be under 50 MB.');const ext=(file.name.split('.').pop()||'bin').toLowerCase().replace(/[^a-z0-9]/g,'');const path=user.id+'/'+itemId+'/'+crypto.randomUUID()+'.'+ext;const {error}=await sb.storage.from('sgc-builder-digital').upload(path,file,{contentType:file.type||'application/octet-stream'});if(error)throw Error('Protected upload unavailable: '+error.message);return {path,name:file.name,size:file.size,mimeType:file.type};};
-window.sgcUploadBuilderImage=async(file,kind)=>{const ext=(file.name.split('.').pop()||'png').toLowerCase();if(!['png','jpg','jpeg','webp','ico'].includes(ext))throw Error('Unsupported image format');const path=user.id+'/'+kind+'-'+crypto.randomUUID()+'.'+ext;const {error}=await sb.storage.from('sgc-builder-assets').upload(path,file,{contentType:file.type||'image/png'});if(error)throw error;return sb.storage.from('sgc-builder-assets').getPublicUrl(path).data.publicUrl;};
+window.sgcUploadBuilderImage=async(file,kind)=>{const ext=(file.name.split('.').pop()||'png').toLowerCase();if(!(kind==='hero-media'?['png','jpg','jpeg','webp','mp4','webm']:['png','jpg','jpeg','webp','ico']).includes(ext))throw Error('Unsupported media format');if(file.size>(kind==='hero-media'&&['mp4','webm'].includes(ext)?52428800:5242880))throw Error('File is too large');const path=user.id+'/'+kind+'-'+crypto.randomUUID()+'.'+ext;const {error}=await sb.storage.from('sgc-builder-assets').upload(path,file,{contentType:file.type||'image/png'});if(error)throw error;return sb.storage.from('sgc-builder-assets').getPublicUrl(path).data.publicUrl;};
 if(site?.id){window.sgcLoadBuilderReports?.(sb,site.id);window.sgcLoadBuilderPromotion?.(sb,site.id);}else{document.getElementById('builder-orders-table').textContent='No orders were placed on your site yet.';document.getElementById('orders-note').textContent='Save your website design to enable reporting.';}if(site?.builder_preferences&&Object.keys(site.builder_preferences).length){try{localStorage.setItem('sgc-builder-sections-'+user.id,JSON.stringify(site.builder_preferences));window.sgcInitBuilderSections(user.id);}catch(e){}}
  const saveDraft=async()=>{
  const value=id=>document.getElementById(id).value;
@@ -471,6 +471,28 @@ return;
 }
 workspace.append(editor);
 button.click();
+if(page==='homepage'){
+ const fields=document.getElementById('studio-editor-fields');
+ for(const key of ['homeMediaUrl','homeMediaType']){
+  const input=document.getElementById('studio-'+key);if(input){input.hidden=true;input.style.display='none';}
+  fields.querySelector('label[for="studio-'+key+'"]')?.remove();
+ }
+ const label=document.createElement('label');label.textContent='Header background picture or video';
+ const upload=document.createElement('input');upload.type='file';upload.accept='image/png,image/jpeg,image/webp,video/mp4,video/webm';upload.setAttribute('aria-label',label.textContent);
+ const note=document.createElement('p');note.className='muted';note.setAttribute('role','status');note.textContent='Upload a picture (up to 5 MB) or MP4/WebM video (up to 50 MB). Videos play muted behind your heading.';
+ const remove=document.createElement('button');remove.type='button';remove.className='button soft';remove.textContent='Remove header media';
+ const apply=(url,type)=>{for(const [key,value] of [['homeMediaUrl',url],['homeMediaType',type]]){const field=document.getElementById('studio-'+key);field.value=value;field.dispatchEvent(new Event('input',{bubbles:true}));}};
+ upload.onchange=async()=>{
+  const file=upload.files?.[0];if(!file)return;
+  const video=['video/mp4','video/webm'].includes(file.type);
+  if(!video&&!['image/png','image/jpeg','image/webp'].includes(file.type)){note.textContent='Choose a PNG, JPG, WebP, MP4 or WebM file.';return;}
+  if(file.size>(video?52428800:5242880)){note.textContent=video?'Video must be under 50 MB.':'Picture must be under 5 MB.';return;}
+  upload.disabled=true;note.textContent='Uploading…';
+  try{const url=await window.sgcUploadBuilderImage(file,'hero-media');apply(url,video?'Video':'Image');note.textContent='Uploaded. Save this section to keep your header media.';}catch(error){note.textContent='Upload failed: '+error.message;}finally{upload.disabled=false;upload.value='';}
+ };
+ remove.onclick=()=>{apply('','Image');note.textContent='Header media removed. Save this section to keep the change.';};
+ fields.append(label,upload,note,remove);
+}
 if(['logo','menu','colour-theme','font','announcement-bar'].includes(page)){
  const fields=document.getElementById('studio-editor-fields');
  const section=document.getElementById('studio-editor');
@@ -559,7 +581,7 @@ if(['logo','menu','colour-theme','font','announcement-bar'].includes(page)){
   const primary=document.getElementById('studio-themePrimary'),secondary=document.getElementById('studio-themeSecondary'),mode=document.getElementById('studio-themeMode');
   const labelFor=id=>fields.querySelector('label[for="'+id+'"]');
   for(const id of ['studio-siteTheme','studio-siteBackground','studio-themeMode']){
-   const input=document.getElementById(id),label=labelFor(id);if(input)input.hidden=true;if(label)label.hidden=true;
+   const input=document.getElementById(id),label=labelFor(id);if(input){input.hidden=true;input.style.setProperty('display','none','important');}if(label)label.remove();
   }
   const makeGroup=(text)=>{const group=document.createElement('details');group.className='sgc-menu-pref-disclosure';const summary=document.createElement('summary');summary.textContent=text;const body=document.createElement('div');body.className='sgc-menu-pref-body';group.append(summary,body);fields.append(group);return [group,body];};
   const [predefined,palettes]=makeGroup('Select a predefined color theme');
@@ -850,6 +872,20 @@ const css=document.createElement('style');css.textContent='body>header,main>.eye
   if(valid(secondary)){
    root.querySelectorAll('.button').forEach(button=>{button.style.background=secondary;button.style.color=ink(secondary);});
    root.querySelectorAll('.sgc-preview-section a').forEach(link=>link.style.color=secondary);
+  }
+  const hero=root.querySelector('#hero');
+  if(hero){
+   hero.querySelectorAll('[data-header-media]').forEach(node=>node.remove());
+   hero.style.position='relative';hero.style.overflow='hidden';hero.style.isolation='isolate';
+   hero.style.backgroundImage='';
+   hero.querySelectorAll(':scope > :not([data-header-media])').forEach(node=>{node.style.position='relative';node.style.zIndex='1';});
+   if(/^https:\/\//i.test(p.homeMediaUrl||'')){
+    const media=document.createElement(p.homeMediaType==='Video'?'video':'img');media.dataset.headerMedia='true';media.src=p.homeMediaUrl;
+    media.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2';
+    if(media.tagName==='VIDEO'){media.autoplay=true;media.muted=true;media.loop=true;media.playsInline=true;media.setAttribute('muted','');media.setAttribute('playsinline','');}else media.alt='';
+    const shade=document.createElement('div');shade.dataset.headerMedia='true';shade.style.cssText='position:absolute;inset:0;background:rgba(0,0,0,.4);z-index:-1;pointer-events:none';
+    hero.prepend(media,shade);hero.style.color='#ffffff';
+   }
   }
   update();
   return result;
