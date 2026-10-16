@@ -372,7 +372,7 @@ function renderDomains(){const host=$('domain-requests');host.replaceChildren();
 $('request-domain').onclick=async()=>{if(!currentSite||!currentSb){$('domain-feedback').textContent='Save your website design before requesting a custom domain.';return;}const domain=$('domain-name').value.trim().toLowerCase().replace(/^https?:\/\//,'').replace(/\/$/,'');if(!/^(?=.{4,253}$)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,24}$/.test(domain)){$('domain-feedback').textContent='Enter a valid domain such as mybusiness.co.za (without https://).';return;}const btn=$('request-domain');btn.disabled=true;try{const {data,error}=await currentSb.from('sgc_builder_domains').insert({website_id:currentSite,domain,kind:$('domain-type').value,status:'requested'}).select('domain,status').single();if(error)throw error;domainRows.unshift(data);renderDomains();$('domain-feedback').textContent='Request submitted. This does not register or activate the domain. SGC will need to confirm the upgrade price and setup.';}catch(e){$('domain-feedback').textContent='Could not submit request: '+e.message;}finally{btn.disabled=false;}};
 window.sgcLoadBuilderPromotion=async(sb,siteId)=>{currentSb=sb;currentSite=siteId;updateAddress();const [s,d]=await Promise.all([sb.from('sgc_builder_subscribers').select('email,subscribed_at,unsubscribed_at').eq('website_id',siteId).order('subscribed_at',{ascending:false}),sb.from('sgc_builder_domains').select('domain,status,kind,created_at').eq('website_id',siteId).order('created_at',{ascending:false})]);if(s.error){$('subscriber-status').textContent='Unable to load subscribers: '+s.error.message;}else{subscribers=s.data||[];$('subscriber-status').textContent=subscribers.length?subscribers.length+' recorded subscribers':'No subscribers have signed up yet. Newsletter collection is not connected yet.';const host=$('subscriber-list');host.replaceChildren();subscribers.slice(0,30).forEach(item=>{const p=document.createElement('p');p.textContent=item.email;host.append(p);});}if(d.error){$('domain-requests').textContent='Unable to load domain requests: '+d.error.message;}else{domainRows=d.data||[];renderDomains();}};
 })();
-</script><script src="builder-preview.js"></script><script src="builder-publishing.js?v=1"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3"></script><script>
+</script><script src="builder-preview.js?v=search-cart-2"></script><script src="builder-publishing.js?v=1"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3"></script><script>
 (async function(){
  const gate=document.getElementById('gate'),msg=document.getElementById('gate-message'),builder=document.getElementById('builder');
  const sb=window.sgcSupabase||window.supabase.createClient('https://bxpexanyoyubxeqqlggh.supabase.co','sb_publishable_Z0_Y-Bj_G5qw4hMgDbQlgA__jj8rGGq');
@@ -455,7 +455,7 @@ if(++attempts>100){clearInterval(timer);return;}
 const builder=document.getElementById('builder'),menu=document.getElementById('studio-menu'),editor=document.getElementById('studio-editor');
 if(!builder||!menu||!editor||builder.classList.contains('hidden'))return;
 const buttons=Array.from(menu.querySelectorAll('button.studio-option'));
-const names={'branding':'Logo, menu, colours & fonts','menu-content':'Edit menu content',theme:'Colour theme & font',homepage:'Homepage preferences',services:'Edit / add services',products:'Products & online store',gallery:'Photo gallery',media:'Media: video, audio & PDF',blog:'News & blog posts',team:'About us & team members',contact:'Contact, chat & social media',extras:'Other sections: donations & forms',settings:'Newsletter, footer & settings',advanced:'Advanced options & custom code',shopping:'Google Shopping & store options','site-name':'Site name & address'};
+const names={bars:'Announcement & contact bars','branding':'Logo, menu, colours & fonts','menu-content':'Edit menu content',theme:'Colour theme & font',homepage:'Homepage preferences',services:'Edit / add services',products:'Products & online store',gallery:'Photo gallery',media:'Media: video, audio & PDF',blog:'News & blog posts',team:'About us & team members',contact:'Contact, chat & social media',extras:'Other sections: donations & forms',settings:'Newsletter, footer & settings',advanced:'Advanced options & custom code',shopping:'Google Shopping & store options','site-name':'Site name & address'};
 const [section,title]=config[page];
 const button=buttons.find(b=>b.textContent.includes(names[section]));
 if(!button)return;
@@ -753,6 +753,7 @@ const css=document.createElement('style');css.textContent='body>header,main>.eye
  let opened=false,scheduled=false;
  const destinations={'Home':null,'Products':'products','Services':'services','Contact':'contact','Contact us':'contact','About us':'about','Pictures':'gallery','Photo gallery':'gallery','News':'news','Team members':'team'};
  function navigate(label){
+  if(window.sgcNavigatePreview){window.sgcNavigatePreview(label);opened=false;document.getElementById('sgc-preview-overflow-panel')?.classList.remove('is-open');return;}
   opened=false;
   const menu=document.getElementById('sgc-preview-overflow-panel');menu?.classList.remove('is-open');
   const toggle=root.querySelector('.sgc-preview-menu-toggle');if(toggle){toggle.textContent='☰';toggle.setAttribute('aria-expanded','false');}
@@ -802,7 +803,7 @@ const css=document.createElement('style');css.textContent='body>header,main>.eye
   panel.style.overscrollBehavior='contain';
   const renderedLabels=Array.from(nav.children).map(n=>n.textContent.trim()).filter(Boolean);
   // Read the current edited menu, not only the links that fit in the header.
-  const menuDraft=typeof draft!=='undefined'&&Array.isArray(draft.menuEntries)?draft.menuEntries:null;
+  const menuDraft=Array.isArray(currentSettings.menuEntries)?currentSettings.menuEntries:null;
   const labels=menuDraft?menuDraft.filter(e=>e.visible!==false).map(e=>e.label||e.id).filter(Boolean):renderedLabels;
   const mobile=shell.classList.contains('mobile');
   const force=currentSettings.alwaysCollapsed==='Yes';
@@ -825,7 +826,7 @@ const css=document.createElement('style');css.textContent='body>header,main>.eye
   nav.style.order='1';actions.style.order='2';actions.style.marginLeft='auto';
   button.hidden=!show;
   if(!show)opened=false;
-  const currentMenuColor=typeof draft!=='undefined'&&draft.menuColorMode==='Custom color'?(draft.menuColor||'#342b35'):'#342b35';
+  const currentMenuColor=currentSettings.menuColorMode==='Custom color'?(currentSettings.menuColor||'#342b35'):'#342b35';
   panel.style.setProperty('--sgc-menu-ink',currentMenuColor);
   panel.replaceChildren();
   (mobile||force?labels:overflow).forEach(label=>{const item=document.createElement('button');item.type='button';item.textContent=label;item.style.setProperty('color',currentMenuColor,'important');item.onclick=()=>navigate(label);panel.append(item);});
