@@ -308,7 +308,7 @@ if(p.siteBackground)root.style.background=p.siteBackground;
 const oldBars=root.querySelectorAll('.sgc-top-bar');oldBars.forEach(x=>x.remove());
 const top=root.querySelector('.preview-top');
 if(p.contactBarEnabled==='Yes'){const b=document.createElement('div');b.className='sgc-top-bar';b.style.cssText='padding:8px 16px;text-align:center;font-size:12px;background:#faf4f8';b.textContent=[p.email,p.phone].filter(Boolean).join('  •  ')||'Add your email and phone under Contact';root.prepend(b);}
-if(p.announcementEnabled==='Yes'){const b=document.createElement('div');b.className='sgc-top-bar';b.style.cssText='padding:10px 16px;text-align:center;font-weight:bold';b.style.color=p.announcementTextColor||'#342b35';b.style.background=p.announcementBgMode==='Custom color'?(p.announcementBg||'#f3e2e9'):'#f3e2e9';b.textContent=p.announcementText||'Your announcement here';root.prepend(b);}
+if(p.announcementEnabled==='Yes'){const b=document.createElement('div');b.className='sgc-top-bar';b.style.cssText='padding:10px 16px;text-align:center;font-weight:bold';b.style.color=p.announcementTextColor||'#342b35';b.style.background=p.announcementBgMode==='Custom color'?(p.announcementBg||'#f3e2e9'):(document.getElementById('accent')?.value||'#f3e2e9');b.textContent=p.announcementText||'Your announcement here';root.prepend(b);}
 const hero=document.getElementById('hero');if(p.homeBackgroundType==='Custom color'&&p.homeBackground)hero.style.background=p.homeBackground;
 const nav=root.querySelector('.sgc-preview-navlinks');if(nav)nav.remove();
 if(p.menu){const n=node('nav',null,root.querySelector('.preview-top'),'sgc-preview-navlinks');lines(String(p.menu).replace(/,/g,'\n')).slice(0,8).forEach(t=>node('span',t,n));}
@@ -549,6 +549,64 @@ if(['logo','menu','colour-theme','font','announcement-bar'].includes(page)){
   logoStyle?.addEventListener('change',updateVisibility);
   colorMode?.addEventListener('change',updateVisibility);
   updateVisibility();
+ }
+
+ if(page==='announcement-bar' && fields){
+  if(title)title.textContent='Edit your announcement and contact bar preferences';
+  const snapshot=JSON.parse(JSON.stringify(window.sgcGetBuilderDraft?.()||{}));
+  const controls={};
+  fields.querySelectorAll('[id^="studio-"]').forEach(input=>controls[input.id.slice(7)]=input);
+  const labelFor=key=>fields.querySelector('label[for="studio-'+key+'"]');
+  const groups=[
+   ['Announcement bar',['announcementEnabled','announcementText','announcementTextColor','announcementBgMode','announcementBg']],
+   ['Contact details bar',['contactBarEnabled']]
+  ];
+  const labels={announcementEnabled:'Show an announcement bar at the top of your site',announcementText:'Text for the announcement bar',announcementTextColor:'The text colour for the announcement bar *',announcementBgMode:'The background colour for the announcement bar *',announcementBg:'Your custom background colour for the announcement bar',contactBarEnabled:'Show a bar with your contact details at the top of your site'};
+  groups.forEach(([heading,keys])=>{
+   const box=document.createElement('section');box.className='sgc-bar-preferences';
+   box.style.cssText='border:1px solid #e7d7e3;border-radius:14px;padding:20px;margin:16px 0;background:#fff';
+   const h=document.createElement('h4');h.textContent=heading;h.style.margin='0 0 16px';box.append(h);fields.append(box);
+   keys.forEach(key=>{
+    const input=controls[key],label=labelFor(key);if(!input||!label)return;
+    label.textContent=labels[key];box.append(label,input);
+    if(key==='announcementEnabled'||key==='contactBarEnabled'){
+     input.hidden=true;
+     const check=document.createElement('input');check.type='checkbox';check.checked=input.value==='Yes';check.style.cssText='width:17px;height:17px;margin:0 8px 0 0;vertical-align:middle';
+     label.prepend(check);label.htmlFor='';check.setAttribute('aria-label',labels[key]);
+     check.addEventListener('change',()=>{input.value=check.checked?'Yes':'No';input.dispatchEvent(new Event('input',{bubbles:true}));syncBars();});
+     const help=document.createElement('p');help.className='sgc-logo-help';
+     help.textContent=key==='announcementEnabled'?'This can be used to promote discounts, free shipping, or any other message.':'This can be used to show your email and/or phone number at the top of your site.';
+     box.append(help);
+    }
+    if(key==='announcementBgMode'){
+     input.hidden=true;
+     const radios=document.createElement('div');radios.dataset.barMode='true';
+     for(const value of ['Theme color','Custom color']){
+      const row=document.createElement('label');row.style.fontWeight='400';
+      const radio=document.createElement('input');radio.type='radio';radio.name='announcement-background';radio.value=value;radio.checked=(input.value||'Theme color')===value;radio.style.cssText='width:auto;margin-right:8px';
+      row.append(radio,document.createTextNode(value==='Theme color'?'Theme colour (default)':'Custom colour'));radios.append(row);
+      radio.addEventListener('change',()=>{if(radio.checked){input.value=value;input.dispatchEvent(new Event('input',{bubbles:true}));syncBars();}});
+     }
+     box.append(radios);
+    }
+   });
+  });
+  function syncBars(){
+   const enabled=controls.announcementEnabled?.value==='Yes';
+   for(const key of ['announcementText','announcementTextColor','announcementBgMode','announcementBg']){
+    const input=controls[key],label=labelFor(key);if(!input)continue;
+    const visible=enabled&&(key!=='announcementBg'||controls.announcementBgMode?.value==='Custom color');
+    input.hidden=key==='announcementBgMode'||!visible;if(label)label.hidden=!visible;
+    const picker=input.nextElementSibling;if(picker?.classList.contains('sgc-color-picker'))picker.hidden=!visible;
+   }
+   const radios=fields.querySelector('[data-bar-mode]');if(radios)radios.hidden=!enabled;
+  }
+  controls.announcementBgMode?.addEventListener('input',syncBars);
+  syncBars();
+  const save=document.getElementById('studio-section-save');if(save)save.textContent='Save';
+  const cancel=document.createElement('button');cancel.type='button';cancel.className='button soft';cancel.textContent='Cancel';cancel.style.marginLeft='10px';
+  cancel.onclick=()=>{const draft=window.sgcGetBuilderDraft?.();if(draft){Object.keys(draft).forEach(key=>delete draft[key]);Object.assign(draft,snapshot);window.sgcRenderFullPreview?.(draft);}location.href='website-builder.html';};
+  save?.insertAdjacentElement('afterend',cancel);
  }
  if(page==='menu' && fields){
   const labels={
