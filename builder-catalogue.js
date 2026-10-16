@@ -7,7 +7,9 @@ async function ask(message){return new Promise(resolve=>{const d=$('dialog',null
 window.sgcCatalogueEditor=function(kind,draft,fields,status){
  const product=kind==='products',key=product?'productItems':'serviceItems',noun=product?'product':'service';
  if(!Array.isArray(draft[key]))draft[key]=String(draft[product?'catalogue':'services']||'').split('\n').filter(Boolean).map((line,i)=>{const a=line.split('|');return{id:'legacy-'+i,name:a[0].trim(),description:product?'':a[1]||'',price:C.money(a[product?1:2]||0),active:true,images:[],variants:[]};});
- const list=$('div',null,fields,'sgc-catalogue-list');const add=button('+ Add '+noun,fields,()=>edit(null));const form=$('form',null,fields,'sgc-catalogue-form');form.hidden=true;
+ const separateService=!product&&new URLSearchParams(location.search).get('service')==='new';
+ const returnToServices=()=>{window.top.location.href='website-builder-services.html';};
+ const list=$('div',null,fields,'sgc-catalogue-list');const add=button('+ Add '+noun,fields,()=>{if(!product){window.top.location.href='website-builder-add-service.html';return;}edit(null);});const form=$('form',null,fields,'sgc-catalogue-form');form.hidden=true;
  async function persist(next){
   if(!window.sgcSaveBuilderPreferences)throw Error('Your account is still loading. Try again shortly.');
   const record={...draft,[key]:next};await window.sgcSaveBuilderPreferences(record);draft[key]=next;window.sgcCacheBuilderDraft?.(draft);window.sgcRenderFullPreview?.(draft);
@@ -44,17 +46,22 @@ window.sgcCatalogueEditor=function(kind,draft,fields,status){
    button('Generate combinations',form,()=>{try{variants=C.combinations(options,variants);drawOptions();drawVariants();feedback.textContent=variants.length+' combinations ready. Save the product to keep them.';}catch(e){feedback.textContent=e.message;}});
   }
   $('h4','Search engine optimisation',form);field('seoTitle','Page title','text',item.seoTitle).maxLength=60;field('seoDescription','Meta description','textarea',item.seoDescription).maxLength=160;field('seoSlug','Page URL','text',item.seoSlug||C.slug(item.name)).maxLength=50;
-  const feedback=$('p',null,form,'muted');feedback.setAttribute('role','status');const actions=$('div',null,form,'sgc-actions');const save=$('button','Save '+noun,actions,'button');save.type='submit';button('Cancel',actions,()=>{form.hidden=true;});
+  const feedback=$('p',null,form,'muted');feedback.setAttribute('role','status');const actions=$('div',null,form,'sgc-actions');const save=$('button','Save '+noun,actions,'button');save.type='submit';button('Cancel',actions,()=>{if(separateService){returnToServices();return;}form.hidden=true;});
   const preview=()=>{const typed={...item,name:name.value||'Untitled '+noun,description:description.textContent,descriptionHtml:window.sgcSanitizeDescription(description.innerHTML),images,price:controls.price.value===''?null:Number(controls.price.value)||0,variants,options,stock:Number(controls.stock?.value)||0,trackStock:controls.trackStock?.checked,onSale:controls.onSale?.checked,salePrice:controls.salePrice?.value===''?null:Number(controls.salePrice?.value)||0,requestDetails:controls.requestDetails?.checked,detailsPrompt:controls.detailsPrompt?.value,actionType:controls.actionType?.value,actionUrl:controls.actionUrl?.value};window.sgcPreviewCatalogueItem?.(kind,typed);};
   button('Preview page',actions,preview);form.addEventListener('input',preview);
   form.onsubmit=async e=>{e.preventDefault();if(busy)return;save.disabled=true;feedback.textContent='Saving…';try{
    let updated={...item,name:controls.name.value,description:description.textContent,descriptionHtml:window.sgcSanitizeDescription(description.innerHTML),active:controls.active.checked,price:controls.price.value,images,categories:controls.categories.value.split(','),collections:controls.collections.value.split(',').map(x=>x.trim()).filter(Boolean),seoTitle:controls.seoTitle.value,seoDescription:controls.seoDescription.value,seoSlug:controls.seoSlug.value};
    if(product)Object.assign(updated,{onSale:controls.onSale.checked,salePrice:controls.salePrice.value,productType:controls.productType.value,weightKg:controls.weightKg.value,sku:controls.sku.value,trackStock:controls.trackStock.checked,stock:controls.stock.value,requestDetails:controls.requestDetails.checked,detailsPrompt:controls.detailsPrompt.value,options,variants,privateFiles:files});else Object.assign(updated,{actionType:controls.actionType.value,actionUrl:controls.actionUrl.value});
    updated=C.validate(updated,product);if(draft[key].some((p,i)=>i!==index&&p.seoSlug===updated.seoSlug))throw Error('That page URL is already used. Choose another.');
-   const next=C.copy(draft[key]);if(index==null)next.push(updated);else next[index]=updated;await persist(next);form.hidden=true;render();status.textContent='Saved '+noun+' to your SGC account.';
+   const next=C.copy(draft[key]);if(index==null)next.push(updated);else next[index]=updated;await persist(next);form.hidden=true;render();status.textContent='Saved '+noun+' to your SGC account.';if(separateService)returnToServices();
   }catch(error){feedback.textContent='Unable to save: '+error.message;}finally{save.disabled=false;}};
  }
  render();
+ if(separateService){
+  list.hidden=true;add.hidden=true;edit(null);
+  const css=document.createElement('style');css.textContent='#editor-workspace #studio-editor-fields>*:not(.sgc-catalogue-form){display:none!important}#editor-workspace #studio-section-save{display:none!important}#editor-workspace .sgc-catalogue-form{display:block;margin:0;padding:0;background:white}';
+  document.head.append(css);
+ }
 };
 window.sgcSanitizeDescription=function(value){const template=document.createElement('template');template.innerHTML=String(value||'');const allowed=new Set(['P','BR','B','STRONG','I','EM','U','UL','OL','LI','H2','H3','H4','BLOCKQUOTE']);const walk=node=>{for(const child of [...node.children]){walk(child);if(!allowed.has(child.tagName)){if(['SCRIPT','STYLE','IFRAME','OBJECT','SVG','MATH'].includes(child.tagName))child.remove();else child.replaceWith(...child.childNodes);}else for(const attr of [...child.attributes])child.removeAttribute(attr.name);}};walk(template.content);return template.innerHTML;};
 })();
