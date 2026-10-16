@@ -244,7 +244,30 @@ function open(id){active=id;const s=sections.find(x=>x[0]===id);editor.hidden=fa
  }
 }else if(id==='products'||id==='services'){makeCatalogueEditor(id);if(id==='services'){const h=document.createElement('h4');h.textContent='Services section preferences';fields.append(h);}s[3].forEach(([key,label,type])=>{const l=document.createElement('label');l.textContent=label;const input=document.createElement(type.startsWith('choice:')?'select':type==='textarea'?'textarea':'input');if(type.startsWith('choice:'))type.slice(7).split('|').forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;input.append(o);});else if(type!=='textarea')input.type=type;input.id='studio-'+key;input.value=draft[key]??'';input.addEventListener('input',()=>{draft[key]=input.value;window.sgcRenderFullPreview?.(draft);});fields.append(l,input);});}else if(id==='home-layout'){s[3].forEach(([key,label,type])=>{const l=document.createElement('label');l.textContent=label;l.htmlFor='studio-'+key;const input=document.createElement(type.startsWith('choice:')?'select':'input');if(type.startsWith('choice:'))type.slice(7).split('|').forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v;input.append(o);});else input.type=type;input.id='studio-'+key;input.value=draft[key]|| (type==='color'?'#f3e2e9':'');input.addEventListener('input',()=>{draft[key]=input.value;window.sgcRenderFullPreview?.(draft);});fields.append(l,input);});const heading=document.createElement('h4');heading.textContent='Homepage sections: show, rename and reorder';fields.append(heading);makeSortableEditor(id);}else if(!s[3].length){fields.textContent='Use the Business details fields above to edit your site name and address.';}else s[3].forEach(([key,label,type])=>{const l=document.createElement('label');l.textContent=label;l.htmlFor='studio-'+key;let input;if(type.startsWith('choice:')){input=document.createElement('select');type.slice(7).split('|').forEach(option=>{const o=document.createElement('option');o.value=option;o.textContent=option;input.append(o);});}else{input=document.createElement(type==='textarea'?'textarea':'input');if(type!=='textarea')input.type=type;if(type==='color')input.value='#443344';if(type==='number'){input.step='1';input.min=key==='logoSpacing'?'-20':'0';input.max='120';}}input.id='studio-'+key;const defaults={logoStyle:'Text',logoSize:'24',logoSpacing:'0',menuPosition:'Right',menuSize:'14',logoColorMode:'Theme color',menuColorMode:'Dark',menuBackgroundMode:'White',stickyMenu:'No',alwaysCollapsed:'No',hamburgerPosition:'Right',hamburgerIcon:'☰',showSearch:'No',showCart:'Yes',logoColor:'#443344',menuColor:'#342b35',menuBackground:'#ffffff'};input.value=draft[key]??defaults[key]??'';if(key==='logoText')input.maxLength=20;fields.append(l,input);input.addEventListener('input',()=>{draft[key]=input.value;window.sgcRenderFullPreview?.(draft);});if(active==='branding'&&(key==='logo'||key==='favicon')){const upload=document.createElement('input');upload.type='file';upload.accept='image/png,image/jpeg,image/webp,image/x-icon';upload.setAttribute('aria-label','Upload '+key);upload.addEventListener('change',async()=>{const file=upload.files?.[0];if(!file)return;if(file.size>5242880){status.textContent='Image must be smaller than 5 MB.';return;}if(!window.sgcUploadBuilderImage){status.textContent='Please wait for the editor to load.';return;}status.textContent='Uploading image…';try{const url=await window.sgcUploadBuilderImage(file,key);input.value=url;input.dispatchEvent(new Event('input',{bubbles:true}));status.textContent='Image uploaded. Tap Save this section to keep your changes.';}catch(e){status.textContent='Upload failed: '+e.message;}});fields.append(upload);}});editor.scrollIntoView({behavior:'smooth',block:'nearest'});}
 document.getElementById('studio-section-save').addEventListener('click',()=>{if(!userId){status.textContent='Sign in and unlock Website Studio before saving.';return;}const s=sections.find(x=>x[0]===active);s[3].forEach(([key])=>{const field=document.getElementById('studio-'+key);if(field)draft[key]=field.value;});try{localStorage.setItem('sgc-builder-sections-'+userId,JSON.stringify(draft));if(active==='branding')window.sgcRenderFullPreview?.(draft);status.textContent='Saving to your account…';if(window.sgcSaveBuilderPreferences){window.sgcSaveBuilderPreferences(draft).then(()=>{status.textContent='Saved to your SGC account.';}).catch(e=>{status.textContent='Saved on this device, but cloud save failed: '+e.message;});}else status.textContent='Saved on this device. Cloud save is unavailable.';}catch(e){status.textContent='Unable to save on this device.';}});
-window.sgcCacheBuilderDraft=p=>{try{localStorage.setItem('sgc-builder-sections-'+userId,JSON.stringify(p));}catch{}};window.sgcGetBuilderDraft=()=>draft;window.sgcInitBuilderSections=function(id){userId=id;try{const d=JSON.parse(localStorage.getItem('sgc-builder-sections-'+id)||'{}');draft=d&&typeof d==='object'&&!Array.isArray(d)?d:{};}catch(e){draft={};}window.sgcRenderFullPreview?.(draft);};
+let lastDraftJson='';
+window.sgcCacheBuilderDraft=p=>{
+ if(!userId)return;
+ try{const json=JSON.stringify(p);if(json===lastDraftJson)return;
+  localStorage.setItem('sgc-builder-sections-'+userId,json);
+  localStorage.setItem('sgc-builder-draft-time-'+userId,String(Date.now()));
+  lastDraftJson=json;
+ }catch{}
+};
+window.sgcGetBuilderDraft=()=>draft;
+window.sgcInitBuilderSections=function(id){
+ userId=id;
+ try{const d=JSON.parse(localStorage.getItem('sgc-builder-sections-'+id)||'{}');draft=d&&typeof d==='object'&&!Array.isArray(d)?d:{};}catch{draft={};}
+ lastDraftJson=JSON.stringify(draft);
+ window.sgcRenderFullPreview?.(draft);
+};
+window.addEventListener('storage',event=>{
+ if(!userId||event.key!=='sgc-builder-sections-'+userId||!event.newValue)return;
+ try{const next=JSON.parse(event.newValue);if(!next||typeof next!=='object'||Array.isArray(next))return;
+  Object.keys(draft).forEach(key=>delete draft[key]);Object.assign(draft,next);lastDraftJson=JSON.stringify(draft);
+  document.querySelectorAll('#studio-editor-fields [id^="studio-"]').forEach(field=>{const key=field.id.slice(7);if(key in draft)field.value=draft[key];});
+  window.sgcRenderFullPreview?.(draft);
+ }catch{}
+});
 })();
 </script><script>
 window.sgcDrawMenuPreferences=function(p){
@@ -391,7 +414,12 @@ window.sgcLoadBuilderPromotion=async(sb,siteId)=>{currentSb=sb;currentSite=siteI
 window.sgcSaveBuilderPreferences=async preferences=>{const {data:saved,error}=await sb.from('sgc_student_websites').upsert({user_id:user.id,builder_preferences:preferences,updated_at:new Date().toISOString()},{onConflict:'user_id'}).select('id').single();if(error)throw error;if(!saved)throw Error('Your changes were not saved. Check your subscription.');};
 window.sgcUploadBuilderDigital=async(file,itemId)=>{if(file.size>52428800)throw Error('Digital files must be under 50 MB.');const ext=(file.name.split('.').pop()||'bin').toLowerCase().replace(/[^a-z0-9]/g,'');const path=user.id+'/'+itemId+'/'+crypto.randomUUID()+'.'+ext;const {error}=await sb.storage.from('sgc-builder-digital').upload(path,file,{contentType:file.type||'application/octet-stream'});if(error)throw Error('Protected upload unavailable: '+error.message);return {path,name:file.name,size:file.size,mimeType:file.type};};
 window.sgcUploadBuilderImage=async(file,kind)=>{const ext=(file.name.split('.').pop()||'png').toLowerCase();if(!(kind==='hero-media'?['png','jpg','jpeg','webp','mp4','webm']:['png','jpg','jpeg','webp','ico']).includes(ext))throw Error('Unsupported media format');if(file.size>(kind==='hero-media'&&['mp4','webm'].includes(ext)?52428800:5242880))throw Error('File is too large');const path=user.id+'/'+kind+'-'+crypto.randomUUID()+'.'+ext;const {error}=await sb.storage.from('sgc-builder-assets').upload(path,file,{contentType:file.type||'image/png'});if(error)throw error;return sb.storage.from('sgc-builder-assets').getPublicUrl(path).data.publicUrl;};
-if(site?.id){window.sgcLoadBuilderReports?.(sb,site.id);window.sgcLoadBuilderPromotion?.(sb,site.id);}else{document.getElementById('builder-orders-table').textContent='No orders were placed on your site yet.';document.getElementById('orders-note').textContent='Save your website design to enable reporting.';}if(site?.builder_preferences&&Object.keys(site.builder_preferences).length){try{localStorage.setItem('sgc-builder-sections-'+user.id,JSON.stringify(site.builder_preferences));window.sgcInitBuilderSections(user.id);}catch(e){}}
+if(site?.id){window.sgcLoadBuilderReports?.(sb,site.id);window.sgcLoadBuilderPromotion?.(sb,site.id);}else{document.getElementById('builder-orders-table').textContent='No orders were placed on your site yet.';document.getElementById('orders-note').textContent='Save your website design to enable reporting.';}if(site?.builder_preferences&&Object.keys(site.builder_preferences).length){try{const localTime=Number(localStorage.getItem('sgc-builder-draft-time-'+user.id)||0);
+const cloudTime=Date.parse(site.updated_at||'')||0;
+if(!localTime||cloudTime>=localTime){
+ localStorage.setItem('sgc-builder-sections-'+user.id,JSON.stringify(site.builder_preferences));
+ window.sgcInitBuilderSections(user.id);
+}}catch(e){}}
  const saveDraft=async()=>{
  const value=id=>document.getElementById(id).value;
  const name=value('name').trim(),slug=value('slug').trim().toLowerCase();
@@ -501,7 +529,7 @@ if(page==='homepage'){
  const clamp=value=>Math.max(0,Math.min(100,value));
  function setPosition(x,y){
   const draft=window.sgcGetBuilderDraft?.();if(!draft)return;
-  draft.homeMediaX=clamp(x);draft.homeMediaY=clamp(y);
+  draft.homeMediaX=clamp(x);draft.homeMediaY=clamp(y);window.sgcCacheBuilderDraft?.(draft);
   document.getElementById('studio-homeMediaX').value=draft.homeMediaX;
   document.getElementById('studio-homeMediaY').value=draft.homeMediaY;
   const media=hero.querySelector('img[data-header-media],video[data-header-media]');
@@ -902,6 +930,7 @@ const css=document.createElement('style');css.textContent='body>header,main>.eye
  // Apply header controls synchronously after every draft render.
  const renderPreview=window.sgcRenderFullPreview;
  window.sgcRenderFullPreview=function(preferences){
+  window.sgcCacheBuilderDraft?.(preferences||{});
   const result=renderPreview?.(preferences);
   const p=preferences||window.sgcGetBuilderDraft?.()||{};
   const primary=p.themePrimary,secondary=p.themeSecondary;
