@@ -602,7 +602,7 @@ if(['logo','menu','colour-theme','font','announcement-bar'].includes(page)){
       const choices=document.createElement('div');choices.className='sgc-menu-choices';choices.setAttribute('role','group');choices.setAttribute('aria-label',labels[key]);
       Array.from(input.options).filter(o=>o.value).forEach(o=>{
        const opt=document.createElement('button');opt.type='button';opt.className='sgc-menu-choice';opt.textContent=o.textContent;
-       opt.onclick=()=>{input.value=o.value;input.dispatchEvent(new Event('change',{bubbles:true}));refresh();};
+       opt.onclick=()=>{input.value=o.value;input.dispatchEvent(new Event('input',{bubbles:true}));input.dispatchEvent(new Event('change',{bubbles:true}));refresh();};
        choices.append(opt);
       });
       input.insertAdjacentElement('afterend',choices);
@@ -676,7 +676,7 @@ const css=document.createElement('style');css.textContent='body>header,main>.eye
   const top=root.querySelector('.preview-top');if(!top)return;
   Array.from(top.children).forEach(el=>{if(el.tagName==='SPAN'&&['☰','≡','⋮','☰ 🛒','🛒 ☰'].includes(el.textContent.trim()))el.remove();});
   let nav=top.querySelector('.sgc-preview-navlinks');
-  if(!nav)return;
+  if(!nav){nav=document.createElement('nav');nav.className='sgc-preview-navlinks';top.append(nav);}
   let actions=top.querySelector('.sgc-preview-actions');
   if(!actions){actions=document.createElement('div');actions.className='sgc-preview-actions';}
   // The renderer can rebuild the navigation and actions in either order.
@@ -712,7 +712,7 @@ const css=document.createElement('style');css.textContent='body>header,main>.eye
   const menuDraft=typeof draft!=='undefined'&&Array.isArray(draft.menuEntries)?draft.menuEntries:null;
   const labels=menuDraft?menuDraft.filter(e=>e.visible!==false).map(e=>e.label||e.id).filter(Boolean):renderedLabels;
   const mobile=shell.classList.contains('mobile');
-  const force=document.getElementById('studio-alwaysCollapsed')?.value==='Yes';
+  const force=currentSettings.alwaysCollapsed==='Yes';
   // Reserve a fixed slot at the right for the overflow button.
   const links=Array.from(nav.children);
   links.forEach(el=>{el.hidden=false;el.style.display='';});
@@ -737,10 +737,20 @@ const css=document.createElement('style');css.textContent='body>header,main>.eye
   panel.replaceChildren();
   (mobile||force?labels:overflow).forEach(label=>{const item=document.createElement('button');item.type='button';item.textContent=label;item.style.setProperty('color',currentMenuColor,'important');item.onclick=()=>navigate(label);panel.append(item);});
   if(show&&currentSettings.showCart!=='No'){const cart=document.createElement('button');cart.type='button';cart.textContent='🛒 Cart';cart.style.setProperty('color',currentMenuColor,'important');cart.onclick=()=>navigate('Cart');panel.append(cart);}
-  button.onclick=e=>{e.stopPropagation();opened=!opened;panel.classList.toggle('is-open',opened);button.textContent=opened?'✕':(typeof draft!=='undefined'&&draft.hamburgerIcon||'☰');button.setAttribute('aria-expanded',String(opened));};
-  button.textContent=opened?'✕':(typeof draft!=='undefined'&&draft.hamburgerIcon||'☰');button.setAttribute('aria-expanded',String(opened));
+  button.onclick=e=>{e.stopPropagation();opened=!opened;panel.classList.toggle('is-open',opened);button.textContent=opened?'✕':(currentSettings.hamburgerIcon||'☰');button.setAttribute('aria-expanded',String(opened));};
+  button.textContent=opened?'✕':(currentSettings.hamburgerIcon||'☰');button.setAttribute('aria-expanded',String(opened));
   panel.classList.toggle('is-open',opened&&show);
  }
+ // Apply header controls synchronously after every draft render.
+ const renderPreview=window.sgcRenderFullPreview;
+ window.sgcRenderFullPreview=function(preferences){
+  const result=renderPreview?.(preferences);
+  update();
+  return result;
+ };
+ document.addEventListener('change',event=>{
+  if(['studio-showSearch','studio-showCart','studio-hamburgerIcon','studio-alwaysCollapsed'].includes(event.target.id))update();
+ });
  const observer=new MutationObserver(()=>{if(scheduled)return;scheduled=true;requestAnimationFrame(()=>{scheduled=false;observer.disconnect();update();observer.observe(root,{childList:true,subtree:true});});});
  observer.observe(root,{childList:true,subtree:true});
  new ResizeObserver(()=>{if(!scheduled){scheduled=true;requestAnimationFrame(()=>{scheduled=false;observer.disconnect();update();observer.observe(root,{childList:true,subtree:true});});}}).observe(shell);
