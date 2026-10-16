@@ -648,18 +648,17 @@ if(['logo','menu','colour-theme','font','announcement-bar'].includes(page)){
 
  if(page==='font' && fields){
   if(title)title.textContent='Select your font';
-  if(hint)hint.textContent='Choose a font to see it across your website preview.';
+  if(hint)hint.textContent='Choose a font from the dropdown to update your website preview.';
   const select=document.getElementById('studio-siteFont');
   const label=fields.querySelector('label[for="studio-siteFont"]');
-  label?.remove();select.hidden=true;select.style.setProperty('display','none','important');
-  const list=document.createElement('div');list.setAttribute('role','radiogroup');list.setAttribute('aria-label','Website font');fields.append(list);
-  const fonts=["Open Sans","Lato","Montserrat","Roboto Condensed","Source Sans Pro","Lora","Playfair Display","Oswald","Merriweather","Raleway","Kalam","Dancing Script"];
-  fonts.forEach(font=>{
-   const row=document.createElement('label');row.className='sgc-font-option';row.style.fontFamily='"'+font+'",'+(['Lora','Playfair Display','Merriweather'].includes(font)?'serif':['Kalam','Dancing Script'].includes(font)?'cursive':'sans-serif');
-   const radio=document.createElement('input');radio.type='radio';radio.name='website-font';radio.value=font;radio.checked=(select.value||'Open Sans')===font;radio.setAttribute('aria-label',font);
-   const sample=document.createElement('span');sample.append(document.createTextNode(font+': regular, '));const bold=document.createElement('strong');bold.textContent='bold';const italic=document.createElement('em');italic.textContent='italic';sample.append(bold,document.createTextNode(', '),italic);row.append(radio,sample);list.append(row);
-   radio.addEventListener('change',()=>{if(radio.checked){select.value=font;select.dispatchEvent(new Event('input',{bubbles:true}));}});
-  });
+  if(label)label.textContent='Website font';
+  select.hidden=false;select.style.setProperty('display','block','important');
+  select.setAttribute('aria-label','Website font');
+  Array.from(select.options).forEach(option=>option.style.fontFamily='"'+option.value+'",sans-serif');
+  const sample=document.createElement('p');sample.style.cssText='padding:16px;border:1px solid #eadde5;border-radius:12px;font-size:19px';
+  sample.append(document.createTextNode('Regular, '));const bold=document.createElement('strong');bold.textContent='bold';const italic=document.createElement('em');italic.textContent='italic';sample.append(bold,document.createTextNode(', '),italic);
+  const update=()=>{sample.style.fontFamily='"'+(select.value||'Open Sans')+'",sans-serif';};
+  select.addEventListener('input',update);select.addEventListener('change',()=>{select.dispatchEvent(new Event('input',{bubbles:true}));});fields.append(sample);update();
  }
  if(page==='colour-theme' && fields){
   if(title)title.textContent='Pick a colour theme';
