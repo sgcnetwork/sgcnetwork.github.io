@@ -125,7 +125,7 @@ const sections=[
 ['branding','Logo, menu, colours & fonts','Configure logo, navigation, collapsed menu, extra buttons and favicon.',[["logoStyle","Logo style","choice:Text|Logo / image|Hidden"],["logoText","Navigation text (20 characters max.)","text"],["logo","Logo image URL","url"],["logoSize","Text logo font size (px)","number"],["logoSpacing","Text logo letter spacing (px)","number"],["logoColorMode","Text logo colour","choice:Theme color|Custom color"],["logoColor","Custom logo colour","color"],["menuPosition","Menu items alignment","choice:Left|Center|Right"],["menuSize","Menu font size (px)","number"],["menuColorMode","Menu text and icons","choice:Dark|Custom color"],["menuColor","Custom menu text colour","color"],["menuBackgroundMode","Menu background","choice:White|Custom color"],["menuBackground","Custom menu background colour","color"],["stickyMenu","Sticky menu","choice:Yes|No"],["alwaysCollapsed","Always show collapsed hamburger menu","choice:No|Yes"],["hamburgerPosition","Hamburger icon alignment","choice:Left|Center|Right"],["hamburgerIcon","Hamburger icon","choice:☰|≡|⋮"],["showSearch","Show search button","choice:No|Yes"],["showCart","Show cart button in preview","choice:Yes|No"],["favicon","Favicon image URL","url"]]],
 ['menu-content','Edit menu content','Choose which entries appear, rename them and reorder them.',[]],
 ['bars','Announcement & contact bars','Configure top announcement and contact information bars.',[['announcementEnabled','Show announcement bar','choice:No|Yes'],['announcementText','Announcement text','text'],['announcementTextColor','Announcement text colour','color'],['announcementBgMode','Announcement background','choice:Theme color|Custom color'],['announcementBg','Custom announcement background','color'],['contactBarEnabled','Show contact details bar','choice:No|Yes']]],
-['theme','Colour theme & font','Choose your site-wide colour palette and font.',[['siteFont','Site font','choice:Open Sans|Arial|Georgia|Trebuchet MS|Verdana'],['siteTheme','Theme','choice:Pastel|Classic|Minimal|Dark'],['siteBackground','Custom site background','color']]],
+['theme','Colour theme & font','Choose your site-wide colour palette and font.',[['siteFont','Site font','choice:Open Sans|Arial|Georgia|Trebuchet MS|Verdana'],['siteTheme','Theme','choice:Pastel|Classic|Minimal|Dark'],['siteBackground','Custom site background','color'],['themePrimary','Your primary colour','color'],['themeSecondary','Your secondary colour','color'],['themeMode','Colour selection','choice:Predefined|Custom']]],
 ['home-layout','Homepage header & sections','Control the header and which homepage sections appear, their titles and order.',[['homeButtonTarget','Header button destination','choice:Products|Services|Contact us|About us'],['homeButtonText','Header button text','text'],['homeBackgroundType','Header background type','choice:Theme color|Custom color'],['homeBackground','Header background colour','color']]],
 ['homepage','Homepage preferences','Edit the headline, welcome message and homepage call to action.',[['headline','Homepage headline','text'],['welcome','Welcome message','textarea'],['cta','Button label','text']]],
 ['services','Edit / add services','Manage your services and how the section appears on your website.',[['servicesTitle','Section title','text'],['servicesMobileColumns','Items side-by-side on mobile','choice:1|2'],['servicesDesktopColumns','Items side-by-side on desktop','choice:3|4'],['servicesMenuVisible','Show services in top menu','choice:Yes|No'],['servicesMenuLabel','Menu label','text'],['servicesHideEmpty','Hide menu link when there are no services','choice:Yes|No'],['servicesHomeVisible','Show services on homepage','choice:Yes|No'],['servicesPageHeader','Show title on services page','choice:Yes|No'],['servicesHeaderBackgroundMode','Page title background','choice:Light|Dark|Theme color|Custom color'],['servicesHeaderBackground','Custom header background colour','color'],['servicesHeaderTextMode','Page title text colour','choice:Light|Dark|Theme color|Custom color'],['servicesHeaderText','Custom title text colour','color'],['servicesHeaderFontSize','Page title font size (px)','number'],['servicesHeaderAlignment','Page title alignment','choice:Left|Center|Right'],['servicesHeaderMargin','Page title margin','choice:Normal (60px)|Custom'],['servicesHeaderCustomMargin','Custom title margin (px)','number'],['servicesDescription','Services section description','textarea']]],
@@ -477,7 +477,7 @@ if(['logo','menu','colour-theme','font','announcement-bar'].includes(page)){
  const fieldSets={
  logo:['logoStyle','logoText','logo','logoSize','logoSpacing','logoColorMode','logoColor','favicon'],
  menu:['menuPosition','menuSize','menuColorMode','menuColor','menuBackgroundMode','menuBackground','stickyMenu','alwaysCollapsed','hamburgerPosition','hamburgerIcon','showSearch','showCart'],
- 'colour-theme':['siteTheme','siteBackground'],
+ 'colour-theme':['siteTheme','siteBackground','themePrimary','themeSecondary','themeMode'],
  font:['siteFont'],
  'announcement-bar':['announcementEnabled','announcementText','announcementTextColor','announcementBgMode','announcementBg','contactBarEnabled']
  };
@@ -551,6 +551,41 @@ if(['logo','menu','colour-theme','font','announcement-bar'].includes(page)){
   updateVisibility();
  }
 
+
+ if(page==='colour-theme' && fields){
+  if(title)title.textContent='Pick a colour theme';
+  if(hint)hint.textContent='Choose a predefined palette or select your own primary and secondary colours. Your preview updates immediately.';
+  const draft=window.sgcGetBuilderDraft?.()||{};
+  const primary=document.getElementById('studio-themePrimary'),secondary=document.getElementById('studio-themeSecondary'),mode=document.getElementById('studio-themeMode');
+  const labelFor=id=>fields.querySelector('label[for="'+id+'"]');
+  for(const id of ['studio-siteTheme','studio-siteBackground','studio-themeMode']){
+   const input=document.getElementById(id),label=labelFor(id);if(input)input.hidden=true;if(label)label.hidden=true;
+  }
+  const makeGroup=(text)=>{const group=document.createElement('details');group.className='sgc-menu-pref-disclosure';const summary=document.createElement('summary');summary.textContent=text;const body=document.createElement('div');body.className='sgc-menu-pref-body';group.append(summary,body);fields.append(group);return [group,body];};
+  const [predefined,palettes]=makeGroup('Select a predefined color theme');
+  const [custom,customBody]=makeGroup('Select your custom colors');
+  predefined.open=draft.themeMode!=='Custom';custom.open=draft.themeMode==='Custom';
+  const colours=[['Mint','#61cbb6','#167969'],['Blue','#007cba','#005884'],['Red','#dc3545','#9f1725'],['Pink','#df0067','#a0004b'],['Orange','#ff5100','#ac3600'],['Grey','#939196','#45434a'],['Lavender','#ab88b1','#62416b'],['Purple','#57165d','#8d3595'],['Charcoal','#272727','#008a00']];
+  palettes.style.cssText='display:flex;flex-wrap:wrap;gap:12px;padding:18px';
+  function selectMode(value){mode.value=value;mode.dispatchEvent(new Event('input',{bubbles:true}));}
+  colours.forEach(([name,background,accent])=>{
+   const button=document.createElement('button');button.type='button';button.title=name;button.setAttribute('aria-label',name+' colour theme');button.dataset.primary=background;
+   button.style.cssText='width:54px;height:54px;border:2px solid #ddd;border-radius:10px;cursor:pointer;background:linear-gradient(135deg,'+background+' 70%,'+accent+' 70%)';
+   button.onclick=()=>{primary.value=background;secondary.value=accent;selectMode('Predefined');primary.dispatchEvent(new Event('input',{bubbles:true}));secondary.dispatchEvent(new Event('input',{bubbles:true}));mark();};
+   palettes.append(button);
+  });
+  function mark(){palettes.querySelectorAll('button').forEach(button=>{const selected=mode.value!=='Custom'&&button.dataset.primary===primary.value;button.setAttribute('aria-pressed',String(selected));button.style.outline=selected?'3px solid #ad86a1':'none';});}
+  for(const [input,help] of [[primary,'Used for the background and key elements.'],[secondary,'Used for buttons and links.']]){
+   if(!input)continue;
+   const label=labelFor(input.id);if(label)customBody.append(label);customBody.append(input);
+   const note=document.createElement('p');note.className='sgc-logo-help';note.textContent=help;customBody.append(note);
+   input.value=draft[input.id.slice(7)]||document.getElementById(input===primary?'primary':'accent').value;
+   input.addEventListener('input',()=>{selectMode('Custom');mark();});
+  }
+  // Palette selection sets its mode after colour input handlers finish.
+  palettes.querySelectorAll('button').forEach((button,index)=>{button.onclick=()=>{primary.value=colours[index][1];secondary.value=colours[index][2];primary.dispatchEvent(new Event('input',{bubbles:true}));secondary.dispatchEvent(new Event('input',{bubbles:true}));selectMode('Predefined');mark();};});
+  mark();
+ }
  if(page==='announcement-bar' && fields){
   if(title)title.textContent='Edit your announcement and contact bar preferences';
   const snapshot=JSON.parse(JSON.stringify(window.sgcGetBuilderDraft?.()||{}));
@@ -803,6 +838,18 @@ const css=document.createElement('style');css.textContent='body>header,main>.eye
  const renderPreview=window.sgcRenderFullPreview;
  window.sgcRenderFullPreview=function(preferences){
   const result=renderPreview?.(preferences);
+  const p=preferences||window.sgcGetBuilderDraft?.()||{};
+  const primary=p.themePrimary,secondary=p.themeSecondary;
+  const valid=value=>/^#[0-9a-f]{6}$/i.test(value||'');
+  const ink=hex=>{const rgb=[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16)/255).map(v=>v<=.04045?v/12.92:Math.pow((v+.055)/1.055,2.4));return rgb[0]*.2126+rgb[1]*.7152+rgb[2]*.0722>.179?'#191919':'#ffffff';};
+  if(valid(primary)){
+   const hero=root.querySelector('#hero');if(hero){hero.style.background=primary;hero.style.color=ink(primary);}
+   if(p.logoColorMode!=='Custom color')root.querySelector('.preview-top')?.style.setProperty('--sgc-logo-ink',primary);
+  }
+  if(valid(secondary)){
+   root.querySelectorAll('.button').forEach(button=>{button.style.background=secondary;button.style.color=ink(secondary);});
+   root.querySelectorAll('.sgc-preview-section a').forEach(link=>link.style.color=secondary);
+  }
   update();
   return result;
  };
