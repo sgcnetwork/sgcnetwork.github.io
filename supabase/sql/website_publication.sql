@@ -42,7 +42,7 @@ returns jsonb language sql stable security invoker set search_path='' as $$
  'images',item->'images','categories',item->'categories','seoSlug',item->'seoSlug',
  'trackStock',item->'trackStock','stock',item->'stock','options',item->'options',
  'variants',coalesce((select jsonb_agg(jsonb_build_object('attributes',v->'attributes',
- 'label',v->'label','price',v->'price','stock',v->'stock','image',v->'image'))
+ 'label',v->'label','price',v->'price','stock',v->'stock','image',v->'image','images',v->'images','description',v->'description'))
  from jsonb_array_elements(case when jsonb_typeof(item->'variants')='array' then item->'variants' else '[]'::jsonb end) v),'[]'::jsonb)))
  from jsonb_array_elements(case when jsonb_typeof(p_site.builder_preferences->'productItems')='array'
  then p_site.builder_preferences->'productItems' else '[]'::jsonb end) item

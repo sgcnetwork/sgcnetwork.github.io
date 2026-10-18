@@ -19,14 +19,14 @@
     value.seoSlug=slug(value.seoSlug||value.name);if(!value.seoSlug)throw Error('Enter a page URL using letters or numbers.');
     value.images=(value.images||[]).filter(u=>{try{return new URL(u).protocol==='https:';}catch{return false;}});
     value.categories=[...new Set((value.categories||[]).map(x=>String(x).trim()).filter(Boolean))];
-    value.variants=(value.variants||[]).map(v=>({...v,price:money(v.price),stock:quantity(v.stock)}));
+    value.variants=(value.variants||[]).map(v=>({...v,price:money(v.price),stock:quantity(v.stock),description:String(v.description||''),image:value.images.includes(v.image)?v.image:'',images:(v.images||[]).filter(u=>value.images.includes(u))}));
     const expected=value.options?.length?combinations(copy(value.options),value.variants):[];
     if(expected.length&&(expected.length!==value.variants.length||expected.some(v=>!value.variants.some(row=>JSON.stringify(Object.entries(row.attributes||{}).sort())===JSON.stringify(Object.entries(v.attributes||{}).sort())))))throw Error('Generate combinations again after changing your options.');
     if(value.actionUrl){try{if(new URL(value.actionUrl).protocol!=='https:')throw Error();}catch{throw Error('Use a valid HTTPS booking or contact link.');}}
     if(!isProduct){value.onSale=false;value.variants=[];value.options=[];}
     return value;
   }
-  function effectivePrice(item,variant){return variant?.price!=null?money(variant.price):(item.onSale&&item.salePrice!=null?money(item.salePrice):money(item.price));}
+  function effectivePrice(item,variant){return variant?.price!=null&&variant.price!==''?money(variant.price):(item.onSale&&item.salePrice!=null?money(item.salePrice):money(item.price));}
   const api={copy,slug,money,quantity,combinations,validate,effectivePrice};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.SgcCatalogue=api;
 })(typeof window!=='undefined'?window:globalThis);

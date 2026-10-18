@@ -1,5 +1,6 @@
 (function(){
 'use strict';
+const M=window.SgcProductMedia;
 const API='https://bxpexanyoyubxeqqlggh.supabase.co/functions/v1/website-publication';
 const root=document.getElementById('site'),status=document.getElementById('site-status');
 const node=(tag,text,parent,cls)=>{const e=document.createElement(tag);if(text!=null)e.textContent=String(text);if(cls)e.className=cls;if(parent)parent.append(e);return e;};
@@ -22,13 +23,13 @@ function contact(parent,item){
 }
 function detail(item,kind){
  main.replaceChildren();const back=node('button','← Back',main);back.onclick=()=>{location.hash='';};
- const box=node('section',null,main,'detail');node('h1',item.name,box);list(item.images).forEach(src=>image(src,item.name,box));
- node('p',item.description,box);const price=node('p',money(item.onSale&&item.salePrice!=null?item.salePrice:item.price),box,'price');
- if(kind==='products'&&list(item.variants).length){const label=node('label','Choose an option',box);const select=node('select',null,label);node('option','Select an option',select).value='';list(item.variants).forEach((v,i)=>node('option',v.label,select).value=String(i));select.onchange=()=>{const v=item.variants[select.value];price.textContent=money(v?.price??(item.onSale?item.salePrice:item.price));stock.textContent=v&&item.trackStock&&Number(v.stock)<=0?'Currently out of stock':'';};}
+ const box=node('section',null,main,'detail');node('h1',item.name,box);const gallery=node('div',null,box);M.gallery(gallery,item.images,item.name);
+ const description=node('p',item.description,box);const price=node('p',money(item.onSale&&item.salePrice!=null?item.salePrice:item.price),box,'price');
+ if(kind==='products'&&list(item.variants).length){const label=node('label','Choose an option',box);const select=node('select',null,label);node('option','Select an option',select).value='';list(item.variants).forEach((v,i)=>node('option',v.label,select).value=String(i));select.onchange=()=>{const v=item.variants[select.value];price.textContent=money(v?.price??(item.onSale?item.salePrice:item.price));stock.textContent=item.trackStock&&Number(v?.stock??item.stock)<=0?'Currently out of stock':'';description.textContent=v?.description||item.description||'';M.gallery(gallery,M.variantImages(item,v),item.name);};}
  const stock=node('p',item.trackStock&&!list(item.variants).length&&Number(item.stock)<=0?'Currently out of stock':'',box,'muted');
  if(kind==='products')node('p','Please contact the business to order or ask about availability.',box,'muted');contact(box,item);
 }
-function catalogue(title,items,kind,parent){const target=parent||section(title);if(parent)node('h2',title,target);const grid=node('div',null,target,'grid');items.forEach(item=>{const card=node('article',null,grid,'card');image(list(item.images)[0],item.name,card);node('h3',item.name,card);node('p',money(item.onSale&&item.salePrice!=null?item.salePrice:item.price),card,'price');node('p',text(item.description).slice(0,180),card);const a=node('a',kind==='products'?'View product':'View service',card,'button');a.href='#'+kind+'/'+encodeURIComponent(item.seoSlug||item.id);});return target;}
+function catalogue(title,items,kind,parent){const target=parent||section(title);if(parent)node('h2',title,target);const grid=node('div',null,target,'grid');items.forEach(item=>{const card=node('article',null,grid,'card');image(list(item.images)[0],item.name,card);if(kind==='products')M.hover(card,card.querySelector('img'),item.images,()=>{location.hash=kind+'/'+encodeURIComponent(item.seoSlug||item.id);});node('h3',item.name,card);node('p',money(item.onSale&&item.salePrice!=null?item.salePrice:item.price),card,'price');node('p',text(item.description).slice(0,180),card);const a=node('a',kind==='products'?'View product':'View service',card,'button');a.href='#'+kind+'/'+encodeURIComponent(item.seoSlug||item.id);});return target;}
 function home(){
  main.replaceChildren();const enabled=id=>!list(p.homeSections).length||p.homeSections.some(s=>s.id===id&&s.visible!==false);
  if(site.products.length&&enabled('Products')){const e=catalogue('Products',site.products,'products');e.id='products';if(p.delivery)node('p',p.delivery,e);}
