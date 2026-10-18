@@ -51,3 +51,16 @@ test('Editor assigns uploaded images to a variant or all variants and saves desc
  [...w.document.querySelectorAll('button')].find(b=>b.textContent==='Edit').click();const reset=w.document.querySelector('[aria-label="Image 4 applies to"]');reset.value='';reset.dispatchEvent(new w.Event('change'));
  w.document.querySelector('form').dispatchEvent(new w.Event('submit',{cancelable:true}));await new Promise(r=>setImmediate(r));assert.ok(saved.productItems[0].variants.every(v=>!v.images.includes(shared)));w.close();
 });
+test('Variant picture picker selects existing pictures and bulk uploads directly to the variant',async()=>{
+ const dom=new JSDOM('<div id="fields"></div><p id="status"></p>',{url:'https://sgcnetwork.co.za/website-builder.html',runScripts:'outside-only'}),w=dom.window;
+ w.HTMLDialogElement.prototype.showModal=function(){this.open=true;};w.HTMLDialogElement.prototype.close=function(){this.open=false;};
+ for(const f of ['builder-catalogue-core.js','builder-catalogue.js'])w.eval(fs.readFileSync(f,'utf8'));
+ let saved;w.sgcSaveBuilderPreferences=async p=>{saved=p;};w.sgcUploadBuilderImage=async f=>'https://example.com/'+f.name;
+ w.sgcCatalogueEditor('products',{productItems:[dress]},w.document.getElementById('fields'),w.document.getElementById('status'));
+ const button=t=>[...w.document.querySelectorAll('button')].find(b=>b.textContent===t);button('Edit').click();button('Add / choose pictures').click();
+ const dialog=w.document.querySelector('dialog');assert.ok(dialog.open);const checks=dialog.querySelectorAll('input[type=checkbox]');assert.equal(checks[0].checked,true);checks[3].checked=true;checks[3].dispatchEvent(new w.Event('change'));
+ const upload=dialog.querySelector('input[type=file]');Object.defineProperty(upload,'files',{value:[new w.File(['x'],'green-side.jpg',{type:'image/jpeg'}),new w.File(['x'],'green-detail.jpg',{type:'image/jpeg'})]});upload.dispatchEvent(new w.Event('change'));await new Promise(r=>setImmediate(r));
+ assert.equal(dialog.querySelectorAll('input[type=checkbox]').length,6);button('Use selected pictures').click();assert.equal(w.document.querySelector('dialog'),null);
+ w.document.querySelector('form').dispatchEvent(new w.Event('submit',{cancelable:true}));await new Promise(r=>setImmediate(r));
+ const variant=saved.productItems[0].variants[0];assert.ok(variant.images.includes(shared));assert.ok(variant.images.includes('https://example.com/green-side.jpg'));assert.ok(variant.images.includes('https://example.com/green-detail.jpg'));assert.equal(saved.productItems[0].images.length,6);w.close();
+});
