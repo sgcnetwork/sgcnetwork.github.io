@@ -64,3 +64,9 @@ test('Variant picture picker selects existing pictures and bulk uploads directly
  w.document.querySelector('form').dispatchEvent(new w.Event('submit',{cancelable:true}));await new Promise(r=>setImmediate(r));
  const variant=saved.productItems[0].variants[0];assert.ok(variant.images.includes(shared));assert.ok(variant.images.includes('https://example.com/green-side.jpg'));assert.ok(variant.images.includes('https://example.com/green-detail.jpg'));assert.equal(saved.productItems[0].images.length,6);w.close();
 });
+test('Modern cards show a single large cover and variant buttons select the correct option',()=>{
+ const dom=new JSDOM('<div id="cards"></div><select id="variants"><option value=""></option><option value="0">Green</option><option value="1">Red</option></select>',{runScripts:'outside-only'}),w=dom.window;w.eval(fs.readFileSync('product-media.js','utf8'));
+ let opened=0;const card=w.SgcProductMedia.card(w.document.getElementById('cards'),dress,'R 100.00',()=>opened++);
+ assert.equal(card.querySelectorAll('.sgc-store-image>img').length,1);assert.equal(card.querySelector('.sgc-store-image>img').src,green);assert.equal(card.querySelector('.sgc-store-name').textContent,'Dress');card.querySelector('.sgc-store-image').click();assert.equal(opened,1);
+ const select=w.document.getElementById('variants');w.SgcProductMedia.options(select,dress.variants);w.document.querySelectorAll('.sgc-product-options button')[1].click();assert.equal(select.value,'1');assert.equal(w.document.querySelectorAll('.sgc-product-options [aria-pressed=true]').length,1);assert.equal(select.hidden,true);w.close();
+});
