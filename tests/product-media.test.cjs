@@ -30,7 +30,7 @@ test('Gallery thumbnails change the main image',()=>{
 test('Public product page switches image, price, description and stock, then restores the base',async()=>{
  const dom=new JSDOM('<meta name="description"><p id="site-status"></p><div id="site"></div>',{url:'https://sgcnetwork.co.za/published-site.html?site=dress',runScripts:'outside-only'}),w=dom.window;
  w.fetch=async()=>({ok:true,json:async()=>({site:{business_name:'Dresses',preferences:{},products:[dress],services:[]}})});
- w.eval(fs.readFileSync('product-media.js','utf8'));w.eval(fs.readFileSync('business.js','utf8'));await new Promise(r=>setImmediate(r));
+ w.eval(fs.readFileSync('product-media.js','utf8'));w.eval(fs.readFileSync('product-purchase.js','utf8'));w.eval(fs.readFileSync('business.js','utf8'));await new Promise(r=>setImmediate(r));
  w.location.hash='products/dress';w.dispatchEvent(new w.Event('hashchange'));
  const select=w.document.querySelector('select');select.value='0';select.dispatchEvent(new w.Event('change'));
  assert.equal(w.document.querySelector('.sgc-product-main').src,green);assert.equal(w.document.querySelector('.price').textContent,'R 120.00');assert.match(w.document.querySelector('.detail').textContent,/Green cotton dress/);assert.equal(w.document.querySelectorAll('.sgc-product-thumbnails button').length,3);
