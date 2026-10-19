@@ -15,7 +15,7 @@ export default {
   if (!['GET','HEAD'].includes(request.method)) return new Response('Method not allowed', { status: 405, headers });
   if (u.protocol !== 'https:') { u.protocol = 'https:'; return Response.redirect(u.href, 301); }
   if (u.pathname === '/robots.txt') return new Response('User-agent: *\nAllow: /\n', { headers: { ...headers, 'Content-Type': 'text/plain' } });
-  const assets = { '/business.js': 'text/javascript; charset=utf-8', '/business.css': 'text/css; charset=utf-8', '/product-storefront.css': 'text/css; charset=utf-8', '/product-media.js': 'text/javascript; charset=utf-8', '/product-purchase.js': 'text/javascript; charset=utf-8' };
+  const assets = { '/business.js': 'text/javascript; charset=utf-8', '/business.css': 'text/css; charset=utf-8', '/product-storefront.css': 'text/css; charset=utf-8', '/product-media.js': 'text/javascript; charset=utf-8', '/product-purchase.js': 'text/javascript; charset=utf-8', '/storefront-cart.js': 'text/javascript; charset=utf-8' };
   const asset = Object.hasOwn(assets, u.pathname);
   if (!asset && u.pathname !== '/') return new Response('Page not found', { status: 404, headers });
   try {
