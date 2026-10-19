@@ -33,26 +33,27 @@
     get("email").textContent = user.user_metadata?.username || user.user_metadata?.full_name || user.email;
     if (get("member-username")) get("member-username").textContent = user.email || "";
 
-    const access = await sb.rpc("sgc_start_purchased");
-    if (access.error) throw access.error;
-    const unlocked = access.data === true;
-    get("academy-access-title").textContent = unlocked ? "Your Academy is open" : "Your next chapter awaits";
-    get("academy-access-copy").textContent = unlocked ? "Your R150 once-off SGC Start purchase is confirmed. Explore your available modules and lessons." : "Unlock your Academy with SGC Start for R150 once-off. Browse the shop and communities whenever you like.";
-    get("academy-access-status").textContent = unlocked ? "Academy unlocked" : "Academy locked";
-    for (const link of document.querySelectorAll("[data-academy-entry]")) {
-      link.href = unlocked ? "academy.html" : "shop.html?product=426d6948-d1e3-4afa-bd6c-eb2b194dba56";
-      link.textContent = unlocked ? "Enter Academy →" : "Unlock Academy · R150 once-off →";
+    const [entryResult,academyResult,builderResult,demoResult] = await Promise.all([
+      sb.rpc('sgc_start_purchased'),sb.rpc('sgc_academy_access'),sb.rpc('sgc_builder_access'),sb.rpc('sgc_extra_is_demo')
+    ]);
+    for(const result of [entryResult,academyResult,builderResult,demoResult])if(result.error)throw result.error;
+    const joined=entryResult.data===true,academy=academyResult.data||{},unlocked=academy.active===true,isDemo=demoResult.data===true;
+    get('academy-access-title').textContent=unlocked?'Your Academy is open':'Academy Full Access';
+    get('academy-access-copy').textContent=unlocked?(isDemo?'All published learning is available for your demo.':academy.modulesUnlocked+' modules released · Two more each membership month.'):'R450/month for courses and learning materials, after the R150 once-off joining fee.';
+    get('academy-access-status').textContent=unlocked?'Academy active':joined?'Subscription required':'Join SGC first';
+    for(const link of document.querySelectorAll('[data-academy-entry]')){link.href=unlocked?'academy.html':'shop.html?category=memberships';link.textContent=unlocked?'Enter Academy →':joined?'Explore Academy · R450/month →':'Join SGC · R150 once-off →';}
+    if(get('builder-access-title')){
+      const available=builderResult.data===true;
+      get('builder-access-title').textContent=available?'Your Website Builder is ready':'My Web Build';
+      get('builder-access-copy').textContent=available?'Build, preview and publish your business website.':'R199/month after joining SGC. The R450 Academy subscription is optional.';
+      const action=get('builder-access-link');action.href=available?'website-builder.html':'shop.html?category=memberships';action.textContent=available?'Manage my website →':joined?'Explore Website Builder →':'Join SGC first →';
+      get('builder-access-status').textContent=available?(isDemo?'Demo access':'Subscription active'):(joined?'Subscription required':'Joining fee required');
+      if(available){const website=await sb.from('sgc_student_websites').select('business_name,slug').eq('user_id',user.id).maybeSingle();if(!website.error&&website.data)get('builder-access-copy').textContent=website.data.business_name+' · '+(website.data.slug?website.data.slug+'.sgcnetwork.co.za':'Choose your website address');if(sb.functions?.invoke){const publication=await sb.functions.invoke('website-publication',{body:{action:'status'}});if(!publication.error&&publication.data?.available){get('builder-access-status').textContent='Published · Subscription active';const link=document.createElement('a');link.className='btn alt';link.textContent='View published website ↗';link.href=publication.data.subdomainUrl||publication.data.url;link.target='_blank';link.rel='noopener';action.after(link);}}}
     }
-
-    // Supabase verifies the authenticated demo account.
-    const { data: isDemo, error: demoError } =
-      await sb.rpc("sgc_extra_is_demo");
-
-    if (demoError) throw demoError;
 
     if (isDemo === true) {
       get("membership-title").textContent =
-        "SGC Build — Full demo access";
+        "SGC Network — Full demo access";
 
       get("membership-copy").textContent =
         "Highest student membership demo. All published courses and modules unlocked. No real subscription or payment.";
@@ -126,10 +127,10 @@
           : "Start";
 
       get("membership-title").textContent =
-        `SGC ${plan} — Active`;
+        `SGC ${plan === "Build" ? "Academy Full Access — Active" : "Membership — Joined"}`;
 
       get("membership-copy").textContent =
-        "Your purchase unlocks the features included in this membership.";
+        "Your joining fee and optional subscriptions are managed separately. View each feature’s access below.";
     } else {
       get("membership-title").textContent =
         "No active membership";

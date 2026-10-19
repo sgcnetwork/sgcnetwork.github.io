@@ -173,7 +173,7 @@ html[data-academy-theme="light"] .academy-appearance button[aria-pressed="true"]
 <a href="shop.html" class="btn alt small">Products</a>
 <button id="preferences" class="btn alt small">Email settings</button>
 </nav>
-<div class="academy-appearance" role="group" aria-label="Academy appearance"><span class="theme-label">Your classroom theme</span><button id="academy-theme-dark" type="button" aria-pressed="true">✦ Dark & gold</button><button id="academy-theme-light" type="button" aria-pressed="false">☀ Light</button></div><label for="module-select" class="module">Choose a module</label><select id="module-select" aria-label="Choose Academy module"></select><div id="lesson-list"></div>
+<div class="academy-appearance" role="group" aria-label="Academy appearance"><span class="theme-label">Your classroom theme</span><button id="academy-theme-dark" type="button" aria-pressed="true">✦ Dark & gold</button><button id="academy-theme-light" type="button" aria-pressed="false">☀ Light</button></div><label for="module-select" class="module">Choose a module</label><select id="module-select" aria-label="Choose Academy module"></select><p id="academy-release-status" class="muted" role="status"></p><div id="lesson-list"></div>
 <div class="account">
 <div id="daily-quote" class="sticky" hidden></div>
 <p id="email"></p>
@@ -374,14 +374,16 @@ async function load(){
  if(busy||!guard())return;
  busy=true;controls();say('Loading lessons…');
  try{
-  const unlocked=check(await sb.rpc('sgc_start_purchased'));
-  $('academy-paywall').hidden=!!unlocked;
-  if(!unlocked){
+  const access=check(await sb.rpc('sgc_academy_access'));
+  const unlocked=access.active===true;
+  $('academy-paywall').hidden=unlocked;
+  $('academy-release-status').textContent=access.demo?'Demo · All published modules':unlocked?access.modulesUnlocked+' modules released'+(access.nextUnlockAt?' · Next release '+new Date(access.nextUnlockAt).toLocaleDateString('en-ZA'):''):'Academy Full Access · R450/month';
+  if(!access.entry){
    lessons=[];current=null;sidebar();
    $('empty').hidden=true;$('classroom').hidden=true;$('other').hidden=true;
    $('access').textContent='Academy access depends on your membership';say('');return;
   }
-  const demo=check(await sb.rpc('sgc_extra_is_demo'));
+  const demo=access.demo===true;
   const mods=check(await sb.from('sgc_console_modules').select('module_no,title'));
   moduleNames=new Map(mods.map(m=>[m.module_no,m.title]));const covers=check(await sb.rpc('sgc_academy_module_covers'))||[];courseCovers=new Map(covers.filter(c=>c.cover_image_url).map(c=>[c.module_no,c.cover_image_url]));
   lessons=check(await sb.from('sgc_extra_lessons')
@@ -393,7 +395,7 @@ async function load(){
   responses=new Map(saved.map(r=>[r.lesson_id,r]));
   $('access').textContent=demo?
    'Full student demo · All published lessons':
-   'Your purchased levels and available modules';
+   unlocked?access.modulesUnlocked+' modules available · Academy subscription active':'Your purchased kit lessons';
   sidebar();
   $('empty').hidden=!!lessons.length;
   $('empty').textContent=demo?
@@ -402,7 +404,7 @@ async function load(){
   say('');
  }finally{busy=false;controls();}
  if(lessons.length){
-  try{await open((lessons.find(l=>!responses.get(l.id)?.completed)||lessons[0]).id);}catch(e){$('empty').hidden=false;$('empty').textContent='Unable to open lesson: '+(e.message||String(e));say('Lesson loading failed. Please refresh.');}
+  try{let resume=new URLSearchParams(location.search).get('lesson');if(!resume){try{resume=localStorage.getItem('sgc-last-lesson-'+user.id);}catch{}}const first=lessons.find(l=>!responses.get(l.id)?.completed)||lessons[0];const candidate=lessons.find(l=>l.id===resume);const target=candidate&&lessons.indexOf(candidate)<=lessons.indexOf(first)?candidate:first;await open(target.id);}catch(e){$('empty').hidden=false;$('empty').textContent='Unable to open lesson: '+(e.message||String(e));say('Lesson loading failed. Please refresh.');}
  }else $('classroom').hidden=true;
  await loadQuote();
 }
@@ -410,6 +412,7 @@ function showVideo(url){
  const v=n('video');
  v.controls=true;v.preload='metadata';v.playsInline=true;v.src=url;
  $('video').replaceChildren(v);
+ if(document.pictureInPictureEnabled&&v.requestPictureInPicture){const pip=btn('Picture in picture',async()=>{if(document.pictureInPictureElement===v)await document.exitPictureInPicture();else await v.requestPictureInPicture();});pip.disabled=true;v.addEventListener('loadedmetadata',()=>{pip.disabled=false;});$('video').append(pip);}
 }
 function externalVideo(url){
  const u=new URL(url);
@@ -489,7 +492,7 @@ async function open(id){
   try{
    const selected=resources.find(r=>r.path===config.media_path);
    if(selected)await mediaFile(selected);
-   else if(config.video_url)externalVideo(config.video_url);
+   else if(config.video_url||lesson.video_url)externalVideo(config.video_url||lesson.video_url);
    else{
     const fallback=resources.find(r=>r.kind==='video')||
      resources.find(r=>r.kind==='presentation');
@@ -509,7 +512,7 @@ async function open(id){
    $('files').append(n('p','No resources added yet.','muted'));
   }
 
-  current=id;
+  current=id;try{localStorage.setItem('sgc-last-lesson-'+user.id,id);}catch{}
   selectedModule=lesson.module_no;
   if(saved)responses.set(id,{...saved,lesson_id:id});
   $('title').textContent=lesson.title;

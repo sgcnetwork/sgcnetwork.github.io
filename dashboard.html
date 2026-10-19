@@ -277,7 +277,7 @@ body{background:radial-gradient(ellipse at 90% 4%,#eee4f3 0%,transparent 38%),ra
 #sgc-stay-logged-in{border:1px solid #dbaacb;background:#b56a9a;color:#fff}
 #sgc-confirm-logout{border:1px solid #d7a6c5;background:#fff5fb;color:#8a4f78}
 .sgc-logout-actions button:focus-visible{outline:3px solid #a75e91;outline-offset:3px}
-</style><link rel="stylesheet" href="css/sgc-theme.css?v=6"><script src="js/sgc-theme.js?v=2"></script></head>
+</style><link rel="stylesheet" href="css/sgc-theme.css?v=6"><script src="js/sgc-theme.js?v=2"></script><style>#sgc-access-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#sgc-access-grid .btn{display:inline-block;margin-top:14px}#builder-access-status{display:block;width:fit-content}@media(max-width:700px){#sgc-access-grid{grid-template-columns:1fr}}</style></head>
 <body>
 <div class="sgc-dashboard-appbar"><a class="sgc-app-logo" href="dashboard.html">SGC<small>NETWORK</small></a><div class="sgc-app-actions"><a href="#my-library" aria-label="My library"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h8a3 3 0 0 1 3 3v13a3 3 0 0 0-3-3H3zM21 5h-4a3 3 0 0 0-3 3v13a3 3 0 0 1 3-3h4z"/></svg></a><a href="#my-profile" aria-label="My profile"><svg viewBox="0 0 24 24" width="23" height="23" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21v-2a8 8 0 0 1 16 0v2"/></svg></a><button type="button" id="sgc-mobile-logout" aria-label="Log out" title="Log out"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 17l5-5-5-5M15 12H3M12 3h7a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-7"/></svg></button></div></div>
 <div class="wrap">
@@ -327,7 +327,7 @@ body{background:radial-gradient(ellipse at 90% 4%,#eee4f3 0%,transparent 38%),ra
 <div class="section-head">
 <div><div class="eyebrow">Overview</div><h2>Your SGC access</h2></div>
 </div>
-<div class="grid">
+<div class="grid" id="sgc-access-grid">
 <div class="card blush">
 <span class="pill">Membership</span>
 <h3 id="membership-title">No active membership</h3>
@@ -343,10 +343,11 @@ body{background:radial-gradient(ellipse at 90% 4%,#eee4f3 0%,transparent 38%),ra
 <div class="card butter">
 <span class="pill">Academy</span>
 <h3 id="academy-access-title">Your next chapter awaits</h3>
-<p class="muted" id="academy-access-copy">SGC Start unlocks Academy for R150 once-off.</p>
+<p class="muted" id="academy-access-copy">R450/month for Academy Full Access, after the R150 once-off joining fee.</p>
 <span id="academy-access-status" class="pill">Checking access…</span>
 <a class="btn" data-academy-entry href="academy.html" style="margin-top:18px">Checking Academy access…</a>
 </div>
+<div class="card blush"><span class="pill">Website Builder</span><h3 id="builder-access-title">My Web Build</h3><p class="muted" id="builder-access-copy">R199/month after joining SGC. Academy Full Access is optional.</p><span class="pill" id="builder-access-status">Checking access…</span><a class="btn" id="builder-access-link" href="website-builder.html" style="margin-top:18px">My Web Build →</a></div>
 </div>
 </section>
 
@@ -409,8 +410,8 @@ body{background:radial-gradient(ellipse at 90% 4%,#eee4f3 0%,transparent 38%),ra
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/config.js"></script>
 <script src="js/supabase-client.js"></script>
-<script src="js/demo-access.js?v=demo2"></script>
-<script src="js/account.js?v=start-gate2"></script>
+
+<script src="js/account.js?v=access-summary-1"></script>
 
 <script>
 (async()=>{
@@ -721,7 +722,7 @@ async function load(){
       detail.append(el('p','Latest submitted quiz: '+q.score+' / '+q.maximum+(q.maximum?' ('+Math.round(q.score/q.maximum*100)+'%)':'')+' · '+date(q.submitted_at)));
       detail.append(el('p','Your answers have been submitted and saved. See Quiz Results below for your question-by-question review.','muted'));
      }else detail.append(el('p','No submitted quiz for this lesson.','muted'));
-     const link=el('a','Open in Academy →','btn alt');link.href='academy.html';detail.append(link);
+     const link=el('a','Open in Academy →','btn alt');link.href='academy.html?lesson='+encodeURIComponent(l.id);detail.append(link);
      row.append(detail);module.append(row);
     }
     root.append(module);
@@ -803,10 +804,11 @@ async function load(){
  const item=(title,detail)=>{const box=document.createElement('div');box.className='card';const h=document.createElement('h3');h.textContent=title;const p=document.createElement('p');p.className='muted';p.textContent=detail;box.append(h,p);return box;};
  try{
  const {data:{user},error}=await sb.auth.getUser();if(error)throw error;if(!user){host.replaceChildren(item('Sign in required','Sign in to view your personal purchase history.'));return;}
- const [tx,plans,legacy]=await Promise.all([
+ const [tx,plans,legacy,builder]=await Promise.all([
  sb.from('sgc_stitch_transactions').select('product_name,amount_zar,billing,status,paid_at,created_at').eq('user_id',user.id).order('created_at',{ascending:false}).limit(100),
  sb.from('memberships').select('membership_type,status,price_zar,started_at,current_period_end').eq('user_id',user.id).order('created_at',{ascending:false}).limit(50),
- sb.from('payments').select('payment_type,amount_zar,status,paid_at,created_at').eq('user_id',user.id).order('created_at',{ascending:false}).limit(100)
+ sb.from('payments').select('payment_type,amount_zar,status,paid_at,created_at').eq('user_id',user.id).order('created_at',{ascending:false}).limit(100),
+ sb.from('sgc_website_subscriptions').select('status,current_period_end').eq('user_id',user.id).maybeSingle()
  ]);
  host.replaceChildren();
  const heading=t=>{const h=document.createElement('h3');h.style.margin='24px 0 12px';h.textContent=t;host.append(h);};
@@ -815,10 +817,11 @@ async function load(){
  heading('Your purchased products');
  if(tx.error)host.append(item('Purchase history unavailable',tx.error.message));
  else {const paid=(tx.data||[]).filter(x=>['paid','completed','successful','succeeded'].includes(String(x.status).toLowerCase()));if(!paid.length)host.append(item('No verified purchases yet','Your completed purchases will appear here.'));for(const x of paid)host.append(item(x.product_name||'SGC product',money(x.amount_zar)+' · '+(x.billing||'Once-off')+' · Purchased '+date(x.paid_at||x.created_at)));}
- heading('Memberships & recurring billing');
+ heading('Memberships & access periods');
  if(plans.error)host.append(item('Membership details unavailable',plans.error.message));
- else if(!plans.data?.length)host.append(item('No recurring memberships','Your membership status and renewal dates will appear here.'));
- else for(const x of plans.data)host.append(item(String(x.membership_type||'Membership'),money(x.price_zar)+' · '+x.status+' · Next period end: '+date(x.current_period_end)));
+ else if(!plans.data?.length)host.append(item('No Academy membership recorded','Your Academy subscription and access dates will appear here.'));
+ else for(const x of plans.data)host.append(item(x.membership_type==='start'?'SGC Membership · Once-off':x.membership_type==='build'?'Academy Full Access':String(x.membership_type||'Membership'),money(x.price_zar)+' · '+x.status+(x.current_period_end?' · Access through '+date(x.current_period_end):'')));
+ if(builder.error)host.append(item('Website Builder subscription unavailable',builder.error.message));else if(builder.data)host.append(item('Website Builder · R199/month',builder.data.status+' · Current access ends: '+date(builder.data.current_period_end)));
  heading('Payment history');
  if(legacy.error)host.append(item('Payment history unavailable',legacy.error.message));
  else if(!legacy.data?.length && !tx.data?.length)host.append(item('No payments recorded','Your payment records will appear here.'));
