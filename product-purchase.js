@@ -5,15 +5,17 @@ function controls(host,item,config={}){
  const box=make('div',null,host,'sgc-purchase-controls');let selected=null;
  const label=make('label','Quantity',box,'sgc-product-quantity');const quantity=make('input',null,label);quantity.type='number';quantity.min='1';quantity.step='1';quantity.value='1';quantity.setAttribute('aria-label','Quantity');
  const buy=make('button','Buy now',box,'sgc-buy-now');buy.type='button';
+ const add=config.cart?make('button','Add to cart',box,'sgc-add-to-cart'):null;if(add)add.type='button';
  const status=make('p',null,box,'sgc-purchase-status');status.setAttribute('role','status');
  function price(){const value=selected?.price!==''&&selected?.price!=null?selected.price:item.onSale&&item.salePrice!=null?item.salePrice:item.price;return value==null||value===''?null:Number(value);}
  function stock(){return Number(selected?.stock??item.stock??0);}
- function update(variant){selected=variant||null;const out=item.trackStock&&(!item.variants?.length||selected)&&stock()<1;buy.disabled=!!out;buy.textContent=out?'Sold out':price()==null?'Enquire':'Buy now';if(item.trackStock&&(!item.variants?.length||selected))quantity.max=String(stock());else quantity.removeAttribute('max');status.textContent='';}
- buy.onclick=()=>{
+ function update(variant){selected=variant||null;const out=item.trackStock&&(!item.variants?.length||selected)&&stock()<1;buy.disabled=!!out;if(add)add.disabled=!!out;buy.textContent=out?'Sold out':price()==null?'Enquire':'Buy now';if(item.trackStock&&(!item.variants?.length||selected))quantity.max=String(stock());else quantity.removeAttribute('max');status.textContent='';}
+ function purchase(checkout){
   status.textContent='';if(item.variants?.length&&!selected){status.textContent='Choose a product option first.';return;}
   const count=Number(quantity.value);if(!Number.isSafeInteger(count)||count<1){status.textContent='Enter a quantity of at least 1.';return;}
   if(item.trackStock&&count>stock()){status.textContent='Only '+stock()+' available for this option.';return;}
   const unit=price();if(unit!==null&&(!Number.isFinite(unit)||unit<0)){status.textContent='Please contact the store to confirm this price.';return;}
+  if(config.cart){try{config.cart.add(item,selected,count);status.textContent='Added to your cart.';config.onCartChange?.();if(checkout)config.onCheckout?.();}catch(error){status.textContent=error.message;}return;}
   const dialog=make('dialog',null,doc.body,'sgc-order-review');const heading=make('h2','Review your order',dialog);heading.id='sgc-order-review-title';dialog.setAttribute('aria-labelledby',heading.id);
   const row=make('div',null,dialog,'sgc-order-product');const url=root.SgcProductMedia?.variantImages(item,selected)?.[0];if(url){const img=make('img',null,row);img.src=url;img.alt=item.name;}
   const info=make('div',null,row);make('strong',item.name,info);if(selected)make('p',selected.label||Object.values(selected.attributes||{}).join(' / '),info);make('p','Quantity: '+count,info);
@@ -31,6 +33,7 @@ function controls(host,item,config={}){
   }
   const close=make('button',config.preview?'Close preview':'Continue shopping',actions,'sgc-order-close');close.type='button';const dismiss=()=>{dialog.close();dialog.remove();};close.onclick=dismiss;dialog.oncancel=e=>{e.preventDefault();dismiss();};dialog.showModal();
  };
+ buy.onclick=()=>purchase(true);if(add)add.onclick=()=>purchase(false);
  update(null);return {update,quantity,button:buy};
 }
 root.SgcProductPurchase={controls};

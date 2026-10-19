@@ -13,12 +13,26 @@ Deno.serve(async (req: Request) => {
    if (error) { console.error('Website lookup failed', error.code); return respond({ error: 'Website temporarily unavailable' }, 503); }
    return data ? respond({ site: data }) : respond({ error: 'Website not found or currently unavailable' }, 404);
   }
+  if (Number(req.headers.get('content-length') || 0) > 32768) return respond({ error: 'Request too large' }, 413);
+  const raw=await req.text();if(new TextEncoder().encode(raw).length>32768)return respond({error:'Request too large'},413);
+  let body;try{body=JSON.parse(raw);}catch{return respond({error:'Invalid request'},400);}
+  if(['checkout','order-receipt'].includes(body?.action)){
+   if(typeof body.slug!=='string'||!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(body.slug)||body.slug.length<3||body.slug.length>40||typeof body.key!=='string'||!/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(body.key))return respond({error:'Invalid checkout request'},400);
+   if(body.action==='order-receipt'){const {data,error}=await admin.rpc('sgc_builder_order_receipt',{p_slug:body.slug,p_key:body.key});if(error)return respond({error:'Receipt unavailable'},503);return data?respond({order:data}):respond({error:'Order not found'},404);}
+   const {data,error}=await admin.rpc('sgc_builder_create_order',{p_slug:body.slug,p_key:body.key,p_items:body.items,p_customer:body.customer});
+   if(error)return respond({error:error.code==='P0001'?error.message:'Unable to place this order. Please review your cart and retry.'},400);
+   return respond({order:data});
+  }
   const token = req.headers.get('authorization')?.match(/^Bearer (.+)$/i)?.[1];
   if (!token) return respond({ error: 'Sign in to manage your website' }, 401);
   const { data: { user }, error: authError } = await admin.auth.getUser(token);
   if (authError || !user) return respond({ error: 'Your session has expired. Please sign in again.' }, 401);
-  if (Number(req.headers.get('content-length') || 0) > 1024) return respond({ error: 'Request too large' }, 413);
-  let body; try { body = JSON.parse(await req.text()); } catch { return respond({ error: 'Invalid request' }, 400); }
+  if(body?.action==='order-status'){
+   if(typeof body.orderId!=='string'||!['Open','Completed','Cancelled'].includes(body.status))return respond({error:'Invalid order update'},400);
+   const {data,error}=await admin.rpc('sgc_builder_order_status',{p_user:user.id,p_order:body.orderId,p_status:body.status});
+   if(error)return respond({error:error.code==='P0001'?error.message:'Unable to update order'},400);
+   return respond(data);
+  }
   if (!['publish', 'unpublish', 'status'].includes(body?.action)) return respond({ error: 'Unknown publishing action' }, 400);
   // User ID and snapshot are never accepted from the request body.
   const { data, error } = await admin.rpc('sgc_manage_website_publication', { p_user: user.id, p_action: body.action });
