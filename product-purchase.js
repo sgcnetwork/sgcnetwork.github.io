@@ -9,7 +9,7 @@ function controls(host,item,config={}){
  const status=make('p',null,box,'sgc-purchase-status');status.setAttribute('role','status');
  function price(){const value=selected?.price!==''&&selected?.price!=null?selected.price:item.onSale&&item.salePrice!=null?item.salePrice:item.price;return value==null||value===''?null:Number(value);}
  function stock(){return Number(selected?.stock??item.stock??0);}
- function update(variant){selected=variant||null;const out=item.trackStock&&(!item.variants?.length||selected)&&stock()<1;buy.disabled=!!out;if(add)add.disabled=!!out;buy.textContent=out?'Sold out':price()==null?'Enquire':'Buy now';if(item.trackStock&&(!item.variants?.length||selected))quantity.max=String(stock());else quantity.removeAttribute('max');status.textContent='';}
+ function update(variant){selected=variant||null;const out=item.trackStock&&(!item.variants?.length||selected)&&stock()<1;buy.disabled=!!out;if(add)add.disabled=!!out;buy.textContent=out?'Sold out':item.productType==='digital'?'Buy now':price()==null?'Enquire':'Buy now';if(item.trackStock&&(!item.variants?.length||selected))quantity.max=String(stock());else quantity.removeAttribute('max');status.textContent='';}
  function purchase(checkout){
   status.textContent='';if(item.variants?.length&&!selected){status.textContent='Choose a product option first.';return;}
   const count=Number(quantity.value);if(!Number.isSafeInteger(count)||count<1){status.textContent='Enter a quantity of at least 1.';return;}
