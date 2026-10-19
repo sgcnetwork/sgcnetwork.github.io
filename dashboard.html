@@ -358,7 +358,7 @@ body{background:radial-gradient(ellipse at 90% 4%,#eee4f3 0%,transparent 38%),ra
 <aside class="library-sidebar"><details open><summary>My library</summary><nav aria-label="My library sections">
 <a href="#library-meetings" data-library="library-meetings">My meetings</a>
 <a href="#library-purchases" data-library="library-purchases">Purchases & billing</a>
-<a href="#library-kits" data-library="library-kits">Your kits</a>
+<a href="#library-download-panel" data-library="library-download-panel">Downloads</a><a href="#library-kits" data-library="library-kits">Your kits</a>
 <a href="#quiz-results" data-library="quiz-results">Quiz results</a>
 <a href="#my-learning" data-library="my-learning">My portfolio</a>
 </nav></details></aside>
@@ -378,7 +378,7 @@ body{background:radial-gradient(ellipse at 90% 4%,#eee4f3 0%,transparent 38%),ra
 <div id="quiz-review-list"><p class="muted">Loading quiz results…</p></div>
 </section>
 <section class="section" id="library-purchases"><div class="section-head"><div><div class="eyebrow">Your SGC collection</div><h2>Purchases, memberships & billing</h2><p class="muted">Your verified orders, recurring memberships and payment history.</p></div><a class="btn alt" href="shop.html">Explore shop →</a></div><div id="sgc-purchase-list" class="list"><div class="empty">Loading your purchase history…</div></div></section>
-<section class="section" id="library-kits">
+<section class="section" id="library-download-panel"><div class="section-head"><div><div class="eyebrow">Your purchased resources</div><h2>Downloads</h2><p class="muted">Your digital products and included learning materials.</p></div></div><div id="sgc-library-downloads" class="list" role="status">Loading your downloads…</div></section><section class="section" id="library-kits">
 <div class="section-head">
 <div><div class="eyebrow">Purchases & balances</div><h2>Your kits</h2></div>
 <a class="btn alt" href="payments.html">Payment history</a>
@@ -411,7 +411,7 @@ body{background:radial-gradient(ellipse at 90% 4%,#eee4f3 0%,transparent 38%),ra
 <script src="js/config.js"></script>
 <script src="js/supabase-client.js"></script>
 
-<script src="js/account.js?v=access-summary-1"></script>
+<script src="js/account.js?v=access-summary-1"></script><script src="js/library-downloads.js?v=1"></script>
 
 <script>
 (async()=>{

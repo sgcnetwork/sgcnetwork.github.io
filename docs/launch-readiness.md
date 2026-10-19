@@ -13,8 +13,8 @@ Updated 19 October 2026. Status refers to the named checks, not blanket producti
 | Cart, multi-item checkout, persistent orders and owner status updates | TESTED — WORKING | Model, Edge and rolled-back SQL tests pass: quantities, variants, retries, server prices, stock, cancellation and ownership. Browser acceptance and frontend deployment pending. Checkout records unpaid orders; card/payment collection remains a separate integration. |
 | Dashboard memberships, Library and Website Builder entitlements | TESTED — WORKING | Joining fee, Academy and builder shown separately; demo access preserved; billing includes builder expiry; locked states covered by UI tests. Download delivery still under review. |
 | Academy, submissions, progress and two-module monthly access | IN PROGRESS | Release/RLS tests pass; direct completion bypass blocked; video-field fallback and lesson resume repaired. Practical assessment workflow still to verify. |
-| SGC shop, checkout, digital delivery and bookings | NOT STARTED | Existing implementations to inspect and verify. |
-| Admin Studio integration and reports | NOT STARTED | Existing implementations to inspect and verify. |
+| SGC shop, checkout, digital delivery and bookings | IN PROGRESS | Verified product purchases now grant protected file access, including after archive. Existing payment and booking integrations remain under review. |
+| Admin Studio integration and reports | IN PROGRESS | Practical activities can be created/edited/reviewed; report sources now include Stitch, builder subscriptions/orders, products and practical submissions. Product lifecycle and bookings still to verify. |
 | Community, messages, media and permissions | NOT STARTED | Existing implementations to inspect and verify. |
 | Full customer/admin acceptance journeys | NOT STARTED | No blanket launch-ready claim. |
 
@@ -26,7 +26,7 @@ Changes: `builder-draft-store.js` reconciles and saves drafts; `builder-live-pre
 
 Tests: 43 Node/JSDOM checks pass, including renderer parity, parent-message isolation, blank headline handling, variant selection, draft merge/conflict/retry, catalogue, payment validation, publication and router checks. The old publishing fixture now loads the media/purchase dependencies used by the real public document. Browser navigation limitations in JSDOM are not real-browser verification.
 
-Deployment: appearance projection migration applied to the existing Supabase project and tested with a synthetic composite record (no customer records changed). Frontend and Worker deployment tracked in PR #8. Cloudflare account deployment remains unverified.
+Deployment: appearance projection migration applied to the existing Supabase project and tested with a synthetic composite record (no customer records changed). Frontend and Worker deployment tracked in PR #8. Live customer-subdomain HTTP checks now confirm the routed storefront and product script return 200 with the updated media/font policy; browser acceptance remains unverified.
 
 ## Cart and order repair set
 
@@ -43,3 +43,11 @@ Replaces the misleading joining-fee Academy unlock state with separate Academy a
 The Academy now checks one authenticated release summary. General Academy content needs an active qualifying Academy membership or grant; two modules release each membership month, up to twelve. Paid kit access and the verified demo/admin paths are preserved. Expiry is enforced in lesson/resource RLS. A trigger prevents direct student writes changing completion; existing quiz and completion RPCs retain that authority. SQL fixtures verify entry-only denial, active access, month-two release, expiry, notes and completion protections with actual authenticated role impersonation.
 
 The player previously ignored the `video_url` stored on all 27 currently published lessons; it now loads it when no settings override exists. Saved lesson position and My Library lesson links restore the selected available lesson, while quiz progression remains gated and results stay on My SGC. Actual video availability at each external URL still requires browser playback testing.
+
+## Protected downloads, practical assessments and reporting
+
+The protected-product policy previously omitted verified direct purchases. It now admits only the purchasing customer (or an existing authorised membership/admin/demo entitlement), keeps once-off purchases accessible after product archive, and respects monthly purchase expiry. My Library adds a Downloads panel that prepares short-lived signed URLs through the existing protected bucket. There are currently no product-file records to validate with a real purchased file.
+
+Existing `sgc_studio_academy_activities` records now connect to per-student practical submissions. The new submissions table is necessary because the existing activity definitions had no submission storage; legacy `student_answers` belongs to different lesson sections. Students can submit text and private attachments, view feedback and resubmit. Admin Studio exposes create/edit/availability controls and review/points/feedback. Private uploads are limited to eligible student/activity folders and 10 MB. Students cannot update grade columns or invoke reviews.
+
+Reports use the existing admin-only API, extended with the live Stitch, Website Builder, product and practical-submission sources. Report dates default to the current Johannesburg month rather than hardcoded October dates. SQL checks passed for private product ownership, archive preservation, submission ownership, attachment validation, grade protection, feedback, resubmission and report admin enforcement. All fixtures rolled back. 60 Node/JSDOM tests pass. Related migrations are deployed; frontend release is being tracked separately.

@@ -80,7 +80,7 @@ aside{background:linear-gradient(160deg,#12100f,#191514 60%,#211b17);border-righ
 #sgcp-manager input,#sgcp-manager select,#sgcp-manager textarea{max-width:100%}
 @media(max-width:650px){#sgcp-manager .hours{grid-template-columns:90px 1fr 1fr}}
 </style>
-</head>
+<style>.assessment-card{border:1px solid var(--line,#e9dfe6);border-radius:18px;padding:22px;margin:20px 0}.assessment-card textarea{width:100%;min-height:100px}.assessment-card label{display:block;margin:12px 0}.assessment-card p{white-space:pre-wrap}.assessment-card button{border-radius:12px;min-height:44px}</style></head>
 <body>
 <section id="login" class="panel">
 <div class="brand">SGC NETWORK</div>
@@ -653,7 +653,7 @@ Deno.serve(async req => {
 });
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../js/academy-assessments.js?v=1"></script>
 <script>
 "use strict";
 
@@ -668,7 +668,7 @@ let busy = false, editContext = null;
 let workingV2 = false, dirtyV2 = false, upgradeV2 = false;
 let plansV2, productsV2 = [], contentV2 = [], groupsV2 = {};
 
-const sections = ["Reports","Modules & lessons","Website & quotes","Community","Waitlist","Audit history","Setup"];
+const sections = ["Reports","Modules & lessons","Submissions","Website & quotes","Community","Waitlist","Audit history","Setup"];
 
 const defaultsV2 = {
   features: [
@@ -983,13 +983,15 @@ async function openEditor(table, record = {}, defaults = {}) {
 // SGC REPORTS CENTRE — reporting only; existing booking/payment workflows unchanged.
 const SGC_REPORT_CONFIG = {
   'Meeting Bookings': {sources:['sgc_bookings'], date:['created_at','booked_at'], fields:['id','name','email','user_id','created_at','starts_at','ends_at','amount_zar','status','payment_status','payment_method','notes']},
-  'Payment History': {sources:['payments'], date:['created_at','paid_at','payment_date','updated_at'], fields:['id','user_id','amount','amount_zar','payment_method','payment_type','payment_status','status','provider','transaction_id','created_at','paid_at']},
+  'Payment History': {sources:['payments','sgc_stitch_transactions'], date:['created_at','paid_at','payment_date','updated_at'], fields:['id','user_id','amount','amount_zar','payment_method','payment_type','payment_status','status','provider','transaction_id','created_at','paid_at']},
   'Academy Students': {sources:['students'], date:['created_at','registered_at','email_confirmed_at'], fields:['id','email','full_name','created_at','email_confirmed_at','last_sign_in_at']},
-  'Memberships & Enrolments': {sources:['memberships','sgc_access_grants'], date:['starts_at','start_date','created_at','joined_at'], fields:['id','user_id','membership_type','access_level','status','active','starts_at','ends_at','created_at','reason']},
+  'Memberships & Enrolments': {sources:['memberships','sgc_access_grants','sgc_website_subscriptions'], date:['starts_at','started_at','start_date','created_at','joined_at','updated_at'], fields:['id','user_id','membership_type','access_level','status','active','starts_at','started_at','ends_at','current_period_end','created_at','updated_at','reason']},
   'Course Progress': {sources:['lesson_progress','sgc_extra_responses'], date:['completed_at','updated_at','created_at'], fields:['id','user_id','lesson_id','module_id','completed','completed_at','created_at','updated_at']},
-  'Assessment Results': {sources:['sgc_quiz_submissions','student_answers'], date:['submitted_at','created_at','updated_at'], fields:['id','user_id','lesson_id','score','total_points','passed','reviewed','created_at','submitted_at','admin_feedback']},
-  'Shop Orders': {sources:['customer_kits'], date:['created_at','purchased_at','updated_at'], fields:['id','user_id','kit_id','status','total_price_zar','amount_paid_zar','created_at','updated_at']},
+  'Assessment Results': {sources:['sgc_quiz_submissions','student_answers','sgc_studio_activity_submissions'], date:['submitted_at','created_at','updated_at'], fields:['id','user_id','lesson_id','score','maximum','total_points','passed','reviewed','activity_id','points','review_status','feedback','created_at','submitted_at','reviewed_at','admin_feedback']},
+  'Shop Orders': {sources:['customer_kits','sgc_stitch_transactions','sgc_builder_orders'], date:['created_at','purchased_at','updated_at'], fields:['id','user_id','kit_id','status','total_price_zar','amount_paid_zar','order_number','website_id','product_name','amount_zar','total_zar','payment_status','created_at','paid_at','updated_at']},
   'Waitlist': {sources:['sgc_academy_waitlist','academy_waitlist'], date:['created_at','joined_at','signup_date'], fields:['id','email','user_id','status','created_at','joined_at']},
+  'Website Subscriptions': {sources:['sgc_website_subscriptions'],date:['updated_at'],fields:['user_id','status','current_period_end','updated_at']},
+  'Products': {sources:['sgc_products'],date:['created_at'],fields:['id','name','price_zar','billing','active','deleted_at','created_at']},
   'Recording History': {sources:['sgc_meeting_recordings'], date:['published_at','created_at'], fields:['id','booking_id','title','published_at','student_expires_at','published_by','drive_file_id']}
 };
 let sgcReportRows=[], sgcReportColumns=[];
@@ -1007,6 +1009,7 @@ function sgcReportStatus(row){
 async function sgcReportFetch(source){
   // Students is a virtual source served by the existing admin console RPC.
   if(source==='students')return await all('students');
+
   // SQL RPC pages at 200; keep reading until all matching records are fetched.
   const rows=[];
   for(let start=0;;start+=200){
@@ -1029,8 +1032,8 @@ async function sgcReportsView(){
   types.value='Meeting Bookings';
   const reportType=n('div');reportType.append(n('label','Report type'),types);
   const fromWrap=n('div'),toWrap=n('div'),statusWrap=n('div');
-  const from=n('input');from.type='date';from.value='2026-10-01';
-  const to=n('input');to.type='date';to.value='2026-10-31';
+  const from=n('input');from.type='date';from.value=sgcReportLocalDate(new Date()).slice(0,8)+'01';
+  const to=n('input');to.type='date';to.value=sgcReportLocalDate(new Date());
   const status=n('select');
   for(const [value,label] of [['all','All records'],['active','Active / Confirmed / Paid'],['archived','Archived / Cancelled / Inactive']]){
     const o=n('option',label);o.value=value;status.append(o);
@@ -2214,6 +2217,7 @@ async function show() {
   }
 
   if (section === "Submissions") {
+    if(window.SgcAssessments)await window.SgcAssessments.mountAdmin(panel("Practical assessments"),sb);
     for (const t of ["sgc_extra_responses", "sgc_quiz_submissions", "student_answers"]) {
       await listPanel(t.replaceAll("_", " "), t, false);
     }
