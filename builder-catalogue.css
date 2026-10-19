@@ -7,3 +7,34 @@
 .sgc-product-gallery{display:block!important;width:100%}.sgc-product-gallery .sgc-product-main{display:block;width:100%;max-width:100%;height:380px;object-fit:contain;border-radius:12px}.sgc-product-thumbnails{display:flex;gap:8px;overflow-x:auto;padding:12px 0}.sgc-product-thumbnails button{flex:0 0 64px;width:64px;height:74px;padding:3px;border:2px solid transparent;border-radius:8px;background:#f5f2f4;cursor:pointer}.sgc-product-thumbnails button[aria-pressed=true]{border-color:#a47a94}.sgc-product-thumbnails button img{width:100%;height:100%;object-fit:contain;border-radius:4px}.sgc-variant-thumb{width:52px;height:64px;object-fit:contain}.sgc-media-tile select{max-width:100%;width:100%;font-size:12px;padding:6px}.sgc-variant-table textarea{min-width:180px;min-height:80px}.sgc-variant-table select{max-width:180px}@media(max-width:600px){.sgc-product-gallery .sgc-product-main{height:300px}}
 
 .sgc-variant-picker{width:min(700px,94vw);max-height:85vh;overflow:auto;border:1px solid #e5dce2;border-radius:18px;padding:24px;color:#342b35}.sgc-variant-picker::backdrop{background:#211e2470}.sgc-variant-picker-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:12px;margin:20px 0}.sgc-variant-picture-choice{position:relative;display:flex;flex-direction:column;gap:6px;padding:8px;border:1px solid #ddd0d9;border-radius:10px;cursor:pointer}.sgc-variant-picture-choice:has(input:checked){border:2px solid #a47a94;background:#fbf1f7}.sgc-variant-picture-choice input{width:auto!important;position:absolute;top:8px;left:8px;accent-color:#805770}.sgc-variant-picture-choice img{width:100%;height:115px;object-fit:contain}.sgc-variant-picture-choice span{font-size:12px}.sgc-variant-picture-strip{display:flex;gap:5px;flex-wrap:wrap;max-width:220px}.sgc-variant-table td{vertical-align:top}.sgc-variant-table td .button{white-space:nowrap;margin:8px 0}
+
+/* SGC luxury studio: product catalogue and editor */
+.sgc-catalogue-list{gap:14px!important;margin:22px 0!important}
+.sgc-catalogue-row{background:#fff!important;border:1px solid #ede5e9!important;border-radius:20px!important;padding:18px 20px!important;box-shadow:0 7px 28px rgba(50,29,44,.035);gap:14px!important}
+.sgc-catalogue-row strong{font:500 19px/1.35 Georgia,serif;color:#332a33}
+.sgc-catalogue-row p{color:#8b7b87;font-size:12px!important;letter-spacing:.01em}
+.sgc-catalogue-row .sgc-actions{margin:0!important;gap:7px!important}
+.sgc-catalogue-row .sgc-actions button{background:#fbf8fa!important;border:1px solid #e8dfe6!important;color:#5d4659!important;border-radius:11px!important;padding:9px 15px!important;min-height:38px!important;font-size:12px!important;box-shadow:none!important}
+.sgc-catalogue-row .sgc-actions button:first-child{background:#392d3b!important;color:#fff!important;border-color:#392d3b!important}
+.sgc-catalogue-form{background:#fff!important;border:1px solid #ede4e9!important;border-radius:24px!important;padding:clamp(18px,3vw,34px)!important;box-shadow:0 12px 38px rgba(52,43,53,.045);margin:20px 0!important}
+.sgc-catalogue-form h3{font:500 29px/1.25 Georgia,serif!important;color:#302631;margin:0 0 22px!important}
+.sgc-catalogue-form h4{font:500 19px/1.4 Georgia,serif!important;color:#463646!important;border-bottom:1px solid #f0e8ed!important;padding:0 0 12px!important;margin:30px 0 16px!important}
+.sgc-catalogue-form .sgc-field{margin:15px 0!important}
+.sgc-catalogue-form .sgc-field label{display:block;color:#655564;font-size:12px;font-weight:600;letter-spacing:.015em;margin-bottom:7px}
+.sgc-catalogue-form input:not([type=checkbox]):not([type=radio]):not([type=file]),.sgc-catalogue-form select,.sgc-catalogue-form textarea{border:1px solid #e9e0e6!important;border-radius:12px!important;background:#fff!important;min-height:41px;padding:10px 13px;color:#372c38;box-shadow:none!important;outline-offset:2px}
+.sgc-catalogue-form input:focus,.sgc-catalogue-form select:focus,.sgc-catalogue-form textarea:focus{border-color:#a97e9e!important;outline:2px solid #f1e4ed}
+.sgc-catalogue-form button{border-radius:11px!important;min-height:38px!important;padding:9px 14px!important;font-size:12px!important;font-weight:600!important;letter-spacing:.01em;box-shadow:none!important;margin:8px 6px 0 0!important}
+.sgc-catalogue-form .sgc-media-card{border:1px solid #f0e7ec!important;border-radius:19px!important;background:#fdfbfc!important;padding:20px!important}
+.sgc-catalogue-form .sgc-media-drop{background:#fff!important;border:1px dashed #cbb8c6!important;border-radius:15px!important;min-height:115px!important}
+.sgc-catalogue-form .sgc-media-tile{border-radius:14px!important;border-color:#eee4e9!important;padding:7px!important}
+.sgc-catalogue-form .sgc-media-tile img{border-radius:10px!important;object-fit:cover!important}
+.sgc-catalogue-form .sgc-option-row{display:grid!important;grid-template-columns:minmax(100px,1fr) minmax(150px,1.5fr) auto;gap:9px!important;padding:10px!important;border:1px solid #eee5ea;border-radius:14px;background:#fdfbfc;margin:10px 0!important}
+.sgc-catalogue-form .sgc-option-row input{min-width:0!important;width:100%!important;margin:0!important}
+.sgc-catalogue-form .sgc-option-row button{margin:0!important;white-space:nowrap;background:#f6edf3!important;color:#805878!important}
+.sgc-catalogue-form .sgc-variant-table{border:1px solid #eee5ea;border-radius:16px;background:#fff;margin-top:18px}
+.sgc-catalogue-form .sgc-variant-table table{border-collapse:separate;border-spacing:0}
+.sgc-catalogue-form .sgc-variant-table th{background:#faf6f9;padding:13px 10px;color:#6d5a69;font-size:11px;text-align:left;font-weight:600}
+.sgc-catalogue-form .sgc-variant-table td{padding:12px 9px;border-top:1px solid #f1e9ed;vertical-align:middle}
+.sgc-catalogue-form .sgc-variant-table input,.sgc-catalogue-form .sgc-variant-table select{min-width:80px!important}
+.sgc-variant-picker{border-radius:24px!important;border-color:#eee2e9!important;box-shadow:0 24px 80px #24182a35!important}
+@media(max-width:680px){.sgc-catalogue-row{align-items:flex-start!important}.sgc-catalogue-form .sgc-option-row{grid-template-columns:1fr 1fr}.sgc-catalogue-form .sgc-option-row button{grid-column:1/-1;justify-self:end}.sgc-catalogue-form{padding:17px!important}}
