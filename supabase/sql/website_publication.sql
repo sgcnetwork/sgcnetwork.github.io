@@ -30,11 +30,12 @@ returns jsonb language sql stable security invoker set search_path='' as $$
  'preferences',coalesce((select jsonb_object_agg(key,value) from jsonb_each(p_site.builder_preferences)
  where key=any(array['logoStyle','logoText','logo','logoSize','logoSpacing','logoColorMode','logoColor',
  'menuPosition','menuSize','menuColorMode','menuColor','menuBackgroundMode','menuBackground',
- 'stickyMenu','favicon','announcementEnabled','announcementText','announcementTextColor','announcementBg',
+ 'stickyMenu','alwaysCollapsed','hamburgerPosition','hamburgerIcon','showSearch','showCart','favicon','announcementEnabled','announcementText','announcementTextColor','announcementBgMode','announcementBg',
  'contactBarEnabled','siteFont','siteTheme','siteBackground','homeButtonTarget','homeButtonText',
+ 'themePrimary','themeSecondary','homeMediaUrl','homeMediaType','homeMediaX','homeMediaY',
  'homeBackgroundType','homeBackground','headline','welcome','cta','homeSections','menuEntries',
  'servicesTitle','servicesMenuVisible','servicesMenuLabel','servicesHideEmpty','servicesHomeVisible',
- 'servicesDescription','delivery','photos','media','postTitle','postBody','about','team','email','phone',
+ 'servicesDescription','servicesDesktopColumns','servicesMobileColumns','delivery','photos','media','postTitle','postBody','about','team','email','phone',
  'whatsapp','instagram','facebook','footer','seo'])), '{}'::jsonb),
  'products',coalesce((select jsonb_agg(jsonb_build_object(
  'id',item->'id','name',item->'name','description',item->'description',
