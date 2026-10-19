@@ -11,8 +11,8 @@ Updated 19 October 2026. Status refers to the named checks, not blanket producti
 | Product variant media, price and description | TESTED — WORKING | Existing product-media, catalogue and purchase tests pass against shared renderer. |
 | Subdomain router product assets and media/font security policy | IMPLEMENTED — NOT TESTED | Automated router tests pass. Requires actual Cloudflare deployment and anonymous customer-subdomain verification. |
 | Cart, multi-item checkout, persistent orders and owner status updates | TESTED — WORKING | Model, Edge and rolled-back SQL tests pass: quantities, variants, retries, server prices, stock, cancellation and ownership. Browser acceptance and frontend deployment pending. Checkout records unpaid orders; card/payment collection remains a separate integration. |
-| Dashboard memberships, Library and Website Builder entitlements | NOT STARTED | Existing implementations to inspect and verify. |
-| Academy, submissions, progress and two-module monthly access | NOT STARTED | Existing implementations to inspect and verify. |
+| Dashboard memberships, Library and Website Builder entitlements | TESTED — WORKING | Joining fee, Academy and builder shown separately; demo access preserved; billing includes builder expiry; locked states covered by UI tests. Download delivery still under review. |
+| Academy, submissions, progress and two-module monthly access | IN PROGRESS | Release/RLS tests pass; direct completion bypass blocked; video-field fallback and lesson resume repaired. Practical assessment workflow still to verify. |
 | SGC shop, checkout, digital delivery and bookings | NOT STARTED | Existing implementations to inspect and verify. |
 | Admin Studio integration and reports | NOT STARTED | Existing implementations to inspect and verify. |
 | Community, messages, media and permissions | NOT STARTED | Existing implementations to inspect and verify. |
@@ -35,3 +35,11 @@ The old Buy now action generated a contact enquiry. The existing `sgc_builder_or
 `storefront-cart.js` persists carts independently per customer subdomain. Uncertain network outcomes retain the same key and lock cart edits until confirmation; preview checkout sends no order. `business.js` renders cart, checkout, order history and search through the same public/preview document. Owner reports include customer details, variant lines, payment state and fulfilment actions.
 
 Tests: 52 Node/JSDOM checks pass; `tests/builder-checkout.sql` passes in an explicit transaction that rolls back every fixture. Tested server totals, missing variants, duplicate retries, stock decrement, oversell rejection, cross-owner denial and idempotent cancellation/restocking. The additive SQL migration and existing `website-publication` Edge Function v2 are deployed. No gateway provider, credentials or live financial settings changed; payment collection and paid digital delivery remain outstanding.
+
+## Dashboard and Academy access repair set
+
+Replaces the misleading joining-fee Academy unlock state with separate Academy and Website Builder subscription states. Adds a My Web Build card, verified published-site link and builder access expiry in billing. Removes a reference to a missing `js/demo-access.js` file; the existing authenticated demo RPC remains authoritative.
+
+The Academy now checks one authenticated release summary. General Academy content needs an active qualifying Academy membership or grant; two modules release each membership month, up to twelve. Paid kit access and the verified demo/admin paths are preserved. Expiry is enforced in lesson/resource RLS. A trigger prevents direct student writes changing completion; existing quiz and completion RPCs retain that authority. SQL fixtures verify entry-only denial, active access, month-two release, expiry, notes and completion protections with actual authenticated role impersonation.
+
+The player previously ignored the `video_url` stored on all 27 currently published lessons; it now loads it when no settings override exists. Saved lesson position and My Library lesson links restore the selected available lesson, while quiz progression remains gated and results stay on My SGC. Actual video availability at each external URL still requires browser playback testing.
