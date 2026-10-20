@@ -118,6 +118,10 @@ Deno.serve(async (req) => {
 
     const product = String(body.product || "").trim();
     const productId = String(body.productId || "").trim();
+    const variantId = String(body.variantId || "").trim();
+    const quantity = Number(body.quantity ?? 1);
+    if (!Number.isSafeInteger(quantity) || quantity < 1 || quantity > 100) return respond({success:false,error:"Invalid quantity (1–100)."},400);
+    if ((variantId || quantity !== 1) && !productId) return respond({success:false,error:"Variant and quantity checkout requires a product."},400);
     const membershipId = String(
       body.membershipId || ""
     ).trim();
@@ -213,8 +217,16 @@ Deno.serve(async (req) => {
         );
       }
 
-      finalAmount = Number(data.price_zar);
-      selectedName = data.name;
+      let unitPrice = Number(data.price_zar);
+      if (variantId) {
+        const { data: variant, error: variantError } = await supabase.from("sgc_kit_variants")
+          .select("id,name,price_zar").eq("id",variantId).eq("product_id",data.id).eq("active",true).single();
+        if (variantError || !variant) return respond({success:false,error:"Selected variant is unavailable."},400);
+        unitPrice = Number(variant.price_zar);
+        selectedName = data.name + " — " + variant.name;
+      } else selectedName = data.name;
+      if (data.billing === "monthly" && quantity !== 1) return respond({success:false,error:"Subscriptions require quantity one."},400);
+      finalAmount = Math.round(unitPrice * 100) * quantity / 100;
       selectedId = data.id;
       referenceCode = "X";
       entitlementKey = data.access_level || null;
@@ -427,6 +439,8 @@ Deno.serve(async (req) => {
           amount_zar: finalAmount,
           billing,
           entitlement_key: entitlementKey,
+          variant_id: variantId || null,
+          quantity,
           checkout_url: checkoutUrl,
           status: "pending",
         })
@@ -469,6 +483,8 @@ Deno.serve(async (req) => {
       product: selectedName,
       productId: selectedId,
       amount: finalAmount,
+      quantity,
+      variantId: variantId || null,
       billing,
       merchantReference,
     });
