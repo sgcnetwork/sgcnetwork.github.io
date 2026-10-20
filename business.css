@@ -15,3 +15,10 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible{ou
 .service-grid{grid-template-columns:repeat(var(--service-columns,3),minmax(0,1fr))}@media(max-width:700px){.service-grid{grid-template-columns:repeat(var(--service-mobile-columns,1),minmax(0,1fr))}}
 
 .store-cart-row{display:flex;justify-content:space-between;align-items:center;gap:20px;border:1px solid #8883;border-radius:18px;padding:18px 22px;margin:14px 0}.store-cart-row h3{margin:0}.store-cart-row p{margin:5px 0}.store-cart-row input{width:80px;margin-left:12px;padding:9px;border:1px solid #8885;border-radius:10px;font:inherit}.store-cart-total{font-size:24px;font-weight:700}.store-checkout{max-width:650px;padding:24px;border:1px solid #8883;border-radius:22px;margin-top:28px}.store-checkout label{display:block;font-weight:600;margin:16px 0}.store-checkout input,.store-checkout textarea{display:block;width:100%;font:inherit;border:1px solid #8885;border-radius:12px;padding:12px;background:var(--bg);color:var(--ink);margin-top:7px}.store-checkout button{width:100%;min-height:48px}.store-order{border:1px solid #8883;border-radius:18px;padding:18px 24px;margin-bottom:16px}.button.soft{background:transparent;color:inherit;border:1px solid #8885;margin-left:8px}
+
+/* Shared published storefront palette: same primary/secondary choices as builder preview */
+#site main>section{border-left:4px solid var(--primary);padding-left:clamp(14px,2vw,25px);background:color-mix(in srgb,var(--primary) 20%,var(--bg))}
+#site main>section:nth-child(even){background:color-mix(in srgb,var(--primary) 32%,var(--bg))}
+#site main>section h2,#site .price{color:var(--accent)}
+#site .card{border-color:var(--primary)}
+#site .site-header nav a:hover,#site .site-footer a:hover{color:var(--accent)}
