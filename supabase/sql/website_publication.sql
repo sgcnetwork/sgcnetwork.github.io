@@ -36,7 +36,7 @@ returns jsonb language sql stable security invoker set search_path='' as $$
  'homeBackgroundType','homeBackground','headline','welcome','cta','homeSections','menuEntries',
  'servicesTitle','servicesMenuVisible','servicesMenuLabel','servicesHideEmpty','servicesHomeVisible',
  'servicesDescription','servicesDesktopColumns','servicesMobileColumns','delivery','photos','media','postTitle','postBody','about','team','email','phone',
- 'whatsapp','instagram','facebook','footer','seo'])), '{}'::jsonb),
+ 'whatsapp','instagram','facebook','footer','seo','beautyStudio'])), '{}'::jsonb),
  'products',coalesce((select jsonb_agg(jsonb_build_object(
  'id',item->'id','name',item->'name','description',item->'description',
  'price',item->'price','salePrice',item->'salePrice','onSale',item->'onSale',
