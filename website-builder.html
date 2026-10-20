@@ -829,6 +829,31 @@ if(['logo','menu','colour-theme','font','announcement-bar'].includes(page)){
   // Palette selection sets its mode after colour input handlers finish.
   palettes.querySelectorAll('button').forEach((button,index)=>{button.onclick=()=>{primary.value=colours[index][1];secondary.value=colours[index][2];primary.dispatchEvent(new Event('input',{bubbles:true}));secondary.dispatchEvent(new Event('input',{bubbles:true}));selectMode('Predefined');mark();};});
   mark();
+  // Update the complete website preview on every palette click, colour drag, and input.
+  // Native colour pickers emit 'input' repeatedly while dragging, not only on Save.
+  let lastPalette='';
+  const syncLivePalette=()=>{
+   if(!primary||!secondary)return;
+   draft.themePrimary=primary.value;
+   draft.themeSecondary=secondary.value;
+   draft.themeMode=mode?.value||'Custom';
+   const signature=draft.themePrimary+'|'+draft.themeSecondary;
+   if(signature===lastPalette)return;
+   lastPalette=signature;
+   window.sgcRenderFullPreview?.(draft);
+   const preview=document.getElementById('preview');
+   if(preview){
+    preview.style.setProperty('--sgc-site-primary',draft.themePrimary);
+    preview.style.setProperty('--sgc-site-secondary',draft.themeSecondary);
+    preview.style.setProperty('--primary',draft.themePrimary);
+    preview.style.setProperty('--accent',draft.themeSecondary);
+    const hero=preview.querySelector('.preview-hero');
+    if(hero&&draft.homeBackgroundType!=='Custom color')hero.style.setProperty('background',draft.themePrimary,'important');
+   }
+  };
+  [primary,secondary].forEach(input=>{if(input){input.addEventListener('input',syncLivePalette);input.addEventListener('change',syncLivePalette);}});
+  palettes.querySelectorAll('button').forEach(button=>button.addEventListener('click',syncLivePalette));
+  syncLivePalette();
  }
  if(page==='announcement-bar' && fields){
   if(title)title.textContent='Edit your announcement and contact bar preferences';
