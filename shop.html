@@ -120,7 +120,16 @@ label[for="category-menu"]{font-size:11px;text-transform:uppercase;letter-spacin
  .hero h1{font-size:clamp(34px,9vw,48px)!important}
  .sgc-guide-launcher{bottom:calc(95px + env(safe-area-inset-bottom,0px))!important}
 }
-</style><link rel="stylesheet" href="css/sgc-theme.css?v=6"><script src="js/sgc-theme.js?v=2"></script></head>
+</style><link rel="stylesheet" href="css/sgc-theme.css?v=6"><script src="js/sgc-theme.js?v=2"></script><style>
+/* SGC refined storefront product detail */
+.sgc-pdp{display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,1fr);gap:clamp(28px,5vw,76px);max-width:1220px;margin:24px auto 65px;align-items:start}
+.sgc-pdp-gallery{min-width:0}.sgc-pdp-main{width:100%;aspect-ratio:4/5;object-fit:contain;background:#f1ebee;border-radius:9px;display:block}
+.sgc-pdp-thumbs{display:flex;gap:10px;overflow-x:auto;margin-top:12px}.sgc-pdp-thumbs button{padding:2px;margin:0;background:transparent;border:2px solid transparent;border-radius:8px;flex:0 0 70px}.sgc-pdp-thumbs button.active{border-color:#8c5488}.sgc-pdp-thumbs img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:5px;display:block}
+.sgc-pdp-info{padding-top:6px}.sgc-pdp-info h1{font:clamp(29px,3.6vw,44px)/1.13 Georgia,serif;letter-spacing:-.035em;margin:12px 0 18px}.sgc-pdp-price{font:700 29px/1.2 Arial,sans-serif;color:#7c4278;margin:16px 0 26px}
+.sgc-pdp-label{font-size:13px;font-weight:700;margin:23px 0 12px}.sgc-pdp-options{display:flex;flex-wrap:wrap;gap:9px}.sgc-pdp-options button{background:#fff;color:#443442;border:1px solid #ded1dc;border-radius:28px;padding:12px 20px;margin:0;font-size:13px}.sgc-pdp-options button.active{border:2px solid #814d7c;padding:11px 19px;background:#f4e9f2}
+.sgc-pdp-quantity{max-width:110px}.sgc-pdp-actions{display:grid;gap:11px;margin:26px 0}.sgc-pdp-actions button{margin:0;border-radius:9px;width:100%;padding:17px;font-size:14px;font-weight:700}.sgc-pdp-actions .sgc-pdp-cart{background:transparent;border:1px solid #9c7298;color:#744b70}.sgc-pdp-info details{border-top:1px solid #e6dce2;padding:19px 0;font-size:14px}.sgc-pdp-info summary{cursor:pointer;font-weight:700;letter-spacing:.07em;font-size:12px;text-transform:uppercase}.sgc-pdp-info details p{line-height:1.8;white-space:pre-wrap}.sgc-pdp-note{font-size:12px;color:#766a75;min-height:18px}
+@media(max-width:750px){.sgc-pdp{grid-template-columns:1fr;gap:23px;margin:12px 0 35px}.sgc-pdp-main{aspect-ratio:1}.sgc-pdp-info h1{font-size:32px}}
+</style></head>
 <body><main>
 <header><a class="brand" href="index.html">SGC NETWORK</a><nav><a href="academy.html">Academy</a><a href="community.html">Community</a><a href="dashboard.html">My SGC</a></nav></header>
 <div class="hero"><span class="eyebrow">THE SGC COLLECTION</span><h1>Your next chapter<br>starts here.</h1><p>Business kits, learning and practical support.<br>Choose the tools for the business you want to build.</p><p id="account" class="muted"></p></div>
@@ -206,7 +215,39 @@ function kitContents(product){
  box.append(delivery);return box;
 }
 
-function productCard(product,detail=false){const card=node('article',undefined,'card'+(detail?' detail':''));card.classList.add('product-card');const title=sections.find(s=>s[0]===category(product))?.[1]||'Extras';const picture=productImages.get(product.id);if(picture){const img=document.createElement('img');img.src=picture;img.alt=product.name+' product image';img.loading='lazy';img.className='sgc-product-picture';if(product.kitOptions)img.classList.add('business-kits-picture');img.onerror=()=>img.replaceWith(kitArtwork(product));card.append(img);}else{card.append(kitArtwork(product));}const image=card.firstElementChild;
+
+async function sgcDirectStitch(product,variantId,quantity,button,note){
+ if(params.get('studioPreview')==='1')return;
+ const {data:{session}}=await sb.auth.getSession();
+ if(!session){location.href='login.html?next='+encodeURIComponent(location.pathname+location.search);return;}
+ button.disabled=true;note.textContent='Connecting securely to Stitch…';
+ try{
+ const response=await fetch('https://bxpexanyoyubxeqqlggh.supabase.co/functions/v1/create-stitch-payment',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token,'apikey':'sb_publishable_Z0_Y-Bj_G5qw4hMgDbQlgA__jj8rGGq'},body:JSON.stringify({productId:product.id,variantId:variantId||undefined,quantity,payerName:session.user.user_metadata?.full_name||'SGC Customer'})});
+ const data=await response.json();if(!response.ok||!data.success||!data.checkoutUrl)throw Error(data.error||'Unable to open checkout.');
+ const url=new URL(data.checkoutUrl);if(url.protocol!=='https:')throw Error('Invalid payment link.');location.assign(url.href);
+ }catch(e){note.textContent=e.message;button.disabled=false;}
+}
+function sgcProductDetail(product){
+ const root=node('article',undefined,'sgc-pdp'),gallery=node('div',undefined,'sgc-pdp-gallery'),info=node('div',undefined,'sgc-pdp-info');
+ const image=document.createElement('img');image.className='sgc-pdp-main';image.alt=product.name;image.src=productImages.get(product.id)||kitArtwork(product).src;gallery.append(image);
+ const thumbs=node('div',undefined,'sgc-pdp-thumbs');gallery.append(thumbs);
+ const pictures=[image.src];const variants=kitVariants.get(product.id)||[];for(const v of variants){if(v.image_url&&!pictures.includes(v.image_url))pictures.push(v.image_url);}
+ pictures.forEach((src,i)=>{const b=node('button');b.type='button';b.className=i===0?'active':'';const pic=document.createElement('img');pic.src=src;pic.alt='Product view '+(i+1);b.append(pic);b.onclick=()=>{image.src=src;for(const child of thumbs.children)child.classList.remove('active');b.classList.add('active');};thumbs.append(b);});
+ info.append(node('span',sections.find(x=>x[0]===category(product))?.[1]||'SGC Collection','eyebrow'),node('h1',product.name));
+ const priceText=node('p',price(product),'sgc-pdp-price');info.append(priceText);
+ let variant=null;const note=node('p','','sgc-pdp-note');
+ if(variants.length){info.append(node('p','Choose an option','sgc-pdp-label'));const options=node('div',undefined,'sgc-pdp-options');for(const v of variants){const b=node('button',v.name);b.type='button';b.onclick=()=>{variant=v;for(const x of options.children)x.classList.remove('active');b.classList.add('active');priceText.textContent='R'+Number(v.price_zar).toFixed(2);if(v.image_url)image.src=v.image_url;note.textContent='';};options.append(b);}info.append(options);}
+ info.append(node('p','Quantity','sgc-pdp-label'));const qty=node('input');qty.type='number';qty.min='1';qty.max=product.billing==='monthly'?'1':'100';qty.step='1';qty.value='1';qty.className='sgc-pdp-quantity';qty.setAttribute('aria-label','Quantity');info.append(qty);
+ const actions=node('div',undefined,'sgc-pdp-actions'),buy=node('button','Buy now'),cart=node('button','Add to cart','sgc-pdp-cart');buy.type=cart.type='button';
+ function selection(){const q=Number(qty.value);if(!Number.isSafeInteger(q)||q<1||q>100)throw Error('Choose a quantity from 1 to 100.');if(variants.length&&!variant)throw Error('Please select a variant.');return q;}
+ buy.onclick=async()=>{try{await sgcDirectStitch(product,variant?.id,selection(),buy,note);}catch(e){note.textContent=e.message;}};
+ cart.onclick=()=>{try{const q=selection();const key=product.id+':'+(variant?.id||'');const existing=kitCart.find(x=>x.cartKey===key);if(existing)existing.quantity=(existing.quantity||1)+q;else kitCart.push({id:product.id,cartKey:key,variantId:variant?.id||null,variantName:variant?.name||'',quantity:q,name:product.name,price_zar:variant?.price_zar??product.price_zar,billing:product.billing});saveKitCart();note.textContent='Added to cart.';}catch(e){note.textContent=e.message;}};
+ actions.append(buy,cart);info.append(actions,note);
+ const details=node('details');details.append(node('summary','Product details'),node('p',product.description||'Product information coming soon.'));info.append(details);
+ root.append(gallery,info);return root;
+}
+
+function productCard(product,detail=false){if(detail&&!product.kitOptions&&settings.get(product.id)?.delivery!=="appointment"&&settings.get(product.id)?.delivery!=="task")return sgcProductDetail(product);const card=node('article',undefined,'card'+(detail?' detail':''));card.classList.add('product-card');const title=sections.find(s=>s[0]===category(product))?.[1]||'Extras';const picture=productImages.get(product.id);if(picture){const img=document.createElement('img');img.src=picture;img.alt=product.name+' product image';img.loading='lazy';img.className='sgc-product-picture';if(product.kitOptions)img.classList.add('business-kits-picture');img.onerror=()=>img.replaceWith(kitArtwork(product));card.append(img);}else{card.append(kitArtwork(product));}const image=card.firstElementChild;
  if(!detail&&image){const preview=node('a',undefined,'product-image-link');preview.href=shopLink(category(product),product.id);preview.setAttribute('aria-label','Explore '+product.name);image.replaceWith(preview);preview.append(image);}
  const body=node('div',undefined,'product-card-body');
  body.append(node('span',title,'badge'),node(detail?'h1':'h3',product.name));
