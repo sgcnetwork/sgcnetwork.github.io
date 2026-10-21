@@ -181,7 +181,7 @@ function route(){if(p.businessStudio&&p.activeStudio==='business'){const parts=l
 function render(data){
  site=data;p=site.preferences||{};site.products=list(site.products);site.services=list(site.services);
  if(!cart&&window.SgcCart){let storage;try{if(!preview)storage=window.localStorage;}catch{}cart=window.SgcCart.create({slug:site.slug||'preview',products:site.products,storage,preview});}else cart?.setProducts(site.products);
- if(p.businessStudio&&p.activeStudio==='business'&&window.SgcBusiness){renderBusiness();return;}
+ if(p.businessStudio&&p.activeStudio==='business'&&window.SgcBusiness){p.businessStudio={...p.businessStudio,brand:text(site.business_name).trim()||p.businessStudio.brand};renderBusiness();return;}
  if(p.beautyStudio&&window.SgcBeauty){renderBeauty();return;}
  document.title=text(site.business_name);document.querySelector('meta[name=description]').content=text(p.seo||site.description).slice(0,300);
  document.documentElement.style.setProperty('--primary',colour(site.primary_color,'#efdce6'));document.documentElement.style.setProperty('--accent',colour(site.accent_color,'#463445'));
