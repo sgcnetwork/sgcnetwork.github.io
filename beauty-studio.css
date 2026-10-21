@@ -31,3 +31,11 @@
 .homepage-section-row span{flex:1}
 .homepage-section-row button{border:1px solid #e2d1bb;background:#fff9f2;color:#9c703f;border-radius:7px;padding:5px 9px;cursor:pointer}
 .homepage-section-row button:disabled{opacity:.35;cursor:default}
+
+/* Collapsible editor sidebar */
+#sidebar .sidebar-accordion-toggle{display:flex;align-items:center;justify-content:space-between;width:100%;text-align:left;cursor:pointer;border:0;background:transparent;font:inherit;color:inherit;padding:12px 8px;border-radius:9px}
+#sidebar .sidebar-accordion-toggle:hover{background:#f6ede3}
+#sidebar .sidebar-chevron{display:inline-block;transition:transform .2s ease;font-size:15px}
+#sidebar .sidebar-accordion-toggle.collapsed .sidebar-chevron{transform:rotate(180deg)}
+#sidebar nav[hidden]{display:none!important}
+#sidebar .sidebar-accordion-toggle:focus-visible{outline:2px solid #b98b52;outline-offset:2px}
