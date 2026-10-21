@@ -1,7 +1,7 @@
 /* Shared editable Business Services elements. Embedded into the public renderer. */
 (function(root){'use strict';
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const url=v=>{try{const u=new URL(v,location.origin);return ['https:','http:','mailto:','tel:'].includes(u.protocol)?u.href:''}catch{return ''}};
+const url=v=>{if(typeof v!=='string'||!v.trim())return '';try{const u=new URL(v,location.origin);return ['https:','http:','mailto:','tel:'].includes(u.protocol)?u.href:''}catch{return ''}};
 const num=(v,min,max,fallback)=>Math.max(min,Math.min(max,Number.isFinite(Number(v))?Number(v):fallback));
 const colour=(v,f)=>/^#[0-9a-f]{3,8}$/i.test(v||'')?v:f;
 function defaults(type){return {id:crypto.randomUUID(),type,title:({'Text':'Tell your story','Button':'Get in touch','FAQ':'Frequently asked questions','Testimonial':'Your client’s name','Team Member':'Meet our team','Pricing Table':'Choose your plan','Social Icons':'Follow us','Form':'Send message'}[type]||'New '+type),body:'Add your content here.',url:'',active:true,style:{},items:type==='FAQ'?[{title:'How can we help?',body:'Add a helpful answer.'}]:type==='Team Member'?[{title:'Team member',body:'Role and introduction',image:'',url:''}]:type==='Pricing Table'?[{title:'Starter',body:'Describe what is included',price:'R299',button:'Get started',url:''}]:type==='Social Icons'?[{title:'Instagram',url:'https://instagram.com/'}]:type==='Form'?[{title:'Name',type:'text',required:true},{title:'Email',type:'email',required:true},{title:'Message',type:'textarea',required:true}]:[],children:[]};}
@@ -30,5 +30,26 @@ function render(it,context={}){const e=esc,title=e(it.title),body=e(it.body),src
  }
  return '<div class="editable-element" style="text-align:'+align+';color:'+colour(s.color,'inherit')+';background:'+colour(s.background,'transparent')+';font-size:'+num(s.fontSize,10,90,16)+'px;padding:'+num(s.padding,0,160,12)+'px;margin:'+num(s.margin,0,100,0)+'px;border-radius:'+num(s.radius,0,100,8)+'px;max-width:'+num(s.width,20,100,100)+'%;margin-left:auto;margin-right:auto">'+html+'</div>';
 }
-root.SgcBusinessElements={defaults,render};
+
+function stable(value){if(Array.isArray(value))return value.map(stable);if(value&&typeof value==='object')return Object.fromEntries(Object.keys(value).sort().map(k=>[k,stable(value[k])]));return value;}
+function isPlaceholder(it){
+ if(!it||it._explicitlyAdded)return false;
+ const base=defaults(it.type);
+ if(!['New '+it.type,base.title].includes(it.title||''))return false;
+ if(!['','Click to customise this element.','Add your content here.'].includes(it.body||''))return false;
+ if(it.url||it.image||it.src||it.link||it.address||(it.images||[]).length||(it.children||[]).length)return false;
+ if(Object.values(it.style||{}).some(v=>v!==''&&v!=null))return false;
+ if((it.items||[]).length&&JSON.stringify(stable(it.items))!==JSON.stringify(stable(base.items)))return false;
+ return true;
+}
+function enhanceHome(host,state){
+ for(const [selector,page,label] of [['[data-home-service]','Services','View all services'],['[data-home-product]','Products','Browse products']]){
+  const section=host.querySelector(selector)?.closest('section');if(!section)continue;
+  if(![...section.querySelectorAll(selector)].some(card=>card.hidden!==true)){section.remove();continue;}
+  section.classList.add('home-collection');
+  if(!section.querySelector('.home-collection-link')){const link=document.createElement('a');link.className='home-collection-link';link.href='#business/'+encodeURIComponent(page);link.dataset.nav=page;link.textContent=label+' ↗';section.append(link);}
+ }
+}
+
+root.SgcBusinessElements={defaults,render,isPlaceholder,enhanceHome};
 })(window);
