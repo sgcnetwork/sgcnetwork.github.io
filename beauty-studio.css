@@ -15,3 +15,13 @@
 .booking-guide-dialog a{color:#9b6a35;font-size:13px;font-weight:600;text-decoration:underline}
 .booking-guide-dialog .booking-guide-note{background:#f8f0e7;padding:12px;border-radius:10px;margin-top:20px}
 .booking-guide-close{float:right;border:0;background:#f4e9dc;border-radius:50%;width:31px;height:31px;font-size:21px;cursor:pointer}
+
+/* Category management */
+.category-edit-card{border:1px solid #e8d8c5;border-radius:13px;background:#fffdfa;padding:13px;margin:13px 0;display:flex;flex-direction:column;gap:9px}
+.category-edit-card h3{font-family:Georgia,serif;font-size:17px;margin:0;color:#3b2b22}
+.category-edit-card h4{font-size:12px;font-weight:700;margin:7px 0 0;color:#5a4231}
+.category-edit-preview{width:100%;height:125px;object-fit:cover;border-radius:9px;background:#f3ebe3}
+.category-edit-card .field{margin:0}
+.category-product-option{display:flex;align-items:center;gap:9px;font-size:12px;color:#44352c;cursor:pointer;padding:5px 2px}
+.category-product-option input{accent-color:#b98a51;width:16px;height:16px}
+.category-delete{border:1px solid #e3c6b7;background:#fff8f4;color:#9b5841;border-radius:8px;padding:8px;font-size:12px;cursor:pointer}
