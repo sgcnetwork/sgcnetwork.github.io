@@ -35,4 +35,12 @@ button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible{ou
 /* Isolate shared storefront from the older generic business page rules. */
 .ec-site .ec-content{max-width:none;padding:0;margin:0}.ec-site section{scroll-margin-top:0}.ec-site .ec-hero{padding:0}.ec-site .ec-promo{padding:0}.ec-site .ec-menu-toggle{padding:4px 7px;border-radius:4px;background:transparent;color:var(--ec-ink)}.ec-site details{margin:0}.ec-site .ec-thumbnails button{background:#f8f5ee;color:var(--ec-ink)}.ec-site .ec-cart-row button{border-radius:0;color:#888}.ec-site .ec-header-actions a{display:inline-flex;align-items:center}
 
+/* The hero photograph stays behind a fully opaque editable copy surface. */
+.ec-hero>div:not(.ec-photo){background:var(--ec-heroBackground,#eee7db);color:var(--ec-heroInk,#262721)}
+.ec-site .ec-categories>a,.ec-site .ec-footer{background:color-mix(in srgb,var(--ec-background) 92%,var(--ec-accent) 8%)}
+.ec-site .ec-newsletter{background:color-mix(in srgb,var(--ec-background) 88%,var(--ec-accent) 12%)}
+.ec-site .ec-promo,.ec-site .ec-personal-preview{background:color-mix(in srgb,var(--ec-background) 80%,var(--ec-accent) 20%)}
+.ec-site .ec-newsletter input{background:var(--ec-background)!important}
+.ec-site [hidden]{display:none!important}
+
 /* SGC ECOMMERCE GENERATED END */
