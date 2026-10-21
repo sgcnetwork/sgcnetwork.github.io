@@ -2,8 +2,30 @@
 const copy=v=>JSON.parse(JSON.stringify(v));
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const safe=v=>{if(typeof v!=='string'||!v.trim())return '';try{const u=new URL(v,location.origin);return ['https:','http:'].includes(u.protocol)&&(!v.startsWith('http:')||u.hostname==='localhost')?u.href:'';}catch{return '';}};
-const crops={hero:[1090,134,425,270],salon:[387,141,180,153],glow:[187,316,184,150],lumiere:[389,316,181,150],facial:[700,614,88,100],massage:[800,614,89,100],nails:[902,614,88,100],serum:[1204,615,98,101],roller:[1310,615,98,101],oil:[1418,615,98,101],gallery1:[548,879,62,65],gallery2:[615,879,65,65],gallery3:[682,879,63,65],gallery4:[547,950,63,67],gallery5:[614,950,65,67],gallery6:[683,950,63,67]};
-function photo(src,cls='',alt='Beauty studio photograph'){if(src?.startsWith('ref:')){const c=crops[src.slice(4)]||crops.hero;return '<div role="img" aria-label="'+esc(alt)+'" class="beauty-photo '+cls+'" style="aspect-ratio:'+c[2]+'/'+c[3]+'"><img alt="" src="https://sgcnetwork.co.za/assets/beauty-studio-reference.webp" style="position:absolute!important;width:'+1536/c[2]*100+'%!important;max-width:none!important;height:auto!important;left:'+(-c[0]/c[2]*100)+'%;top:'+(-c[1]/c[3]*100)+'%"></div>';}return '<div class="beauty-photo '+cls+'"><img src="'+esc(safe(src))+'" alt="'+esc(alt)+'" style="width:100%;height:100%;object-fit:cover"></div>';}
+// Full-resolution photographs replace tiny crops enlarged from a single reference screenshot.
+const stockPhotos={
+hero:'photo-1560066984-138dadb4c035',
+salon:'photo-1521590832167-7bcbfaa6381f',
+glow:'photo-1570172619644-dfd03ed5d881',
+lumiere:'photo-1560750588-73207b1ef5b8',
+facial:'photo-1570172619644-dfd03ed5d881',
+massage:'photo-1544161515-4ab6ce6db874',
+nails:'photo-1604654894610-df63bc536371',
+serum:'photo-1608248543803-ba4f8c70ae0b',
+roller:'photo-1596755389378-c31d21fd1273',
+oil:'photo-1608571423902-eed4a5ad8108',
+gallery1:'photo-1560066984-138dadb4c035',
+gallery2:'photo-1521590832167-7bcbfaa6381f',
+gallery3:'photo-1570172619644-dfd03ed5d881',
+gallery4:'photo-1544161515-4ab6ce6db874',
+gallery5:'photo-1604654894610-df63bc536371',
+gallery6:'photo-1608248543803-ba4f8c70ae0b'
+};
+function photo(src,cls='',alt='Beauty studio photograph'){
+ const key=typeof src==='string'&&src.startsWith('ref:')?src.slice(4):'';
+ const url=key?'https://images.unsplash.com/'+(stockPhotos[key]||stockPhotos.hero)+'?auto=format&fit=crop&w=1400&q=88':safe(src);
+ return '<div role="img" aria-label="'+esc(alt)+'" class="beauty-photo '+cls+'"><img alt="'+esc(alt)+'" src="'+esc(url)+'" loading="'+(cls.includes('hero')?'eager':'lazy')+'" decoding="async" style="display:block;width:100%;height:100%;object-fit:cover"></div>';
+}
 function defaults(){return {version:1,template:'radiant',brand:'LUMIÈRE',tagline:'BEAUTY STUDIO',heroTitle:'Radiant\nBeauty\nInside & Out',heroSubtitle:'Skincare · Treatments · Wellness',heroButton:'Book Your Appointment',heroImage:'ref:hero',logo:'',announcement:'',announcementEnabled:false,aboutTitle:'Beauty, thoughtfully personal.',about:'A peaceful space to unwind, restore and reconnect. Discover considered treatments, expert care and little moments of luxury.',footer:'Your glow. Your moment. Your Lumière.',email:'',phone:'',address:'',bookingUrl:'',bookingEnabled:true,duration:60,headingFont:'Playfair Display',bodyFont:'DM Sans',accent:'#ae7e46',background:'#fffaf5',ink:'#33271f',heroBackground:'#e8cbbb',buttonRadius:4,seoTitle:'Lumière Beauty Studio',seoDescription:'Skincare, treatments and wellness, thoughtfully tailored to you.',slug:'',menu:[['Home','home'],['Services','services'],['Products','products'],['About','about'],['Gallery','gallery'],['Book Now','booking'],['Contact','contact']].map(([label,page])=>({label,page,visible:true})),sections:['benefits','services','about','products','gallery','testimonials','booking','contact'],hidden:[],benefits:[['♧','Premium\nTreatments'],['♧','Natural\nProducts'],['▢','Easy\nBooking'],['♡','Personalised\nCare']],categories:['Skincare','Haircare','Body Care','Nails','Tools & Accessories','Gift Sets'].map((name,i)=>({id:'cat'+i,name,image:['ref:serum','ref:facial','ref:oil','ref:nails','ref:roller','ref:lumiere'][i]})),services:[{id:'facial',name:'Facial Treatment',description:'Deep cleansing facial to brighten and rejuvenate your skin.',price:450,category:'Facials',images:['ref:facial'],active:true},{id:'massage',name:'Relaxation Massage',description:'Restore balance with an unhurried full-body massage.',price:500,category:'Massages',images:['ref:massage'],active:true},{id:'nails',name:'Manicure & Pedicure',description:'Beautifully polished nails with a nourishing finish.',price:350,category:'Nails',images:['ref:nails'],active:true}],products:[{id:'serum',name:'Hydrating Face Serum',description:'Lightweight serum to hydrate and brighten your skin.',price:299,categories:['Skincare'],images:['ref:serum'],active:true,stock:20,trackStock:false,variants:[]},{id:'roller',name:'Rose Quartz Roller',description:'A soothing ritual for refreshed, radiant skin.',price:199,categories:['Tools & Accessories'],images:['ref:roller'],active:true,stock:20,trackStock:false,variants:[]},{id:'oil',name:'Nourishing Hair Oil',description:'A beautiful blend for soft, lustrous hair.',price:349,categories:['Haircare'],images:['ref:oil'],active:true,stock:20,trackStock:false,variants:[]}],videos:[],productButton:'Add to Cart',serviceButton:'Book Now',gallery:['ref:gallery1','ref:gallery2','ref:gallery3','ref:gallery4','ref:gallery5','ref:gallery6'],testimonials:[{quote:'A beautiful experience from the moment you arrive.',name:'Your client’s name'}],layout:{desktop:{},mobile:{}}};}
 function editable(path,value,opts){return '<span '+(opts.edit?'contenteditable="true" spellcheck="false" data-edit="'+esc(path)+'"':'')+'>'+esc(value).replace(/\n/g,'<br>')+'</span>';}
 function move(id,html,d,o){const a=d.layout?.[o.device||'desktop']?.[id]||{};const x=Number(a.x)||0,y=Number(a.y)||0,w=Number(a.width);return '<div class="beauty-movable" data-move="'+id+'" style="transform:translate('+x+'px,'+y+'px);'+(w>30?'width:'+Math.min(w,1200)+'px;max-width:100%;':'')+'">'+(o.edit?'<button class="beauty-move-handle" type="button" aria-label="Move '+id+'">⠿ Move</button><span class="beauty-resize" title="Drag to resize" role="button" aria-label="Resize '+id+'" tabindex="0"></span>':'')+html+'</div>';}
