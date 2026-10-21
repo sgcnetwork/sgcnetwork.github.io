@@ -49,7 +49,16 @@ button('Save gallery changes',()=>save().catch(e=>toast(e.message)));
 button('Publish gallery to website',()=>publishDialog(),'wide gold');
 heading('Videos');uploader('Upload video',urls=>{d.videos=(d.videos||[]).concat(urls);panel();},true,true);(d.videos||[]).forEach((url,i)=>row('Video '+(i+1),[['×',()=>{checkpoint(true);d.videos.splice(i,1);remember();paint();panel();}]]));break;}
 case 'testimonials':note('Replace sample copy with genuine customer feedback before publishing.');d.testimonials.forEach((t,i)=>{field('Client name','testimonials.'+i+'.name');field('Client feedback','testimonials.'+i+'.quote','textarea');button('Remove testimonial',()=>{checkpoint(true);d.testimonials.splice(i,1);remember();paint();panel();});});button('＋ Add testimonial',()=>{checkpoint(true);d.testimonials.push({name:'',quote:''});remember();paint();panel();});break;
-case 'booking':field('Enable Online Bookings','bookingEnabled','checkbox');field('Booking calendar URL','bookingUrl','url');note('Connect your existing Google appointment schedule, Microsoft Bookings or other booking page by pasting its public URL. If left blank, clients request appointments by email; these require your confirmation.');field('Appointment duration (minutes)','duration','number');field('Booking email','email','email');break;
+case 'booking':{
+field('Enable Online Bookings','bookingEnabled','checkbox');
+const helpRow=document.createElement('div');helpRow.className='booking-help-row';
+const learn=document.createElement('button');learn.type='button';learn.className='booking-learn-link';learn.textContent='Learn how ↗';learn.onclick=()=>{const dialog=document.getElementById('booking-guide-dialog');dialog?.showModal();};
+const tip=document.createElement('button');tip.type='button';tip.className='booking-tip-button';tip.textContent='?';tip.setAttribute('aria-label','How booking calendar links work');tip.setAttribute('aria-expanded','false');
+const message=document.createElement('div');message.className='booking-tip-message';message.hidden=true;message.textContent='Connect your existing Google appointment schedule, Microsoft Bookings or other booking page by pasting its public booking URL. If left blank, clients request appointments by email; these require your confirmation.';
+tip.onclick=()=>{message.hidden=!message.hidden;tip.setAttribute('aria-expanded',String(!message.hidden));};
+helpRow.append(learn,tip);controls.append(helpRow);
+field('Booking calendar URL','bookingUrl','url');controls.append(message);
+field('Appointment duration (minutes)','duration','number');field('Booking email','email','email');break;}
 case 'contact':field('Email','email','email');field('Phone','phone','tel');field('Business address','address','textarea');break;
 case 'footer':field('Footer message','footer','textarea');break;
 case 'theme':heading('Colour Scheme');[['Accent / Buttons','accent'],['Page Background','background'],['Text','ink'],['Hero Background','heroBackground']].forEach(([l,k])=>field(l,k,'color'));heading('Fonts');field('Headings','headingFont','select',['Playfair Display','Georgia','DM Sans','Arial']);field('Body','bodyFont','select',['DM Sans','Arial','Georgia']);field('Button roundness','buttonRadius','number');break;
