@@ -22,9 +22,29 @@
 .elements .add{display:flex;align-items:center;justify-content:center;gap:7px;border-radius:8px}
 .elements .add svg{width:17px;height:17px;flex:0 0 17px}
 @media(max-width:750px){.elements{padding:8px 3px}.elements button.tool{padding:8px 3px;justify-content:center}.elements .tool-label,.elements .add span{display:none}.elements .ico{width:24px;height:25px}.elements .ico svg{width:20px;height:20px}.elements .add:after{display:none}.elements .add{padding:9px 0}}
+
+/* Collapsible editor tools left; navigation and site controls right. */
+.topmenus{display:none!important}
+.workspace{grid-template-columns:151px 0 minmax(0,1fr) 235px}
+.inspector-open .workspace{grid-template-columns:151px 290px minmax(0,1fr) 235px}
+.workspace>.elements{grid-column:1;grid-row:1}.workspace>.panel{grid-column:2;grid-row:1}.workspace>.canvas{grid-column:3;grid-row:1}
+.right-menu{grid-column:4;grid-row:1;background:#fffdfa;border-left:1px solid #e6ded2;overflow:auto;padding:12px 10px;min-width:0}
+.editor-accordion>summary,.nav-accordion>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px;user-select:none;font-weight:600}
+.editor-accordion>summary::-webkit-details-marker,.nav-accordion>summary::-webkit-details-marker{display:none}
+.editor-accordion>summary:after,.nav-accordion>summary:after{content:'';width:7px;height:7px;border-right:1.7px solid currentColor;border-bottom:1.7px solid currentColor;transform:rotate(45deg);transition:transform .16s;flex:0 0 7px}
+.editor-accordion[open]>summary:after,.nav-accordion[open]>summary:after{transform:rotate(225deg)}
+.editor-accordion>summary{padding:12px 7px;color:#eed2a1;font-size:11px;border-bottom:1px solid #ffffff1a;margin-bottom:8px}
+.nav-accordion{border:1px solid #e8dfd2;border-radius:10px;background:white;margin-bottom:10px;overflow:hidden}
+.nav-accordion>summary{padding:14px 13px;font-size:12px;color:#3d352a;background:#fbf7f0}
+.right-menu .pages,.inspector-open .right-menu .pages{display:block!important;position:static;width:auto;box-shadow:none;padding:12px 8px;background:#fff;border:0;overflow:visible}
+.right-menu .panel,.right-menu .panel.open{display:block;position:static;grid-column:auto;width:auto;max-width:none;border:0;box-shadow:none;overflow:visible}
+.right-menu .panelhead{position:static;padding:12px}.right-menu .tabs{position:static}.right-menu .fields{padding:12px}.nav-help{padding:4px 14px 14px;font-size:12px;color:#786b5b;line-height:1.65}.nav-help button{border:1px solid #ded2c0;background:#fff7e8;border-radius:7px;padding:9px 12px;color:#65513a}
+.previewmode .right-menu,.public-site .right-menu{display:none!important}.previewmode .workspace{grid-template-columns:minmax(0,1fr)}.previewmode .workspace>.canvas{grid-column:1}
+@media(max-width:1100px) and (min-width:751px){.workspace{grid-template-columns:125px 0 minmax(0,1fr) 210px}.inspector-open .workspace{grid-template-columns:125px 260px minmax(0,1fr) 210px}}
+@media(max-width:750px){.workspace,.inspector-open .workspace{grid-template-columns:48px minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto}.workspace>.canvas{grid-column:2;grid-row:1}.workspace>.elements{grid-column:1;grid-row:1/span 2}.workspace>.right-menu{grid-column:2;grid-row:2;position:static;max-height:38dvh;border-top:1px solid #e6ded2;padding:8px}.right-menu .pages,.right-menu .panel{left:auto;right:auto;top:auto;bottom:auto}.editor-accordion>summary{font-size:0;padding:12px 10px}.editor-accordion>summary:before{content:'☰';font-size:18px}.editor-accordion>summary:after{width:5px;height:5px;flex-basis:5px}.previewmode .workspace{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr)}}
 </style></head><body>
-<header class="top"><div class="brand"><span class="round">1</span><span><b>Website Builder</b><small>Business Services</small></span></div><div class="topmenus"><button onclick="togglePages()">Pages⌄</button><button onclick="showDesign()">Design⌄</button><button onclick="showAdvanced()">Settings⌄</button><button onclick="help()">Help⌄</button></div><div class="topactions"><button title="Desktop" onclick="device('desktop')">▣</button><button title="Mobile" onclick="device('mobile')">▯</button><button title="Tablet" onclick="device('tablet')">▤</button><button title="Undo" onclick="undo()">↶</button><button title="Redo" onclick="redo()">↷</button><button class="preview" onclick="preview()">Preview</button><button class="publish" onclick="publish()">Publish Website</button></div></header>
-<div class="workspace"><aside class="elements"><button class="add" onclick="addElement('Section')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 5v14M5 12h14"/></svg><span>Add Element</span></button><div id="toolList"></div></aside><aside class="pages" id="pages"><h3>Pages</h3><button class="addpage" onclick="addPage()">＋ Add Page</button><div id="pageList"></div></aside><main class="canvas"><div class="canvasbar"><span id="canvasLabel">Home · Live editor</span><span><button onclick="save()">Save draft</button> <button onclick="togglePanel()">Edit controls ⚙</button></span></div><div id="site" class="site"></div></main><aside class="panel" id="panel"><div class="panelhead"><h3 id="panelTitle">Edit Website</h3><button onclick="togglePanel(false)">✕</button></div><div class="tabs"><button id="tabContent" onclick="setTab('Content')">Content</button><button id="tabStyle" onclick="setTab('Style')">Style</button><button id="tabAdvanced" onclick="setTab('Advanced')">Advanced</button></div><div class="fields" id="fields"></div></aside></div>
+<header class="top"><div class="brand"><span class="round">1</span><span><b>Website Builder</b><small>Business Services</small></span></div><div class="topactions"><button title="Desktop" onclick="device('desktop')">▣</button><button title="Mobile" onclick="device('mobile')">▯</button><button title="Tablet" onclick="device('tablet')">▤</button><button title="Undo" onclick="undo()">↶</button><button title="Redo" onclick="redo()">↷</button><button class="preview" onclick="preview()">Preview</button><button class="publish" onclick="publish()">Publish Website</button></div></header>
+<div class="workspace"><aside class="elements"><details class="editor-accordion" id="websiteEditorTools" open><summary>Website Editor</summary><div id="toolList"></div></details></aside><aside class="right-menu" id="workspaceNavigation" aria-label="Website navigation"><details class="nav-accordion" id="navPages" open><summary>Pages</summary><div class="pages" id="pages"><button class="addpage" onclick="addPage()">＋ Add Page</button><div id="pageList"></div></div></details><details class="nav-accordion" id="navDesign"><summary>Design</summary><div id="designInspector"></div></details><details class="nav-accordion" id="navSettings"><summary>Settings</summary><div id="settingsInspector"></div></details><details class="nav-accordion" id="navHelp"><summary>Help</summary><div class="nav-help"><p>Choose a page on the right. Open Website Editor on the left, then choose a tool to edit it.</p><p>Click text directly in the preview to edit. Use Content, Style and Advanced to customise a selected element.</p><p>Save Draft keeps your changes. Publish Website updates your live website.</p><button onclick="help()">Open editing guide</button></div></details></aside><main class="canvas"><div class="canvasbar"><span id="canvasLabel">Home · Live editor</span><span><button onclick="save()">Save draft</button> <button onclick="togglePanel()">Edit controls ⚙</button></span></div><div id="site" class="site"></div></main><aside class="panel" id="panel"><div class="panelhead"><h3 id="panelTitle">Edit Website</h3><button onclick="togglePanel(false)">✕</button></div><div class="tabs"><button id="tabContent" onclick="setTab('Content')">Content</button><button id="tabStyle" onclick="setTab('Style')">Style</button><button id="tabAdvanced" onclick="setTab('Advanced')">Advanced</button></div><div class="fields" id="fields"></div></aside></div>
 <dialog id="dialog"><h3 id="dialogTitle"></h3><p id="dialogText"></p><div style="display:flex;justify-content:flex-end;gap:8px"><button onclick="document.getElementById('dialog').close()">Cancel</button><button id="dialogOk" onclick="document.getElementById('dialog').close()">OK</button></div></dialog>
 <script>
 const publicMode=new URLSearchParams(location.search).get('public')==='1';
@@ -182,5 +202,32 @@ const friendlyBoot=bootBusiness;bootBusiness=async function(){await friendlyBoot
 const addFromLeft=addElement;addElement=function(type){tab='Content';const existing=selected?.kind==='extra'?state.extras[current]?.[selected.index]:null;if(existing?.type===type){childSelection=null;renderFields();togglePanel(true);return;}addFromLeft(type);};
 const leftPanelRender=renderFields;renderFields=function(){leftPanelRender();document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('active',b.id==='tab'+tab));};
 const headerObserver=new ResizeObserver(()=>document.documentElement.style.setProperty('--studio-header-height',document.querySelector('.top').offsetHeight+'px'));headerObserver.observe(document.querySelector('.top'));
+
+let rightInspectorMode=null;
+function placeWorkspaceInspector(){
+ const panel=$('panel'),workspace=document.querySelector('.workspace');
+ if(rightInspectorMode){$(rightInspectorMode==='design'?'designInspector':'settingsInspector').append(panel);panel.classList.add('right-inspector','open');document.body.classList.remove('inspector-open');}
+ else{if(panel.parentElement!==workspace)workspace.append(panel);panel.classList.remove('right-inspector');document.body.classList.toggle('inspector-open',panel.classList.contains('open'));}
+}
+const accordionPanel=togglePanel;togglePanel=function(force){if(rightInspectorMode){placeWorkspaceInspector();if(force===false)$(rightInspectorMode==='design'?'navDesign':'navSettings').open=false;return;}accordionPanel(force);};
+function activateLeftInspector(){rightInspectorMode=null;placeWorkspaceInspector();}
+const accordionAdd=addElement;addElement=function(type){activateLeftInspector();$('websiteEditorTools').open=true;accordionAdd(type);};
+const accordionChooseExtra=chooseExtra;chooseExtra=function(i){activateLeftInspector();accordionChooseExtra(i);};
+const accordionChooseItem=chooseItem;chooseItem=function(i){activateLeftInspector();accordionChooseItem(i);};
+const accordionPage=page;page=function(name){activateLeftInspector();tab='Content';accordionPage(name);togglePanel(true);};
+const accordionCategory=openCategory;openCategory=function(...args){activateLeftInspector();accordionCategory(...args);};
+showDesign=function(){rightInspectorMode='design';selected=null;categoryViewId=null;tab='Style';$('navDesign').open=true;renderFields();placeWorkspaceInspector();};
+showAdvanced=function(){rightInspectorMode='settings';selected=null;categoryViewId=null;tab='Advanced';$('navSettings').open=true;renderFields();placeWorkspaceInspector();};
+togglePages=function(){$('navPages').open=!$('navPages').open;$('workspaceNavigation').classList.add('mobile-navigation-open');};
+const accordionFields=renderFields;renderFields=function(){accordionFields();placeWorkspaceInspector();if(rightInspectorMode)$('panelTitle').textContent=rightInspectorMode==='design'?'Website design':'Website settings';};
+$('navDesign').addEventListener('toggle',()=>{if($('navDesign').open&&rightInspectorMode!=='design')showDesign();});
+$('navSettings').addEventListener('toggle',()=>{if($('navSettings').open&&rightInspectorMode!=='settings')showAdvanced();});
+const closeInspector=$('panel').querySelector('.panelhead button');closeInspector.onclick=()=>{if(rightInspectorMode){$(rightInspectorMode==='design'?'navDesign':'navSettings').open=false;rightInspectorMode=null;$('panel').classList.remove('open');placeWorkspaceInspector();}else togglePanel(false);};
+for(const detail of document.querySelectorAll('.editor-accordion,.nav-accordion')){
+ const storageKey='sgc-business-accordion-'+detail.id;
+ try{const saved=localStorage.getItem(storageKey);if(saved&&detail.id!=='navDesign'&&detail.id!=='navSettings')detail.open=saved==='open';}catch{}
+ detail.addEventListener('toggle',()=>{try{localStorage.setItem(storageKey,detail.open?'open':'closed');}catch{}});
+}
+
 render();bootBusiness();
 </script></body></html>
