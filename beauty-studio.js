@@ -23,10 +23,11 @@ heading('Gallery management');
 note('Upload photos, drag them to reorder, archive or restore, and publish your website when ready.');
 d.galleryArchive=d.galleryArchive||[];
 uploader('＋ Add gallery photos',urls=>{checkpoint(true);d.gallery.push(...urls);remember();panel();paint();},true);
+const galleryThumb=url=>{if(typeof url==='string'&&url.startsWith('ref:')){const coords={gallery1:[548,879,62,65],gallery2:[615,879,65,65],gallery3:[682,879,63,65],gallery4:[547,950,63,67],gallery5:[614,950,65,67],gallery6:[683,950,63,67]};const c=coords[url.slice(4)];if(c)return 'https://wsrv.nl/?url=sgcnetwork.co.za%2Fassets%2Fbeauty-studio-reference.webp&cx='+c[0]+'&cy='+c[1]+'&cw='+c[2]+'&ch='+c[3]+'&w=320&h=320&fit=cover&output=webp&q=85';}return url;};
 const list=document.createElement('div');list.className='gallery-manager';controls.append(list);
 d.gallery.forEach((url,i)=>{
 const tile=document.createElement('div');tile.className='gallery-manager-item';tile.draggable=true;tile.style.cssText='display:flex;align-items:center;gap:9px;margin:9px 0;padding:9px;border:1px solid #e4d8cb;border-radius:12px;background:white';
-const thumb=document.createElement('img');thumb.src=url.startsWith('ref:')?'https://sgcnetwork.co.za/assets/beauty-studio-reference.webp':url;thumb.alt='Gallery photo '+(i+1);thumb.style.cssText='width:62px;height:62px;object-fit:cover;border-radius:7px';
+const thumb=document.createElement('img');thumb.src=galleryThumb(url);thumb.alt='Gallery photo '+(i+1);thumb.style.cssText='width:62px;height:62px;object-fit:cover;border-radius:7px';
 const label=document.createElement('span');label.textContent='☰ Photo '+(i+1);label.style.cssText='flex:1;font-size:12px;cursor:grab';
 const action=(name,fn)=>{const btn=document.createElement('button');btn.type='button';btn.textContent=name;btn.style.cssText='padding:6px;font-size:11px';btn.onclick=fn;tile.append(btn);};
 tile.append(thumb,label);
@@ -41,7 +42,7 @@ list.append(tile);
 });
 heading('Archived photos');
 if(!d.galleryArchive.length)note('No archived photos.');
-d.galleryArchive.forEach((url,i)=>{const tile=document.createElement('div');tile.style.cssText='display:flex;gap:8px;align-items:center;margin:8px 0';const img=document.createElement('img');img.src=url.startsWith('ref:')?'https://sgcnetwork.co.za/assets/beauty-studio-reference.webp':url;img.style.cssText='width:50px;height:50px;object-fit:cover';const restore=document.createElement('button');restore.textContent='Restore photo';restore.onclick=()=>{checkpoint(true);d.gallery.push(d.galleryArchive.splice(i,1)[0]);remember();panel();paint();};tile.append(img,restore);controls.append(tile);});
+d.galleryArchive.forEach((url,i)=>{const tile=document.createElement('div');tile.style.cssText='display:flex;gap:8px;align-items:center;margin:8px 0';const img=document.createElement('img');img.src=galleryThumb(url);img.style.cssText='width:50px;height:50px;object-fit:cover';const restore=document.createElement('button');restore.textContent='Restore photo';restore.onclick=()=>{checkpoint(true);d.gallery.push(d.galleryArchive.splice(i,1)[0]);remember();panel();paint();};tile.append(img,restore);controls.append(tile);});
 button('Save gallery changes',()=>save().catch(e=>toast(e.message)));
 button('Publish gallery to website',()=>publishDialog(),'wide gold');
 heading('Videos');uploader('Upload video',urls=>{d.videos=(d.videos||[]).concat(urls);panel();},true,true);(d.videos||[]).forEach((url,i)=>row('Video '+(i+1),[['×',()=>{checkpoint(true);d.videos.splice(i,1);remember();paint();panel();}]]));break;}
