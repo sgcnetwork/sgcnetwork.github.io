@@ -18,7 +18,33 @@ case 'hero':field('Headline','heroTitle','textarea');field('Subtitle','heroSubti
 case 'services':case 'products':field('Button label',view==='products'?'productButton':'serviceButton');note('Edit your catalogue here. Every change appears in the same website preview.');d[view].forEach((item,i)=>row(item.name,[['✎',()=>catalogEditor(view,i)],['×',()=>remove(view,i)]],item.images?.[0]));button('＋ Add '+(view==='products'?'Product':'Service'),()=>{checkpoint(true);d[view].push({id:crypto.randomUUID(),name:'New '+(view==='products'?'Product':'Service'),description:'',price:0,category:'Facials',categories:[d.categories[0]?.name||'Skincare'],images:[],active:true,variants:[],stock:0});remember();paint();catalogEditor(view,d[view].length-1);});break;
 case 'categories':note('Edit category names and cover images.');d.categories.forEach((c,i)=>row(c.name,[['✎',()=>{const val=prompt('Category name',c.name);if(val){checkpoint(true);const old=c.name;c.name=val;d.products.forEach(p=>p.categories=(p.categories||[]).map(v=>v===old?val:v));remember();paint();panel();}}],['×',()=>remove('categories',i)]]));heading('Category Images');d.categories.forEach(c=>uploader('Replace '+c.name+' image',urls=>{c.image=urls[0];paint();}));button('＋ Add Category',()=>{const name=prompt('Category name');if(!name)return;checkpoint(true);d.categories.push({id:crypto.randomUUID(),name,image:'ref:serum'});remember();paint();panel();});break;
 case 'about':field('Heading','aboutTitle');field('Your story','about','textarea');uploader('Replace salon photograph',urls=>change('aboutImage',urls[0]));if(d.aboutImage)field('Salon photograph URL','aboutImage');break;
-case 'gallery':heading('Images');uploader('Click to upload images',urls=>{d.gallery.push(...urls);panel();},true);note('JPG, PNG or WebP · Up to 5 MB per image');d.gallery.forEach((url,i)=>{uploader('Replace gallery photo '+(i+1),urls=>{checkpoint(true);d.gallery[i]=urls[0];remember();paint();panel();});row('Gallery image '+(i+1),[['↑',()=>{if(i){checkpoint(true);[d.gallery[i-1],d.gallery[i]]=[d.gallery[i],d.gallery[i-1]];remember();paint();panel();}}],['×',()=>{checkpoint(true);d.gallery.splice(i,1);remember();paint();panel();}]],url));});heading('Videos');uploader('Upload video',urls=>{d.videos=(d.videos||[]).concat(urls);panel();},true,true);(d.videos||[]).forEach((url,i)=>row('Video '+(i+1),[['×',()=>{checkpoint(true);d.videos.splice(i,1);remember();paint();panel();}]]));break;
+case 'gallery':{
+heading('Gallery management');
+note('Upload photos, drag them to reorder, archive or restore, and publish your website when ready.');
+d.galleryArchive=d.galleryArchive||[];
+uploader('＋ Add gallery photos',urls=>{checkpoint(true);d.gallery.push(...urls);remember();panel();paint();},true);
+const list=document.createElement('div');list.className='gallery-manager';controls.append(list);
+d.gallery.forEach((url,i)=>{
+const tile=document.createElement('div');tile.className='gallery-manager-item';tile.draggable=true;tile.style.cssText='display:flex;align-items:center;gap:9px;margin:9px 0;padding:9px;border:1px solid #e4d8cb;border-radius:12px;background:white';
+const thumb=document.createElement('img');thumb.src=url.startsWith('ref:')?'https://sgcnetwork.co.za/assets/beauty-studio-reference.webp':url;thumb.alt='Gallery photo '+(i+1);thumb.style.cssText='width:62px;height:62px;object-fit:cover;border-radius:7px';
+const label=document.createElement('span');label.textContent='☰ Photo '+(i+1);label.style.cssText='flex:1;font-size:12px;cursor:grab';
+const action=(name,fn)=>{const btn=document.createElement('button');btn.type='button';btn.textContent=name;btn.style.cssText='padding:6px;font-size:11px';btn.onclick=fn;tile.append(btn);};
+tile.append(thumb,label);
+tile.addEventListener('dragstart',e=>{e.dataTransfer.setData('text/plain',String(i));e.dataTransfer.effectAllowed='move';});
+tile.addEventListener('dragover',e=>e.preventDefault());
+tile.addEventListener('drop',e=>{e.preventDefault();const from=Number(e.dataTransfer.getData('text/plain'));if(!Number.isInteger(from)||from<0||from>=d.gallery.length||from===i)return;checkpoint(true);d.gallery.splice(i,0,d.gallery.splice(from,1)[0]);remember();panel();paint();});
+action('↑',()=>{if(i===0)return;checkpoint(true);[d.gallery[i-1],d.gallery[i]]=[d.gallery[i],d.gallery[i-1]];remember();panel();paint();});
+action('↓',()=>{if(i===d.gallery.length-1)return;checkpoint(true);[d.gallery[i+1],d.gallery[i]]=[d.gallery[i],d.gallery[i+1]];remember();panel();paint();});
+action('Archive',()=>{checkpoint(true);d.galleryArchive.push(d.gallery.splice(i,1)[0]);remember();panel();paint();});
+action('Remove',()=>{if(!confirm('Remove this gallery photo?'))return;checkpoint(true);d.gallery.splice(i,1);remember();panel();paint();});
+list.append(tile);
+});
+heading('Archived photos');
+if(!d.galleryArchive.length)note('No archived photos.');
+d.galleryArchive.forEach((url,i)=>{const tile=document.createElement('div');tile.style.cssText='display:flex;gap:8px;align-items:center;margin:8px 0';const img=document.createElement('img');img.src=url.startsWith('ref:')?'https://sgcnetwork.co.za/assets/beauty-studio-reference.webp':url;img.style.cssText='width:50px;height:50px;object-fit:cover';const restore=document.createElement('button');restore.textContent='Restore photo';restore.onclick=()=>{checkpoint(true);d.gallery.push(d.galleryArchive.splice(i,1)[0]);remember();panel();paint();};tile.append(img,restore);controls.append(tile);});
+button('Save gallery changes',()=>save().catch(e=>toast(e.message)));
+button('Publish gallery to website',()=>publishDialog(),'wide gold');
+heading('Videos');uploader('Upload video',urls=>{d.videos=(d.videos||[]).concat(urls);panel();},true,true);(d.videos||[]).forEach((url,i)=>row('Video '+(i+1),[['×',()=>{checkpoint(true);d.videos.splice(i,1);remember();paint();panel();}]]));break;}
 case 'testimonials':note('Replace sample copy with genuine customer feedback before publishing.');d.testimonials.forEach((t,i)=>{field('Client name','testimonials.'+i+'.name');field('Client feedback','testimonials.'+i+'.quote','textarea');button('Remove testimonial',()=>{checkpoint(true);d.testimonials.splice(i,1);remember();paint();panel();});});button('＋ Add testimonial',()=>{checkpoint(true);d.testimonials.push({name:'',quote:''});remember();paint();panel();});break;
 case 'booking':field('Enable Online Bookings','bookingEnabled','checkbox');field('Booking calendar URL','bookingUrl','url');note('Connect your existing Google appointment schedule, Microsoft Bookings or other booking page by pasting its public URL. If left blank, clients request appointments by email; these require your confirmation.');field('Appointment duration (minutes)','duration','number');field('Booking email','email','email');break;
 case 'contact':field('Email','email','email');field('Phone','phone','tel');field('Business address','address','textarea');break;
