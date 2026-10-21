@@ -15,13 +15,13 @@ function merge(base,local,remote){
 function create({client,userId,site,onSaved}){
  let baseline=copy(site?.builder_preferences||{}),record=site||null,queue=Promise.resolve();
  const fields={name:'business_name',slug:'slug',desc:'description',font:'font',primary:'primary_color',accent:'accent_color',product:'product_name',price:'product_price'};
- function save(preferences){
+ function save(preferences,options={}){
   const next=copy(preferences),base=copy(baseline);
   const operation=async()=>{
    // Compare a fresh row and use updated_at as a lease. A concurrent write cannot silently win.
    const {data:latest,error:readError}=await client.from('sgc_student_websites').select('*').eq('user_id',userId).maybeSingle();
    if(readError)throw readError;
-   const combined=merge(base,next,latest?.builder_preferences||{});
+   let combined;try{combined=merge(base,next,latest?.builder_preferences||{});}catch(e){if(!Array.isArray(options.preferLocalKeys)||!options.preferLocalKeys.length)throw e;const remote=latest?.builder_preferences||{};const safeBase=copy(base);for(const key of options.preferLocalKeys){if(Object.hasOwn(remote,key))safeBase[key]=copy(remote[key]);else delete safeBase[key];}combined=merge(safeBase,next,remote);if(options.preferLocalKeys.includes('_site'))combined._site={...(remote._site||{}),...(next._site||{})};}
    const row={user_id:userId,builder_preferences:combined,updated_at:new Date().toISOString()};
    for(const [key,column] of Object.entries(fields))if(combined._site?.[key]!=null)row[column]=key==='price'?Number(combined._site[key])||0:combined._site[key];
    let query;
