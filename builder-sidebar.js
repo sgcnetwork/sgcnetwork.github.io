@@ -25,14 +25,49 @@ css.textContent=`
 @media(min-width:1200px){body:has(#builder:not(.hidden)) main{margin-left:282px;max-width:none;margin-right:24px}}
 @media(max-width:1199px){#sgc-builder-sidebar{position:static;width:auto;max-height:320px;margin:16px 20px 0}#sgc-builder-sidebar details[open]{max-height:250px;overflow-y:auto}}
 `;
-document.head.append(css);
+css.textContent+=\`
+#sgc-builder-sidebar .sgc-published-sites-list{padding:6px 2px 10px}
+#sgc-builder-sidebar .sgc-published-site-item{display:block;padding:11px 12px;margin:5px 0;border-radius:11px;background:#fbf7f3;border:1px solid #eee4dd;text-decoration:none;font:600 13px Arial,sans-serif;color:#483a45;overflow-wrap:anywhere}
+#sgc-builder-sidebar .sgc-published-site-item:hover{background:#f4e9e3}
+#sgc-builder-sidebar .sgc-sites-note{font:12px/1.5 Arial,sans-serif;color:#796b75;padding:6px 12px}
+#sgc-builder-sidebar .sgc-academy-back{display:block;margin:14px 0 9px;padding:12px;border-radius:12px;background:#3e3141;color:#fff;text-decoration:none;text-align:center;font:600 13px Arial,sans-serif}
+\`;document.head.append(css);
 function setup(){
  const builder=document.getElementById('builder'),menu=document.getElementById('studio-menu');
  if(!builder||!menu||document.getElementById('sgc-builder-sidebar'))return;
  const side=document.createElement('nav');side.id='sgc-builder-sidebar';side.setAttribute('aria-label','Website builder navigation');
- const title=document.createElement('h2');title.textContent='Website Builder';side.append(title);const published=document.createElement('a');published.id='sgc-published-website-link';published.className='sgc-published-website-link';published.hidden=true;published.target='_blank';published.rel='noopener noreferrer';side.append(published);
-const syncPublished=()=>{const data=window.sgcPublishedWebsite;const url=data?.subdomainUrl||data?.url;if(!data?.published||!url){published.hidden=true;published.removeAttribute('href');return;}try{const parsed=new URL(url,location.origin);if(!['https:','http:'].includes(parsed.protocol))throw Error('Invalid address');published.href=parsed.href;published.textContent='↗ '+(document.getElementById('name')?.value?.trim()||parsed.hostname)+' — Published Website';published.hidden=false;}catch{published.hidden=true;}};
-window.addEventListener('sgc-published-website-change',syncPublished);document.getElementById('name')?.addEventListener('input',syncPublished);syncPublished();
+ const title=document.createElement('h2');title.textContent='Website Builder';side.append(title);
+ const sitesGroup=document.createElement('details');sitesGroup.className='sgc-published-sites';
+ const sitesSummary=document.createElement('summary');sitesSummary.textContent='Published Websites';sitesGroup.append(sitesSummary);
+ const sitesList=document.createElement('div');sitesList.className='sgc-published-sites-list';sitesList.setAttribute('aria-live','polite');sitesGroup.append(sitesList);side.append(sitesGroup);
+ const academy=document.createElement('a');academy.className='sgc-academy-back';academy.href='dashboard.html';academy.textContent='← Back to Academy Portal';side.append(academy);
+ const syncPublished=async()=>{
+  sitesList.replaceChildren();
+  const note=document.createElement('p');note.className='sgc-sites-note';note.textContent='Loading published websites…';sitesList.append(note);
+  try{
+   const sb=window.sgcSupabase;
+   if(!sb){note.textContent='Sign in to view your published websites.';return;}
+   const {data:{user},error:authError}=await sb.auth.getUser();
+   if(authError||!user){note.textContent='Sign in to view your published websites.';return;}
+   const {data:sites,error}=await sb.from('sgc_student_websites').select('*').eq('user_id',user.id);
+   if(error)throw error;
+   const current=window.sgcPublishedWebsite;
+   const published=(sites||[]).filter(site=>site.published===true||site.is_published===true||!!site.published_at||!!site.publishedAt||(current?.published&&current?.slug===site.slug));
+   sitesList.replaceChildren();
+   if(!published.length){note.textContent='No published websites yet.';sitesList.append(note);return;}
+   for(const site of published){
+    const slug=String(site.slug||'').trim().toLowerCase();
+    const candidate=site.published_url||site.public_url||site.subdomain_url||(slug&&/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)?'https://'+slug+'.sgcnetwork.co.za':'');
+    if(!candidate)continue;
+    let url;try{url=new URL(candidate);if(url.protocol!=='https:'&&url.protocol!=='http:')continue;}catch{continue;}
+    const link=document.createElement('a');link.className='sgc-published-site-item';link.href=url.href;link.target='_blank';link.rel='noopener noreferrer';link.textContent=site.business_name||site.name||slug||url.hostname;sitesList.append(link);
+   }
+   if(!sitesList.children.length){note.textContent='No published websites yet.';sitesList.append(note);}
+  }catch(e){note.textContent='Unable to load websites. Please try again.';sitesList.replaceChildren(note);}
+ };
+ window.addEventListener('sgc-published-website-change',syncPublished);
+ window.addEventListener('sgc-builder-sites-refresh',syncPublished);
+ syncPublished();
 
  const jump=el=>el?.scrollIntoView({behavior:'smooth',block:'start'});
  const group=document.createElement('details');group.open=false;
