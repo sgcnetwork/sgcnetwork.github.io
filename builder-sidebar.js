@@ -20,6 +20,8 @@ css.textContent=`
 #sgc-builder-sidebar details>button:active{background:#e8d5e3;transform:translateX(1px)}
 #sgc-builder-sidebar>button{background:#fbf8fc;border:1px solid #f0e6ef;margin-top:9px;font-weight:650!important;padding:13px 14px}
 #sgc-builder-sidebar>button::after{content:'→';float:right;color:#98758e}
+#sgc-builder-sidebar .sgc-published-website-link{display:block;margin:10px 0;padding:13px 14px;border-radius:12px;background:#f5ebdb;border:1px solid #dfc49f;color:#61482c;text-decoration:none;font-weight:650;font-size:13px;overflow-wrap:anywhere}
+#sgc-builder-sidebar .sgc-published-website-link[hidden]{display:none}
 @media(min-width:1200px){body:has(#builder:not(.hidden)) main{margin-left:282px;max-width:none;margin-right:24px}}
 @media(max-width:1199px){#sgc-builder-sidebar{position:static;width:auto;max-height:320px;margin:16px 20px 0}#sgc-builder-sidebar details[open]{max-height:250px;overflow-y:auto}}
 `;
@@ -28,7 +30,10 @@ function setup(){
  const builder=document.getElementById('builder'),menu=document.getElementById('studio-menu');
  if(!builder||!menu||document.getElementById('sgc-builder-sidebar'))return;
  const side=document.createElement('nav');side.id='sgc-builder-sidebar';side.setAttribute('aria-label','Website builder navigation');
- const title=document.createElement('h2');title.textContent='Website Builder';side.append(title);
+ const title=document.createElement('h2');title.textContent='Website Builder';side.append(title);const published=document.createElement('a');published.id='sgc-published-website-link';published.className='sgc-published-website-link';published.hidden=true;published.target='_blank';published.rel='noopener noreferrer';side.append(published);
+const syncPublished=()=>{const data=window.sgcPublishedWebsite;const url=data?.subdomainUrl||data?.url;if(!data?.published||!url){published.hidden=true;published.removeAttribute('href');return;}try{const parsed=new URL(url,location.origin);if(!['https:','http:'].includes(parsed.protocol))throw Error('Invalid address');published.href=parsed.href;published.textContent='↗ '+(document.getElementById('name')?.value?.trim()||parsed.hostname)+' — Published Website';published.hidden=false;}catch{published.hidden=true;}};
+window.addEventListener('sgc-published-website-change',syncPublished);document.getElementById('name')?.addEventListener('input',syncPublished);syncPublished();
+
  const jump=el=>el?.scrollIntoView({behavior:'smooth',block:'start'});
  const group=document.createElement('details');group.open=false;
  const summary=document.createElement('summary');summary.textContent='Edit your website';group.append(summary);
