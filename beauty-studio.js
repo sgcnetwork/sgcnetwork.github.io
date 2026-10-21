@@ -23,7 +23,7 @@ heading('Gallery management');
 note('Upload photos, drag them to reorder, archive or restore, and publish your website when ready.');
 d.galleryArchive=d.galleryArchive||[];
 uploader('＋ Add gallery photos',urls=>{checkpoint(true);d.gallery.push(...urls);remember();panel();paint();},true);
-const galleryThumb=url=>{if(typeof url==='string'&&url.startsWith('ref:')){const coords={gallery1:[548,879,62,65],gallery2:[615,879,65,65],gallery3:[682,879,63,65],gallery4:[547,950,63,67],gallery5:[614,950,65,67],gallery6:[683,950,63,67]};const c=coords[url.slice(4)];if(c)return 'https://wsrv.nl/?url=sgcnetwork.co.za%2Fassets%2Fbeauty-studio-reference.webp&cx='+c[0]+'&cy='+c[1]+'&cw='+c[2]+'&ch='+c[3]+'&w=320&h=320&fit=cover&output=webp&q=85';}return url;};
+const galleryThumb=url=>B.galleryImageUrl(url);
 const list=document.createElement('div');list.className='gallery-manager';controls.append(list);
 d.gallery.forEach((url,i)=>{
 const tile=document.createElement('div');tile.className='gallery-manager-item';tile.draggable=true;tile.style.cssText='display:flex;align-items:center;gap:9px;margin:9px 0;padding:9px;border:1px solid #e4d8cb;border-radius:12px;background:white';
