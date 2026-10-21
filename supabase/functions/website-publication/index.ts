@@ -27,6 +27,12 @@ Deno.serve(async (req: Request) => {
   if (!token) return respond({ error: 'Sign in to manage your website' }, 401);
   const { data: { user }, error: authError } = await admin.auth.getUser(token);
   if (authError || !user) return respond({ error: 'Your session has expired. Please sign in again.' }, 401);
+  if(body?.action==='list-sites'){
+   // Resolve ownership from the verified JWT, never from browser-supplied IDs.
+   const {data,error}=await admin.rpc('sgc_list_website_publications',{p_user:user.id});
+   if(error)return respond({error:'Unable to load your published websites'},503);
+   return respond({sites:data||[]});
+  }
   if(body?.action==='order-status'){
    if(typeof body.orderId!=='string'||!['Open','Completed','Cancelled'].includes(body.status))return respond({error:'Invalid order update'},400);
    const {data,error}=await admin.rpc('sgc_builder_order_status',{p_user:user.id,p_order:body.orderId,p_status:body.status});

@@ -190,7 +190,7 @@ dialog::backdrop{background:#271b2980}
 #preview .sgc-preview-custom .sgc-preview-section h3{color:var(--sgc-site-secondary,#493149)}
 #preview .preview-hero .button{background:var(--sgc-site-secondary,#493149)!important;color:#fff!important}
 #preview .sgc-modern-catalogue-tile{background:transparent!important}
-</style><script defer src="sgc-luxury-gallery.js?v=beauty-studio-1"></script><style id="sgc-mobile-studio-responsive-20261021">
+</style><script defer src="sgc-published-sites.js?v=20261021-1"></script><script defer src="sgc-luxury-gallery.js?v=published-sites-20261021-1"></script><style id="sgc-mobile-studio-responsive-20261021">
 @media(max-width:767px){
 html,body{width:100%;max-width:100%;overflow-x:clip}
 body{font-size:14px}
@@ -563,7 +563,7 @@ window.sgcLoadBuilderPromotion=async(sb,siteId)=>{currentSb=sb;currentSite=siteI
 </script><script src="product-media.js?v=modern-product-3"></script><script src="product-purchase.js?v=buy-now-6"></script><script src="builder-preview.js?v=buy-now-5"></script><script src="builder-publishing.js?v=20261021-23"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3"></script><script src="builder-draft-store.js?v=unified-1"></script><script>
 (async function(){
  const gate=document.getElementById('gate'),msg=document.getElementById('gate-message'),builder=document.getElementById('builder');
- const sb=window.sgcSupabase||window.supabase.createClient('https://bxpexanyoyubxeqqlggh.supabase.co','sb_publishable_Z0_Y-Bj_G5qw4hMgDbQlgA__jj8rGGq');
+ const sb=window.sgcSupabase||(window.sgcSupabase=window.supabase.createClient('https://bxpexanyoyubxeqqlggh.supabase.co','sb_publishable_Z0_Y-Bj_G5qw4hMgDbQlgA__jj8rGGq'));
  try{
  const {data:{user},error:authError}=await sb.auth.getUser();if(authError||!user){msg.textContent='Please sign in to My SGC before opening Website Studio.';return;}
  const {data:sub,error:subError}=await sb.from('sgc_website_subscriptions').select('status,current_period_end').eq('user_id',user.id).maybeSingle();
