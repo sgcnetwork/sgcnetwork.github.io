@@ -1,0 +1,63 @@
+{
+  "provider": "Unsplash",
+  "license": "https://unsplash.com/license",
+  "note": "Real product and lifestyle photographs used as editable template examples. No screenshot crops or generated imagery.",
+  "photos": {
+    "hero": {
+      "source": "https://images.unsplash.com/photo-1767216516661-deb40df6f489",
+      "file": "hero.jpg"
+    },
+    "book": {
+      "source": "https://images.unsplash.com/photo-1512820790803-83ca734da794",
+      "file": "book.jpg"
+    },
+    "mug": {
+      "source": "https://images.unsplash.com/photo-1514228742587-6b1558fcca3d",
+      "file": "mug.jpg"
+    },
+    "candle": {
+      "source": "https://images.unsplash.com/photo-1603006905003-be475563bc59",
+      "file": "candle.jpg"
+    },
+    "notebook": {
+      "source": "https://images.unsplash.com/photo-1531346878377-a5be20888e57",
+      "file": "notebook.jpg"
+    },
+    "headphones": {
+      "source": "https://images.unsplash.com/photo-1546435770-a3e426bf472b",
+      "file": "headphones.jpg"
+    },
+    "planner": {
+      "source": "https://images.unsplash.com/photo-1506784983877-45594efa4cbe",
+      "file": "planner.jpg"
+    },
+    "bottle": {
+      "source": "https://images.unsplash.com/photo-1602143407151-7111542de6e8",
+      "file": "bottle.jpg"
+    },
+    "organiser": {
+      "source": "https://images.unsplash.com/photo-1751107807635-a2ac6035e8dd",
+      "file": "organiser.jpg"
+    },
+    "shirt": {
+      "source": "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab",
+      "file": "shirt.jpg"
+    },
+    "art": {
+      "source": "https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5",
+      "file": "art.jpg"
+    },
+    "books": {
+      "source": "https://images.unsplash.com/photo-1507842217343-583bb7270b66",
+      "file": "books.jpg"
+    },
+    "home": {
+      "source": "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0",
+      "file": "home.jpg"
+    },
+    "promo": {
+      "source": "https://images.unsplash.com/photo-1612969307974-ee4e57d2d5a7",
+      "file": "promo.jpg"
+    }
+  }
+}
