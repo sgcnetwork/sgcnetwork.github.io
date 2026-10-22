@@ -14,7 +14,7 @@ Deno.serve(async req=>{
  const admin=createClient(Deno.env.get('SUPABASE_URL')!,Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,{auth:{persistSession:false,autoRefreshToken:false}});
  if(['list','status'].includes(body.action)){
   const token=req.headers.get('authorization')?.replace(/^Bearer /i,'');if(!token)return response({error:'Sign in to manage requests'},401);
-  const {data:{user},error}=await admin.auth.getUser(token);if(error||!user)return response({error:'Please sign in again'},401);
+  const {data:{user},error:authError}=await admin.auth.getUser(token);if(authError||!user)return response({error:'Please sign in again'},401);
   if(body.action==='list'){const {data,error}=await admin.from('sgc_food_requests').select('id,kind,status,fields,data,created_at').eq('owner_id',user.id).order('created_at',{ascending:false}).limit(250);if(error)throw error;return response({records:data})}
   if(!uuid(body.id)||!['Received','Preparing','Ready','Confirmed','Declined','Completed','Cancelled'].includes(body.status))return response({error:'Invalid status update'},400);
   const {data,error}=await admin.from('sgc_food_requests').update({status:body.status}).eq('id',body.id).eq('owner_id',user.id).select('id').maybeSingle();if(error)throw error;if(!data)return response({error:'Request not found'},404);return response({ok:true});

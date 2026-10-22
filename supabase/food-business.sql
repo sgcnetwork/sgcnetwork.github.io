@@ -34,3 +34,5 @@ begin
   execute definition;
  end if;
 end;$f$;
+
+create policy food_requests_no_direct_access on public.sgc_food_requests as restrictive for all to anon, authenticated using (false) with check (false);
