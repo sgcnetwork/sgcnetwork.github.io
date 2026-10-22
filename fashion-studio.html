@@ -235,5 +235,13 @@ function drawStorePageLinks(){const host=$('studio-page-links');if(!host)return;
 const oldPageRefresh=refreshStorePages;refreshStorePages=function(){oldPageRefresh();drawStorePageLinks()};
 const oldAddCustomPage=addCustomPage;addCustomPage=function(){oldAddCustomPage();drawStorePageLinks()};
 
+
+/* Full visual layout editing for standard catalogue pages, including Sale. */
+function isCataloguePage(id){return !['Home','Product Page','Cart','Checkout'].includes(id)&&!id.startsWith('custom-')}
+const oldPageSettings=drawSelectedPageSettings;
+drawSelectedPageSettings=function(){oldPageSettings();if(!isCataloguePage(current))return;const host=$('pages-controls');const page=customPageData(current);if(!page.blocksInitialized){page.blocks=[{type:'heading',text:state.pageLabels?.[current]||current},{type:'text',text:state.pageContent?.[current]?.description||'Explore thoughtfully selected pieces for every occasion.'},{type:'products',text:'Products'}];page.blocksInitialized=true}drawCustomPageEditor(host,current)};
+const oldCatalogueRender=render;
+render=function(){oldCatalogueRender();if(!isCataloguePage(current))return;const p=state.customPages?.[current];if(!p?.blocksInitialized)return;const preview=$('preview'),root=preview.querySelector('.section');if(!root)return;root.style.background=p.background;root.style.color=p.color;const heading=root.querySelector('h2'),description=root.querySelector('p');if(heading)heading.remove();if(description)description.remove();const container=document.createElement('div');container.className='catalogue-page-layout';container.style.display='flex';container.style.flexDirection='column';container.style.gap='20px';for(const block of p.blocks){let el;if(block.type==='products'){el=root.querySelector('.products');if(!el)continue}else if(block.type==='heading'){el=document.createElement('h2');el.textContent=block.text}else if(block.type==='text'){el=document.createElement('p');el.textContent=block.text;el.style.whiteSpace='pre-wrap'}else if(block.type==='image'){el=document.createElement('img');el.src=block.url||'';el.style.maxWidth='100%'}else if(block.type==='video'){el=document.createElement('video');el.src=block.url||'';el.controls=true;el.style.maxWidth='100%'}else{el=document.createElement('button');el.className='shop-btn';el.textContent=block.text||'Shop now'}container.append(el)}root.append(container)};
+
 try{controls();render();const first=document.querySelector('[data-section=header]');focusFashionSection('header',first)}catch(error){$('status').textContent='Editor loading error: '+error.message;console.error(error)}
 </script></body></html>
