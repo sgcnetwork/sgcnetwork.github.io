@@ -377,11 +377,11 @@ render=function(){
 
 /* Direct canvas selection and free positioning, saved per page. */
 const moveStyle=document.createElement('style');
-moveStyle.textContent='.canvas-move-tools{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:12px;background:#fff8ec;border:1px solid #d9bd91;margin-bottom:10px;position:sticky;top:65px;z-index:30;border-radius:7px;font:12px Arial}.canvas-move-tools button{padding:8px 10px;border:1px solid #b99869;background:white;color:#513d25;border-radius:5px;cursor:pointer}.canvas-selected{outline:2px solid #b18a51!important;outline-offset:4px;cursor:move!important}.preview.canvas-moving{user-select:none}.preview[data-move-mode="true"] img{user-select:none;-webkit-user-drag:none}.preview[data-move-mode="true"]{touch-action:none}.canvas-move-tools .move-help{flex:1;min-width:150px;color:#66523b}';
+moveStyle.textContent='.canvas-move-tools{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:12px;background:#fff8ec;border:1px solid #d9bd91;margin-bottom:10px;position:sticky;top:65px;z-index:30;border-radius:7px;font:12px Arial}.canvas-move-tools button{padding:8px 10px;border:1px solid #b99869;background:white;color:#513d25;border-radius:5px;cursor:pointer}.canvas-selected{outline:2px solid #b18a51!important;outline-offset:4px;cursor:move!important}.preview.canvas-moving{user-select:none}.nav-dropdown[hidden]{display:none!important}.preview[data-move-mode="true"] img{user-select:none;-webkit-user-drag:none}.preview[data-move-mode="true"]{touch-action:none}.canvas-move-tools .move-help{flex:1;min-width:150px;color:#66523b}';
 document.head.append(moveStyle);
 let canvasMoveMode=true,canvasSelection=null,canvasGesture=null,canvasSuppressClick=false;
 const moveTools=document.createElement('div');moveTools.className='canvas-move-tools';
-moveTools.setAttribute('aria-label','Move page elements');canvas.before(moveTools);
+moveTools.setAttribute('aria-label','Move page elements');canvas.prepend(moveTools);
 function elementMoveKey(node){
  const parts=[];let el=node;
  while(el&&el!==$('preview')){
@@ -418,7 +418,7 @@ function drawCanvasMoveTools(){
  toggle.onclick=()=>{finishCanvasMove();canvasMoveMode=!canvasMoveMode;$('preview').dataset.moveMode=String(canvasMoveMode);if(!canvasMoveMode)selectCanvasElement(null);drawCanvasMoveTools()};
  moveTools.append(toggle);
  const help=document.createElement('span');help.className='move-help';
- help.textContent=canvasSelection?'Selected '+canvasSelection.node.tagName.toLowerCase()+' · Drag to move. Double-click text to type.':'Click any page element, then drag it anywhere. Turn OFF to use links.';
+ help.textContent=canvasSelection?'Selected '+canvasSelection.node.tagName.toLowerCase()+' · Drag to move. Turn OFF to edit text or use links.':'Click any page element, then drag it anywhere. Turn OFF to use links.';
  moveTools.append(help);
  for(const [label,dx,dy] of [['←',-10,0],['↑',0,-10],['↓',0,10],['→',10,0],['Reset position',0,0]]){
   const b=document.createElement('button');b.textContent=label;b.disabled=!canvasSelection;
