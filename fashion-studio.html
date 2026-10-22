@@ -332,6 +332,7 @@ function showStorePageEditor(pageId){
  clearEditor('Edit '+(state.pageLabels?.[pageId]||pageId)+' Page');
  showInlinePanel('pages-panel');
  drawSelectedPageSettings();
+ workspace.scrollTop=0;
  activateStudioButton(null);
  drawStorePageLinks();
 }
@@ -356,6 +357,23 @@ drawStorePageLinks=function(){
  const add=document.createElement('button');add.type='button';add.className='manage-action';
  add.textContent='+ Add New Page';add.onclick=addCustomPage;host.append(add);
 };
+
+/* Keep page actions visible beside the canvas, even when settings are scrolled. */
+const pageActionsStyle=document.createElement('style');
+pageActionsStyle.textContent='.page-media-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:12px 16px;background:#fff8ec;border-bottom:1px solid #e3d1b7;color:#594027}.page-media-toolbar strong{margin-right:auto;font-size:13px}.page-media-toolbar button{border:1px solid #b18a51;border-radius:6px;background:#b18a51;color:#fff;padding:10px 14px;font:12px Arial;cursor:pointer}';
+document.head.append(pageActionsStyle);
+const renderBeforeVisibleMedia=render;
+render=function(){
+ renderBeforeVisibleMedia();
+ if(!isCataloguePage(current)&&!current.startsWith('custom-'))return;
+ const pageId=current,preview=$('preview'),bar=document.createElement('div');
+ bar.className='page-media-toolbar';bar.setAttribute('aria-label','Page editing actions');
+ const title=document.createElement('strong');title.textContent='Edit '+(state.pageLabels?.[pageId]||pageId)+' page';bar.append(title);
+ pageMediaButton(bar,'+ Add picture',pageId,'image');
+ pageMediaButton(bar,'+ Add video',pageId,'video');
+ preview.prepend(bar);
+};
+
 restorePageMedia();
 try{controls();render();const first=document.querySelector('[data-section=header]');focusFashionSection('header',first)}catch(error){$('status').textContent='Editor loading error: '+error.message;console.error(error)}
 </script></body></html>
