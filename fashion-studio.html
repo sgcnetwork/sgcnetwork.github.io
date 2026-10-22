@@ -259,37 +259,35 @@ const oldNavRender=render;
 render=function(){oldNavRender();const nav=$('preview').querySelector('.shop-nav');if(!nav)return;const hidden=new Set(state.hiddenNavPages||[]);const buttons=[...nav.querySelectorAll(':scope > button[data-page]')];buttons.forEach(b=>{if(hidden.has(b.dataset.page)||state.customPages?.[b.dataset.page]?.inNavigation===false)b.remove()});const visible=[...nav.querySelectorAll(':scope > button[data-page]')];if(visible.length<=5)return;const extra=visible.slice(5);const wrap=document.createElement('div');wrap.className='nav-overflow';const trigger=document.createElement('button');trigger.className='nav-more';trigger.type='button';trigger.textContent='☰ Menu';trigger.setAttribute('aria-expanded','false');const dropdown=document.createElement('div');dropdown.className='nav-dropdown';dropdown.hidden=true;extra.forEach(b=>dropdown.append(b));trigger.onclick=()=>{dropdown.hidden=!dropdown.hidden;trigger.setAttribute('aria-expanded',String(!dropdown.hidden))};wrap.append(trigger,dropdown);nav.append(wrap)};
 
 
-/* Page click opens the page's own controls in the left editor, never Header or Menu. */
-function openActualPageEditor(id){current=id;clearEditor((state.pageLabels?.[id]||id)+' — Edit Page');const settings=document.createElement('div');settings.id='active-page-settings';editor.append(settings);const oldHost=$('pages-controls');const parent=oldHost.parentNode;parent.removeChild(oldHost);settings.append(oldHost);drawSelectedPageSettings();const menu=aside.querySelector('[data-section="header"]');if(menu)menu.classList.remove('active');const group=$('studio-page-links').closest('details');if(group)group.open=true;drawStorePageLinks();document.querySelector('#fashion-workarea')?.scrollIntoView({behavior:'smooth',block:'nearest'})}
-const priorPageLinks=drawStorePageLinks;
-drawStorePageLinks=function(){priorPageLinks();$('studio-page-links').querySelectorAll('.store-page-link').forEach(button=>{button.onclick=()=>{const id=state.pages.find(p=>(state.pageLabels?.[p]||p)===button.textContent.replace(/^▤\\s*/,''));if(!id)return;go(id);openActualPageEditor(id)}})};
-
-
-/* Ensure page controls are visible in the actual editor, not a hidden settings panel. */
+/* Keep page settings in their persistent panel: clearing the section editor must
+   never detach the controls needed by the next page selection. */
 function showStorePageEditor(pageId){
+ if(!state.pages.includes(pageId))return;
  current=pageId;
- const heading=state.pageLabels?.[pageId]||pageId;
- clearEditor('Edit '+heading+' Page');
- const controlsHost=$('pages-controls');
- editor.append(controlsHost);
- controlsHost.hidden=false;
- controlsHost.style.display='block';
+ clearEditor('Edit '+(state.pageLabels?.[pageId]||pageId)+' Page');
+ showInlinePanel('pages-panel');
  drawSelectedPageSettings();
- $('studio-page-links').querySelectorAll('.store-page-link').forEach((b,index)=>b.classList.toggle('active',state.pages[index]===pageId));
+ activateStudioButton(null);
+ drawStorePageLinks();
 }
-const finalStorePageLinks=drawStorePageLinks;
+openSelectedPage=function(){showStorePageEditor(current)};
 drawStorePageLinks=function(){
- finalStorePageLinks();
- const buttons=$('studio-page-links').querySelectorAll('.store-page-link');
- buttons.forEach((button,index)=>{
-   const pageId=state.pages[index];
-   button.onclick=function(event){
-     event.preventDefault();event.stopPropagation();
-     current=pageId;categoryFilter='';render();
-     showStorePageEditor(pageId);
-   };
+ const host=$('studio-page-links');host.replaceChildren();
+ state.pages.forEach(pageId=>{
+  const button=document.createElement('button');
+  button.type='button';button.className='store-page-link'+(current===pageId?' active':'');
+  button.textContent=state.pageLabels?.[pageId]||pageId;
+  button.dataset.storePage=pageId;
+  button.onclick=event=>{
+   event.preventDefault();event.stopPropagation();
+   current=pageId;categoryFilter='';
+   showStorePageEditor(pageId);
+   render();
+  };
+  host.append(button);
  });
+ const add=document.createElement('button');add.type='button';add.className='manage-action';
+ add.textContent='+ Add New Page';add.onclick=addCustomPage;host.append(add);
 };
-
 try{controls();render();const first=document.querySelector('[data-section=header]');focusFashionSection('header',first)}catch(error){$('status').textContent='Editor loading error: '+error.message;console.error(error)}
 </script></body></html>
