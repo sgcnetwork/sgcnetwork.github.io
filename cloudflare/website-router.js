@@ -13,6 +13,7 @@ export default {
   const headers = { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', 'Content-Security-Policy': CSP, 'Referrer-Policy': 'strict-origin-when-cross-origin', 'Permissions-Policy': 'camera=(), microphone=(), geolocation=()' };
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug) || slug.length < 3 || slug.length > 40) return new Response('Website not found', { status: 404, headers });
   if (slug === 'al-habib') return serveAlhabib(request, u);
+  if (slug === 'djp') return serveDjp(request, u);
   if (!['GET','HEAD'].includes(request.method)) return new Response('Method not allowed', { status: 405, headers });
   if (u.protocol !== 'https:') { u.protocol = 'https:'; return Response.redirect(u.href, 301); }
   if (u.pathname === '/robots.txt') return new Response('User-agent: *\nAllow: /\n', { headers: { ...headers, 'Content-Type': 'text/plain' } });
@@ -50,4 +51,22 @@ async function serveAlhabib(request, u) {
  headers['Content-Security-Policy']="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' https: data:; media-src 'self' https:; connect-src 'self' https://bxpexanyoyubxeqqlggh.supabase.co; font-src 'self' https://fonts.gstatic.com; base-uri 'none'; form-action 'self'; frame-ancestors 'none'";
  return new Response(request.method==='HEAD'?null:r.body,{status:200,headers});
  }catch{return new Response('Store temporarily unavailable',{status:503,headers})}
+}
+
+// DJP standalone site, served from SGC hosting.
+async function serveDjp(request,u){
+ const headers={'Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Referrer-Policy':'strict-origin-when-cross-origin','Permissions-Policy':'camera=(), microphone=(), geolocation=()'};
+ if(u.protocol!=='https:'){u.protocol='https:';return Response.redirect(u.href,301)}
+ if(!['GET','HEAD'].includes(request.method))return new Response('Method not allowed',{status:405,headers});
+ const allowed=new Set(['index.html','visa.html','pcc.html','contact.html','privacy.html','manage.html','app.js','style.css','favicon.svg','journey.jpg']);
+ let file=u.pathname==='/'?'index.html':u.pathname.replace(/^\/djp\/?/,'').replace(/^\//,'');
+ if(!file)file='index.html';
+ if(u.pathname==='/robots.txt')return new Response('User-agent: *\nAllow: /\nDisallow: /djp/manage.html\n',{headers:{...headers,'Content-Type':'text/plain'}});
+ if(!allowed.has(file))return new Response('Page not found',{status:404,headers});
+ try{const response=await fetch(ORIGIN+'/djp/'+file,{signal:AbortSignal.timeout(15000)});
+ if(!response.ok)return new Response('Website temporarily unavailable',{status:503,headers});
+ headers['Content-Type']=file.endsWith('.js')?'text/javascript; charset=utf-8':file.endsWith('.css')?'text/css; charset=utf-8':file.endsWith('.svg')?'image/svg+xml':file.endsWith('.jpg')?'image/jpeg':'text/html; charset=utf-8';
+ headers['Content-Security-Policy']="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self'; connect-src https://bxpexanyoyubxeqqlggh.supabase.co; font-src https://fonts.gstatic.com; base-uri 'none'; form-action 'self'; frame-ancestors 'none'";
+ return new Response(request.method==='HEAD'?null:response.body,{status:200,headers});
+ }catch{return new Response('Website temporarily unavailable',{status:503,headers})}
 }
