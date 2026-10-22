@@ -264,5 +264,32 @@ function openActualPageEditor(id){current=id;clearEditor((state.pageLabels?.[id]
 const priorPageLinks=drawStorePageLinks;
 drawStorePageLinks=function(){priorPageLinks();$('studio-page-links').querySelectorAll('.store-page-link').forEach(button=>{button.onclick=()=>{const id=state.pages.find(p=>(state.pageLabels?.[p]||p)===button.textContent.replace(/^▤\\s*/,''));if(!id)return;go(id);openActualPageEditor(id)}})};
 
+
+/* Ensure page controls are visible in the actual editor, not a hidden settings panel. */
+function showStorePageEditor(pageId){
+ current=pageId;
+ const heading=state.pageLabels?.[pageId]||pageId;
+ clearEditor('Edit '+heading+' Page');
+ const controlsHost=$('pages-controls');
+ editor.append(controlsHost);
+ controlsHost.hidden=false;
+ controlsHost.style.display='block';
+ drawSelectedPageSettings();
+ $('studio-page-links').querySelectorAll('.store-page-link').forEach((b,index)=>b.classList.toggle('active',state.pages[index]===pageId));
+}
+const finalStorePageLinks=drawStorePageLinks;
+drawStorePageLinks=function(){
+ finalStorePageLinks();
+ const buttons=$('studio-page-links').querySelectorAll('.store-page-link');
+ buttons.forEach((button,index)=>{
+   const pageId=state.pages[index];
+   button.onclick=function(event){
+     event.preventDefault();event.stopPropagation();
+     current=pageId;categoryFilter='';render();
+     showStorePageEditor(pageId);
+   };
+ });
+};
+
 try{controls();render();const first=document.querySelector('[data-section=header]');focusFashionSection('header',first)}catch(error){$('status').textContent='Editor loading error: '+error.message;console.error(error)}
 </script></body></html>
