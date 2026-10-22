@@ -374,6 +374,95 @@ render=function(){
  preview.prepend(bar);
 };
 
+
+/* Direct canvas selection and free positioning, saved per page. */
+const moveStyle=document.createElement('style');
+moveStyle.textContent='.canvas-move-tools{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:12px;background:#fff8ec;border:1px solid #d9bd91;margin-bottom:10px;position:sticky;top:65px;z-index:30;border-radius:7px;font:12px Arial}.canvas-move-tools button{padding:8px 10px;border:1px solid #b99869;background:white;color:#513d25;border-radius:5px;cursor:pointer}.canvas-selected{outline:2px solid #b18a51!important;outline-offset:4px;cursor:move!important}.preview.canvas-moving{user-select:none}.preview[data-move-mode="true"] img{user-select:none;-webkit-user-drag:none}.preview[data-move-mode="true"]{touch-action:none}.canvas-move-tools .move-help{flex:1;min-width:150px;color:#66523b}';
+document.head.append(moveStyle);
+let canvasMoveMode=true,canvasSelection=null,canvasGesture=null,canvasSuppressClick=false;
+const moveTools=document.createElement('div');moveTools.className='canvas-move-tools';
+moveTools.setAttribute('aria-label','Move page elements');canvas.before(moveTools);
+function elementMoveKey(node){
+ const parts=[];let el=node;
+ while(el&&el!==$('preview')){
+  const tag=el.tagName.toLowerCase(),siblings=[...el.parentElement.children].filter(n=>n.tagName===el.tagName);
+  parts.unshift(tag+':nth-of-type('+(siblings.indexOf(el)+1)+')');el=el.parentElement;
+ }return parts.join(' > ');
+}
+function canvasMoveData(){state.elementPositions??={};return state.elementPositions[current]??={}}
+function placeCanvasElement(node,position){
+ node.style.position='relative';node.style.left=position.x+'px';node.style.top=position.y+'px';
+ if(position.x||position.y)node.style.zIndex='2';
+ else node.style.removeProperty('z-index');
+}
+function selectCanvasElement(node){
+ canvasSelection?.node.classList.remove('canvas-selected');
+ canvasSelection=node?{node,key:elementMoveKey(node),page:current}:null;
+ if(node)node.classList.add('canvas-selected');drawCanvasMoveTools();
+}
+function finishCanvasMove(){
+ if(!canvasGesture)return;
+ const gesture=canvasGesture;canvasGesture=null;$('preview').classList.remove('canvas-moving');
+ if(gesture.moved){canvasSuppressClick=true;save();setTimeout(()=>{canvasSuppressClick=false},0)}
+}
+function nudgeCanvasElement(dx,dy,reset=false){
+ if(!canvasSelection)return;
+ const positions=canvasMoveData(),old=positions[canvasSelection.key]||{x:0,y:0};
+ checkpoint();const next=reset?{x:0,y:0}:{x:old.x+dx,y:old.y+dy};
+ positions[canvasSelection.key]=next;placeCanvasElement(canvasSelection.node,next);save();
+}
+function drawCanvasMoveTools(){
+ moveTools.replaceChildren();
+ const toggle=document.createElement('button');toggle.textContent=canvasMoveMode?'Move elements: ON':'Move elements: OFF';
+ toggle.setAttribute('aria-pressed',String(canvasMoveMode));
+ toggle.onclick=()=>{finishCanvasMove();canvasMoveMode=!canvasMoveMode;$('preview').dataset.moveMode=String(canvasMoveMode);if(!canvasMoveMode)selectCanvasElement(null);drawCanvasMoveTools()};
+ moveTools.append(toggle);
+ const help=document.createElement('span');help.className='move-help';
+ help.textContent=canvasSelection?'Selected '+canvasSelection.node.tagName.toLowerCase()+' · Drag to move. Double-click text to type.':'Click any page element, then drag it anywhere. Turn OFF to use links.';
+ moveTools.append(help);
+ for(const [label,dx,dy] of [['←',-10,0],['↑',0,-10],['↓',0,10],['→',10,0],['Reset position',0,0]]){
+  const b=document.createElement('button');b.textContent=label;b.disabled=!canvasSelection;
+  b.setAttribute('aria-label',label==='Reset position'?label:({'←':'Move left','↑':'Move up','↓':'Move down','→':'Move right'}[label]));
+  b.onclick=()=>nudgeCanvasElement(dx,dy,label==='Reset position');moveTools.append(b);
+ }
+}
+function bindCanvasMoving(){
+ const preview=$('preview');preview.dataset.moveMode=String(canvasMoveMode);
+ canvasSelection=null;
+ const positions=state.elementPositions?.[current]||{};
+ for(const [selector,position] of Object.entries(positions)){
+  try{const node=preview.querySelector(selector);if(node)placeCanvasElement(node,position)}catch{}
+ }
+ drawCanvasMoveTools();
+ preview.onpointerdown=e=>{
+  if(!canvasMoveMode||e.button!==0||e.target.closest('.page-media-toolbar,.canvas-move-tools'))return;
+  if(e.target.isContentEditable&&document.activeElement===e.target)return;
+  const node=e.target.closest('img,video,h1,h2,h3,h4,p,small,span,button,input,select,textarea,.editable,.brand,.category,.product,.hero,.section,.banner,.newsletter,.benefits,.footer,.announcement,.shop-head,.shop-nav')||e.target;
+  if(node===preview)return;
+  e.preventDefault();e.stopImmediatePropagation();selectCanvasElement(node);
+  const pos=canvasMoveData()[canvasSelection.key]||{x:0,y:0};
+  canvasGesture={node,key:canvasSelection.key,startX:e.clientX,startY:e.clientY,x:pos.x,y:pos.y,moved:false,pointerId:e.pointerId};
+  preview.setPointerCapture(e.pointerId);
+ };
+ preview.onpointermove=e=>{
+  const g=canvasGesture;if(!g||e.pointerId!==g.pointerId)return;
+  const dx=e.clientX-g.startX,dy=e.clientY-g.startY;
+  if(!g.moved&&Math.hypot(dx,dy)<4)return;
+  if(!g.moved){checkpoint();g.moved=true}
+  const pos={x:Math.round(g.x+dx),y:Math.round(g.y+dy)};
+  canvasMoveData()[g.key]=pos;placeCanvasElement(g.node,pos);preview.classList.add('canvas-moving');
+ };
+ preview.onpointerup=finishCanvasMove;preview.onpointercancel=finishCanvasMove;
+}
+$('preview').addEventListener('click',e=>{
+ if(canvasMoveMode&&!e.target.closest('.page-media-toolbar')){
+  e.preventDefault();e.stopImmediatePropagation();
+ }
+},true);
+$('preview').addEventListener('dragstart',e=>{if(canvasMoveMode)e.preventDefault()});
+const renderBeforeCanvasMoving=render;
+render=function(){renderBeforeCanvasMoving();bindCanvasMoving()};
+
 restorePageMedia();
 try{controls();render();const first=document.querySelector('[data-section=header]');focusFashionSection('header',first)}catch(error){$('status').textContent='Editor loading error: '+error.message;console.error(error)}
 </script></body></html>
