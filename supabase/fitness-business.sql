@@ -4,6 +4,7 @@ create table if not exists public.sgc_fitness_records (
 alter table public.sgc_fitness_records enable row level security;
 revoke all on public.sgc_fitness_records from anon,authenticated;
 grant all on public.sgc_fitness_records to service_role;
+drop policy if exists fitness_no_direct_access on public.sgc_fitness_records;
 create policy fitness_no_direct_access on public.sgc_fitness_records as restrictive for all to anon,authenticated using(false) with check(false);
 create index if not exists sgc_fitness_owner_time on public.sgc_fitness_records(owner_id,created_at desc);
 create index if not exists sgc_fitness_slot on public.sgc_fitness_records(website_id,kind,status,((data->>'classId')),((data->>'date')),((data->>'time')));

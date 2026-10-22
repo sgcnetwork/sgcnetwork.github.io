@@ -319,9 +319,9 @@ function renderFood(){
 let fitnessRuntime=null,fitnessAssets=null;
 function renderFitness(){
  if(!window.SgcFitness){
-  if(!fitnessAssets){const css=document.createElement('link');css.rel='stylesheet';css.href='https://sgcnetwork.co.za/fitness-studio.css?v=1';document.head.append(css);
+  if(!fitnessAssets){const css=document.createElement('link');css.rel='stylesheet';css.href='https://sgcnetwork.co.za/fitness-studio.css?v=2';document.head.append(css);
    const script=src=>new Promise((resolve,reject)=>{const el=document.createElement('script');el.src=src;el.onload=resolve;el.onerror=()=>reject(Error('Could not load your fitness website. Please refresh.'));document.head.append(el);});
-   fitnessAssets=(window.SgcFood?Promise.resolve():script('https://sgcnetwork.co.za/food-renderer.js?v=2')).then(()=>script('https://sgcnetwork.co.za/fitness-renderer.js?v=1'));
+   fitnessAssets=(window.SgcFood?Promise.resolve():script('https://sgcnetwork.co.za/food-renderer.js?v=2')).then(()=>script('https://sgcnetwork.co.za/fitness-renderer.js?v=2'));
   }
   fitnessAssets.then(renderFitness).catch(e=>{status.hidden=false;status.textContent=e.message;});return;
  }
