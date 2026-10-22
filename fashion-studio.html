@@ -196,7 +196,7 @@ if(key==='Cart')return [['title','Page heading','.section>h2','Your Cart'],['but
 if(key==='Home'||key==='Product Page')return [];
 return [['title','Page heading','.section>h2',state.pageLabels?.[key]||key],['description','Page description','.section>p','Explore thoughtfully selected pieces for every occasion.']]}
 function pageTextControl(host,key,id,label,fallback){const row=document.createElement('div');row.className='field';const title=document.createElement('label');title.textContent=label;const area=document.createElement(id==='description'||id==='note'?'textarea':'input');area.id='page-content-'+id;title.htmlFor=area.id;area.value=state.pageContent?.[key]?.[id]??fallback;area.dataset.pageContent=id;area.oninput=()=>{state.pageContent??={};state.pageContent[key]??={};state.pageContent[key][id]=area.value;save();render()};row.append(title,area);host.append(row)}
-function addPageContentControls(host,key){const fields=pageContentFields(key);if(!fields.length)return;const section=document.createElement('details');section.className='page-content-group';section.open=true;const summary=document.createElement('summary');summary.textContent='Page content';section.append(summary);for(const [id,label,selector,fallback]of fields)pageTextControl(section,key,id,label,fallback);host.append(section);
+function addPageContentControls(host,key){if(isCataloguePage(key))return;const fields=pageContentFields(key);if(!fields.length)return;const section=document.createElement('details');section.className='page-content-group';section.open=true;const summary=document.createElement('summary');summary.textContent='Page content';section.append(summary);for(const [id,label,selector,fallback]of fields)pageTextControl(section,key,id,label,fallback);host.append(section);
 if(key==='Checkout'){const shipping=document.createElement('details');shipping.className='page-content-group';const summary=document.createElement('summary');summary.textContent='Shipping form labels';shipping.append(summary);['Full name','Email address','Phone number','Street address','City','Postal code'].forEach((label,i)=>pageTextControl(shipping,key,'shippingField'+i,label,label));host.append(shipping);const delivery=document.createElement('details');delivery.className='page-content-group';const title=document.createElement('summary');title.textContent='Delivery costs';delivery.append(title);delivery.append(input('Shipping fee',state.shipping,v=>{state.shipping=Math.max(0,Number(v)||0);save();render()},'number'),input('Free shipping from',state.freeShipping,v=>{state.freeShipping=Math.max(0,Number(v)||0);save();render()},'number'));host.append(delivery)}
 }
 function applyPageContent(){const settings=state.pageContent?.[current]||{};for(const [id,,selector]of pageContentFields(current)){const node=$('preview').querySelector(selector);if(node&&settings[id]!==undefined)node.textContent=settings[id]}
@@ -272,7 +272,9 @@ function showStorePageEditor(pageId){
 }
 openSelectedPage=function(){showStorePageEditor(current)};
 drawStorePageLinks=function(){
- const host=$('studio-page-links');host.replaceChildren();
+ const host=$('studio-page-links');
+ const picker=$('page-select');if(picker&&host.contains(picker)){picker.hidden=true;workspace.append(picker)}
+ host.replaceChildren();
  state.pages.forEach(pageId=>{
   const button=document.createElement('button');
   button.type='button';button.className='store-page-link'+(current===pageId?' active':'');
