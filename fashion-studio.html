@@ -214,18 +214,83 @@ const sort=preview.querySelector('#sort');if(sort)sort.onchange=()=>{const host=
 
 /* Store Pages: editable, independently saved custom page content. */
 const pageStyle=document.createElement('style');pageStyle.textContent='.store-page-tools{display:grid;gap:10px;margin-top:16px}.store-page-tools .field{margin:0}.store-page-tools textarea{min-height:85px}.store-page-tools button{border:1px solid #ded2c2;border-radius:8px;padding:10px;background:#fbf7f2}.custom-page-body{padding:30px 5%;min-height:350px}.custom-page-block{margin:14px 0}.custom-page-block img,.custom-page-block video{max-width:100%;max-height:500px;object-fit:contain}.store-page-tools .two{display:grid;grid-template-columns:1fr 1fr;gap:8px}';document.head.append(pageStyle);
+
+/* Device media stays in IndexedDB so videos do not overflow the text draft. */
+const pageMediaURLs=new Map();
+let pageMediaDB;
+function openPageMediaDB(){
+ return pageMediaDB??=new Promise((resolve,reject)=>{
+  const request=indexedDB.open('sgc-fashion-page-media',1);
+  request.onupgradeneeded=()=>request.result.createObjectStore('files');
+  request.onsuccess=()=>resolve(request.result);
+  request.onerror=()=>reject(request.error);
+ });
+}
+async function storePageMedia(file){
+ const db=await openPageMediaDB(),id='sgc-media:'+Date.now()+'-'+Math.random().toString(36).slice(2);
+ await new Promise((resolve,reject)=>{
+  const tx=db.transaction('files','readwrite');tx.objectStore('files').put(file,id);
+  tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);tx.onabort=()=>reject(tx.error);
+ });
+ pageMediaURLs.set(id,URL.createObjectURL(file));return id;
+}
+function pageMediaURL(value){return value?.startsWith('sgc-media:')?(pageMediaURLs.get(value)||''):value||''}
+async function restorePageMedia(){
+ const ids=[...new Set(Object.values(state.customPages||{}).flatMap(p=>(p.blocks||[]).map(b=>b.url).filter(u=>u?.startsWith('sgc-media:'))))];
+ if(!ids.length)return;
+ try{
+  const db=await openPageMediaDB();
+  await Promise.all(ids.map(id=>new Promise(resolve=>{
+   const req=db.transaction('files').objectStore('files').get(id);
+   req.onsuccess=()=>{if(req.result)pageMediaURLs.set(id,URL.createObjectURL(req.result));resolve()};
+   req.onerror=resolve;
+  })));render();
+ }catch(error){$('status').textContent='Could not restore device media: '+error.message}
+}
+function choosePageMedia(pageId,type,existingBlock){
+ const picker=document.createElement('input');picker.type='file';
+ picker.accept=type==='image'?'image/*':'video/*';picker.hidden=true;document.body.append(picker);
+ const cleanup=()=>picker.remove();picker.oncancel=cleanup;
+ picker.onchange=async()=>{
+  const file=picker.files?.[0];if(!file){cleanup();return}
+  if(!file.type.startsWith(type==='image'?'image/':'video/')){$('status').textContent='Choose a '+(type==='image'?'picture':'video')+' file.';cleanup();return}
+  $('status').textContent='Adding '+file.name+'…';
+  try{
+   const url=await storePageMedia(file);
+   checkpoint();const page=customPageData(pageId);
+   if(existingBlock){existingBlock.url=url;existingBlock.fileName=file.name}
+   else page.blocks.push({type,url,fileName:file.name});
+   save();render();if(current===pageId)drawSelectedPageSettings();
+  }catch(error){$('status').textContent='Could not save this file. '+error.message}
+  finally{cleanup()}
+ };picker.click();
+}
+function pageMediaButton(host,label,pageId,type,block){
+ const button=document.createElement('button');button.type='button';button.textContent=label;
+ button.onclick=()=>choosePageMedia(pageId,type,block);host.append(button);
+}
+
 function customPageData(id){state.customPages??={};return state.customPages[id]??={background:'#ffffff',color:'#272322',blocks:[{type:'heading',text:state.pageLabels?.[id]||id},{type:'text',text:'Tell your story here.'}]}}
 function refreshStorePages(){const picker=$('page-select');if(!picker)return;const value=current;picker.replaceChildren();state.pages.forEach(p=>picker.add(new Option(state.pageLabels?.[p]||p,p)));picker.value=value}
 function pageField(host,label,value,change,type='text'){const d=document.createElement('div');d.className='field';const l=document.createElement('label');l.textContent=label;const el=document.createElement(type==='textarea'?'textarea':'input');if(type!=='textarea')el.type=type;el.value=value||'';el.oninput=()=>change(el.value);d.append(l,el);host.append(d);return el}
 function addCustomPage(){const name=prompt('New page name');if(!name||!name.trim())return;const id='custom-'+Date.now();checkpoint();state.pages.push(id);state.pageLabels??={};state.pageLabels[id]=name.trim();customPageData(id);save();refreshStorePages();go(id);openSelectedPage()}
-function drawCustomPageEditor(host,id){const page=customPageData(id);const tools=document.createElement('div');tools.className='store-page-tools';host.append(tools);pageField(tools,'Page background',page.background,v=>{page.background=v;save();render()},'color');pageField(tools,'Text colour',page.color,v=>{page.color=v;save();render()},'color');
-page.blocks.forEach((block,index)=>{const group=document.createElement('details');group.open=true;group.className='page-content-group';const sum=document.createElement('summary');sum.textContent=(index+1)+'. '+block.type;group.append(sum);pageField(group,block.type==='image'||block.type==='video'?'Image / video URL':'Text',block.type==='image'||block.type==='video'?block.url:block.text,v=>{if(block.type==='image'||block.type==='video')block.url=v;else block.text=v;save();render()},block.type==='text'?'textarea':'text');const row=document.createElement('div');row.className='two';for(const [label,action] of [['Move up',()=>{if(index){[page.blocks[index-1],page.blocks[index]]=[page.blocks[index],page.blocks[index-1]]}}],['Remove',()=>page.blocks.splice(index,1)]]){const b=document.createElement('button');b.textContent=label;b.onclick=()=>{checkpoint();action();save();render();drawSelectedPageSettings()};row.append(b)}group.append(row);tools.append(group)});
+function drawCustomPageEditor(host,id){const page=customPageData(id);const tools=document.createElement('div');tools.className='store-page-tools';host.append(tools);
+const mediaActions=document.createElement('div');mediaActions.className='two';
+pageMediaButton(mediaActions,'+ Add picture',id,'image');
+pageMediaButton(mediaActions,'+ Add video',id,'video');
+tools.append(mediaActions);
+pageField(tools,'Page background',page.background,v=>{page.background=v;save();render()},'color');pageField(tools,'Text colour',page.color,v=>{page.color=v;save();render()},'color');
+page.blocks.forEach((block,index)=>{const group=document.createElement('details');group.open=true;group.className='page-content-group';const sum=document.createElement('summary');sum.textContent=(index+1)+'. '+block.type;group.append(sum);if(block.type==='image'||block.type==='video'){
+pageMediaButton(group,block.url?'Replace '+(block.type==='image'?'picture':'video'):'Choose '+(block.type==='image'?'picture':'video'),id,block.type,block);
+if(block.fileName){const name=document.createElement('p');name.textContent=block.fileName;group.append(name)}
+pageField(group,'Or paste '+(block.type==='image'?'picture':'video')+' URL',block.url?.startsWith('sgc-media:')?'':block.url,v=>{block.url=v;delete block.fileName;save();render()},'url');
+}else pageField(group,block.type==='image'||block.type==='video'?'Image / video URL':'Text',block.type==='image'||block.type==='video'?block.url:block.text,v=>{if(block.type==='image'||block.type==='video')block.url=v;else block.text=v;save();render()},block.type==='text'?'textarea':'text');const row=document.createElement('div');row.className='two';for(const [label,action] of [['Move up',()=>{if(index){[page.blocks[index-1],page.blocks[index]]=[page.blocks[index],page.blocks[index-1]]}}],['Remove',()=>page.blocks.splice(index,1)]]){const b=document.createElement('button');b.textContent=label;b.onclick=()=>{checkpoint();action();save();render();drawSelectedPageSettings()};row.append(b)}group.append(row);tools.append(group)});
 const select=document.createElement('select');['heading','text','image','video','button'].forEach(t=>select.add(new Option('Add '+t,t)));tools.append(select);const add=document.createElement('button');add.textContent='+ Add section';add.onclick=()=>{checkpoint();page.blocks.push({type:select.value,text:'New '+select.value,url:''});save();render();drawSelectedPageSettings()};tools.append(add);
 const visibility=document.createElement('label');const check=document.createElement('input');check.type='checkbox';check.style.width='auto';check.checked=page.inNavigation!==false;check.onchange=()=>{page.inNavigation=check.checked;save();render()};visibility.append(check,document.createTextNode(' Show in website navigation'));tools.append(visibility)}
 const priorDrawSelectedPageSettings=drawSelectedPageSettings;
 drawSelectedPageSettings=function(){priorDrawSelectedPageSettings();const host=$('pages-controls');if(current.startsWith('custom-'))drawCustomPageEditor(host,current);if(!host.querySelector('.add-store-page')){const add=document.createElement('button');add.className='add-store-page';add.textContent='+ Add New Page';add.onclick=addCustomPage;host.prepend(add)}};
 const priorFashionRender=render;
-render=function(){priorFashionRender();refreshStorePages();const preview=$('preview');if(current.startsWith('custom-')){const p=customPageData(current);const body=document.createElement('section');body.className='custom-page-body';body.style.background=p.background;body.style.color=p.color;for(const block of p.blocks){let el;if(block.type==='heading'){el=document.createElement('h2');el.textContent=block.text}else if(block.type==='text'){el=document.createElement('p');el.textContent=block.text;el.style.whiteSpace='pre-wrap'}else if(block.type==='image'){el=document.createElement('img');el.src=block.url||'';el.alt='Page image'}else if(block.type==='video'){el=document.createElement('video');el.src=block.url||'';el.controls=true}else{el=document.createElement('button');el.className='shop-btn';el.textContent=block.text||'Learn more'}el.classList.add('custom-page-block');body.append(el)}const main=preview.querySelector('.section');if(main)main.replaceWith(body);else preview.append(body)}preview.querySelectorAll('.shop-nav [data-page]').forEach(b=>{if(state.customPages?.[b.dataset.page]?.inNavigation===false)b.remove()})};
+render=function(){priorFashionRender();refreshStorePages();const preview=$('preview');if(current.startsWith('custom-')){const p=customPageData(current);const body=document.createElement('section');body.className='custom-page-body';body.style.background=p.background;body.style.color=p.color;for(const block of p.blocks){let el;if(block.type==='heading'){el=document.createElement('h2');el.textContent=block.text}else if(block.type==='text'){el=document.createElement('p');el.textContent=block.text;el.style.whiteSpace='pre-wrap'}else if(block.type==='image'){el=document.createElement('img');el.src=pageMediaURL(block.url);el.alt='Page image'}else if(block.type==='video'){el=document.createElement('video');el.src=pageMediaURL(block.url);el.controls=true;el.playsInline=true;el.preload='metadata'}else{el=document.createElement('button');el.className='shop-btn';el.textContent=block.text||'Learn more'}el.classList.add('custom-page-block');body.append(el)}const main=preview.querySelector('.section');if(main)main.replaceWith(body);else preview.append(body)}preview.querySelectorAll('.shop-nav [data-page]').forEach(b=>{if(state.customPages?.[b.dataset.page]?.inNavigation===false)b.remove()})};
 const pageMenu=$('studio-page-links');if(pageMenu){const add=document.createElement('button');add.type='button';add.textContent='+ Add New Page';add.className='manage-action';add.style.margin='8px 10px';add.onclick=addCustomPage;pageMenu.append(add)}
 
 
@@ -241,7 +306,7 @@ function isCataloguePage(id){return !['Home','Product Page','Cart','Checkout'].i
 const oldPageSettings=drawSelectedPageSettings;
 drawSelectedPageSettings=function(){oldPageSettings();if(!isCataloguePage(current))return;const host=$('pages-controls');const page=customPageData(current);if(!page.blocksInitialized){page.blocks=[{type:'heading',text:state.pageLabels?.[current]||current},{type:'text',text:state.pageContent?.[current]?.description||'Explore thoughtfully selected pieces for every occasion.'},{type:'products',text:'Products'}];page.blocksInitialized=true}drawCustomPageEditor(host,current)};
 const oldCatalogueRender=render;
-render=function(){oldCatalogueRender();if(!isCataloguePage(current))return;const p=state.customPages?.[current];if(!p?.blocksInitialized)return;const preview=$('preview'),root=preview.querySelector('.section');if(!root)return;root.style.background=p.background;root.style.color=p.color;const heading=root.querySelector('h2'),description=root.querySelector('p');if(heading)heading.remove();if(description)description.remove();const container=document.createElement('div');container.className='catalogue-page-layout';container.style.display='flex';container.style.flexDirection='column';container.style.gap='20px';for(const block of p.blocks){let el;if(block.type==='products'){el=root.querySelector('.products');if(!el)continue}else if(block.type==='heading'){el=document.createElement('h2');el.textContent=block.text}else if(block.type==='text'){el=document.createElement('p');el.textContent=block.text;el.style.whiteSpace='pre-wrap'}else if(block.type==='image'){el=document.createElement('img');el.src=block.url||'';el.style.maxWidth='100%'}else if(block.type==='video'){el=document.createElement('video');el.src=block.url||'';el.controls=true;el.style.maxWidth='100%'}else{el=document.createElement('button');el.className='shop-btn';el.textContent=block.text||'Shop now'}container.append(el)}root.append(container)};
+render=function(){oldCatalogueRender();if(!isCataloguePage(current))return;const p=state.customPages?.[current];if(!p?.blocksInitialized)return;const preview=$('preview'),root=preview.querySelector('.section');if(!root)return;root.style.background=p.background;root.style.color=p.color;const heading=root.querySelector('h2'),description=root.querySelector('p');if(heading)heading.remove();if(description)description.remove();const container=document.createElement('div');container.className='catalogue-page-layout';container.style.display='flex';container.style.flexDirection='column';container.style.gap='20px';for(const block of p.blocks){let el;if(block.type==='products'){el=root.querySelector('.products');if(!el)continue}else if(block.type==='heading'){el=document.createElement('h2');el.textContent=block.text}else if(block.type==='text'){el=document.createElement('p');el.textContent=block.text;el.style.whiteSpace='pre-wrap'}else if(block.type==='image'){el=document.createElement('img');el.src=pageMediaURL(block.url);el.style.maxWidth='100%'}else if(block.type==='video'){el=document.createElement('video');el.src=pageMediaURL(block.url);el.controls=true;el.playsInline=true;el.preload='metadata';el.style.maxWidth='100%'}else{el=document.createElement('button');el.className='shop-btn';el.textContent=block.text||'Shop now'}container.append(el)}root.append(container)};
 
 
 /* Link any catalogue page to one or more existing store categories. */
@@ -291,5 +356,6 @@ drawStorePageLinks=function(){
  const add=document.createElement('button');add.type='button';add.className='manage-action';
  add.textContent='+ Add New Page';add.onclick=addCustomPage;host.append(add);
 };
+restorePageMedia();
 try{controls();render();const first=document.querySelector('[data-section=header]');focusFashionSection('header',first)}catch(error){$('status').textContent='Editor loading error: '+error.message;console.error(error)}
 </script></body></html>
