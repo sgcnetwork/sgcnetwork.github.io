@@ -301,11 +301,11 @@ function renderEcommerce(){
 let foodRuntime=null,foodAssets=null;
 function renderFood(){
  if(!window.SgcFood){
-  if(!foodAssets){const css=document.createElement('link');css.rel='stylesheet';css.href='https://sgcnetwork.co.za/food-studio.css?v=1';document.head.append(css);
-   foodAssets=new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='https://sgcnetwork.co.za/food-renderer.js?v=1';script.onload=resolve;script.onerror=()=>reject(Error('Could not load food website. Please refresh.'));document.head.append(script);});}
+  if(!foodAssets){const css=document.createElement('link');css.rel='stylesheet';css.href='https://sgcnetwork.co.za/food-studio.css?v=2';document.head.append(css);
+   foodAssets=new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='https://sgcnetwork.co.za/food-renderer.js?v=2';script.onload=resolve;script.onerror=()=>reject(Error('Could not load food website. Please refresh.'));document.head.append(script);});}
   foodAssets.then(renderFood).catch(e=>{status.hidden=false;status.textContent=e.message;});return;
  }
- if(!document.querySelector('link[href*="food-studio.css"]')){const css=document.createElement('link');css.rel='stylesheet';css.href='https://sgcnetwork.co.za/food-studio.css?v=1';document.head.append(css);}
+ if(!document.querySelector('link[href*="food-studio.css"]')){const css=document.createElement('link');css.rel='stylesheet';css.href='https://sgcnetwork.co.za/food-studio.css?v=2';document.head.append(css);}
  foodRuntime??=window.SgcFood.runtime(site.slug||'preview');
  let foodRoute='home';try{foodRoute=decodeURIComponent(location.hash.slice(1)||'home')}catch{}
  window.SgcFood.render(root,p.foodStudio,foodRoute,{preview,slug:site.slug,runtime:foodRuntime,navigate:path=>{location.hash=path;scrollTo(0,0);}});
