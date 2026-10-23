@@ -24,7 +24,9 @@ if(form){
   try{
    const r=await fetch(API+'/rest/v1/djp_enquiries',{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(data),signal:AbortSignal.timeout(20000)});
    if(!r.ok)throw new Error('Unable to send');
-   const refResponse=await fetch(API+'/rest/v1/rpc/djp_public_reference',{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},body:JSON.stringify({p_id:enquiryId}),signal:AbortSignal.timeout(10000)});\n   const leadRef=refResponse.ok?await refResponse.json():null;\n   status.textContent='Enquiry received. Your reference is '+(leadRef||'pending confirmation')+'. DJP can now review your request and contact you using the details provided.';
+   const refResponse=await fetch(API+'/rest/v1/rpc/djp_public_reference',{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},body:JSON.stringify({p_id:enquiryId}),signal:AbortSignal.timeout(10000)});
+   const leadRef=refResponse.ok?await refResponse.json():null;
+   status.textContent='Enquiry received. Your reference is '+(leadRef||'pending confirmation')+'. DJP can now review your request and contact you using the details provided.';
    form.reset();enquiryId=crypto.randomUUID();
   }catch{status.textContent='We could not confirm your enquiry. Your details are still here. Please try again. If you already submitted, keep this reference: '+enquiryId;}
   finally{button.disabled=false;}
