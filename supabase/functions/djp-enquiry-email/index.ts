@@ -31,7 +31,7 @@ Deno.serve(async(req:Request)=>{
    ['Name',row.name],['Email',row.email],['Phone number',row.phone],
    ['Service enquired for',type],['Service category',row.service],['Destination / country of use',row.destination],
    ['Preferred deadline',row.deadline],['Notes / message',row.message],
-   ['Enquiry reference',row.id],['Submitted',new Date(row.created_at).toLocaleString('en-ZA',{timeZone:'Africa/Johannesburg'})+' SAST'],
+   ['Enquiry reference',row.lead_number?'DJP NQ'+row.lead_number:row.id],['Submitted',new Date(row.created_at).toLocaleString('en-ZA',{timeZone:'Africa/Johannesburg'})+' SAST'],
    ['Enquiry status at submission','New'],['Contact consent',row.consent?'Yes':'No']
   ];
   const text='DJP — Document Journey Processing\nNew website enquiry\n\n'+fields.map(([k,v])=>k+': '+value(v)).join('\n\n')+
