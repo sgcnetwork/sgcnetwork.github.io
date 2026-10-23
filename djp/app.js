@@ -83,6 +83,24 @@ async function djpUploadDocument(id,file){
  const meta=await fetch(API+'/rest/v1/djp_lead_documents',{method:'POST',headers:{apikey:KEY,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify({enquiry_id:id,storage_path:path,file_name:file.name,file_size:file.size,content_type:file.type})});
  if(!meta.ok)throw new Error('File uploaded but could not be added to the client record.');
 }
+
+function djpAdminPasswordPopup(fileName){
+ return new Promise(resolve=>{
+  const dialog=document.createElement('dialog');
+  dialog.setAttribute('aria-labelledby','djp-delete-title');
+  dialog.style.cssText='border:0;border-radius:20px;padding:28px;width:min(440px,calc(100vw - 40px));box-shadow:0 24px 90px #0005;color:#142c3a;background:#fff';
+  dialog.innerHTML='<form><h2 id="djp-delete-title" style="margin-top:0">Admin password required</h2><p>Enter your admin sign-in password to delete this supporting document.</p><p data-filename style="overflow-wrap:anywhere;font-weight:600"></p><label style="display:block">Admin password<input name="password" type="password" required autocomplete="off" style="display:block;box-sizing:border-box;width:100%;padding:12px;margin:8px 0 18px;border:1px solid #aebdc5;border-radius:8px"></label><div style="display:flex;gap:12px;flex-wrap:wrap"><button type="button" class="button secondary" data-cancel>Cancel</button><button type="submit" class="button">Verify password</button></div></form>';
+  dialog.querySelector('[data-filename]').textContent=fileName;
+  const input=dialog.querySelector('input');
+  let finished=false;
+  const finish=value=>{if(finished)return;finished=true;input.value='';dialog.close();dialog.remove();resolve(value);};
+  dialog.querySelector('form').addEventListener('submit',event=>{event.preventDefault();if(input.value)finish(input.value);});
+  dialog.querySelector('[data-cancel]').addEventListener('click',()=>finish(null));
+  dialog.addEventListener('cancel',event=>{event.preventDefault();finish(null);});
+  document.body.append(dialog);dialog.showModal();input.focus();
+ });
+}
+
 function djpDocumentRow(doc,refresh){
  const line=djpNode('div','lead-document-row'),open=djpNode('button','lead-document-link',doc.file_name),download=djpNode('button','lead-document-download','⬇ Download file'),del=djpNode('button','lead-document-delete','Delete');
  open.type=download.type=del.type='button';
@@ -101,7 +119,7 @@ function djpDocumentRow(doc,refresh){
  });
  del.addEventListener('click',async()=>{
   if(!session||session.user?.id!==OWNER){alert('Only an authorised DJP administrator can delete documents.');return;}
-  const password=prompt('Administrator verification: enter your DJP account password to permanently delete '+doc.file_name);
+  const password=await djpAdminPasswordPopup(doc.file_name);
   if(password===null)return;
   if(!password){alert('An administrator password is required.');return;}
   del.disabled=true;try{
@@ -110,9 +128,9 @@ function djpDocumentRow(doc,refresh){
    const verified=await verification.json();
    if(verified.user?.id!==OWNER)throw Error('This account is not authorised to delete documents.');
    if(!confirm('Password verified. Permanently delete '+doc.file_name+'?'))return;
-  const r=await fetch(API+'/storage/v1/object/djp-client-documents/'+doc.storage_path,{method:'DELETE',headers:{apikey:KEY,Authorization:'Bearer '+session.access_token}});
+  const r=await fetch(API+'/storage/v1/object/djp-client-documents/'+doc.storage_path,{method:'DELETE',headers:{apikey:KEY,Authorization:'Bearer '+verified.access_token}});
   if(!r.ok)throw Error('Could not delete file.');
-  const m=await fetch(API+'/rest/v1/djp_lead_documents?id=eq.'+doc.id,{method:'DELETE',headers:{apikey:KEY,Authorization:'Bearer '+session.access_token}});
+  const m=await fetch(API+'/rest/v1/djp_lead_documents?id=eq.'+doc.id,{method:'DELETE',headers:{apikey:KEY,Authorization:'Bearer '+verified.access_token}});
   if(!m.ok)throw Error('Could not remove file record.');await refresh();
  }catch(e){alert(e.message);}finally{del.disabled=false;}});
  const actions=djpNode('div','lead-document-actions');actions.append(download,del);line.append(open,actions);return line;
