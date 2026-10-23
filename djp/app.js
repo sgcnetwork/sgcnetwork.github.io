@@ -98,8 +98,9 @@ function djpRenderStoredFiles(){
  });
 }
 if(login){
- document.querySelector('#show-leads')?.addEventListener('click',()=>{document.querySelector('#enquiries').hidden=false;document.querySelector('#stored-files').hidden=true;});
- document.querySelector('#show-files')?.addEventListener('click',()=>{document.querySelector('#enquiries').hidden=true;document.querySelector('#stored-files').hidden=false;djpLoadStoredFiles();});
+ document.querySelector('#show-leads')?.addEventListener('click',()=>{document.querySelector('#enquiries').hidden=false;document.querySelector('#stored-files').hidden=true;document.querySelector('#financial-reports').hidden=true;document.querySelector('#djp-section-title').textContent='Leads tracker';document.querySelector('#refresh').hidden=false;});
+ document.querySelector('#show-files')?.addEventListener('click',()=>{document.querySelector('#enquiries').hidden=true;document.querySelector('#stored-files').hidden=false;document.querySelector('#financial-reports').hidden=true;document.querySelector('#djp-section-title').textContent='Stored files';document.querySelector('#refresh').hidden=true;djpLoadStoredFiles();});
+ document.querySelector('#show-finance')?.addEventListener('click',()=>{document.querySelector('#enquiries').hidden=true;document.querySelector('#stored-files').hidden=true;document.querySelector('#financial-reports').hidden=false;document.querySelector('#djp-section-title').textContent='Financial reports';document.querySelector('#refresh').hidden=true;});
  document.querySelector('#files-refresh')?.addEventListener('click',djpLoadStoredFiles);
  document.querySelector('#file-search')?.addEventListener('input',djpRenderStoredFiles);
  document.querySelector('#file-date')?.addEventListener('change',djpRenderStoredFiles);
