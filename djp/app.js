@@ -87,14 +87,30 @@ async function djpLoadStoredFiles(){
 }
 function djpRenderStoredFiles(){
  const root=document.querySelector('#files-results'),term=document.querySelector('#file-search').value.trim().toLowerCase(),date=document.querySelector('#file-date').value;root.replaceChildren();
- const matched=djpStoredDocs.filter(doc=>{
+ const grouped=new Map();
+ djpStoredDocs.forEach(doc=>{
   const lead=leadRows.find(r=>r.id===doc.enquiry_id);
-  const searchable=[doc.file_name,lead?.name,lead?.email,lead?.lead_number?'DJP NQ'+lead.lead_number:'',lead?.id].join(' ').toLowerCase();
-  return (!term||searchable.includes(term))&&(!date||doc.created_at.slice(0,10)===date);
+  const searchable=[doc.file_name,lead?.name,lead?.email,lead?.lead_number?'DJP NQ'+lead.lead_number:'',doc.enquiry_id].join(' ').toLowerCase();
+  if((term&&!searchable.includes(term))||(date&&doc.created_at.slice(0,10)!==date))return;
+  if(!grouped.has(doc.enquiry_id))grouped.set(doc.enquiry_id,{lead,docs:[]});
+  grouped.get(doc.enquiry_id).docs.push(doc);
  });
- document.querySelector('#files-status').textContent=matched.length+' matching files';
- matched.forEach(doc=>{const lead=leadRows.find(r=>r.id===doc.enquiry_id),card=djpNode('article','lead-card');
-  card.append(djpNode('strong','',lead?.name||'Client'),djpNode('p','',lead?.lead_number?'DJP NQ'+lead.lead_number:'Lead reference unavailable'),djpNode('p','','Uploaded '+new Date(doc.created_at).toLocaleDateString('en-ZA')),djpDocumentRow(doc,djpLoadStoredFiles));root.append(card);
+ const count=[...grouped.values()].reduce((n,g)=>n+g.docs.length,0);
+ document.querySelector('#files-status').textContent=grouped.size+' customer references · '+count+' documents';
+ if(!grouped.size)root.append(djpNode('p','','No matching client documents.'));
+ [...grouped.values()].forEach(({lead,docs})=>{
+  const folder=djpNode('details','lead-card djp-file-folder'),summary=djpNode('summary','djp-folder-summary');
+  const info=djpNode('span','djp-folder-info');
+  info.append(djpNode('strong','',lead?.lead_number?'DJP NQ'+lead.lead_number:'Client reference'),djpNode('span','',lead?.name||'Client'));
+  const total=djpNode('span','djp-folder-count',docs.length+' '+(docs.length===1?'document':'documents'));
+  summary.append(info,total);folder.append(summary);
+  const contents=djpNode('div','djp-folder-contents');
+  docs.forEach(doc=>{
+   const entry=djpNode('div','djp-folder-file');
+   entry.append(djpNode('small','','Uploaded '+new Date(doc.created_at).toLocaleDateString('en-ZA')),djpDocumentRow(doc,djpLoadStoredFiles));
+   contents.append(entry);
+  });
+  folder.append(contents);root.append(folder);
  });
 }
 if(login){
