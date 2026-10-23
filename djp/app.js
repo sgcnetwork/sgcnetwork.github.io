@@ -17,7 +17,7 @@ if(form){
  form.addEventListener('submit',async e=>{
   e.preventDefault();if(form.elements.website.value)return;
   const button=form.querySelector('button[type=submit]'),status=document.querySelector('#form-status');
-  const data=Object.fromEntries(new FormData(form));delete data.website;data.consent=true;data.deadline=data.deadline||null;data.id=enquiryId;
+  const data=Object.fromEntries(new FormData(form));delete data.website;data.consent=true;data.deadline=data.deadline||null;data.id=enquiryId;data.enquiry_type=(form.elements.service.value===service&&requested?requested:form.elements.service.value).slice(0,150);
   for(const key of ['name','email','phone','destination','message'])data[key]=data[key].trim();
   if(data.name.length<2){status.textContent='Please enter your full name.';return;}
   button.disabled=true;status.textContent='Sending your enquiry…';
