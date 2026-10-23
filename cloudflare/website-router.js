@@ -14,6 +14,7 @@ export default {
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug) || slug.length < 3 || slug.length > 40) return new Response('Website not found', { status: 404, headers });
   if (slug === 'al-habib') return serveAlhabib(request, u);
   if (slug === 'djp') return serveDjp(request, u);
+  if (slug === 'cfhp') return serveCfhp(request, u);
   if (!['GET','HEAD'].includes(request.method)) return new Response('Method not allowed', { status: 405, headers });
   if (u.protocol !== 'https:') { u.protocol = 'https:'; return Response.redirect(u.href, 301); }
   if (u.pathname === '/robots.txt') return new Response('User-agent: *\nAllow: /\n', { headers: { ...headers, 'Content-Type': 'text/plain' } });
@@ -69,4 +70,17 @@ async function serveDjp(request,u){
  headers['Content-Security-Policy']="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self'; connect-src https://bxpexanyoyubxeqqlggh.supabase.co; font-src https://fonts.gstatic.com; base-uri 'none'; form-action 'self'; frame-ancestors 'none'";
  return new Response(request.method==='HEAD'?null:response.body,{status:200,headers});
  }catch{return new Response('Website temporarily unavailable',{status:503,headers})}
+}
+
+// Higher for Purpose: only serve the explicitly listed public website assets.
+async function serveCfhp(request,u){
+ if(u.protocol!=='https:'){u.protocol='https:';return Response.redirect(u.href,301)}
+ const headers={'Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Referrer-Policy':'strict-origin-when-cross-origin'};
+ if(!['GET','HEAD'].includes(request.method))return new Response('Method not allowed',{status:405,headers});
+ const file=u.pathname==='/'?'index.html':u.pathname.slice(1);
+ const files={'index.html':'text/html; charset=utf-8','app.js':'text/javascript; charset=utf-8','booking.js':'text/javascript; charset=utf-8','style.css':'text/css; charset=utf-8','services.json':'application/json','favicon.svg':'image/svg+xml'};
+ if(!Object.hasOwn(files,file))return new Response('Page not found',{status:404,headers});
+ try{const r=await fetch(ORIGIN+'/higher-for-purpose/'+file,{signal:AbortSignal.timeout(15000)});headers['Content-Type']=files[file];
+ headers['Content-Security-Policy']="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self' https:; connect-src 'self' https://bxpexanyoyubxeqqlggh.supabase.co; font-src https://fonts.gstatic.com; base-uri 'none'; form-action 'self'; frame-ancestors 'none'";
+ return new Response(request.method==='HEAD'?null:r.body,{status:r.status,headers});}catch{return new Response('Website temporarily unavailable',{status:503,headers})}
 }
