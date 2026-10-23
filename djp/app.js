@@ -87,6 +87,9 @@ function renderDjpLeads(){
   body.append(djpNode('p','','Preferred deadline: '+(row.deadline||'Not specified')));
   const grid=djpNode('div','lead-grid');
   const fields=[
+   ['contacted_by','Consultant who contacted the customer','text'],
+   ['taken_over_by','Consultant who took over the lead','text'],
+   ['closed_by','Consultant who closed the sale','text'],
    ['client_details','Additional customer details','textarea'],
    ['requested_documents','Documents requested / received (one per line)','textarea'],
    ['quotation_amount','Quotation amount (ZAR)','number'],
