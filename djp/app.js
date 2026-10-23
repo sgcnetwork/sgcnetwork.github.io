@@ -99,7 +99,17 @@ function djpDocumentRow(doc,refresh){
    link.href=url;link.download=doc.file_name||'DJP-document';document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
   }catch(e){alert(e.message);}finally{download.disabled=false;download.textContent='⬇ Download file';}
  });
- del.addEventListener('click',async()=>{if(!confirm('Delete '+doc.file_name+' permanently?'))return;del.disabled=true;try{
+ del.addEventListener('click',async()=>{
+  if(!session||session.user?.id!==OWNER){alert('Only an authorised DJP administrator can delete documents.');return;}
+  const password=prompt('Administrator verification: enter your DJP account password to permanently delete '+doc.file_name);
+  if(password===null)return;
+  if(!password){alert('An administrator password is required.');return;}
+  del.disabled=true;try{
+   const verification=await fetch(API+'/auth/v1/token?grant_type=password',{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},body:JSON.stringify({email:session.user.email,password}),signal:AbortSignal.timeout(15000)});
+   if(!verification.ok)throw Error('Incorrect administrator password. Document was not deleted.');
+   const verified=await verification.json();
+   if(verified.user?.id!==OWNER)throw Error('This account is not authorised to delete documents.');
+   if(!confirm('Password verified. Permanently delete '+doc.file_name+'?'))return;
   const r=await fetch(API+'/storage/v1/object/djp-client-documents/'+doc.storage_path,{method:'DELETE',headers:{apikey:KEY,Authorization:'Bearer '+session.access_token}});
   if(!r.ok)throw Error('Could not delete file.');
   const m=await fetch(API+'/rest/v1/djp_lead_documents?id=eq.'+doc.id,{method:'DELETE',headers:{apikey:KEY,Authorization:'Bearer '+session.access_token}});
