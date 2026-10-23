@@ -84,19 +84,26 @@ async function djpUploadDocument(id,file){
  if(!meta.ok)throw new Error('File uploaded but could not be added to the client record.');
 }
 
-function djpAdminPasswordPopup(fileName){
+function djpAdminPasswordPopup(fileName,onDelete){
  return new Promise(resolve=>{
   const dialog=document.createElement('dialog');
   dialog.setAttribute('aria-labelledby','djp-delete-title');
   dialog.style.cssText='border:0;border-radius:20px;padding:28px;width:min(440px,calc(100vw - 40px));box-shadow:0 24px 90px #0005;color:#142c3a;background:#fff';
-  dialog.innerHTML='<form><h2 id="djp-delete-title" style="margin-top:0">Admin password required</h2><p>Enter your admin sign-in password to delete this supporting document.</p><p data-filename style="overflow-wrap:anywhere;font-weight:600"></p><label style="display:block">Admin password<input name="password" type="password" required autocomplete="off" style="display:block;box-sizing:border-box;width:100%;padding:12px;margin:8px 0 18px;border:1px solid #aebdc5;border-radius:8px"></label><div style="display:flex;gap:12px;flex-wrap:wrap"><button type="button" class="button secondary" data-cancel>Cancel</button><button type="submit" class="button">Verify password</button></div></form>';
+  dialog.innerHTML='<form><h2 id="djp-delete-title" style="margin-top:0">Delete supporting document?</h2><p>Enter your admin sign-in password to permanently delete this file. This cannot be undone.</p><p data-filename style="overflow-wrap:anywhere;font-weight:600"></p><label style="display:block">Admin password<input name="password" type="password" required autocomplete="off" style="display:block;box-sizing:border-box;width:100%;padding:12px;margin:8px 0 18px;border:1px solid #aebdc5;border-radius:8px"></label><p role="status" data-status style="color:#a22336"></p><div style="display:flex;gap:12px;flex-wrap:wrap"><button type="button" class="button secondary" data-cancel>Cancel</button><button type="submit" class="button" style="background:#a22336;color:white">Verify &amp; delete</button></div></form>';
   dialog.querySelector('[data-filename]').textContent=fileName;
-  const input=dialog.querySelector('input');
-  let finished=false;
+  const input=dialog.querySelector('input'),submit=dialog.querySelector('[type=submit]'),cancel=dialog.querySelector('[data-cancel]'),status=dialog.querySelector('[data-status]');
+  let finished=false,busy=false;
   const finish=value=>{if(finished)return;finished=true;input.value='';dialog.close();dialog.remove();resolve(value);};
-  dialog.querySelector('form').addEventListener('submit',event=>{event.preventDefault();if(input.value)finish(input.value);});
-  dialog.querySelector('[data-cancel]').addEventListener('click',()=>finish(null));
-  dialog.addEventListener('cancel',event=>{event.preventDefault();finish(null);});
+  dialog.querySelector('form').addEventListener('submit',async event=>{
+   event.preventDefault();if(busy||!input.value)return;
+   busy=true;submit.disabled=true;cancel.disabled=true;status.textContent='Verifying admin password…';
+   try{const password=input.value;input.value='';await onDelete(password);finish(true);}
+   catch(error){status.textContent=error.message||'Could not delete document.';input.focus();}
+   finally{busy=false;submit.disabled=false;cancel.disabled=false;}
+  });
+  cancel.addEventListener('click',()=>finish(false));
+  dialog.addEventListener('cancel',event=>{event.preventDefault();if(!busy)finish(false);});
+  const style=document.createElement('style');style.textContent='dialog::backdrop{background:rgba(10,25,35,.6);backdrop-filter:blur(3px)}';dialog.append(style);
   document.body.append(dialog);dialog.showModal();input.focus();
  });
 }
@@ -118,21 +125,25 @@ function djpDocumentRow(doc,refresh){
   }catch(e){alert(e.message);}finally{download.disabled=false;download.textContent='⬇ Download file';}
  });
  del.addEventListener('click',async()=>{
-  if(!session||session.user?.id!==OWNER){alert('Only an authorised DJP administrator can delete documents.');return;}
-  const password=await djpAdminPasswordPopup(doc.file_name);
-  if(password===null)return;
-  if(!password){alert('An administrator password is required.');return;}
-  del.disabled=true;try{
-   const verification=await fetch(API+'/auth/v1/token?grant_type=password',{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},body:JSON.stringify({email:session.user.email,password}),signal:AbortSignal.timeout(15000)});
-   if(!verification.ok)throw Error('Incorrect administrator password. Document was not deleted.');
-   const verified=await verification.json();
-   if(verified.user?.id!==OWNER)throw Error('This account is not authorised to delete documents.');
-   if(!confirm('Password verified. Permanently delete '+doc.file_name+'?'))return;
-  const r=await fetch(API+'/storage/v1/object/djp-client-documents/'+doc.storage_path,{method:'DELETE',headers:{apikey:KEY,Authorization:'Bearer '+verified.access_token}});
-  if(!r.ok)throw Error('Could not delete file.');
-  const m=await fetch(API+'/rest/v1/djp_lead_documents?id=eq.'+doc.id,{method:'DELETE',headers:{apikey:KEY,Authorization:'Bearer '+verified.access_token}});
-  if(!m.ok)throw Error('Could not remove file record.');await refresh();
- }catch(e){alert(e.message);}finally{del.disabled=false;}});
+  if(!session||session.user?.id!==OWNER)return;
+  del.disabled=true;
+  try{
+   const deleted=await djpAdminPasswordPopup(doc.file_name,async password=>{
+    if(!session||session.user?.id!==OWNER)throw Error('Only an authorised DJP administrator can delete documents.');
+    const verification=await fetch(API+'/auth/v1/token?grant_type=password',{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},body:JSON.stringify({email:session.user.email,password}),signal:AbortSignal.timeout(15000)});
+    if(!verification.ok)throw Error('Incorrect administrator password. Document was not deleted.');
+    const verified=await verification.json();
+    if(verified.user?.id!==OWNER)throw Error('This account is not authorised to delete documents.');
+    const headers={apikey:KEY,Authorization:'Bearer '+verified.access_token};
+    const r=await fetch(API+'/storage/v1/object/djp-client-documents/'+doc.storage_path,{method:'DELETE',headers});
+    if(!r.ok)throw Error('Could not delete file.');
+    const m=await fetch(API+'/rest/v1/djp_lead_documents?id=eq.'+doc.id,{method:'DELETE',headers});
+    if(!m.ok)throw Error('Could not remove file record.');
+   });
+   if(deleted)await refresh();
+  }finally{del.disabled=false;}
+ });
+
  const actions=djpNode('div','lead-document-actions');actions.append(download,del);line.append(open,actions);return line;
 }
 let djpStoredDocs=[];
