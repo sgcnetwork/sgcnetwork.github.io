@@ -13,7 +13,7 @@ export default {
   const headers = { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', 'Content-Security-Policy': CSP, 'Referrer-Policy': 'strict-origin-when-cross-origin', 'Permissions-Policy': 'camera=(), microphone=(), geolocation=()' };
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug) || slug.length < 3 || slug.length > 40) return new Response('Website not found', { status: 404, headers });
   if (slug === 'al-habib') return serveAlhabib(request, u);
-  if (slug === 'djp') return serveDjp(request, u);
+  if (slug === 'djc') return serveDjp(request, u);
   if (!['GET','HEAD'].includes(request.method)) return new Response('Method not allowed', { status: 405, headers });
   if (u.protocol !== 'https:') { u.protocol = 'https:'; return Response.redirect(u.href, 301); }
   if (u.pathname === '/robots.txt') return new Response('User-agent: *\nAllow: /\n', { headers: { ...headers, 'Content-Type': 'text/plain' } });
@@ -53,7 +53,7 @@ async function serveAlhabib(request, u) {
  }catch{return new Response('Store temporarily unavailable',{status:503,headers})}
 }
 
-// DJP standalone site, served from SGC hosting.
+// Document Journey Processing at djc.sgcnetwork.co.za, served from SGC hosting.
 async function serveDjp(request,u){
  const headers={'Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Referrer-Policy':'strict-origin-when-cross-origin','Permissions-Policy':'camera=(), microphone=(), geolocation=()'};
  if(u.protocol!=='https:'){u.protocol='https:';return Response.redirect(u.href,301)}
