@@ -36,6 +36,23 @@ if(form){
  });
 }
 let session=null;
+const DJP_SESSION_KEY='djp_staff_session';
+function djpSaveSession(data){session=data;sessionStorage.setItem(DJP_SESSION_KEY,JSON.stringify(data));}
+function djpClearSession(){session=null;sessionStorage.removeItem(DJP_SESSION_KEY);}
+async function djpRestoreSession(){
+ const loginForm=document.querySelector('#login');if(!loginForm)return;
+ let stored;try{stored=JSON.parse(sessionStorage.getItem(DJP_SESSION_KEY)||'null');}catch{djpClearSession();return;}
+ if(!stored?.refresh_token||stored.user?.id!==OWNER){djpClearSession();return;}
+ const status=document.querySelector('#login-status');status.textContent='Restoring your session…';
+ try{
+  const response=await fetch(API+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:stored.refresh_token}),signal:AbortSignal.timeout(15000)});
+  if(!response.ok)throw Error('Session expired. Please sign in again.');
+  const renewed=await response.json();
+  if(renewed.user?.id!==OWNER)throw Error('Account is not authorised.');
+  djpSaveSession(renewed);loginForm.hidden=true;document.querySelector('#inbox').hidden=false;
+  status.textContent='';await loadInbox();
+ }catch(err){djpClearSession();status.textContent=err.message||'Please sign in again.';}
+}
 const login=document.querySelector('#login');
 if(login){
  login.addEventListener('submit',async e=>{
@@ -44,11 +61,12 @@ if(login){
    const r=await fetch(API+'/auth/v1/token?grant_type=password',{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},body:JSON.stringify(Object.fromEntries(new FormData(login))),signal:AbortSignal.timeout(20000)});
    const data=await r.json();if(!r.ok)throw new Error('Check your email and password, then try again.');
    if(data.user?.id!==OWNER){await fetch(API+'/auth/v1/logout',{method:'POST',headers:{apikey:KEY,Authorization:'Bearer '+data.access_token}});throw new Error('This account does not have access to the DJP inbox.');}
-   session=data;login.reset();login.hidden=true;document.querySelector('#inbox').hidden=false;await loadInbox();
+   djpSaveSession(data);login.reset();login.hidden=true;document.querySelector('#inbox').hidden=false;await loadInbox();
   }catch(err){status.textContent=err.message||'Sign-in is unavailable. Try again.';}finally{b.disabled=false;}
  });
  document.querySelector('#refresh').addEventListener('click',loadInbox);
- document.querySelector('#logout').addEventListener('click',async()=>{if(session)await fetch(API+'/auth/v1/logout',{method:'POST',headers:{apikey:KEY,Authorization:'Bearer '+session.access_token}}).catch(()=>{});session=null;document.querySelector('#enquiries').replaceChildren();document.querySelector('#inbox').hidden=true;login.hidden=false;document.querySelector('#login-status').textContent='Signed out.';});
+ djpRestoreSession();
+ document.querySelector('#logout').addEventListener('click',async()=>{if(session)await fetch(API+'/auth/v1/logout',{method:'POST',headers:{apikey:KEY,Authorization:'Bearer '+session.access_token}}).catch(()=>{});djpClearSession();document.querySelector('#enquiries').replaceChildren();document.querySelector('#inbox').hidden=true;login.hidden=false;document.querySelector('#login-status').textContent='Signed out.';});
 }
 
 
