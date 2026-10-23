@@ -67,3 +67,16 @@ footer{background:#f6f5f0;padding:48px 7% 25px}.footer-top{padding-bottom:35px}.
 /* Navigation uses dropdown chevrons in both states, independently of FAQ accordions. */
 header nav .nav-dropdown > summary::after,header nav .nav-dropdown[open] > summary::after{content:'';display:block;width:6px;height:6px;border:solid currentColor;border-width:0 1.5px 1.5px 0;border-radius:0;background:transparent;transform:rotate(45deg);margin:0 2px 4px 5px;flex-shrink:0}
 header nav .nav-dropdown[open] > summary::after{transform:rotate(225deg);margin-top:5px;margin-bottom:0}
+
+/* Focused individual service page */
+.service-detail-layout{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:70px;align-items:start}
+.service-detail-copy{max-width:800px}.service-detail-copy h2{font-size:35px;margin-bottom:24px}
+.service-detail-copy h3{font-size:22px;margin:34px 0 14px}
+.service-detail-copy p,.service-detail-copy li{font-size:14px;line-height:1.9;color:var(--muted)}
+.service-detail-copy ul{padding-left:22px;margin:20px 0}.service-detail-copy li{margin:9px 0}
+.service-detail-aside{padding:28px;border:1px solid var(--line);border-radius:12px;background:#f3ede2;position:sticky;top:25px}
+.service-detail-aside h3{font-size:25px;margin-bottom:18px}.service-detail-aside p{font-size:13px;line-height:1.8}
+.service-detail-aside .button{margin:22px 0;justify-content:center;gap:12px;width:100%}
+.service-detail-aside .text-link{display:inline-block;margin-bottom:22px}
+nav .nav-dropdown-list a{line-height:1.5}
+@media(max-width:900px){.service-detail-layout{grid-template-columns:1fr;gap:35px}.service-detail-aside{position:static}.service-detail-copy h2{font-size:29px}}
