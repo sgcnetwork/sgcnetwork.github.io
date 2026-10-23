@@ -2,7 +2,7 @@
 const URL_BASE=Deno.env.get('SUPABASE_URL')!;
 const SERVICE_KEY=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const RESEND_KEY=Deno.env.get('RESEND_API_KEY');
-const DESTINATION='netsgcwork@gmail.com';
+const DESTINATION='docjprocessing@gmail.com';
 const esc=(s:unknown)=>String(s??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'","&#39;");
 const value=(s:unknown)=>String(s??'').trim()||'Not provided';
 const jsonHeaders={apikey:SERVICE_KEY,Authorization:'Bearer '+SERVICE_KEY,'Content-Type':'application/json'};
