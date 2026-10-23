@@ -84,7 +84,7 @@ async function djpUploadDocument(id,file){
  if(!meta.ok)throw new Error('File uploaded but could not be added to the client record.');
 }
 function djpDocumentRow(doc,refresh){
- const line=djpNode('div','lead-document-row'),open=djpNode('button','lead-document-link',doc.file_name),download=djpNode('button','lead-document-download','Download'),del=djpNode('button','lead-document-delete','Delete');
+ const line=djpNode('div','lead-document-row'),open=djpNode('button','lead-document-link',doc.file_name),download=djpNode('button','lead-document-download','⬇ Download file'),del=djpNode('button','lead-document-delete','Delete');
  open.type=download.type=del.type='button';
  async function signedUrl(){
   const r=await fetch(API+'/storage/v1/object/sign/djp-client-documents/'+doc.storage_path,{method:'POST',headers:{apikey:KEY,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify({expiresIn:60})});
@@ -97,7 +97,7 @@ function djpDocumentRow(doc,refresh){
    const r=await fetch(await signedUrl());if(!r.ok)throw Error('Download failed.');
    const blob=await r.blob(),url=URL.createObjectURL(blob),link=document.createElement('a');
    link.href=url;link.download=doc.file_name||'DJP-document';document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
-  }catch(e){alert(e.message);}finally{download.disabled=false;download.textContent='Download';}
+  }catch(e){alert(e.message);}finally{download.disabled=false;download.textContent='⬇ Download file';}
  });
  del.addEventListener('click',async()=>{if(!confirm('Delete '+doc.file_name+' permanently?'))return;del.disabled=true;try{
   const r=await fetch(API+'/storage/v1/object/djp-client-documents/'+doc.storage_path,{method:'DELETE',headers:{apikey:KEY,Authorization:'Bearer '+session.access_token}});
