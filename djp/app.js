@@ -50,20 +50,73 @@ if(login){
  document.querySelector('#refresh').addEventListener('click',loadInbox);
  document.querySelector('#logout').addEventListener('click',async()=>{if(session)await fetch(API+'/auth/v1/logout',{method:'POST',headers:{apikey:KEY,Authorization:'Bearer '+session.access_token}}).catch(()=>{});session=null;document.querySelector('#enquiries').replaceChildren();document.querySelector('#inbox').hidden=true;login.hidden=false;document.querySelector('#login-status').textContent='Signed out.';});
 }
-async function loadInbox(){
- const status=document.querySelector('#inbox-status'),list=document.querySelector('#enquiries');status.textContent='Loading enquiries…';
- try{
-  const r=await fetch(API+'/rest/v1/djp_enquiries?select=*&order=created_at.desc&limit=200',{headers:{apikey:KEY,Authorization:'Bearer '+session.access_token},signal:AbortSignal.timeout(20000)});
-  if(!r.ok)throw new Error('Unable to load the inbox. Your session may have expired; sign out and sign in again.');
-  const rows=await r.json();list.replaceChildren();status.textContent=rows.length?`${rows.length} most recent enquiries`:'No enquiries yet.';
-  rows.forEach(row=>{
-   const el=document.createElement('article');el.className='enquiry-row';
-   function add(tag,text){const n=document.createElement(tag);n.textContent=text;el.append(n);return n;}
-   add('h3',row.name+' · '+(row.enquiry_type||row.service));add('p',row.email+(row.phone?' · '+row.phone:''));add('p','Received '+new Date(row.created_at).toLocaleString('en-ZA')+' · Reference '+(row.lead_number?'DJP NQ'+row.lead_number:row.id));add('p','Country: '+(row.destination||'Not supplied')+' · Deadline: '+(row.deadline||'Not supplied'));add('p',row.message||'No additional message.');
-   const label=add('label','Enquiry status'),select=document.createElement('select');for(const value of ['New','Contacted','In progress','Closed']){const o=document.createElement('option');o.textContent=value;o.selected=value===row.status;select.append(o);}label.append(select);
-   select.addEventListener('change',async()=>{select.disabled=true;const previous=row.status;try{const response=await fetch(API+'/rest/v1/djp_enquiries?id=eq.'+encodeURIComponent(row.id),{method:'PATCH',headers:{apikey:KEY,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json',Prefer:'return=representation'},body:JSON.stringify({status:select.value})});if(!response.ok)throw new Error();const changed=await response.json();if(changed.length!==1)throw new Error();row.status=select.value;status.textContent='Enquiry status updated.';}catch{select.value=previous;status.textContent='Could not save the status. Please try again.';}finally{select.disabled=false;}});
-   list.append(el);
+
+const DJP_STATES=['New','Contacted','In progress','Closed'];
+const DJP_COLORS={'New':'#d9f4df','Contacted':'#fff1b8','In progress':'#e9ddff','Closed':'#ffd9e9'};
+let leadRows=[],activeLeadFilter='All';
+async function djpPatch(id,changes){
+ const r=await fetch(API+'/rest/v1/djp_enquiries?id=eq.'+encodeURIComponent(id),{method:'PATCH',headers:{apikey:KEY,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json',Prefer:'return=representation'},body:JSON.stringify(changes)});
+ if(!r.ok)throw new Error('Could not save changes ('+r.status+').');
+ const rows=await r.json();if(rows.length!==1)throw new Error('Update was not confirmed.');
+ return rows[0];
+}
+function djpNode(tag,cls,text){const el=document.createElement(tag);if(cls)el.className=cls;if(text!==undefined)el.textContent=text;return el;}
+function djpField(label,value,type='text'){
+ const wrap=djpNode('label','lead-field'),title=djpNode('span','',label),field=document.createElement(type==='textarea'?'textarea':'input');
+ if(type!=='textarea')field.type=type;field.value=value??'';if(type==='textarea')field.rows=3;
+ wrap.append(title,field);return {wrap,field};
+}
+function renderDjpLeads(){
+ const root=document.querySelector('#enquiries');root.replaceChildren();
+ const bar=djpNode('div','lead-filters');
+ ['All',...DJP_STATES].forEach(s=>{const b=djpNode('button','lead-filter'+(s===activeLeadFilter?' selected':''),s+' ('+(s==='All'?leadRows.length:leadRows.filter(r=>r.status===s).length)+')');b.type='button';if(DJP_COLORS[s])b.style.background=DJP_COLORS[s];b.addEventListener('click',()=>{activeLeadFilter=s;renderDjpLeads();});bar.append(b);});
+ root.append(bar);
+ const matches=leadRows.filter(r=>activeLeadFilter==='All'||r.status===activeLeadFilter);
+ if(!matches.length)root.append(djpNode('p','','No leads in this section.'));
+ matches.forEach(row=>{
+  const card=djpNode('article','lead-card'),head=djpNode('div','lead-head');
+  const left=djpNode('div');left.append(djpNode('strong','',row.lead_number?'DJP NQ'+row.lead_number:'Enquiry pending reference'),djpNode('h3','',row.name),djpNode('p','',row.enquiry_type||row.service));
+  const select=djpNode('select','lead-status');DJP_STATES.forEach(s=>{const opt=document.createElement('option');opt.value=s;opt.textContent=s;select.append(opt);});select.value=row.status;select.style.background=DJP_COLORS[row.status]||'#eee';
+  select.addEventListener('change',async()=>{const prev=row.status;select.disabled=true;try{const updated=await djpPatch(row.id,{status:select.value});Object.assign(row,updated);renderDjpLeads();}catch(err){select.value=prev;document.querySelector('#inbox-status').textContent=err.message;}finally{select.disabled=false;}});
+  head.append(left,select);card.append(head);
+  const meta=djpNode('p','lead-meta','Received '+new Date(row.created_at).toLocaleString('en-ZA')+' · '+row.email+(row.phone?' · '+row.phone:'')+' · '+(row.destination||'Destination not specified'));
+  card.append(meta);
+  const detail=djpNode('details','lead-details'),summary=djpNode('summary','','View lead & manage customer');detail.append(summary);
+  const body=djpNode('div','lead-body');
+  body.append(djpNode('p','','Customer message: '+(row.message||'No message provided.')));
+  body.append(djpNode('p','','Preferred deadline: '+(row.deadline||'Not specified')));
+  const grid=djpNode('div','lead-grid');
+  const fields=[
+   ['client_details','Additional customer details','textarea'],
+   ['requested_documents','Documents requested / received (one per line)','textarea'],
+   ['quotation_amount','Quotation amount (ZAR)','number'],
+   ['payment_method','Payment method','select'],
+   ['internal_notes','Internal follow-up notes','textarea']
+  ];
+  const controls={};
+  fields.forEach(([key,label,type])=>{
+   const f=djpField(label,row[key]??'',type==='select'?'text':type);
+   if(type==='select'){const sel=document.createElement('select');['','EFT','Cash','Card','Payment link','Other'].forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v||'Select payment method';sel.append(o);});sel.value=row[key]||'';f.field.replaceWith(sel);f.field=sel;}
+   if(key==='quotation_amount'){f.field.min='0';f.field.step='0.01';}
+   controls[key]=f.field;grid.append(f.wrap);
   });
+  body.append(grid);
+  const actions=djpNode('div','lead-actions'),save=djpNode('button','button','Save customer details'),notice=djpNode('span','lead-save-message','');
+  save.type='button';save.addEventListener('click',async()=>{
+   save.disabled=true;notice.textContent='Saving…';
+   try{const payload={};for(const [key,field] of Object.entries(controls))payload[key]=key==='quotation_amount'?(field.value===''?null:Number(field.value)):field.value;
+    const updated=await djpPatch(row.id,payload);Object.assign(row,updated);notice.textContent='Saved successfully.';}
+   catch(err){notice.textContent=err.message;}finally{save.disabled=false;}
+  });
+  actions.append(save,notice);body.append(actions);
+  if(!['Contacted','In progress'].includes(row.status))body.insertBefore(djpNode('p','lead-hint','Customer details can be completed when this lead moves to Contacted or In progress.'),grid);
+  detail.append(body);card.append(detail);root.append(card);
+ });
+}
+async function loadInbox(){
+ const status=document.querySelector('#inbox-status');status.textContent='Loading leads…';
+ try{const r=await fetch(API+'/rest/v1/djp_enquiries?select=*&order=created_at.desc&limit=500',{headers:{apikey:KEY,Authorization:'Bearer '+session.access_token},signal:AbortSignal.timeout(20000)});
+  if(!r.ok)throw new Error('Unable to load leads ('+r.status+').');leadRows=await r.json();status.textContent=leadRows.length+' leads in tracker';renderDjpLeads();
  }catch(err){status.textContent=err.message;}
 }
 
