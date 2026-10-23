@@ -134,7 +134,48 @@ function djpRenderStoredFiles(){
 if(login){
  document.querySelector('#show-leads')?.addEventListener('click',()=>{document.querySelector('#enquiries').hidden=false;document.querySelector('#stored-files').hidden=true;document.querySelector('#financial-reports').hidden=true;document.querySelector('#djp-section-title').textContent='Leads tracker';document.querySelector('#refresh').hidden=false;});
  document.querySelector('#show-files')?.addEventListener('click',()=>{document.querySelector('#enquiries').hidden=true;document.querySelector('#stored-files').hidden=false;document.querySelector('#financial-reports').hidden=true;document.querySelector('#djp-section-title').textContent='Stored files';document.querySelector('#refresh').hidden=true;djpLoadStoredFiles();});
- document.querySelector('#show-finance')?.addEventListener('click',()=>{document.querySelector('#enquiries').hidden=true;document.querySelector('#stored-files').hidden=true;document.querySelector('#financial-reports').hidden=false;document.querySelector('#djp-section-title').textContent='Financial reports';document.querySelector('#refresh').hidden=true;});
+
+ let djpSupplierEditId=null;
+ function djpShowFinance(section){
+  document.querySelector('#enquiries').hidden=true;document.querySelector('#stored-files').hidden=true;document.querySelector('#financial-reports').hidden=false;document.querySelector('#refresh').hidden=true;
+  const labels={suppliers:'Supplier costs',sales:'Sales',profit:'Profit & loss',outstanding:'Payments outstanding'};
+  document.querySelector('#djp-section-title').textContent=labels[section];
+  document.querySelector('#supplier-costs').hidden=section!=='suppliers';
+  document.querySelector('#finance-placeholder').hidden=section==='suppliers';
+  if(section!=='suppliers')document.querySelector('#finance-placeholder').textContent=labels[section]+' report is being prepared.';
+  if(section==='suppliers')djpLoadSuppliers();
+ }
+ ['suppliers','sales','profit','outstanding'].forEach(section=>document.querySelector('#show-'+section)?.addEventListener('click',()=>djpShowFinance(section)));
+ const supplierForm=document.querySelector('#supplier-form');
+ document.querySelector('#supplier-cancel')?.addEventListener('click',()=>{djpSupplierEditId=null;supplierForm.reset();document.querySelector('#supplier-cancel').hidden=true;document.querySelector('#supplier-save').textContent='Save supplier product';});
+ supplierForm?.addEventListener('submit',async e=>{
+  e.preventDefault();const btn=document.querySelector('#supplier-save'),status=document.querySelector('#supplier-status');btn.disabled=true;status.textContent='Saving…';
+  try{
+   const payload=Object.fromEntries(new FormData(supplierForm));payload.unit_cost=Number(payload.unit_cost);
+   const url=API+'/rest/v1/djp_supplier_products'+(djpSupplierEditId?'?id=eq.'+djpSupplierEditId:'');
+   const response=await fetch(url,{method:djpSupplierEditId?'PATCH':'POST',headers:{apikey:KEY,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json',Prefer:'return=representation'},body:JSON.stringify(payload)});
+   if(!response.ok)throw Error('Could not save supplier ('+response.status+').');
+   const saved=await response.json();if(saved.length!==1)throw Error('Save could not be confirmed.');
+   status.textContent='Supplier product saved.';djpSupplierEditId=null;supplierForm.reset();document.querySelector('#supplier-cancel').hidden=true;btn.textContent='Save supplier product';await djpLoadSuppliers();
+  }catch(err){status.textContent=err.message;}finally{btn.disabled=false;}
+ });
+ async function djpLoadSuppliers(){
+  const root=document.querySelector('#supplier-list');root.replaceChildren(djpNode('p','','Loading supplier products…'));
+  try{
+   const r=await fetch(API+'/rest/v1/djp_supplier_products?select=*&order=created_at.desc',{headers:{apikey:KEY,Authorization:'Bearer '+session.access_token}});
+   if(!r.ok)throw Error('Unable to load suppliers ('+r.status+').');
+   const products=await r.json();root.replaceChildren();
+   if(!products.length)root.append(djpNode('p','','No supplier products added yet.'));
+   products.forEach(item=>{
+    const card=djpNode('article','lead-card djp-supplier-card');
+    card.append(djpNode('strong','',item.supplier_name),djpNode('h3','',item.product_name),djpNode('p','','Cost: R '+Number(item.unit_cost).toFixed(2)),djpNode('p','',[(item.supplier_email||''),(item.supplier_phone||'')].filter(Boolean).join(' · ')));
+    if(item.supplier_notes)card.append(djpNode('p','',item.supplier_notes));
+    const edit=djpNode('button','button secondary','Edit');edit.type='button';
+    edit.addEventListener('click',()=>{djpSupplierEditId=item.id;['supplier_name','supplier_email','supplier_phone','product_name','unit_cost','supplier_notes'].forEach(k=>supplierForm.elements[k].value=item[k]??'');document.querySelector('#supplier-cancel').hidden=false;document.querySelector('#supplier-save').textContent='Update supplier product';supplierForm.scrollIntoView({behavior:'smooth',block:'start'});});
+    card.append(edit);root.append(card);
+   });
+  }catch(err){root.replaceChildren(djpNode('p','',err.message));}
+ }
  document.querySelector('#files-refresh')?.addEventListener('click',djpLoadStoredFiles);
  document.querySelector('#file-search')?.addEventListener('input',djpRenderStoredFiles);
  document.querySelector('#file-date')?.addEventListener('change',djpRenderStoredFiles);
