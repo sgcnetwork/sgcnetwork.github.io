@@ -10,6 +10,9 @@ let enquiryId=crypto.randomUUID();
 if(form){
  const service=new URLSearchParams(location.search).get('service');
  if([...form.elements.service.options].some(x=>x.value===service))form.elements.service.value=service;
+ const params=new URLSearchParams(location.search),requested=params.get('request'),destination=params.get('destination');
+ if(destination)form.elements.destination.value=destination.slice(0,100);
+ if(requested){const label=document.querySelector('#requested-service');label.hidden=false;label.textContent='Your enquiry: '+requested.slice(0,150);form.elements.message.value='I would like assistance with '+requested.slice(0,150)+'.\n';}
  const date=new Date();form.elements.deadline.min=`${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
  form.addEventListener('submit',async e=>{
   e.preventDefault();if(form.elements.website.value)return;
