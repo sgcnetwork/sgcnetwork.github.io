@@ -63,3 +63,7 @@ footer{background:#f6f5f0;padding:48px 7% 25px}.footer-top{padding-bottom:35px}.
 .service-card.featured .learn-more-top{color:#ead3ac}
 .prose h3{margin:28px 0 14px}
 @media(max-width:760px){nav.open{max-height:80vh;overflow-y:auto}.nav-dropdown>summary{font-size:14px;justify-content:space-between}.nav-dropdown-list{position:static;min-width:0;max-height:45vh;margin-top:10px;box-shadow:none;background:#fbfaf7}.nav-dropdown-list a{font-size:13px}.nav-dropdown{width:100%}}
+
+/* Navigation uses dropdown chevrons in both states, independently of FAQ accordions. */
+header nav .nav-dropdown > summary::after,header nav .nav-dropdown[open] > summary::after{content:'';display:block;width:6px;height:6px;border:solid currentColor;border-width:0 1.5px 1.5px 0;border-radius:0;background:transparent;transform:rotate(45deg);margin:0 2px 4px 5px;flex-shrink:0}
+header nav .nav-dropdown[open] > summary::after{transform:rotate(225deg);margin-top:5px;margin-bottom:0}
