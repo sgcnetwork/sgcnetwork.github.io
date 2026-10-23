@@ -84,19 +84,28 @@ async function djpUploadDocument(id,file){
  if(!meta.ok)throw new Error('File uploaded but could not be added to the client record.');
 }
 function djpDocumentRow(doc,refresh){
- const line=djpNode('div','lead-document-row'),open=djpNode('button','lead-document-link',doc.file_name),del=djpNode('button','lead-document-delete','Delete');
- open.type=del.type='button';
- open.addEventListener('click',async()=>{try{
+ const line=djpNode('div','lead-document-row'),open=djpNode('button','lead-document-link',doc.file_name),download=djpNode('button','lead-document-download','Download'),del=djpNode('button','lead-document-delete','Delete');
+ open.type=download.type=del.type='button';
+ async function signedUrl(){
   const r=await fetch(API+'/storage/v1/object/sign/djp-client-documents/'+doc.storage_path,{method:'POST',headers:{apikey:KEY,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify({expiresIn:60})});
-  if(!r.ok)throw Error('Cannot open file.');const signed=await r.json();window.open(API+'/storage/v1'+signed.signedURL,'_blank','noopener,noreferrer');
- }catch(e){alert(e.message);}});
+  if(!r.ok)throw Error('Could not access document.');const data=await r.json();return API+'/storage/v1'+data.signedURL;
+ }
+ open.addEventListener('click',async()=>{try{window.open(await signedUrl(),'_blank','noopener,noreferrer');}catch(e){alert(e.message);}});
+ download.addEventListener('click',async()=>{
+  download.disabled=true;download.textContent='Downloading…';
+  try{
+   const r=await fetch(await signedUrl());if(!r.ok)throw Error('Download failed.');
+   const blob=await r.blob(),url=URL.createObjectURL(blob),link=document.createElement('a');
+   link.href=url;link.download=doc.file_name||'DJP-document';document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);
+  }catch(e){alert(e.message);}finally{download.disabled=false;download.textContent='Download';}
+ });
  del.addEventListener('click',async()=>{if(!confirm('Delete '+doc.file_name+' permanently?'))return;del.disabled=true;try{
   const r=await fetch(API+'/storage/v1/object/djp-client-documents/'+doc.storage_path,{method:'DELETE',headers:{apikey:KEY,Authorization:'Bearer '+session.access_token}});
   if(!r.ok)throw Error('Could not delete file.');
   const m=await fetch(API+'/rest/v1/djp_lead_documents?id=eq.'+doc.id,{method:'DELETE',headers:{apikey:KEY,Authorization:'Bearer '+session.access_token}});
   if(!m.ok)throw Error('Could not remove file record.');await refresh();
  }catch(e){alert(e.message);}finally{del.disabled=false;}});
- line.append(open,del);return line;
+ const actions=djpNode('div','lead-document-actions');actions.append(download,del);line.append(open,actions);return line;
 }
 let djpStoredDocs=[];
 async function djpLoadStoredFiles(){
