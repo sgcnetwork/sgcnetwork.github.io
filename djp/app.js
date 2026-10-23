@@ -51,6 +51,60 @@ if(login){
  document.querySelector('#logout').addEventListener('click',async()=>{if(session)await fetch(API+'/auth/v1/logout',{method:'POST',headers:{apikey:KEY,Authorization:'Bearer '+session.access_token}}).catch(()=>{});session=null;document.querySelector('#enquiries').replaceChildren();document.querySelector('#inbox').hidden=true;login.hidden=false;document.querySelector('#login-status').textContent='Signed out.';});
 }
 
+
+async function djpFetchDocuments(enquiryId){
+ const filter=enquiryId?'&enquiry_id=eq.'+encodeURIComponent(enquiryId):'';
+ const r=await fetch(API+'/rest/v1/djp_lead_documents?select=*&order=created_at.desc&limit=1000'+filter,{headers:{apikey:KEY,Authorization:'Bearer '+session.access_token}});
+ if(!r.ok)throw new Error('Could not retrieve stored files ('+r.status+').');return r.json();
+}
+async function djpUploadDocument(id,file){
+ if(file.size>10485760||!['application/pdf','image/jpeg','image/png','image/webp'].includes(file.type))throw new Error('Only PDF, JPG, PNG and WebP up to 10 MB are supported.');
+ const path=id+'/'+crypto.randomUUID()+'-'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_').slice(-90);
+ const r=await fetch(API+'/storage/v1/object/djp-client-documents/'+path,{method:'POST',headers:{apikey:KEY,Authorization:'Bearer '+session.access_token,'Content-Type':file.type},body:file});
+ if(!r.ok)throw new Error('File upload failed ('+r.status+').');
+ const meta=await fetch(API+'/rest/v1/djp_lead_documents',{method:'POST',headers:{apikey:KEY,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify({enquiry_id:id,storage_path:path,file_name:file.name,file_size:file.size,content_type:file.type})});
+ if(!meta.ok)throw new Error('File uploaded but could not be added to the client record.');
+}
+function djpDocumentRow(doc,refresh){
+ const line=djpNode('div','lead-document-row'),open=djpNode('button','lead-document-link',doc.file_name),del=djpNode('button','lead-document-delete','Delete');
+ open.type=del.type='button';
+ open.addEventListener('click',async()=>{try{
+  const r=await fetch(API+'/storage/v1/object/sign/djp-client-documents/'+doc.storage_path,{method:'POST',headers:{apikey:KEY,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},body:JSON.stringify({expiresIn:60})});
+  if(!r.ok)throw Error('Cannot open file.');const signed=await r.json();window.open(API+'/storage/v1'+signed.signedURL,'_blank','noopener,noreferrer');
+ }catch(e){alert(e.message);}});
+ del.addEventListener('click',async()=>{if(!confirm('Delete '+doc.file_name+' permanently?'))return;del.disabled=true;try{
+  const r=await fetch(API+'/storage/v1/object/djp-client-documents/'+doc.storage_path,{method:'DELETE',headers:{apikey:KEY,Authorization:'Bearer '+session.access_token}});
+  if(!r.ok)throw Error('Could not delete file.');
+  const m=await fetch(API+'/rest/v1/djp_lead_documents?id=eq.'+doc.id,{method:'DELETE',headers:{apikey:KEY,Authorization:'Bearer '+session.access_token}});
+  if(!m.ok)throw Error('Could not remove file record.');await refresh();
+ }catch(e){alert(e.message);}finally{del.disabled=false;}});
+ line.append(open,del);return line;
+}
+let djpStoredDocs=[];
+async function djpLoadStoredFiles(){
+ const status=document.querySelector('#files-status');status.textContent='Loading stored files…';
+ try{djpStoredDocs=await djpFetchDocuments();djpRenderStoredFiles();}catch(e){status.textContent=e.message;}
+}
+function djpRenderStoredFiles(){
+ const root=document.querySelector('#files-results'),term=document.querySelector('#file-search').value.trim().toLowerCase(),date=document.querySelector('#file-date').value;root.replaceChildren();
+ const matched=djpStoredDocs.filter(doc=>{
+  const lead=leadRows.find(r=>r.id===doc.enquiry_id);
+  const searchable=[doc.file_name,lead?.name,lead?.email,lead?.lead_number?'DJP NQ'+lead.lead_number:'',lead?.id].join(' ').toLowerCase();
+  return (!term||searchable.includes(term))&&(!date||doc.created_at.slice(0,10)===date);
+ });
+ document.querySelector('#files-status').textContent=matched.length+' matching files';
+ matched.forEach(doc=>{const lead=leadRows.find(r=>r.id===doc.enquiry_id),card=djpNode('article','lead-card');
+  card.append(djpNode('strong','',lead?.name||'Client'),djpNode('p','',lead?.lead_number?'DJP NQ'+lead.lead_number:'Lead reference unavailable'),djpNode('p','','Uploaded '+new Date(doc.created_at).toLocaleDateString('en-ZA')),djpDocumentRow(doc,djpLoadStoredFiles));root.append(card);
+ });
+}
+if(login){
+ document.querySelector('#show-leads')?.addEventListener('click',()=>{document.querySelector('#enquiries').hidden=false;document.querySelector('#stored-files').hidden=true;});
+ document.querySelector('#show-files')?.addEventListener('click',()=>{document.querySelector('#enquiries').hidden=true;document.querySelector('#stored-files').hidden=false;djpLoadStoredFiles();});
+ document.querySelector('#files-refresh')?.addEventListener('click',djpLoadStoredFiles);
+ document.querySelector('#file-search')?.addEventListener('input',djpRenderStoredFiles);
+ document.querySelector('#file-date')?.addEventListener('change',djpRenderStoredFiles);
+}
+
 const DJP_STATES=['New','Contacted','In progress','Closed'];
 const DJP_COLORS={'New':'#d9f4df','Contacted':'#fff1b8','In progress':'#e9ddff','Closed':'#ffd9e9'};
 let leadRows=[],activeLeadFilter='All';
@@ -104,6 +158,26 @@ function renderDjpLeads(){
    controls[key]=f.field;grid.append(f.wrap);
   });
   body.append(grid);
+  const uploads=djpNode('section','lead-uploads');
+  uploads.append(djpNode('h3','','Client documents'));
+  const choose=document.createElement('input');choose.type='file';choose.multiple=true;choose.accept='.pdf,.jpg,.jpeg,.png,.webp';
+  const upload=djpNode('button','button secondary','Upload selected files');upload.type='button';
+  const fileMessage=djpNode('p','','Private storage · PDF or images · 10 MB maximum each');
+  const fileList=djpNode('div','');
+  uploads.append(choose,upload,fileMessage,fileList);body.append(uploads);
+  async function refreshLeadFiles(){
+   const docs=await djpFetchDocuments(row.id);fileList.replaceChildren();
+   if(!docs.length)fileList.append(djpNode('p','','No documents uploaded for this client.'));
+   docs.forEach(doc=>fileList.append(djpDocumentRow(doc,refreshLeadFiles)));
+  }
+  detail.addEventListener('toggle',()=>{if(detail.open)refreshLeadFiles().catch(e=>fileMessage.textContent=e.message);});
+  upload.addEventListener('click',async()=>{
+   if(!choose.files.length){fileMessage.textContent='Select one or more documents first.';return;}
+   upload.disabled=true;
+   try{for(const file of choose.files)await djpUploadDocument(row.id,file);
+    choose.value='';fileMessage.textContent='Documents uploaded successfully.';await refreshLeadFiles();
+   }catch(e){fileMessage.textContent=e.message;}finally{upload.disabled=false;}
+  });
   const actions=djpNode('div','lead-actions'),save=djpNode('button','button','Save customer details'),notice=djpNode('span','lead-save-message','');
   save.type='button';save.addEventListener('click',async()=>{
    save.disabled=true;notice.textContent='Saving…';
