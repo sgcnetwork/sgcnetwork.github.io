@@ -24,7 +24,7 @@ if(form){
   try{
    const r=await fetch(API+'/rest/v1/djp_enquiries',{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(data),signal:AbortSignal.timeout(20000)});
    if(!r.ok)throw new Error('Unable to send');
-   status.textContent='Enquiry received. Your reference is '+enquiryId+'. DJP can now review your request and contact you using the details provided.';
+   const refResponse=await fetch(API+'/rest/v1/rpc/djp_public_reference',{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},body:JSON.stringify({p_id:enquiryId}),signal:AbortSignal.timeout(10000)});\n   const leadRef=refResponse.ok?await refResponse.json():null;\n   status.textContent='Enquiry received. Your reference is '+(leadRef||'pending confirmation')+'. DJP can now review your request and contact you using the details provided.';
    form.reset();enquiryId=crypto.randomUUID();
   }catch{status.textContent='We could not confirm your enquiry. Your details are still here. Please try again. If you already submitted, keep this reference: '+enquiryId;}
   finally{button.disabled=false;}
@@ -54,7 +54,7 @@ async function loadInbox(){
   rows.forEach(row=>{
    const el=document.createElement('article');el.className='enquiry-row';
    function add(tag,text){const n=document.createElement(tag);n.textContent=text;el.append(n);return n;}
-   add('h3',row.name+' · '+row.service);add('p',row.email+(row.phone?' · '+row.phone:''));add('p','Received '+new Date(row.created_at).toLocaleString('en-ZA')+' · Reference '+row.id);add('p','Country: '+(row.destination||'Not supplied')+' · Deadline: '+(row.deadline||'Not supplied'));add('p',row.message||'No additional message.');
+   add('h3',row.name+' · '+row.service);add('p',row.email+(row.phone?' · '+row.phone:''));add('p','Received '+new Date(row.created_at).toLocaleString('en-ZA')+' · Reference '+(row.lead_number?'DJP NQ'+row.lead_number:row.id));add('p','Country: '+(row.destination||'Not supplied')+' · Deadline: '+(row.deadline||'Not supplied'));add('p',row.message||'No additional message.');
    const label=add('label','Enquiry status'),select=document.createElement('select');for(const value of ['New','Contacted','In progress','Closed']){const o=document.createElement('option');o.textContent=value;o.selected=value===row.status;select.append(o);}label.append(select);
    select.addEventListener('change',async()=>{select.disabled=true;const previous=row.status;try{const response=await fetch(API+'/rest/v1/djp_enquiries?id=eq.'+encodeURIComponent(row.id),{method:'PATCH',headers:{apikey:KEY,Authorization:'Bearer '+session.access_token,'Content-Type':'application/json',Prefer:'return=representation'},body:JSON.stringify({status:select.value})});if(!response.ok)throw new Error();const changed=await response.json();if(changed.length!==1)throw new Error();row.status=select.value;status.textContent='Enquiry status updated.';}catch{select.value=previous;status.textContent='Could not save the status. Please try again.';}finally{select.disabled=false;}});
    list.append(el);
