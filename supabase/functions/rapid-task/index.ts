@@ -108,6 +108,19 @@ Deno.serve(async (req) => {
     console.log("Merchant reference:", merchantReference);
 
 
+    // Verified CFHP guest payments await manual business acceptance.
+    if(typeof merchantReference==="string"&&merchantReference.startsWith("C-")){
+      const db=createClient(Deno.env.get("SUPABASE_URL")!,Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+      const {data:tx,error}=await db.from("sgc_stitch_transactions").select("*").eq("merchant_reference",merchantReference).single();
+      if(error||!tx||!tx.product_id?.startsWith("cfhp-booking:"))throw Error("No tracked CFHP checkout");
+      if(!tx.stitch_payment_id||String(tx.stitch_payment_id)!==String(event.linkId))throw Error("CFHP payment link mismatch");
+      const expected=Math.round(Number(tx.amount_zar)*100);
+      if(!Number.isSafeInteger(expected)||expected<1||Number(event.amount)!==expected)throw Error("CFHP paid amount mismatch");
+      const {error:saveError}=await db.from("sgc_stitch_transactions").update({status:"paid",paid_at:tx.paid_at||new Date().toISOString(),updated_at:new Date().toISOString()}).eq("id",tx.id);
+      if(saveError)throw saveError;
+      return Response.json({received:true,verified:true,paymentRecorded:true,awaitingCfhpAcceptance:true});
+    }
+
     // A payment reference identifies a tracked checkout, never the customer's UUID.
     if (typeof merchantReference === "string" && /^[MSBW]-/.test(merchantReference)) {
       const url=Deno.env.get("SUPABASE_URL"),key=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
