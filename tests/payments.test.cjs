@@ -47,3 +47,14 @@ test('Academy and builder checkout use independent server prices and entitlement
   assert.equal(JSON.parse(h.requests[1].options.body).amount,amount*100);
  }
 });
+
+test('CFHP verified guest payments are recorded without membership or automatic acceptance',async()=>{
+ const tx={id:'checkout',product_id:'cfhp-booking:booking-1',stitch_payment_id:'link-1',amount_zar:250,user_id:null};
+ const h=handler('rapid-task',{event:{status:'PAID',linkId:'link-1',amount:25000,reference:'C-booking-1'},tx});
+ const r=await webhook(h);assert.equal(r.status,200);assert.equal((await r.json()).awaitingCfhpAcceptance,true);assert.equal(h.writes.length,1);assert.equal(h.writes[0].data.status,'paid');
+});
+test('CFHP webhook rejects wrong amount, wrong link and untracked booking',async()=>{
+ for(const tx of [{id:'checkout',product_id:'cfhp-booking:b',stitch_payment_id:'wrong',amount_zar:250},{id:'checkout',product_id:'cfhp-booking:b',stitch_payment_id:'link-1',amount_zar:1},{id:'checkout',product_id:'unrelated',stitch_payment_id:'link-1',amount_zar:250}]){
+  const h=handler('rapid-task',{event:{status:'PAID',linkId:'link-1',amount:25000,reference:'C-b'},tx});assert.equal((await webhook(h)).status,400);assert.equal(h.writes.length,0);
+ }
+});
