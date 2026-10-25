@@ -668,7 +668,7 @@ let busy = false, editContext = null;
 let workingV2 = false, dirtyV2 = false, upgradeV2 = false;
 let plansV2, productsV2 = [], contentV2 = [], groupsV2 = {};
 
-const sections = ["Reports","Modules & lessons","Submissions","Website & quotes","Community","Waitlist","Audit history","Calendar admin","Setup"];
+const sections = ["Reports","Modules & lessons","Submissions","Website & quotes","Community","Waitlist","Audit history","Calendar admin","Email listings","CFHP appointments","Setup"];
 
 const defaultsV2 = {
   features: [
@@ -2168,6 +2168,18 @@ function setupV2(){
  const tech=n('details',undefined,'setup-technical');tech.append(n('summary','Advanced: existing technical setup and connection instructions'));const technical=n('div');tech.append(technical);root.append(tech);
  tech.addEventListener('toggle',()=>{if(!tech.open||tech.dataset.loaded)return;tech.dataset.loaded='yes';const main=$('content');technicalSetupV2();const generated=[...main.children].filter(x=>x!==intro&&x!==cards&&x!==tech);for(const el of generated)technical.append(el)});
 }
+async function cfhpRecordsView(action){
+ const p=panel(action==='contacts'?'Email listings — CFHP':'CFHP appointments');
+ p.append(n('p',action==='contacts'?'Company, client name, email and phone number.':'Appointment records from the CFHP booking site. Times use South African time.','muted'));
+ const search=n('input');search.type='search';search.placeholder='Search client name, email or phone';search.setAttribute('aria-label','Search CFHP records');
+ const count=n('p'),wrap=n('div',undefined,'table-wrap'),table=n('table'),head=n('thead'),tr=n('tr'),body=n('tbody');
+ const labels=action==='contacts'?['Company','Client name','Email','Phone number']:['Client name','Email','Phone number','Appointment','Date & time','Status','Reference'];
+ labels.forEach(s=>tr.append(n('th',s)));head.append(tr);table.append(head,body);wrap.append(table);p.append(search,count,wrap);
+ let rows=[];for(let offset=0;;offset+=200){const r=await sb.functions.invoke('cfhp-admin',{body:{action,offset}});if(r.error)throw Error('CFHP records could not load. Please sign in again.');if(r.data?.error)throw Error(r.data.error);rows.push(...r.data.rows);if(r.data.rows.length<200)break;}
+ function draw(){const q=search.value.trim().toLowerCase();body.replaceChildren();const filtered=rows.filter(r=>Object.values(r).join(' ').toLowerCase().includes(q));count.textContent=filtered.length+' records';for(const r of filtered){const row=n('tr');const cells=action==='contacts'?[r.company,r.client_name,r.email,r.phone]:[r.customer_name,r.customer_email,r.phone,r.service_name,new Date(r.starts_at).toLocaleString('en-ZA',{timeZone:'Africa/Johannesburg'}),r.status,r.id];cells.forEach(v=>row.append(n('td',v||'—')));body.append(row)}}
+ search.oninput=draw;draw();
+}
+
 async function show() {
   await reloadV2();
   await quoteV2();
@@ -2176,6 +2188,8 @@ async function show() {
   say("");
   for (const b of $("menu").children) b.classList.toggle("active", b.textContent === section);
 
+  if (section === "Email listings") return cfhpRecordsView("contacts");
+  if (section === "CFHP appointments") return cfhpRecordsView("bookings");
   if (section === "Reports") return sgcReportsView();
   if (section === "Modules & lessons") return moduleCardsV2();
   if (section === "Memberships") return membershipsV2();
