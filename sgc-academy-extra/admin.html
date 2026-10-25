@@ -2925,6 +2925,18 @@ async function calendarView() {
   const root = $('content');
   root.replaceChildren();
 
+  const addSection = n('section');
+  addSection.append(n('h2','Add a Google account'),n('p','Connect each business calendar separately. Google will ask you to sign into the matching account.'));
+  const emailLabel=n('label','Google account email'),emailInput=n('input');
+  emailInput.type='email';emailInput.placeholder='business@gmail.com';emailLabel.append(emailInput);
+  const nameLabel=n('label','Business / calendar name'),nameInput=n('input');
+  nameInput.type='text';nameInput.maxLength=100;nameLabel.append(nameInput);
+  addSection.append(emailLabel,nameLabel,button('Add calendar',async()=>{
+    await api({action:'add_calendar',email:emailInput.value,label:nameInput.value});
+    await calendarView();say('Calendar added. Click Connect Google Calendar and approve access using that account.');
+  }));
+  root.append(addSection);
+
   for(const h of hosts) {
     const section = n('section');
     section.append(
@@ -2953,7 +2965,7 @@ async function calendarView() {
 
   root.append(n(
     'p',
-    'This version connects the SGC Google account. Set Google OAuth server secrets before connecting.',
+    'Each calendar has its own Google account connection. Choose the email shown above when Google asks you to sign in.',
     'muted'
   ));
 }
