@@ -2925,49 +2925,53 @@ async function calendarView() {
   const root = $('content');
   root.replaceChildren();
 
-  const addSection = n('section');
-  addSection.append(n('h2','Add a Google account'),n('p','Connect each business calendar separately. Google will ask you to sign into the matching account.'));
-  const emailLabel=n('label','Google account email'),emailInput=n('input');
-  emailInput.type='email';emailInput.placeholder='business@gmail.com';emailLabel.append(emailInput);
-  const nameLabel=n('label','Business / calendar name'),nameInput=n('input');
-  nameInput.type='text';nameInput.maxLength=100;nameLabel.append(nameInput);
-  addSection.append(emailLabel,nameLabel,button('Add calendar',async()=>{
-    await api({action:'add_calendar',email:emailInput.value,label:nameInput.value});
-    await calendarView();say('Calendar added. Click Connect Google Calendar and approve access using that account.');
-  }));
-  root.append(addSection);
-
-  for(const h of hosts) {
+  function calendarCard(h, parent) {
     const section = n('section');
     section.append(
-      n('h2',h.label),
+      n('h3',h.label),
       n('p',h.calendar_id),
-      n('p',h.connected
-        ? 'Google Calendar connected.'
-        : 'Google Calendar needs authorisation.'),
-      button(
-        h.connected ? 'Reconnect Google Calendar' : 'Connect Google Calendar',
-        async () => {
-          const data = await api({
-            action:'connect_calendar',
-            host_id:h.id
-          });
-          const url = new URL(data.url);
-          if(url.origin !== 'https://accounts.google.com') {
-            throw Error('Invalid Google link.');
-          }
-          location.assign(url.href);
-        }
-      )
+      n('p',h.connected ? 'Google Calendar connected.' : 'Google Calendar needs authorisation.'),
+      button(h.connected ? 'Reconnect Google Calendar' : 'Connect Google Calendar',async()=>{
+        const data=await api({action:'connect_calendar',host_id:h.id});
+        const url=new URL(data.url);
+        if(url.origin!=='https://accounts.google.com')throw Error('Invalid Google link.');
+        location.assign(url.href);
+      })
     );
-    root.append(section);
+    parent.append(section);
   }
 
-  root.append(n(
-    'p',
-    'Each calendar has its own Google account connection. Choose the email shown above when Google asks you to sign in.',
-    'muted'
-  ));
+  const sgc=n('section');
+  sgc.append(n('h2','SGC Network calendar admin'));
+  for(const h of hosts.filter(h=>h.calendar_id.toLowerCase()==='netsgcwork@gmail.com'))calendarCard(h,sgc);
+  root.append(sgc);
+
+  const businesses=n('section');
+  businesses.id='different-business-setups';
+  businesses.append(n('h2','Different business setups'),n('p','Add a business and connect its Google Calendar using its own Google account.'));
+  const businessHosts=hosts.filter(h=>h.calendar_id.toLowerCase()!=='netsgcwork@gmail.com');
+  for(const h of businessHosts)calendarCard(h,businesses);
+  if(!businessHosts.length)businesses.append(n('p','No business calendars added yet.'));
+
+  const addSection=n('section');
+  addSection.append(n('h3','Add a business'));
+  const form=n('form');
+  const nameLabel=n('label','Business name'),nameInput=n('input');
+  nameInput.type='text';nameInput.maxLength=100;nameInput.required=true;nameInput.placeholder='e.g. Higher for Purpose';nameLabel.append(nameInput);
+  const emailLabel=n('label','Business Google account email'),emailInput=n('input');
+  emailInput.type='email';emailInput.required=true;emailInput.placeholder='business@gmail.com';emailLabel.append(emailInput);
+  const submit=n('button','Add business');submit.type='submit';submit.className='btn';
+  form.append(nameLabel,emailLabel,submit);
+  form.addEventListener('submit',async e=>{
+    e.preventDefault();if(!form.reportValidity())return;submit.disabled=true;
+    try{
+      await api({action:'add_calendar',email:emailInput.value,label:nameInput.value});
+      await calendarView();say('Business added. Click Connect Google Calendar under its name to approve access.');
+    }catch(error){say(error.message||'Unable to add business.');}
+    finally{submit.disabled=false;}
+  });
+  addSection.append(form);businesses.append(addSection);root.append(businesses);
+  root.append(n('p','Each business calendar has its own connection. Sign into the email shown for that business when Google asks.','muted'));
 }
 
 async function recordingApi(body){
