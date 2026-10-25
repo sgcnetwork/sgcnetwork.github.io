@@ -1,0 +1,278 @@
+[
+  {
+    "name": "Wet cupping",
+    "minutes": 40,
+    "price": 250,
+    "category": "Cupping & hijama"
+  },
+  {
+    "name": "Sciatica + back detox cupping",
+    "minutes": 40,
+    "price": 300,
+    "category": "Cupping & hijama"
+  },
+  {
+    "name": "Face dry cupping",
+    "minutes": 20,
+    "price": 250,
+    "category": "Face & beauty"
+  },
+  {
+    "name": "Face wet cupping",
+    "minutes": 20,
+    "price": 250,
+    "category": "Face & beauty"
+  },
+  {
+    "name": "Dry cupping",
+    "minutes": 40,
+    "price": 250,
+    "category": "Cupping & hijama"
+  },
+  {
+    "name": "Ear candling",
+    "minutes": 40,
+    "price": 250,
+    "category": "Cupping & hijama"
+  },
+  {
+    "name": "Full-body rukiyah hijama wet cupping / wet or dry on legs",
+    "minutes": 40,
+    "price": 300,
+    "category": "Cupping & hijama"
+  },
+  {
+    "name": "Sunnah rukiyah detox back and face wet cupping",
+    "minutes": 45,
+    "price": 400,
+    "category": "Face & beauty"
+  },
+  {
+    "name": "Wet cupping back + half session dry face cupping massage",
+    "minutes": 45,
+    "price": 400,
+    "category": "Face & beauty"
+  },
+  {
+    "name": "Dry cupping massage back + face cupping massage",
+    "minutes": 45,
+    "price": 400,
+    "category": "Face & beauty"
+  },
+  {
+    "name": "Ruqyah hijama sunnah detox cupping",
+    "minutes": 40,
+    "price": 250,
+    "category": "Cupping & hijama"
+  },
+  {
+    "name": "Lymphatic drainage",
+    "minutes": 40,
+    "price": 250,
+    "category": "Massage & lymphatic"
+  },
+  {
+    "name": "Lymphatic drainage + wet cupping detox",
+    "minutes": 45,
+    "price": 400,
+    "category": "Massage & lymphatic"
+  },
+  {
+    "name": "Ear candling + face dry cupping massage",
+    "minutes": 45,
+    "price": 400,
+    "category": "Face & beauty"
+  },
+  {
+    "name": "Weight loss wet cupping includes detox cupping",
+    "minutes": 40,
+    "price": 300,
+    "category": "Cupping & hijama"
+  },
+  {
+    "name": "Knee cupping / varicose veins",
+    "minutes": 35,
+    "price": 250,
+    "category": "Cupping & hijama"
+  },
+  {
+    "name": "Dry cupping legs / feet",
+    "minutes": 35,
+    "price": 250,
+    "category": "Cupping & hijama"
+  },
+  {
+    "name": "Combo wet cupping full body + face wet cupping",
+    "minutes": 45,
+    "price": 450,
+    "category": "Face & beauty"
+  },
+  {
+    "name": "Lymphatic drainage massage back + wet cupping / sunnah + face wet cupping",
+    "minutes": 70,
+    "price": 500,
+    "category": "Face & beauty"
+  },
+  {
+    "name": "Sunnah hijama wet cupping back neck + head",
+    "minutes": 40,
+    "price": 300,
+    "category": "Cupping & hijama"
+  },
+  {
+    "name": "Wet cupping full body + head",
+    "minutes": 40,
+    "price": 350,
+    "category": "Cupping & hijama"
+  },
+  {
+    "name": "Wet cupping full body + head + face wet cupping",
+    "minutes": 50,
+    "price": 450,
+    "category": "Face & beauty"
+  },
+  {
+    "name": "Head cupping",
+    "minutes": 30,
+    "price": 250,
+    "category": "Cupping & hijama"
+  },
+  {
+    "name": "Sunnah wet cupping + dry leg and feet cupping",
+    "minutes": 40,
+    "price": 300,
+    "category": "Cupping & hijama"
+  },
+  {
+    "name": "Dry cupping massage",
+    "minutes": 40,
+    "price": 250,
+    "category": "Massage & lymphatic"
+  },
+  {
+    "name": "Feet cupping wet or dry",
+    "minutes": 30,
+    "price": 250,
+    "category": "Cupping & hijama"
+  },
+  {
+    "name": "Back wet rukiyah cupping + arms + legs",
+    "minutes": 40,
+    "price": 300,
+    "category": "Cupping & hijama"
+  },
+  {
+    "name": "Wet cupping back hands and arms",
+    "minutes": 40,
+    "price": 300,
+    "category": "Cupping & hijama"
+  },
+  {
+    "name": "Full body back legs arms hands",
+    "minutes": 40,
+    "price": 350,
+    "category": "Cupping & hijama"
+  },
+  {
+    "name": "Fatty liver + detox",
+    "minutes": 40,
+    "price": 300,
+    "category": "Cupping & hijama"
+  },
+  {
+    "name": "Dry cupping back legs arms",
+    "minutes": 40,
+    "price": 300,
+    "category": "Cupping & hijama"
+  },
+  {
+    "name": "Fertility cupping",
+    "minutes": 40,
+    "price": 300,
+    "category": "Cupping & hijama"
+  },
+  {
+    "name": "Gall stone + sunnah / wet cupping detox",
+    "minutes": 40,
+    "price": 300,
+    "category": "Cupping & hijama"
+  },
+  {
+    "name": "Carpal tunnel + sunnah detox cupping",
+    "minutes": 40,
+    "price": 300,
+    "category": "Cupping & hijama"
+  },
+  {
+    "name": "Deep exfoliation facial cleanse / dry cupping face",
+    "minutes": 40,
+    "price": 250,
+    "category": "Face & beauty"
+  },
+  {
+    "name": "Rukiya hijama sunnah wet cupping",
+    "minutes": 40,
+    "price": 250,
+    "category": "Cupping & hijama"
+  },
+  {
+    "name": "Wet cupping back + face dry cupping",
+    "minutes": 40,
+    "price": 400,
+    "category": "Face & beauty"
+  },
+  {
+    "name": "Weight loss cupping + full body cupping",
+    "minutes": 40,
+    "price": 350,
+    "category": "Cupping & hijama"
+  },
+  {
+    "name": "Detox back + knees",
+    "minutes": 45,
+    "price": 350,
+    "category": "Cupping & hijama"
+  },
+  {
+    "name": "Colon cleanse + detox",
+    "minutes": 40,
+    "price": 300,
+    "category": "Cupping & hijama"
+  },
+  {
+    "name": "Lymphatic drainage and dry cupping massage",
+    "minutes": 45,
+    "price": 400,
+    "category": "Massage & lymphatic"
+  },
+  {
+    "name": "Anxiety depression + detox",
+    "minutes": 40,
+    "price": 300,
+    "category": "Cupping & hijama"
+  },
+  {
+    "name": "Back + face + legs + feet",
+    "minutes": 40,
+    "price": 450,
+    "category": "Face & beauty"
+  },
+  {
+    "name": "Bell's palsy",
+    "minutes": 30,
+    "price": 250,
+    "category": "Cupping & hijama"
+  },
+  {
+    "name": "Frozen shoulder",
+    "minutes": 40,
+    "price": 300,
+    "category": "Cupping & hijama"
+  },
+  {
+    "name": "Vertigo cupping",
+    "minutes": 30,
+    "price": 250,
+    "category": "Cupping & hijama"
+  }
+]
