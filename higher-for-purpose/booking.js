@@ -1,5 +1,5 @@
 (()=>{
- if(new URLSearchParams(location.search).get('page'))return;
+ if(new URLSearchParams(location.search).get('page')!=='treatments')return;
  const base='https://bxpexanyoyubxeqqlggh.supabase.co',key='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ4cGV4YW55b3l1YnhlcXFsZ2doIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk4NDQ5NTYsImV4cCI6MjEwNTQyMDk1Nn0.H4ce_CCaDtL52jcZuw5114d-Tr1DDWvSzCbHlybDqjo';
  const el=id=>document.getElementById(id),dialog=el('booking'),msg=el('booking-message');
  let selected=null,reference=null,bookingToken=null,email=null,generation=0,submitting=false,receipt=null;
