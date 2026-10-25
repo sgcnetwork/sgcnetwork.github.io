@@ -668,7 +668,7 @@ let busy = false, editContext = null;
 let workingV2 = false, dirtyV2 = false, upgradeV2 = false;
 let plansV2, productsV2 = [], contentV2 = [], groupsV2 = {};
 
-const sections = ["Reports","Modules & lessons","Submissions","Website & quotes","Community","Waitlist","Audit history","Setup"];
+const sections = ["Reports","Modules & lessons","Submissions","Website & quotes","Community","Waitlist","Audit history","Calendar admin","Setup"];
 
 const defaultsV2 = {
   features: [
@@ -2223,6 +2223,10 @@ async function show() {
     }
   }
 
+  if (section === "Calendar admin") {
+    await SGCProducts.mount($("content"), user, true);
+    return;
+  }
   if (section === "Products & files") {
     await SGCProducts.mount($("content"), user);
     await listPanel("Payment methods", "sgc_payment_methods");
@@ -3204,7 +3208,7 @@ window.addEventListener('beforeunload',e=>{if(dirty){e.preventDefault();e.return
 return {
  guard(){if(!guard())return false;dirty=false;return true;},
  async appendStudentRecordings(card,booking){await recordingControls(card,booking);},
- async mount(root,authUser){
+ async mount(root,authUser,calendarOnly=false){
   user=authUser;dirty=false;
   const shell=n('div');shell.id='sgcp-manager';
   const intro=n('section');intro.append(n('h2','Products, add-ons & appointments'),n('p','Edit your shop categories, pricing, private files and appointment availability here.'));
@@ -3214,6 +3218,7 @@ return {
    nav.append(button(label,async()=>{if(guard()){dirty=false;await fn();}}));
   }
   shell.append(intro,nav,status,content);root.append(shell);
+  if(calendarOnly){await calendarView();return;}
   await productsView();
   if(new URLSearchParams(location.search).get('calendar')==='connected'){
    await calendarView();status.textContent='Google Calendar connected.';
@@ -3222,7 +3227,7 @@ return {
 };
 })();
 
-if (new URLSearchParams(location.search).get("calendar") === "connected") section = "Products & files";
+if (new URLSearchParams(location.search).get("calendar") === "connected") section = "Calendar admin";
 
 if (sb) ready().catch(e => $("login-status").textContent = e.message);
 else $("login-status").textContent = "Supabase library could not load.";
