@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /admin-
+Disallow: /application-status.html
+Sitemap: https://sgcnetwork.co.za/sitemap.xml
