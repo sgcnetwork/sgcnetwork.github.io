@@ -392,7 +392,7 @@ if(selectedSlug&&location.pathname.endsWith('visa.html')){
   add(aside,'h3','Let’s discuss your request.');
   add(aside,'p','Tell us the service, your current location, destination and preferred deadline. We will help you understand what to prepare next.');
   link(aside,'Start an enquiry ↗',selected.enquire,'button');
-  link(aside,'Email DJP','mailto:docjprocessing@gmail.com','text-link');
+  link(aside,'Email DJP','mailto:documentjourneyprocessing@outlook.com','text-link');
   add(aside,'p','Keep passport numbers, identity documents, fingerprints and sensitive personal records out of the initial message.','fine');
   const related=add(main,'section',null,'section');
   add(related,'h2','Related services');
