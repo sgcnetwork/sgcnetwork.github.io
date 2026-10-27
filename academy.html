@@ -149,19 +149,39 @@ html[data-academy-theme="light"] .academy-appearance button[aria-pressed="true"]
 }
 @media(prefers-reduced-motion:reduce){aside.sidebar{transition:none!important}}
 </style><style>
-.subject-catalog{max-width:1180px;margin:22px auto;padding:12px 0 40px}
-.subject-catalog h1{font:clamp(32px,5vw,50px)/1.1 Georgia,serif;margin:12px 0}
-.subject-catalog .intro{max-width:650px;margin-bottom:30px}
-.subject-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:16px}
-.subject-card{display:flex;flex-direction:column;text-align:left;min-height:195px;padding:22px;border:1px solid var(--line);border-radius:16px;background:var(--panel);color:var(--text);transition:transform .15s,border-color .15s}
-.subject-card:hover,.subject-card:focus-visible{border-color:var(--gold);transform:translateY(-2px)}
-.subject-card strong{font:22px/1.25 Georgia,serif;margin:12px 0}
-.subject-card .muted{flex:1}
-.subject-card .subject-action{color:var(--gold);font-weight:bold;margin-top:18px;font-size:12px}
+.subject-catalog{max-width:1220px;margin:12px auto 0;padding:0 0 60px}
+.subject-hero{position:relative;overflow:hidden;border:1px solid var(--line);border-radius:22px;background:linear-gradient(125deg,#191713,#262017 64%,#302719);padding:clamp(26px,5vw,54px);color:#f8f3e8}
+.subject-hero:after{content:'';position:absolute;width:260px;height:260px;right:-65px;top:-85px;border:1px solid #c6a35455;border-radius:50%;box-shadow:0 0 0 32px #c6a3540b,0 0 0 72px #c6a35409;pointer-events:none}
+.subject-hero .eyebrow{color:#d8bd80;font-weight:700;letter-spacing:.22em}
+.subject-hero h1{font:clamp(34px,5vw,58px)/1.08 Georgia,serif;max-width:700px;margin:18px 0 14px;letter-spacing:-.025em}
+.subject-hero .intro{max-width:570px;color:#d0c7b7;font-size:14px;line-height:1.8;margin:0}
+.subject-hero .hero-note{display:inline-block;margin-top:28px;padding-top:15px;border-top:1px solid #c6a35455;color:#dbcaa7;font-size:10px;letter-spacing:.17em;text-transform:uppercase}
+.subject-section-heading{display:flex;justify-content:space-between;align-items:end;gap:15px;margin:38px 2px 18px}
+.subject-section-heading h2{font:28px Georgia,serif;margin:0 0 5px}
+.subject-section-heading p{margin:0;color:var(--muted);font-size:12px}
+.subject-count{color:var(--gold);font-size:10px;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap}
+.subject-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
+.subject-card{position:relative;display:flex;flex-direction:column;text-align:left;min-height:250px;padding:24px;border:1px solid var(--line);border-radius:17px;background:var(--panel);color:var(--text);transition:transform .18s,border-color .18s,box-shadow .18s}
+.subject-card:hover,.subject-card:focus-visible{border-color:var(--gold);transform:translateY(-3px);box-shadow:0 12px 30px #0002;outline:none}
+.subject-card-top{display:flex;justify-content:space-between;align-items:center}
+.subject-mark{display:grid;place-items:center;width:43px;height:43px;border-radius:13px;background:color-mix(in srgb,var(--gold) 15%,var(--panel));color:var(--gold);font:italic 18px Georgia,serif}
+.subject-number{font-size:10px;letter-spacing:.16em;color:var(--muted)}
+.subject-card strong{font:22px/1.2 Georgia,serif;margin:22px 0 9px}
+.subject-card .muted{flex:1;font-size:12px;line-height:1.65}
+.subject-card .subject-action{display:flex;justify-content:space-between;align-items:center;margin-top:22px;padding-top:15px;border-top:1px solid var(--line);color:var(--gold);font-size:11px;font-weight:700}
+.subject-card .subject-action:after{content:'↗';font-size:17px;font-weight:normal}
 .subject-back{margin:0 0 16px}
+html[data-academy-theme="light"] .subject-hero{background:linear-gradient(125deg,#f5eaf1,#f1e7f3 60%,#fbf1e6);border-color:#e9dce7;color:#382b3a}
+html[data-academy-theme="light"] .subject-hero .eyebrow{color:#79597b}
+html[data-academy-theme="light"] .subject-hero .intro{color:#746578}
+html[data-academy-theme="light"] .subject-hero .hero-note{color:#805f7e;border-color:#d8c0d5}
+html[data-academy-theme="light"] .subject-hero:after{border-color:#b590b955;box-shadow:0 0 0 32px #bc9ec315,0 0 0 72px #bc9ec310}
+html[data-academy-theme="light"] .subject-card{box-shadow:0 8px 28px #4b284908}
 body.subjects-home main>.top,body.subjects-home main>.row,body.subjects-home #subject-select,body.subjects-home label[for=subject-select],body.subjects-home #module-select,body.subjects-home #module-label,body.subjects-home #lesson-list,body.subjects-home #academy-release-status{display:none!important}
-@media(max-width:720px){.subject-catalog{margin:8px auto}.subject-grid{grid-template-columns:1fr 1fr;gap:9px}.subject-card{min-height:170px;padding:15px}.subject-card strong{font-size:18px}.subject-card .muted{font-size:11px}.subject-catalog h1{font-size:33px}}
+@media(max-width:900px){.subject-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:720px){.subject-catalog{margin:3px auto}.subject-hero{border-radius:18px;padding:26px 23px}.subject-hero h1{font-size:34px}.subject-hero .intro{font-size:12px}.subject-hero .hero-note{margin-top:20px;font-size:9px}.subject-section-heading{margin:26px 2px 15px}.subject-section-heading h2{font-size:24px}.subject-grid{gap:9px}.subject-card{min-height:210px;padding:15px;border-radius:14px}.subject-card strong{font-size:18px;margin:17px 0 8px}.subject-card .muted{font-size:11px}.subject-mark{width:36px;height:36px}.subject-card .subject-action{font-size:10px;margin-top:16px}}
 @media(max-width:360px){.subject-grid{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){.subject-card{transition:none}}
 </style><meta name="sgc-academy-release" content="mobile-app-refresh-20261012"><style>
 @media(max-width:720px){
  .sgc-academy-mobile-nav{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;grid-template-rows:1fr!important;align-items:stretch!important;gap:3px!important;width:100%!important;padding:8px 7px calc(8px + env(safe-area-inset-bottom,0px))!important;min-height:72px!important;background:var(--panel)!important;border-top:1px solid var(--line)!important;box-shadow:0 -6px 22px #00000018!important}
@@ -412,11 +432,11 @@ function showSubjects(){
  $('subjects-back').hidden=true;$('subject-catalog').hidden=false;
  $('classroom').hidden=true;$('empty').hidden=true;$('other').hidden=true;
  const root=$('subject-catalog');root.replaceChildren();
- root.append(n('span','SGC ACADEMY · YOUR LEARNING','eyebrow'),n('h1','Explore your subjects'),n('p','Choose a subject to open your learning and explore its modules.','muted intro'));
+ const hero=n('div',undefined,'subject-hero'); hero.append(n('span','SGC ACADEMY  /  YOUR LEARNING SPACE','eyebrow'),n('h1','Your next chapter starts here.'),n('p','Explore practical subjects created to help you turn ideas into action, build your business and grow with confidence.','intro'),n('span','Learn  ·  Build  ·  Grow','hero-note')); const heading=n('div',undefined,'subject-section-heading'),headingText=n('div'); headingText.append(n('h2','Explore subjects'),n('p','Choose where you would like to begin.')); heading.append(headingText,n('span',subjects.length+' subjects','subject-count'));root.append(hero,heading);
  const grid=n('div',undefined,'subject-grid');
  subjects.forEach((subject,i)=>{
   const card=n('button',undefined,'subject-card');card.type='button';
-  card.append(n('span',String(i+1).padStart(2,'0'),'eyebrow'),n('strong',subject.title),n('span',subject.description,'muted'),n('span','Open subject →','subject-action'));
+  const top=n('div',undefined,'subject-card-top'); top.append(n('span',String(i+1).padStart(2,'0'),'subject-mark'),n('span',subject.id==='existing'?'AVAILABLE':'COMING SOON','subject-number')); card.append(top,n('strong',subject.title),n('span',subject.description,'muted'),n('span',subject.id==='existing'?'Open subject':'Explore subject','subject-action'));
   card.onclick=()=>{subjectMenu.value=subject.id;subjectMenu.onchange();};
   grid.append(card);
  });
