@@ -182,6 +182,7 @@ body.subjects-home main>.top,body.subjects-home main>.row,body.subjects-home #su
 @media(max-width:720px){.subject-catalog{margin:3px auto}.subject-hero{border-radius:18px;padding:26px 23px}.subject-hero h1{font-size:34px}.subject-hero .intro{font-size:12px}.subject-hero .hero-note{margin-top:20px;font-size:9px}.subject-section-heading{margin:26px 2px 15px}.subject-section-heading h2{font-size:24px}.subject-grid{gap:9px}.subject-card{min-height:210px;padding:15px;border-radius:14px}.subject-card strong{font-size:18px;margin:17px 0 8px}.subject-card .muted{font-size:11px}.subject-mark{width:36px;height:36px}.subject-card .subject-action{font-size:10px;margin-top:16px}}
 @media(max-width:360px){.subject-grid{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){.subject-card{transition:none}}
+ .foundation-section{border-bottom:1px solid var(--line);padding:7px 0}.foundation-section summary{cursor:pointer;padding:10px 6px;color:var(--text);font-size:12px;font-weight:700;line-height:1.4}.foundation-section .lesson{padding-left:16px}.foundation-section summary:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 </style><meta name="sgc-academy-release" content="mobile-app-refresh-20261012"><style>
 @media(max-width:720px){
  .sgc-academy-mobile-nav{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;grid-template-rows:1fr!important;align-items:stretch!important;gap:3px!important;width:100%!important;padding:8px 7px calc(8px + env(safe-area-inset-bottom,0px))!important;min-height:72px!important;background:var(--panel)!important;border-top:1px solid var(--line)!important;box-shadow:0 -6px 22px #00000018!important}
@@ -398,18 +399,37 @@ function guard(){
  return true;
 }
 let courseCovers=new Map();
+const foundationSections=[
+ {title:'Getting started',from:1,to:4},
+ {title:'The five levels of value',from:5,to:10},
+ {title:'Designing your solution',from:11,to:17},
+ {title:'Putting it into practice',from:18,to:20},
+ {title:'Case studies and your plan',from:21,to:24},
+ {title:'Review and assessments',from:25,to:101}
+];
+const openFoundationSections=new Set();
+function displayModuleName(number){const name=moduleNames.get(number);return number===1&&(!name||/^module\s*1$/i.test(name))?'Selling Implementation':(name||'Lessons');}
 function sidebar(){
  const list=$('lesson-list');list.replaceChildren();
  const modules=[...new Set(lessons.map(l=>l.module_no))];
  if(!modules.includes(selectedModule))selectedModule=lessons.find(l=>l.id===current)?.module_no??modules[0]??null;
  const menu=$('module-select');menu.replaceChildren();
- for(const number of modules){const option=n('option','Module '+number+' · '+(moduleNames.get(number)||'Lessons'));option.value=number;menu.append(option);}
+ for(const number of modules){const option=n('option','Module '+number+' · '+displayModuleName(number));option.value=number;menu.append(option);}
  menu.value=String(selectedModule);menu.hidden=selectedSubject!=='existing'||!modules.length;
- let module=null;
+ let module=null,section=null,sectionHost=null;
  for(const l of lessons.filter(item=>item.module_no===selectedModule)){
   if(module!==l.module_no){
    module=l.module_no;
-   const heading=n('div',moduleNames.get(module)||'Module '+module,'module');const cover=courseCovers.get(module);if(cover){const img=document.createElement('img');img.src=cover;img.alt='Course cover';img.loading='lazy';img.style.cssText='display:block;width:100%;max-height:130px;object-fit:cover;border-radius:9px;margin:8px 0';heading.prepend(img)}list.append(heading);
+   const heading=n('div',displayModuleName(module),'module');const cover=courseCovers.get(module);if(cover){const img=document.createElement('img');img.src=cover;img.alt='Course cover';img.loading='lazy';img.style.cssText='display:block;width:100%;max-height:130px;object-fit:cover;border-radius:9px;margin:8px 0';heading.prepend(img)}list.append(heading);
+  }
+  if(l.module_no===1){
+   const group=foundationSections.find(g=>l.position>=g.from&&l.position<=g.to);
+   if(group&&group.title!==section){
+    section=group.title;sectionHost=n('details',undefined,'foundation-section');
+    sectionHost.open=openFoundationSections.has(section)||foundationSections.some(g=>g.title===section&&lessons.some(x=>x.id===current&&x.module_no===1&&x.position>=g.from&&x.position<=g.to));
+    const name=section,details=sectionHost;details.addEventListener('toggle',()=>{if(details.open)openFoundationSections.add(name);else openFoundationSections.delete(name);});
+    sectionHost.append(n('summary',section));list.append(sectionHost);
+   }
   }
   const b=n('button',(responses.get(l.id)?.completed?'✓ ':'')+
    l.position+'. '+l.title,'lesson'+(l.id===current?' active':''));
@@ -417,7 +437,7 @@ function sidebar(){
    if(current&&lessons.findIndex(x=>x.id===l.id)>index())await finishQuizlessLesson();
    await open(l.id);
   });
-  list.append(b);
+  (l.module_no===1&&sectionHost?sectionHost:list).append(b);
  }
  const percent=lessons.length?
   Math.round(lessons.filter(l=>responses.get(l.id)?.completed).length/lessons.length*100):0;
@@ -607,8 +627,7 @@ async function open(id){
   selectedModule=lesson.module_no;
   if(saved)responses.set(id,{...saved,lesson_id:id});
   $('title').textContent=lesson.title;
-  $('module').textContent=(moduleNames.get(lesson.module_no)||
-   'Module '+lesson.module_no)+' · Lesson '+lesson.position;
+  $('module').textContent=displayModuleName(lesson.module_no)+' · Lesson '+lesson.position;
   const moduleLessons=lessons.filter(l=>l.module_no===lesson.module_no);
   $('part').textContent='Module '+lesson.module_no+' · Part '+
    (moduleLessons.findIndex(l=>l.id===id)+1)+' of '+moduleLessons.length;
