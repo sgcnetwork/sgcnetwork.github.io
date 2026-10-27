@@ -434,7 +434,7 @@ function sidebar(){
   const b=n('button',(responses.get(l.id)?.completed?'✓ ':'')+
    l.position+'. '+l.title,'lesson'+(l.id===current?' active':''));
   b.onclick=safe(async()=>{
-   if(current&&lessons.findIndex(x=>x.id===l.id)>index())await finishQuizlessLesson();
+   if(current&&!responses.get(l.id)?.completed&&lessons.findIndex(x=>x.id===l.id)>index())await finishQuizlessLesson();
    await open(l.id);
   });
   (l.module_no===1&&sectionHost?sectionHost:list).append(b);
@@ -515,7 +515,7 @@ async function load(){
   say('');
  }finally{busy=false;controls();}
  if(lessons.length){
-  try{let resume=new URLSearchParams(location.search).get('lesson');if(!resume){try{resume=localStorage.getItem('sgc-last-lesson-'+user.id);}catch{}}const first=lessons.find(l=>!responses.get(l.id)?.completed)||lessons[0];const candidate=lessons.find(l=>l.id===resume);const target=candidate&&lessons.indexOf(candidate)<=lessons.indexOf(first)?candidate:first;await open(target.id);}catch(e){$('empty').hidden=false;$('empty').textContent='Unable to open lesson: '+(e.message||String(e));say('Lesson loading failed. Please refresh.');}
+  try{let resume=new URLSearchParams(location.search).get('lesson');if(!resume){try{resume=localStorage.getItem('sgc-last-lesson-'+user.id);}catch{}}const first=lessons.find(l=>!responses.get(l.id)?.completed)||lessons[0];const candidate=lessons.find(l=>l.id===resume);const target=candidate&&(responses.get(candidate.id)?.completed||lessons.indexOf(candidate)<=lessons.indexOf(first))?candidate:first;await open(target.id);}catch(e){$('empty').hidden=false;$('empty').textContent='Unable to open lesson: '+(e.message||String(e));say('Lesson loading failed. Please refresh.');}
  }else $('classroom').hidden=true;
  await loadQuote();
 }
@@ -561,11 +561,12 @@ async function mediaFile(r){
 async function open(id){
  if(busy||!guard())return;
  const targetIndex=lessons.findIndex(l=>l.id===id);
- if(current&&targetIndex>index()&&!requireQuiz())return;
- if(targetIndex>0&&lessons.slice(0,targetIndex).some(l=>!responses.get(l.id)?.completed)){
+ const previouslyCompleted=responses.get(id)?.completed===true;
+ if(!previouslyCompleted&&current&&targetIndex>index()&&!requireQuiz())return;
+ if(!previouslyCompleted&&targetIndex>0&&lessons.slice(0,targetIndex).some(l=>!responses.get(l.id)?.completed)){
   say('Complete the earlier lessons in order before opening this lesson.');return;
  }
- if(current&&targetIndex>index()+1){say('Continue one lesson at a time. Complete each knowledge check as you go.');return;}
+ if(!previouslyCompleted&&current&&targetIndex>index()+1){say('Continue one lesson at a time. Complete each knowledge check as you go.');return;}
  busy=true;controls();$('classroom').hidden=true;say('Opening lesson…');
  try{
   const lesson=check(await sb.from('sgc_extra_lessons')
