@@ -594,14 +594,22 @@ function showLearningSlides(lesson){
  previous.type='button';next.type='button';controls.append(previous,counter,next);host.append(view,controls);
  const audio=n('audio');audio.controls=true;audio.preload='none';audio.hidden=true;audio.style.cssText='width:100%;margin-top:12px';audio.setAttribute('aria-label','Slide voice-over');host.append(audio);activeSlideAudio=audio;
  let recordings=[],audioRequest=0;
- audio.addEventListener('play',()=>{slideAudioEnabled=true;});
+ const audioStatus=n('p','','muted');audioStatus.setAttribute('role','status');host.append(audioStatus);
+ audio.addEventListener('play',()=>{slideAudioEnabled=true;audioStatus.textContent='';});
+ audio.addEventListener('ended',()=>{
+  if(generation!==slideAudioGeneration)return;
+  if(currentSlide<content.length-1){currentSlide++;draw();loadSlideAudio(true);}
+  else audioStatus.textContent='You have reached the end of the slideshow.';
+ });
  async function loadSlideAudio(autoplay){
   const request=++audioRequest;audio.pause();audio.hidden=true;audio.removeAttribute('src');audio.load();
-  const row=recordings.find(r=>r.slide_no===currentSlide+1);if(!row)return;
+  const row=recordings.find(r=>r.slide_no===currentSlide+1);if(!row){audioStatus.textContent=autoplay?'No voice recording has been added to this slide yet. Use Next to continue.':'';return;}
+  audioStatus.textContent='Loading slide audio…';
   const {data,error}=await sb.storage.from('sgc-slide-audio').createSignedUrl(row.path,3600);
-  if(error||generation!==slideAudioGeneration||request!==audioRequest)return;
-  audio.src=data.signedUrl;audio.hidden=false;
-  if(autoplay&&slideAudioEnabled)audio.play().catch(()=>{});
+  if(generation!==slideAudioGeneration||request!==audioRequest)return;
+  if(error){audioStatus.textContent='The voice recording could not load. Please try again.';return;}
+  audio.src=data.signedUrl;audio.hidden=false;audioStatus.textContent='';
+  if(autoplay&&slideAudioEnabled)audio.play().catch(()=>{audioStatus.textContent='Press play to continue listening.';});
  }
  sb.from('sgc_slide_audio').select('slide_no,path').eq('lesson_id',lesson.id).then(({data,error})=>{if(!error&&generation===slideAudioGeneration){recordings=data||[];loadSlideAudio(false);}});
 
