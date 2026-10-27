@@ -90,7 +90,7 @@ html[data-academy-theme="light"] .sticky{background:#f5dfe8}
 .academy-appearance button[aria-pressed="true"]{background:var(--gold);border-color:var(--gold);color:var(--bg);font-weight:700}
 html[data-academy-theme="light"] .academy-appearance button[aria-pressed="true"]{color:#fff}
 .academy-appearance button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
-.quiz-count{display:inline-block;margin:4px 0 15px;padding:9px 13px;background:var(--panel);border:1px solid var(--gold);color:var(--gold);border-radius:10px;font-size:12px;font-weight:700}.reflection fieldset{border:1px solid var(--line);padding:15px;border-radius:12px;margin:16px 0}.reflection legend{font-size:15px;color:var(--text);padding:0 7px}.reflection .choice{border-radius:10px}.reflection #quiz-submit{border-radius:10px;font-weight:700}html[data-academy-theme="light"] .quiz-count{background:#f5eaf6;color:#654368}#module-select{display:block;width:100%;padding:12px;margin:8px 0 18px;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:9px;font:12px Arial,sans-serif}
+.quiz-count{display:inline-block;margin:4px 0 15px;padding:9px 13px;background:var(--panel);border:1px solid var(--gold);color:var(--gold);border-radius:10px;font-size:12px;font-weight:700}.reflection fieldset{border:1px solid var(--line);padding:15px;border-radius:12px;margin:16px 0}.reflection legend{font-size:15px;color:var(--text);padding:0 7px}.reflection .choice{border-radius:10px}.reflection #quiz-submit{border-radius:10px;font-weight:700}html[data-academy-theme="light"] .quiz-count{background:#f5eaf6;color:#654368}#subject-select,#module-select{display:block;width:100%;padding:12px;margin:8px 0 18px;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:9px;font:12px Arial,sans-serif}
 </style>
 <link rel="stylesheet" href="css/community-notifications.css"><link rel="stylesheet" href="css/sgc-user-guide.css?v=guide1"><link rel="manifest" href="/manifest.webmanifest"><meta name="theme-color" content="#f4dfe0"><meta name="apple-mobile-web-app-capable" content="yes"><link rel="icon" type="image/svg+xml" href="/sgc-app-icon.svg"><script>if('serviceWorker' in navigator){window.addEventListener('load',function(){navigator.serviceWorker.register('/service-worker.js').catch(function(error){console.warn('SGC app setup:',error);});});}</script><style>
 /* Responsive Academy app shell: independent desktop classroom, mobile drawer and bottom tabs. */
@@ -173,7 +173,7 @@ html[data-academy-theme="light"] .academy-appearance button[aria-pressed="true"]
 <a href="shop.html" class="btn alt small">Products</a>
 <button id="preferences" class="btn alt small">Email settings</button>
 </nav>
-<div class="academy-appearance" role="group" aria-label="Academy appearance"><span class="theme-label">Your classroom theme</span><button id="academy-theme-dark" type="button" aria-pressed="true">✦ Dark & gold</button><button id="academy-theme-light" type="button" aria-pressed="false">☀ Light</button></div><label for="module-select" class="module">Choose a module</label><select id="module-select" aria-label="Choose Academy module"></select><p id="academy-release-status" class="muted" role="status"></p><div id="lesson-list"></div>
+<div class="academy-appearance" role="group" aria-label="Academy appearance"><span class="theme-label">Your classroom theme</span><button id="academy-theme-dark" type="button" aria-pressed="true">✦ Dark & gold</button><button id="academy-theme-light" type="button" aria-pressed="false">☀ Light</button></div><label for="subject-select" class="module">Choose a subject</label><select id="subject-select" aria-label="Choose Academy subject"></select><label for="module-select" class="module" id="module-label">Choose a module</label><select id="module-select" aria-label="Choose Academy module"></select><p id="academy-release-status" class="muted" role="status"></p><div id="lesson-list"></div>
 <div class="account">
 <div id="daily-quote" class="sticky" hidden></div>
 <p id="email"></p>
@@ -284,6 +284,41 @@ async function finishQuizlessLesson(){
 }
 function requireQuiz(){if(quizGate()){say('Complete and submit this lesson quiz before moving to the next lesson.');return false}return true}
 let moduleNames=new Map(),selectedModule=null;
+const subjects=[
+ {id:'existing',title:'SGC Business Foundations',description:'Your existing Academy lessons.'},
+ {id:'ecommerce',title:'E-commerce Foundations',description:'How online selling works in South Africa.'},
+ {id:'research',title:'Product Research & Finding Your Niche',description:'Understand what to sell and identify your niche.'},
+ {id:'suppliers',title:'Suppliers',description:'Contacting and negotiating with e-commerce suppliers.'},
+ {id:'branding',title:'Branding & Packaging',description:'Build a brand around your products.'},
+ {id:'shopify',title:'Shopify Store Development',description:'Create an online store designed to convert visitors into customers.'},
+ {id:'payments',title:'Payments & Delivery',description:'South African payment methods and couriers.'},
+ {id:'advertising',title:'Digital Advertising',description:'TikTok, Instagram and Facebook advertising.'},
+ {id:'growth',title:'Testing & Growth',description:'Review results, retarget and scale what works.'}
+];
+let selectedSubject='existing';
+const subjectMenu=$('subject-select');
+for(const subject of subjects){const option=document.createElement('option');option.value=subject.id;option.textContent=subject.title;subjectMenu.append(option);}
+subjectMenu.onchange=()=>{
+ if(!guard()){subjectMenu.value=selectedSubject;return;}
+ selectedSubject=subjectMenu.value;
+ $('module-label').hidden=selectedSubject!=='existing';
+ $('module-select').hidden=selectedSubject!=='existing';
+ $('lesson-list').hidden=selectedSubject!=='existing';
+ if(selectedSubject==='existing'){
+  $('other').hidden=true;
+  $('classroom').hidden=!current;
+  $('empty').hidden=!!current;
+  sidebar();
+ }else{
+  const subject=subjects.find(item=>item.id===selectedSubject);
+  $('classroom').hidden=true;$('empty').hidden=true;$('other').hidden=false;
+  $('other').replaceChildren();
+  const panel=n('section',undefined,'panel');
+  panel.append(n('span','SGC ACADEMY · SUBJECT','eyebrow'),n('h1',subject.title),n('p',subject.description,'muted'),n('h2','Modules'),n('p','Modules and lessons for this subject have not been added yet.','muted'));
+  $('other').append(panel);
+ }
+ say('');controls();
+};
 
 function n(tag,text,cls){
  const e=document.createElement(tag);
@@ -312,10 +347,10 @@ function index(){return lessons.findIndex(l=>l.id===current);}
 function controls(){
  for(const id of [
   'refresh','save-notes','quiz-submit','continue',
-  'logout','notes','learn','connect','preferences','module-select'
+  'logout','notes','learn','connect','preferences','module-select','subject-select'
  ])$(id).disabled=busy;
- $('previous').disabled=busy||index()<=0;
- $('next').disabled=busy||index()<0||index()>=lessons.length-1||quizGate();
+ $('previous').disabled=busy||selectedSubject!=='existing'||index()<=0;
+ $('next').disabled=busy||selectedSubject!=='existing'||index()<0||index()>=lessons.length-1||quizGate();
  document.querySelectorAll('.lesson').forEach(b=>b.disabled=busy);
  document.querySelectorAll('#questions input').forEach(b=>b.disabled=busy);
 }
@@ -332,7 +367,7 @@ function sidebar(){
  if(!modules.includes(selectedModule))selectedModule=lessons.find(l=>l.id===current)?.module_no??modules[0]??null;
  const menu=$('module-select');menu.replaceChildren();
  for(const number of modules){const option=n('option','Module '+number+' · '+(moduleNames.get(number)||'Lessons'));option.value=number;menu.append(option);}
- menu.value=String(selectedModule);menu.hidden=!modules.length;
+ menu.value=String(selectedModule);menu.hidden=selectedSubject!=='existing'||!modules.length;
  let module=null;
  for(const l of lessons.filter(item=>item.module_no===selectedModule)){
   if(module!==l.module_no){
