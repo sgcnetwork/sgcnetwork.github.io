@@ -251,7 +251,7 @@ body.subjects-home main>.top,body.subjects-home main>.row,body.subjects-home #su
 <div class="heading">
 <span id="module" class="eyebrow"></span>
 <h1 id="title"></h1>
-<p class="muted">Learn from the teaching, review the notes and select your answers beside the video.</p>
+<p class="muted">Review the lesson notes and complete the activities and knowledge checks.</p>
 </div>
 <div class="tabs">
 <button id="notes-tab" class="btn alt small">Lesson notes</button>
@@ -582,12 +582,14 @@ async function open(id){
   $('reflection-intro').textContent=config.reflection_intro||
    'Choose your answers and apply what you learn.';
   $('video').replaceChildren();
+  const hideExistingVideos=lesson.module_no===1;
+  $('video').hidden=hideExistingVideos;
   $('videos').replaceChildren();
   $('files').replaceChildren();
   let failures=0;
 
   for(const r of resources){
-   if(r.kind==='video'||r.kind==='presentation'||/\.pdf$/i.test(r.path)){
+   if(!hideExistingVideos&&(r.kind==='video'||r.kind==='presentation'||/\.pdf$/i.test(r.path))){
     $('videos').append(btn(r.title,()=>mediaFile(r)));
    }
    if(r.kind!=='video'){
@@ -602,6 +604,7 @@ async function open(id){
   }
 
   try{
+   if(!hideExistingVideos){
    const selected=resources.find(r=>r.path===config.media_path);
    if(selected)await mediaFile(selected);
    else if(config.video_url||lesson.video_url)externalVideo(config.video_url||lesson.video_url);
@@ -613,6 +616,7 @@ async function open(id){
      n('div','SGC','watermark'),
      n('p','Your teaching material will appear here.','muted')
     );
+   }
    }
   }catch(e){
    failures++;
