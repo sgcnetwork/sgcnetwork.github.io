@@ -148,6 +148,20 @@ html[data-academy-theme="light"] .academy-appearance button[aria-pressed="true"]
  body .sgc-guide-launcher{position:fixed!important;bottom:calc(86px + env(safe-area-inset-bottom,0px))!important;right:12px!important}
 }
 @media(prefers-reduced-motion:reduce){aside.sidebar{transition:none!important}}
+</style><style>
+.subject-catalog{max-width:1180px;margin:22px auto;padding:12px 0 40px}
+.subject-catalog h1{font:clamp(32px,5vw,50px)/1.1 Georgia,serif;margin:12px 0}
+.subject-catalog .intro{max-width:650px;margin-bottom:30px}
+.subject-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:16px}
+.subject-card{display:flex;flex-direction:column;text-align:left;min-height:195px;padding:22px;border:1px solid var(--line);border-radius:16px;background:var(--panel);color:var(--text);transition:transform .15s,border-color .15s}
+.subject-card:hover,.subject-card:focus-visible{border-color:var(--gold);transform:translateY(-2px)}
+.subject-card strong{font:22px/1.25 Georgia,serif;margin:12px 0}
+.subject-card .muted{flex:1}
+.subject-card .subject-action{color:var(--gold);font-weight:bold;margin-top:18px;font-size:12px}
+.subject-back{margin:0 0 16px}
+body.subjects-home main>.top,body.subjects-home main>.row,body.subjects-home #subject-select,body.subjects-home label[for=subject-select],body.subjects-home #module-select,body.subjects-home #module-label,body.subjects-home #lesson-list,body.subjects-home #academy-release-status{display:none!important}
+@media(max-width:720px){.subject-catalog{margin:8px auto}.subject-grid{grid-template-columns:1fr 1fr;gap:9px}.subject-card{min-height:170px;padding:15px}.subject-card strong{font-size:18px}.subject-card .muted{font-size:11px}.subject-catalog h1{font-size:33px}}
+@media(max-width:360px){.subject-grid{grid-template-columns:1fr}}
 </style><meta name="sgc-academy-release" content="mobile-app-refresh-20261012"><style>
 @media(max-width:720px){
  .sgc-academy-mobile-nav{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;grid-template-rows:1fr!important;align-items:stretch!important;gap:3px!important;width:100%!important;padding:8px 7px calc(8px + env(safe-area-inset-bottom,0px))!important;min-height:72px!important;background:var(--panel)!important;border-top:1px solid var(--line)!important;box-shadow:0 -6px 22px #00000018!important}
@@ -184,6 +198,8 @@ html[data-academy-theme="light"] .academy-appearance button[aria-pressed="true"]
 </aside>
 
 <main>
+<button id="subjects-back" type="button" class="btn alt small subject-back" hidden>← All subjects</button>
+<section id="subject-catalog" class="subject-catalog" hidden aria-label="Academy subjects"></section>
 <div class="top">
 <span id="part" class="eyebrow">SGC Academy</span>
 <div>
@@ -295,10 +311,11 @@ const subjects=[
  {id:'advertising',title:'Digital Advertising',description:'TikTok, Instagram and Facebook advertising.'},
  {id:'growth',title:'Testing & Growth',description:'Review results, retarget and scale what works.'}
 ];
-let selectedSubject='existing';
+let selectedSubject='existing', academyEntry=false;
 const subjectMenu=$('subject-select');
 for(const subject of subjects){const option=document.createElement('option');option.value=subject.id;option.textContent=subject.title;subjectMenu.append(option);}
 subjectMenu.onchange=()=>{
+ if(document.body.classList.contains('subjects-home')){document.body.classList.remove('subjects-home');$('subject-catalog').hidden=true;$('subjects-back').hidden=false;}
  if(!guard()){subjectMenu.value=selectedSubject;return;}
  selectedSubject=subjectMenu.value;
  $('module-label').hidden=selectedSubject!=='existing';
@@ -389,6 +406,23 @@ function sidebar(){
  controls();
 }
 $('module-select').onchange=()=>{selectedModule=Number($('module-select').value);sidebar();};
+function showSubjects(){
+ if(!guard())return;
+ document.body.classList.add('subjects-home');
+ $('subjects-back').hidden=true;$('subject-catalog').hidden=false;
+ $('classroom').hidden=true;$('empty').hidden=true;$('other').hidden=true;
+ const root=$('subject-catalog');root.replaceChildren();
+ root.append(n('span','SGC ACADEMY · YOUR LEARNING','eyebrow'),n('h1','Explore your subjects'),n('p','Choose a subject to open your learning and explore its modules.','muted intro'));
+ const grid=n('div',undefined,'subject-grid');
+ subjects.forEach((subject,i)=>{
+  const card=n('button',undefined,'subject-card');card.type='button';
+  card.append(n('span',String(i+1).padStart(2,'0'),'eyebrow'),n('strong',subject.title),n('span',subject.description,'muted'),n('span','Open subject →','subject-action'));
+  card.onclick=()=>{subjectMenu.value=subject.id;subjectMenu.onchange();};
+  grid.append(card);
+ });
+ root.append(grid);say('');
+}
+$('subjects-back').onclick=showSubjects;
 async function setting(key){
  const rows=check(await sb.from('site_content')
   .select('content_value').eq('content_key',key).limit(1));
@@ -411,6 +445,7 @@ async function load(){
  busy=true;controls();say('Loading lessons…');
  try{
   const access=check(await sb.rpc('sgc_academy_access'));
+  academyEntry=access.entry===true;
   const unlocked=access.active===true;
   $('academy-paywall').hidden=unlocked;
   $('academy-release-status').textContent=access.demo?'Demo · All published modules':unlocked?access.modulesUnlocked+' modules released'+(access.nextUnlockAt?' · Next release '+new Date(access.nextUnlockAt).toLocaleDateString('en-ZA'):''):'Academy Full Access · R450/month';
@@ -715,6 +750,7 @@ async function start(){
  }
  $('email').textContent=user.user_metadata?.username||user.user_metadata?.full_name||user.email;
  await load();
+ if(academyEntry&&!new URLSearchParams(location.search).has('lesson'))showSubjects();
  $('admin').hidden=!check(await sb.rpc('sgc_extra_is_admin'));
  if(location.hash==='#email-preferences')await preferences();
 }
