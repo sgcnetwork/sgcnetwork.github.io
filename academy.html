@@ -578,6 +578,13 @@ function showLearningSlides(lesson){
  host.hidden=!slides;if(!slides)return;
  const [title,explanation,example,activity]=slides;
  const detail=lessonDeepDives[lesson.position-1];const content=[{label:'THE CONCEPT',title,body:explanation},{label:'GOING DEEPER',title:detail[0],body:detail[1]},{label:'WORKED EXAMPLE',title:'See it in practice',body:example},{label:'A PRACTICAL APPROACH',title:'Putting the idea to work',body:detail[2]},{label:'YOUR TURN',title:'Apply it to your idea',body:activity}];
+ if(lesson.id==='5d4020a5-9589-45e4-935f-5649986dce81')content.unshift(
+  {label:'WELCOME',title:'Welcome to SGC Network',body:'A space to learn, build and grow.'},
+  {label:'YOUR STARTING POINT',title:'You belong here',body:'Whether you have an idea, already run a business, or are still exploring your options, there is a place for you here.'},
+  {label:'MEET YOUR FOUNDER',title:'Hi, I’m Riefa',body:'Founder of SGC Network. I created this space to offer practical guidance and support as you work towards your business goals.'},
+  {label:'IN THIS LESSON',title:'What we’ll cover',body:'The story behind SGC Network, why it was created, and what this space means for you.'},
+  {label:'LET’S BEGIN',title:'Every business has a starting point',body:'You don’t need to have everything figured out. Take your time, stay open to learning and focus on your next step.'}
+ );
  let currentSlide=0;
  const view=n('div',undefined,'learning-slide');view.setAttribute('aria-live','polite');
  const controls=n('div',undefined,'slide-controls'),previous=n('button','← Previous'),counter=n('span',undefined,'slide-counter'),next=n('button','Next →');
