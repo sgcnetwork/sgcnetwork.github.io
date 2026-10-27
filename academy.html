@@ -594,31 +594,48 @@ function showLearningSlides(lesson){
  const controls=n('div',undefined,'slide-controls'),previous=n('button','← Previous'),counter=n('span',undefined,'slide-counter'),next=n('button','Next →');
  previous.type='button';next.type='button';controls.append(previous,counter,next);host.append(view);const video=n('video');video.controls=true;video.playsInline=true;video.preload='metadata';video.hidden=true;video.style.cssText='display:block;width:100%;max-height:420px;margin:14px 0';video.setAttribute('aria-label','Video for this slide');host.append(video,controls);activeSlideVideo=video;
  const audio=n('audio');audio.controls=true;audio.preload='none';audio.hidden=true;audio.style.cssText='width:100%;margin-top:12px';audio.setAttribute('aria-label','Slide voice-over');host.append(audio);activeSlideAudio=audio;
- let recordings=[],audioRequest=0,slideVideos=[],videoRequest=0;
- audio.addEventListener('play',()=>video.pause());video.addEventListener('play',()=>audio.pause());
- async function loadSlideVideo(){const request=++videoRequest;video.pause();video.hidden=true;video.removeAttribute('src');video.load();const row=slideVideos.find(v=>v.slide_no===currentSlide+1);if(!row)return;const {data,error}=await sb.storage.from('sgc-slide-video').createSignedUrl(row.path,3600);if(error||request!==videoRequest||generation!==slideAudioGeneration)return;video.src=data.signedUrl;video.hidden=false;}
- sb.from('sgc_slide_video').select('slide_no,path').eq('lesson_id',lesson.id).then(({data,error})=>{if(!error&&generation===slideAudioGeneration){slideVideos=data||[];loadSlideVideo();}});
- const audioStatus=n('p','','muted');audioStatus.setAttribute('role','status');host.append(audioStatus);
- audio.addEventListener('play',()=>{slideAudioEnabled=true;audioStatus.textContent='';});
- audio.addEventListener('ended',()=>{
-  if(generation!==slideAudioGeneration)return;
-  if(currentSlide<content.length-1){currentSlide++;draw();loadSlideAudio(true);}
-  else audioStatus.textContent='You have reached the end of the slideshow.';
- });
- async function loadSlideAudio(autoplay){
-  const request=++audioRequest;audio.pause();audio.hidden=true;audio.removeAttribute('src');audio.load();
-  const row=recordings.find(r=>r.slide_no===currentSlide+1);if(!row){audioStatus.textContent=autoplay?'No voice recording has been added to this slide yet. Use Next to continue.':'';return;}
-  audioStatus.textContent='Loading slide audio…';
-  const {data,error}=await sb.storage.from('sgc-slide-audio').createSignedUrl(row.path,3600);
-  if(generation!==slideAudioGeneration||request!==audioRequest)return;
-  if(error){audioStatus.textContent='The voice recording could not load. Please try again.';return;}
-  audio.src=data.signedUrl;audio.hidden=false;audioStatus.textContent='';
-  if(autoplay&&slideAudioEnabled)audio.play().catch(()=>{audioStatus.textContent='Press play to continue listening.';});
- }
- sb.from('sgc_slide_audio').select('slide_no,path').eq('lesson_id',lesson.id).then(({data,error})=>{if(!error&&generation===slideAudioGeneration){recordings=data||[];loadSlideAudio(false);}});
 
- function draw(){loadSlideVideo();const slide=content[currentSlide];view.dataset.step=String(currentSlide);const motif=n('div',undefined,'slide-motif');motif.setAttribute('aria-hidden','true');motif.append(n('span'),n('span'),n('span'));view.replaceChildren(motif,n('span',slide.label,'slide-kicker'),n('h2',slide.title),n('p',slide.body));if(currentSlide===0){const visual=n('img',undefined,'lesson-illustration');visual.src='assets/academy-learning-pastel.png';visual.alt='An illustrated small-business workspace with a notebook, calculator and package';visual.loading='lazy';view.append(visual);}counter.textContent=(currentSlide+1)+' / '+content.length;previous.disabled=currentSlide===0;next.disabled=currentSlide===content.length-1;}
- previous.onclick=()=>{if(currentSlide>0){currentSlide--;draw();loadSlideAudio(true);}};next.onclick=()=>{if(currentSlide<content.length-1){currentSlide++;draw();loadSlideAudio(true);}};draw();
+ let recordings=[],slideVideos=[],mediaRequest=0,mediaReady=false;
+ const audioStatus=n('p','','muted');audioStatus.setAttribute('role','status');host.append(audioStatus);
+ audio.addEventListener('play',()=>{video.pause();slideAudioEnabled=true;audioStatus.textContent='';});
+ video.addEventListener('play',()=>{audio.pause();slideAudioEnabled=true;audioStatus.textContent='';});
+ function finishSlide(){
+  if(generation!==slideAudioGeneration)return;
+  if(currentSlide<content.length-1){currentSlide++;draw();loadSlideMedia(true);}
+  else audioStatus.textContent='You have reached the end of the slideshow.';
+ }
+ audio.addEventListener('ended',finishSlide);video.addEventListener('ended',finishSlide);
+ async function loadSlideMedia(autoplay){
+  const request=++mediaRequest,number=currentSlide+1;
+  audio.pause();video.pause();audio.hidden=true;video.hidden=true;
+  audio.removeAttribute('src');video.removeAttribute('src');audio.load();video.load();
+  if(!mediaReady)return;
+  const ar=recordings.find(r=>r.slide_no===number),vr=slideVideos.find(r=>r.slide_no===number);
+  if(!ar&&!vr){audioStatus.textContent='No audio or video has been added to this slide yet. Use Next to continue.';return;}
+  audioStatus.textContent='Loading slide media…';
+  const [as,vs]=await Promise.all([
+   ar?sb.storage.from('sgc-slide-audio').createSignedUrl(ar.path,3600):Promise.resolve(null),
+   vr?sb.storage.from('sgc-slide-video').createSignedUrl(vr.path,3600):Promise.resolve(null)
+  ]);
+  if(generation!==slideAudioGeneration||request!==mediaRequest)return;
+  if(as&&!as.error){audio.src=as.data.signedUrl;audio.hidden=false;}
+  if(vs&&!vs.error){video.src=vs.data.signedUrl;video.hidden=false;}
+  const chosen=vs&&!vs.error?video:as&&!as.error?audio:null;
+  if(!chosen){audioStatus.textContent='Slide media could not load. Please try again.';return;}
+  audioStatus.textContent='';
+  if(autoplay)chosen.play().catch(()=>{if(request===mediaRequest)audioStatus.textContent='Press play to start the presentation with sound.';});
+ }
+ Promise.all([
+  sb.from('sgc_slide_audio').select('slide_no,path').eq('lesson_id',lesson.id),
+  sb.from('sgc_slide_video').select('slide_no,path').eq('lesson_id',lesson.id)
+ ]).then(([a,v])=>{
+  if(generation!==slideAudioGeneration)return;
+  if(a.error||v.error){audioStatus.textContent='Unable to load slide media. Please refresh.';return;}
+  recordings=a.data||[];slideVideos=v.data||[];mediaReady=true;loadSlideMedia(true);
+ }).catch(()=>{if(generation===slideAudioGeneration)audioStatus.textContent='Unable to load slide media. Please refresh.';});
+
+ function draw(){const slide=content[currentSlide];view.dataset.step=String(currentSlide);const motif=n('div',undefined,'slide-motif');motif.setAttribute('aria-hidden','true');motif.append(n('span'),n('span'),n('span'));view.replaceChildren(motif,n('span',slide.label,'slide-kicker'),n('h2',slide.title),n('p',slide.body));if(currentSlide===0){const visual=n('img',undefined,'lesson-illustration');visual.src='assets/academy-learning-pastel.png';visual.alt='An illustrated small-business workspace with a notebook, calculator and package';visual.loading='lazy';view.append(visual);}counter.textContent=(currentSlide+1)+' / '+content.length;previous.disabled=currentSlide===0;next.disabled=currentSlide===content.length-1;}
+ previous.onclick=()=>{if(currentSlide>0){currentSlide--;draw();loadSlideMedia(true);}};next.onclick=()=>{if(currentSlide<content.length-1){currentSlide++;draw();loadSlideMedia(true);}};draw();
 }
 async function open(id){
  if(busy||!guard())return;
