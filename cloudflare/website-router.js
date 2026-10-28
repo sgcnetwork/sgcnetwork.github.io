@@ -92,8 +92,8 @@ async function serveVisaServices(request,u){
  const headers={'Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Referrer-Policy':'strict-origin-when-cross-origin','Permissions-Policy':'camera=(), microphone=(), geolocation=()'};
  if(!['GET','HEAD'].includes(request.method))return new Response('Method not allowed',{status:405,headers});
  if(u.pathname==='/robots.txt')return new Response('User-agent: *\nDisallow: /\n',{headers:{...headers,'Content-Type':'text/plain'}});
- const file=u.pathname==='/'?'index.html':u.pathname.replace(/^\/visaservices\//,'').replace(/^\//,'');
- const files={'index.html':'text/html; charset=utf-8','app.js':'text/javascript; charset=utf-8','pdf.worker.mjs':'text/javascript; charset=utf-8','style.css':'text/css; charset=utf-8','favicon.svg':'image/svg+xml'};
+ const file=['/roadmap','/roadmap/','/roadmap/index.html'].includes(u.pathname)?'roadmap/index.html':u.pathname==='/'?'index.html':u.pathname.replace(/^\/visaservices\//,'').replace(/^\//,'');
+ const files={'index.html':'text/html; charset=utf-8','roadmap/index.html':'text/html; charset=utf-8','app.js':'text/javascript; charset=utf-8','pdf.worker.mjs':'text/javascript; charset=utf-8','style.css':'text/css; charset=utf-8','favicon.svg':'image/svg+xml'};
  if(!Object.hasOwn(files,file))return new Response('Page not found',{status:404,headers});
  try{const r=await fetch(ORIGIN+'/visaservices/'+file,{signal:AbortSignal.timeout(15000)});headers['Content-Type']=files[file];
  headers['Content-Security-Policy']="default-src 'self'; worker-src 'self' blob:; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob:; connect-src 'self' https://bxpexanyoyubxeqqlggh.supabase.co; font-src 'self' https://fonts.gstatic.com; base-uri 'none'; form-action 'self'; frame-ancestors 'none'";
