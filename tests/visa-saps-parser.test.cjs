@@ -1,0 +1,13 @@
+const {test}=require('node:test');const assert=require('node:assert/strict');const fs=require('node:fs');const vm=require('node:vm');const {transformSync}=require('../visaservices/node_modules/esbuild');
+const code=transformSync(fs.readFileSync(require('node:path').join(__dirname,'../supabase/functions/visa-operations/saps.ts'),'utf8'),{loader:'ts',format:'cjs',target:'node22'}).code;
+const context={module:{exports:{}},exports:{},Date,URL,AbortSignal};vm.createContext(context);vm.runInContext(code,context);const parse=context.module.exports.parseSaps;
+const ref='2026000001',id='9001010000000';
+const html=(final='',identity=id)=>`<table><tr><th>PCC Enquiry nr</th><th>SA Identity number</th><th>Applicant's Surname</th><th>Birth date</th><th>Registration date</th><th>Finalized date</th><th>Dispatch method</th></tr><tr><td>${ref}</td><td>${identity}</td><td>QA ONLY</td><td>01/01/1990</td><td>01/10/2026</td><td>${final}</td><td>Collection</td></tr></table>`;
+test('only a matching finalised row enables completion',()=>{const r=parse(html('27/10/2026'),ref,id);assert.equal(r.status,'finalised');assert.equal(r.finalised_on,'2026-10-27')});
+test('matching DOB is accepted in YYYYMMDD format',()=>assert.equal(parse(html('2026-10-27'),ref,'19900101').status,'finalised'));
+test('a matching application without finalised date remains pending',()=>assert.equal(parse(html(),ref,id).status,'pending'));
+test('a different client identifier never succeeds',()=>assert.equal(parse(html('27/10/2026','9101010000000'),ref,id).status,'unavailable'));
+test('generic successful text or an unrelated date cannot mark success',()=>assert.equal(parse('<h1>Successful</h1><p>Updated: 27/10/2026</p>',ref,id).status,'unavailable'));
+test('a different enquiry number cannot mark success',()=>assert.equal(parse(html('27/10/2026'),'2026000002',id).status,'unavailable'));
+test('CAPTCHA, blocked responses and no records are explicit non-success states',()=>{assert.equal(parse('Verify you are human CAPTCHA',ref,id).status,'unavailable');assert.equal(parse('No records to retrieve for your selected reference',ref,id).status,'not_found')});
+test('an invalid calendar date does not count as finalised',()=>assert.equal(parse(html('31/02/2026'),ref,id).status,'pending'));

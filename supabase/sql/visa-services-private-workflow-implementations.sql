@@ -1,0 +1,31 @@
+-- Privileged implementations live outside the exposed API schema.
+-- Public invoker wrappers retain the same app API; each private function enforces auth.uid/roles.
+grant usage on schema sgc_private to service_role;
+alter function public.visa_team(text) set schema sgc_private;
+alter function public.visa_create_case(jsonb) set schema sgc_private;
+alter function public.visa_add_document(jsonb) set schema sgc_private;
+alter function public.visa_save_saps_numbers(uuid,text,text) set schema sgc_private;
+alter function public.visa_sign_step(uuid,text,text,jsonb) set schema sgc_private;
+alter function public.visa_mark_notification(uuid) set schema sgc_private;
+alter function public.visa_save_company(jsonb) set schema sgc_private;
+alter function public.visa_auth_user_lookup(text) set schema sgc_private;
+alter function public.visa_admin_set_user(uuid,uuid,text,text,text,text[],boolean,boolean) set schema sgc_private;
+alter function public.visa_password_gate_clear(uuid) set schema sgc_private;
+alter function public.visa_record_saps_result(uuid,text,text,date) set schema sgc_private;
+alter function public.visa_claim_saps_job(uuid,text) set schema sgc_private;
+create function public.visa_team(p_company text) returns table(user_id uuid,display_name text,role text) language sql stable security invoker set search_path='' as $$select * from sgc_private.visa_team(p_company)$$;
+create function public.visa_create_case(p_data jsonb) returns public.visa_cases language sql security invoker set search_path='' as $$select sgc_private.visa_create_case(p_data)$$;
+create function public.visa_add_document(p_data jsonb) returns public.visa_documents language sql security invoker set search_path='' as $$select sgc_private.visa_add_document(p_data)$$;
+create function public.visa_save_saps_numbers(p_case uuid,p_reference text,p_identity text) returns void language sql security invoker set search_path='' as $$select sgc_private.visa_save_saps_numbers(p_case,p_reference,p_identity)$$;
+create function public.visa_sign_step(p_case uuid,p_action text,p_signature text,p_data jsonb default '{}'::jsonb) returns public.visa_cases language sql security invoker set search_path='' as $$select sgc_private.visa_sign_step(p_case,p_action,p_signature,p_data)$$;
+create function public.visa_mark_notification(p_id uuid) returns void language sql security invoker set search_path='' as $$select sgc_private.visa_mark_notification(p_id)$$;
+create function public.visa_save_company(p_data jsonb) returns public.visa_companies language sql security invoker set search_path='' as $$select sgc_private.visa_save_company(p_data)$$;
+create function public.visa_auth_user_lookup(p_email text) returns uuid language sql security invoker set search_path='' as $$select sgc_private.visa_auth_user_lookup(p_email)$$;
+create function public.visa_admin_set_user(p_actor uuid,p_user uuid,p_name text,p_email text,p_role text,p_companies text[],p_active boolean,p_new_password boolean default false) returns void language sql security invoker set search_path='' as $$select sgc_private.visa_admin_set_user(p_actor,p_user,p_name,p_email,p_role,p_companies,p_active,p_new_password)$$;
+create function public.visa_password_gate_clear(p_user uuid) returns void language sql security invoker set search_path='' as $$select sgc_private.visa_password_gate_clear(p_user)$$;
+create function public.visa_record_saps_result(p_case uuid,p_status text,p_message text,p_finalised date default null) returns void language sql security invoker set search_path='' as $$select sgc_private.visa_record_saps_result(p_case,p_status,p_message,p_finalised)$$;
+create function public.visa_claim_saps_job(p_id uuid,p_token text) returns uuid language sql security invoker set search_path='' as $$select sgc_private.visa_claim_saps_job(p_id,p_token)$$;
+revoke all on function public.visa_team(text),public.visa_create_case(jsonb),public.visa_add_document(jsonb),public.visa_save_saps_numbers(uuid,text,text),public.visa_sign_step(uuid,text,text,jsonb),public.visa_mark_notification(uuid),public.visa_save_company(jsonb) from public,anon;
+grant execute on function public.visa_team(text),public.visa_create_case(jsonb),public.visa_add_document(jsonb),public.visa_save_saps_numbers(uuid,text,text),public.visa_sign_step(uuid,text,text,jsonb),public.visa_mark_notification(uuid),public.visa_save_company(jsonb) to authenticated;
+revoke all on function public.visa_auth_user_lookup(text),public.visa_admin_set_user(uuid,uuid,text,text,text,text[],boolean,boolean),public.visa_password_gate_clear(uuid),public.visa_record_saps_result(uuid,text,text,date),public.visa_claim_saps_job(uuid,text) from public,anon,authenticated;
+grant execute on function public.visa_auth_user_lookup(text),public.visa_admin_set_user(uuid,uuid,text,text,text,text[],boolean,boolean),public.visa_password_gate_clear(uuid),public.visa_record_saps_result(uuid,text,text,date),public.visa_claim_saps_job(uuid,text) to service_role;

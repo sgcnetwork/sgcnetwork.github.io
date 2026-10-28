@@ -1,0 +1,23 @@
+begin;
+set local role authenticated;
+select set_config('request.jwt.claim.sub','df627f92-e256-47eb-8a92-590ee9cf7d59',true);
+select set_config('visa.test_case',(public.visa_create_case('{"company_id":"GVS","client_name":"QA Generic Document","service":"Visa support","required_documents":["Passport"]}')).id::text,true);
+insert into storage.objects(bucket_id,name,owner_id,metadata) values('visa-service-documents','GVS/'||current_setting('visa.test_case')||'/44444444-4444-4444-8444-444444444444/passport.pdf','df627f92-e256-47eb-8a92-590ee9cf7d59','{"size":100,"mimetype":"application/pdf"}');
+select public.visa_add_document(jsonb_build_object('id','44444444-4444-4444-8444-444444444444','case_id',current_setting('visa.test_case'),'storage_key','GVS/'||current_setting('visa.test_case')||'/44444444-4444-4444-8444-444444444444/passport.pdf','file_name','passport.pdf','document_type','Passport','content_type','application/pdf','file_size',100));
+select public.visa_sign_step(current_setting('visa.test_case')::uuid,'consultant_verify','Riefa','{"acknowledged":true}');
+select public.visa_sign_step(current_setting('visa.test_case')::uuid,'pta_verify','Riefa','{"acknowledged":true,"originals_received":false}');
+select public.visa_sign_step(current_setting('visa.test_case')::uuid,'pta_print','Riefa','{"acknowledged":true,"printed":true}');
+select public.visa_sign_step(current_setting('visa.test_case')::uuid,'submit','Riefa',jsonb_build_object('acknowledged',true,'submitted_on',current_date));
+insert into storage.objects(bucket_id,name,owner_id,metadata) values('visa-service-documents','GVS/'||current_setting('visa.test_case')||'/55555555-5555-4555-8555-555555555555/completed.pdf','df627f92-e256-47eb-8a92-590ee9cf7d59','{"size":100,"mimetype":"application/pdf"}');
+select public.visa_add_document(jsonb_build_object('id','55555555-5555-4555-8555-555555555555','case_id',current_setting('visa.test_case'),'storage_key','GVS/'||current_setting('visa.test_case')||'/55555555-5555-4555-8555-555555555555/completed.pdf','file_name','completed.pdf','document_type','Completed document','content_type','application/pdf','file_size',100));
+select public.visa_sign_step(current_setting('visa.test_case')::uuid,'receive_document','Riefa','{"acknowledged":true}');
+select public.visa_sign_step(current_setting('visa.test_case')::uuid,'confirm_send','Riefa','{"acknowledged":true}');
+do $$ begin
+ if not exists(select 1 from public.visa_cases where id=current_setting('visa.test_case')::uuid and stage='waybill_booking' and saps_status='not_checked') then raise exception 'Non-PCC workflow incorrectly requires SAPS';end if;
+ if not exists(select 1 from public.visa_search_documents('QA Generic Document','GVS',0)) then raise exception 'Reference document search missing';end if;
+ if has_function_privilege('anon','public.visa_sign_step(uuid,text,text,jsonb)','execute') then raise exception 'Anonymous workflow execution enabled';end if;
+ if has_function_privilege('authenticated','public.visa_admin_set_user(uuid,uuid,text,text,text,text[],boolean,boolean)','execute') then raise exception 'Provisioning API is not service-only';end if;
+ end $$;
+reset role;
+select jsonb_build_object('generic_document_workflow','passed','document_reference_search','passed','anonymous_workflow_denied','passed','user_provisioning_service_only','passed') as verification;
+rollback;
