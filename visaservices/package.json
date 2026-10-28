@@ -1,1 +1,1 @@
-{"name":"sgc-visa-services","version":"1.0.0","private":true,"type":"module","scripts":{"build":"node build.mjs"},"dependencies":{"react":"19.2.6","react-dom":"19.2.6","lucide-react":"1.31.0"},"devDependencies":{"esbuild":"0.25.12"}}
+{"name":"sgc-visa-services","version":"1.0.0","private":true,"type":"module","scripts":{"build":"node build.mjs"},"dependencies":{"lucide-react":"1.31.0","mammoth":"1.13.0","pdfjs-dist":"6.4.299","react":"19.2.6","react-dom":"19.2.6"},"devDependencies":{"esbuild":"0.25.12"}}

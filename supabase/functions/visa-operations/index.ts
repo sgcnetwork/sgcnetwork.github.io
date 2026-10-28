@@ -36,7 +36,7 @@ Deno.serve(async(req:Request)=>{
    const lookup=await admin.rpc('visa_auth_user_lookup',{p_email:email});if(lookup.error)throw lookup.error;let id=lookup.data;let created=false;
    if(!id){if(String(body.temporary_password||'').length<12)return reply(req,{error:'New accounts require a temporary password of at least 12 characters'},400);const result=await admin.auth.admin.createUser({email,password:String(body.temporary_password),email_confirm:true,user_metadata:{display_name:name}});if(result.error)throw result.error;id=result.data.user.id;created=true;}
    if(body.user_id&&id!==body.user_id)return reply(req,{error:'The selected account email cannot be changed here'},400);
-   const result=await admin.rpc('visa_admin_set_user',{p_actor:actor.user_id,p_user:id,p_name:name,p_email:email,p_role:role,p_companies:companies,p_active:body.active!==false,p_new_password:created});if(result.error)throw result.error;
+   const result=await admin.rpc('visa_admin_save_access',{p_actor:actor.user_id,p_user:id,p_name:name,p_email:email,p_role:role,p_companies:companies,p_active:body.active!==false,p_new_password:created,p_accepting:body.accepting_leads!==false});if(result.error)throw result.error;
    return reply(req,{ok:true,created,user_id:id,message:created?'Account created. Give the temporary password to the intended user securely; they must change it at first sign-in.':'Existing account access updated. Their password was not changed.'});
   }
   if(body.action==='check_saps'){

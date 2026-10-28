@@ -1,9 +1,10 @@
 begin;
 set local role authenticated;
 select set_config('request.jwt.claim.sub','df627f92-e256-47eb-8a92-590ee9cf7d59',true);
-select set_config('visa.test_case',(public.visa_create_case('{"company_id":"GVS","client_name":"QA Generic Document","service":"Visa support","required_documents":["Passport"]}')).id::text,true);
+select set_config('visa.test_case',(public.visa_create_case('{"company_id":"GVS","client_name":"QA Generic Document","service":"Visa support","allocation_mode":"manual","allocation_reason":"QA fixture assigned to administrator","consultant_id":"df627f92-e256-47eb-8a92-590ee9cf7d59","required_documents":["Passport"]}')).id::text,true);
 insert into storage.objects(bucket_id,name,owner_id,metadata) values('visa-service-documents','GVS/'||current_setting('visa.test_case')||'/44444444-4444-4444-8444-444444444444/passport.pdf','df627f92-e256-47eb-8a92-590ee9cf7d59','{"size":100,"mimetype":"application/pdf"}');
 select public.visa_add_document(jsonb_build_object('id','44444444-4444-4444-8444-444444444444','case_id',current_setting('visa.test_case'),'storage_key','GVS/'||current_setting('visa.test_case')||'/44444444-4444-4444-8444-444444444444/passport.pdf','file_name','passport.pdf','document_type','Passport','content_type','application/pdf','file_size',100));
+select public.visa_review_document('44444444-4444-4444-8444-444444444444','{"full_name":"QA Generic Document","passport_number":"QA0001","date_of_birth":"1990-01-01"}','confirmed','Riefa','QA fixture','{"acknowledged":true,"all_pages_reviewed":true}');
 select public.visa_sign_step(current_setting('visa.test_case')::uuid,'consultant_verify','Riefa','{"acknowledged":true}');
 select public.visa_sign_step(current_setting('visa.test_case')::uuid,'pta_verify','Riefa','{"acknowledged":true,"originals_received":false}');
 select public.visa_sign_step(current_setting('visa.test_case')::uuid,'pta_print','Riefa','{"acknowledged":true,"printed":true}');

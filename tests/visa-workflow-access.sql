@@ -26,6 +26,8 @@ insert into storage.objects(bucket_id,name,owner_id,metadata) values
 select public.visa_add_document(jsonb_build_object('id','11111111-1111-4111-8111-111111111111','case_id',current_setting('visa.test_case'),'storage_key','GVM/'||current_setting('visa.test_case')||'/11111111-1111-4111-8111-111111111111/id.pdf','file_name','id.pdf','document_type','ID','content_type','application/pdf','file_size',100));
 select public.visa_add_document(jsonb_build_object('id','22222222-2222-4222-8222-222222222222','case_id',current_setting('visa.test_case'),'storage_key','GVM/'||current_setting('visa.test_case')||'/22222222-2222-4222-8222-222222222222/fingerprints.pdf','file_name','fingerprints.pdf','document_type','Fingerprints','content_type','application/pdf','file_size',100));
 do $$ begin if not exists(select 1 from public.visa_search_documents('QA Workflow Client','GVM',0)) then raise exception 'Client document search failed';end if;end $$;
+select public.visa_review_document('11111111-1111-4111-8111-111111111111','{"full_name":"QA Workflow Client","id_number":"9001010000000","date_of_birth":"1990-01-01"}','confirmed','QA Consultant','QA fixture','{"acknowledged":true,"all_pages_reviewed":true}');
+select public.visa_review_document('22222222-2222-4222-8222-222222222222','{}','confirmed','QA Consultant','QA fixture','{"acknowledged":true,"all_pages_reviewed":true}');
 select public.visa_sign_step(current_setting('visa.test_case')::uuid,'consultant_verify','QA Consultant','{"acknowledged":true}');
 select set_config('request.jwt.claim.sub',current_setting('visa.test_other'),true);
 do $$ begin
@@ -44,6 +46,7 @@ do $$ begin
 select public.visa_sign_step(current_setting('visa.test_case')::uuid,'submit','QA Pretoria',jsonb_build_object('acknowledged',true,'submitted_on',current_date,'originals_received',true));
 insert into storage.objects(bucket_id,name,owner_id,metadata) values('visa-service-documents','GVM/'||current_setting('visa.test_case')||'/33333333-3333-4333-8333-333333333333/pcc.pdf',current_setting('visa.test_pta')::uuid::text,'{"size":100,"mimetype":"application/pdf"}');
 select public.visa_add_document(jsonb_build_object('id','33333333-3333-4333-8333-333333333333','case_id',current_setting('visa.test_case'),'storage_key','GVM/'||current_setting('visa.test_case')||'/33333333-3333-4333-8333-333333333333/pcc.pdf','file_name','pcc.pdf','document_type','PCC certificate','content_type','application/pdf','file_size',100));
+select public.visa_review_document('33333333-3333-4333-8333-333333333333','{"full_name":"QA Workflow Client","id_number":"9001010000000","date_of_birth":"1990-01-01","issue_date":"2026-10-28"}','confirmed','QA Pretoria','QA fixture','{"acknowledged":true,"all_pages_reviewed":true}');
 select public.visa_sign_step(current_setting('visa.test_case')::uuid,'receive_pcc','QA Pretoria','{"acknowledged":true}');
 select set_config('request.jwt.claim.sub',current_setting('visa.test_consultant'),true);
 do $$ begin
