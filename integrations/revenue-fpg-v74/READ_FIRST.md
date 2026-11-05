@@ -71,3 +71,24 @@ It verifies the locally recorded process is no longer active, marks the job fail
 ## Tests
 
 `python -m unittest discover -s tests -v` covers the six bridge/output tests. `tests/test_backend.sql` is a rolled-back server test of execution permissions, fingerprint checks, exact queue commands, duplicate prevention, false-completion rejection and cancellation. The SQL backend in this ZIP documents the already-applied implementation; do not rerun its CREATE TABLE statements against the live database.
+
+## Update: operational sales and settlement records
+
+Python execution controls are now restricted server-side to **netsgcwork@gmail.com**. Other Finance users can preview permitted records and reports, but cannot queue, claim, cancel, or run Python jobs.
+
+The website now has **Sales & settlements**. It contains paged, searchable original SQL records, including SEG, Book2 store name, source store, trading/statement/transaction dates, tender, amount, terminal, merchant, outlet, card and receipt details where present, mapping status, row hash, original source-file identifiers and paths, plus every other available SQL field. No amounts are recalculated or tenders remapped by this export.
+
+Each record has a full-detail view and an append-only investigation history, with category, owner, due date and review state. Closing a review does not clear a financial variance or modify original SQL facts. **Preview this store/day recon** opens the existing original workbook's matching variance block; it does not generate a replacement calculation. A balanced store/date with no variance breakdown in the original workbook remains visible in source records and CONSOL sheets. An original recon must have been built and published before its batch can be previewed.
+
+### Update the computer connection
+
+1. Let any current refresh finish, then stop the existing bridge window with Ctrl+C.
+2. Extract this updated ZIP over the existing **Revenue_FPG_V74_Bridge** folder, replacing the program files. Keep the existing `.venv` and `bridge.settings.json`; the ZIP does not contain or overwrite them.
+3. Run **Start Revenue FPG.cmd** again. The same saved encrypted credentials are reused. No new Python packages are required for the raw-source export.
+4. On the website choose **Sales & settlements**, select a month and click **Pull existing SQL data to site**. It reads the existing SQL records; it does not rerun a sales/settlement import or reconciliation. After publication, browse Sales records and Settlement records and filter by store/SEG, date, tender, terminal, receipt or other source values.
+
+The updated worker also queues a separate read-only source pull after each original BAS command finishes publishing its reports. Reports can be previewed without waiting for a large transaction transfer to finish. Raw source data remains staged and hidden until all SQL-extracted row counts agree, so a partial transfer is never presented as a complete snapshot. Existing SQL facts are copied locally within a consistent read-only transaction; database read locks are released before any upload. `Export_V74_Data.py` imports the original module to use its existing connection settings but never calls its main reconciliation or import functions. It executes SELECTs and a transaction-isolation SET only, then rolls back the read-only transaction to release its locks.
+
+The original PY and BAS files remain byte-identical. The Windows worker already running an older version cannot receive this new exporter from the website by itself; the local update and restart are required once. No company source records have been fabricated for this release. The source browser will populate only after the updated worker completes a real SQL data pull.
+
+Source investigations also appear in **Controller desk → SQL source investigations** and **Sales & settlements → Source investigation queue**. Saving a finding records its actor and timestamp and creates an internal controller notification. This does not send an external email or change the original transaction.

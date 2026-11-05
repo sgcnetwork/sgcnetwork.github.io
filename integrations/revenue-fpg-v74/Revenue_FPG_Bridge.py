@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Website controller for the byte-identical V74 engine. No reconciliation logic lives here."""
 from __future__ import annotations
-import argparse, ast, base64, ctypes, getpass, hashlib, json, os, re, socket, subprocess, sys, time, urllib.request, urllib.error, uuid
+import argparse, ast, base64, ctypes, getpass, gzip, hashlib, json, os, re, socket, subprocess, sys, time, urllib.request, urllib.error, uuid
 from datetime import datetime
 from pathlib import Path
 from v74_outputs import sha256,output_reader
@@ -37,7 +37,7 @@ class API:
             try:message=json.loads(e.read()).get('message') or 'Request rejected'
             except Exception:message='Request rejected'
             raise RuntimeError('Finance API HTTP '+str(e.code)+': '+str(message)) from None
-    def rpc(self,action,**kw):return self.request('/rest/v1/rpc/fpg_v74',{'p':{'action':action,'worker_id':self.config['worker_id'],**kw}},'POST')
+    def rpc(self,action,**kw):return self.request('/rest/v1/rpc/fpg_v74',{'p':{'action':action,'worker_id':self.config['worker_id'],'bridge_version':'2',**kw}},'POST')
     def upload(self,path,file):
         if not self.token or time.time()>self.expires:self.login()
         typ='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' if file.suffix.lower()=='.xlsx' else 'text/csv'
@@ -147,6 +147,39 @@ def publish_output(api,job,file,heartbeat):
     if file_stamp(file)!=before or sha256(file)!=digest:raise RuntimeError('Output changed while being read. Snapshot not published: '+file.name)
     api.rpc('publish_artifact',job_id=job['id'],artifact_id=artifact['id'],expected_rows=count,metadata=meta)
 
+def sync_sql_records(api,job,engine,checkpoint):
+    folder=checkpoint/'sql-records'
+    args=(["py","-3"] if os.name=='nt' else [sys.executable])+[str(HERE/'Export_V74_Data.py'),'--engine',str(engine),'--destination',str(folder)]
+    if job.get('period') and (job['scope'] in MONTH_SCOPES or job['scope']=='source_sync'):args+=['--period',job['period']]
+    with (checkpoint/'source-export.log').open('w',encoding='utf-8') as log:
+        child=subprocess.Popen(args,cwd=engine.parent,stdout=log,stderr=subprocess.STDOUT,creationflags=getattr(subprocess,'CREATE_NO_WINDOW',0))
+        (checkpoint/'process.json').write_text(json.dumps({'pid':child.pid,'job_id':job['id']}),encoding='utf-8')
+        try:
+            while child.poll() is None:
+                j=api.rpc('progress',job_id=job['id'],message='Reading original SQL sales and settlements into a consistent snapshot')
+                if j['cancel_requested']:raise Cancelled('SQL data pull cancelled')
+                time.sleep(2)
+            if child.wait()!=0:raise RuntimeError('Read-only SQL export failed; inspect local source-export.log. Original engine and SQL facts were not changed.')
+        finally:
+            if child.poll() is None:terminate_owned(child)
+    manifest=json.loads((folder/'manifest.json').read_text(encoding='utf-8'))
+    def source_rpc(action,**p):
+        return api.request('/rest/v1/rpc/fpg_v74_data',{'p':{'action':action,'worker_id':api.config['worker_id'],'job_id':job['id'],**p}},'POST')
+    snap=source_rpc('begin',manifest=manifest)
+    for kind in ['sales','settlements']:
+        batch=[];count=0
+        with gzip.open(folder/(kind+'.jsonl.gz'),'rt',encoding='utf-8') as stream:
+            for line in stream:
+                batch.append(json.loads(line));count+=1
+                if len(batch)==500:
+                    source_rpc('rows',snapshot_id=snap['id'],kind=kind,rows=batch);batch=[]
+                    j=api.rpc('progress',job_id=job['id'],message='Publishing '+kind+' records: '+str(count))
+                    if j['cancel_requested']:raise Cancelled('SQL source transfer cancelled')
+        if batch:source_rpc('rows',snapshot_id=snap['id'],kind=kind,rows=batch)
+    source_rpc('publish',snapshot_id=snap['id'])
+    return manifest
+
+
 def terminate_owned(process):
     # Never enumerate or kill unrelated Python/Excel/SQL processes.
     if process.poll() is None:
@@ -158,6 +191,11 @@ def run_job(api,config,job):
     engine=engine_info(config['engine_path']);paths=source_paths(config);jid=job['id'];process=None;state={};engine_id=None;last_push=0;before={};checkpoint=HERE/'local-state'/str(jid)
     checkpoint.mkdir(parents=True,exist_ok=True)
     try:
+        if job['scope']=='source_sync':
+            manifest=sync_sql_records(api,job,engine,checkpoint)
+            state={'STATE':'COMPLETE','MESSAGE':'Existing SQL records published without running a source refresh or recalculating the recon','RUN_ID':'source-sync-'+jid}
+            api.rpc('finish',job_id=jid,status='complete',engine_state=state,exit_code=0,message=state['MESSAGE'])
+            return
         # Avoid the original engine's failure-finally cleanup touching another active run's lock.
         if paths['lock'].exists() and time.time()-paths['lock'].stat().st_mtime<1800:raise RuntimeError('A Treasury refresh is already running in Excel / Python. Wait for it to finish; no second engine was started.')
         save_note=save_open_reference_workbooks();api.rpc('progress',job_id=jid,message=save_note)
@@ -192,7 +230,11 @@ def run_job(api,config,job):
             j=api.rpc('progress',job_id=jid,engine_state=state,message=message);last_push=time.monotonic()
             if j['cancel_requested']:raise Cancelled('Publication cancelled; previous snapshots remain available')
         for file in outputs:publish_output(api,job,file,heartbeat)
-        api.rpc('finish',job_id=jid,status='complete',engine_state=state,exit_code=0,message=state.get('MESSAGE','Original V74 completed')+' · Original outputs published')
+        api.rpc('finish',job_id=jid,status='complete',engine_state=state,exit_code=0,message=state.get('MESSAGE','Original V74 completed')+' · Original outputs published; SQL record pull follows')
+        try:
+            api.rpc('queue',scope='source_sync',period=job.get('period') if job['scope'] in MONTH_SCOPES else None)
+        except Exception as queue_error:
+            print('Original output is published. Source pull queue: '+str(queue_error),flush=True)
     except Exception as e:
         if process is not None:terminate_owned(process)
         if isinstance(e,Cancelled) and engine_id and parse_state(paths['state']).get('RUN_ID')==engine_id:
