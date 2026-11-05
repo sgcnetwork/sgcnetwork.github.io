@@ -183,7 +183,7 @@ sections.splice(sections.findIndex(s=>s[0]==='treasury')+1,0,['sources','Sales &
 async function sourceRPC(p){return api('rpc/fpg_v74_data',{method:'POST',body:JSON.stringify({p})})}
 async function sourceLoad(redraw=true){if(!member||!central())return;try{sourceSnapshots=await api('fpg_v74_source_snapshots?order=published_at.desc&limit=100');if(!sourceSnapshot||!sourceSnapshots.some(s=>s.id===sourceSnapshot))sourceSnapshot=sourceSnapshots[0]?.id||'';if(redraw&&page==='sources')renderSources()}catch(e){notify(e.message,true)}}
 const sourceLoadPrevious=load;load=async function(){await sourceLoadPrevious();await sourceLoad()};
-const sourceRenderPrevious=render;render=function(){if(page==='sources'){
+const sourceRenderPrevious=render;render=function(){$('authButton').textContent=session?'Sign out':'Sign in';$('identity').textContent=member?member.display_name+' · '+(member.full_process?'Full access':member.role):'Private company records';if(page==='sources'){
  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===page));$('pageTitle').textContent=titles.sources[0];$('pageSubtitle').textContent=titles.sources[1];$('eyebrow').textContent=titles.sources[2];$('breadcrumbs').textContent='FPG Finance / Sales & settlements';$('filters').hidden=true;
  if(!member)$('view').innerHTML=locked();else if(!central())$('view').innerHTML=empty('Finance access required','Your store workspace contains your permitted operations.');else renderSources();updateWorkflowSwitch();
 }else sourceRenderPrevious();document.querySelectorAll('#nav [data-page="v74"]').forEach(b=>b.hidden=!v74Owner())};
@@ -216,3 +216,5 @@ const operationsBeforeSourceQueue=renderOperations;renderOperations=function(){o
 if(typeof window!=='undefined'&&['sources','v74'].includes((window.FPG_INITIAL_HASH||'').slice(1)))go(window.FPG_INITIAL_HASH.slice(1));
 const queueRefreshBeforeOwner=queueRefresh;queueRefresh=function(){if(!v74Owner()){notify('Python controls are restricted to netsgcwork@gmail.com.',true);return}return queueRefreshBeforeOwner()};
 const reportsBeforeNativeControls=renderReports;renderReports=function(){reportsBeforeNativeControls();document.querySelectorAll('#view .panel-body').forEach(el=>{if(el.querySelector('h3')?.textContent==='Python refresh queue')el.remove()});document.querySelectorAll('#view .table-wrap').forEach(el=>{const heads=[...el.querySelectorAll('th')].map(e=>e.textContent);if(heads[0]==='Refresh'&&heads[1]==='Month'&&heads[2]==='State')el.remove()})};
+
+const signOutBeforeSources=signOut;signOut=async function(){nativeJobs=[];nativeAgents=[];nativeFiles=[];nativeSelection='';nativeRange=null;sourceSnapshots=[];sourceSnapshot='';sourceRows=[];sourceActive=null;await signOutBeforeSources()};
