@@ -16,7 +16,7 @@ export default {
   if (slug === 'djp') return serveDjp(request, u);
   if (slug === 'cfhp') return serveCfhp(request, u);
   if (slug === 'visaservices') return serveVisaServices(request, u);
-  if (slug === 'revenuesystem') return serveRevenueFpg(request, u);
+  if (slug === 'revenuefpg') return serveRevenueFpg(request, u);
   if (!['GET','HEAD'].includes(request.method)) return new Response('Method not allowed', { status: 405, headers });
   if (u.protocol !== 'https:') { u.protocol = 'https:'; return Response.redirect(u.href, 301); }
   if (u.pathname === '/robots.txt') return new Response('User-agent: *\nAllow: /\n', { headers: { ...headers, 'Content-Type': 'text/plain' } });

@@ -1,6 +1,6 @@
 const base = Deno.env.get('SUPABASE_URL')!;
 const service = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-const origins = new Set(['https://sgcnetwork.co.za','https://revenue-fpg.netsgcwork.chatgpt.site','https://revenuesystem.sgcnetwork.co.za']);
+const origins = new Set(['https://sgcnetwork.co.za','https://revenue-fpg.netsgcwork.chatgpt.site','https://revenuefpg.sgcnetwork.co.za']);
 function response(data: unknown, status=200, origin='') { return new Response(JSON.stringify(data),{status,headers:{'Content-Type':'application/json','Access-Control-Allow-Origin':origins.has(origin)?origin:'https://revenue-fpg.netsgcwork.chatgpt.site','Vary':'Origin','Access-Control-Allow-Headers':'authorization,apikey,content-type,x-client-info','Access-Control-Allow-Methods':'POST,OPTIONS'}}) }
 async function rest(path: string, data?: unknown, method='POST', token=service) {const r=await fetch(base+'/rest/v1/'+path,{method,headers:{apikey:service,Authorization:'Bearer '+token,'Content-Type':'application/json',Prefer:'return=representation'},body:data===undefined?undefined:JSON.stringify(data)});const d=await r.json();if(!r.ok)throw Error(d.message||'Database request failed');return d}
 async function gateway(p: unknown){return rest('rpc/fpg_customer_gateway',{p})}
