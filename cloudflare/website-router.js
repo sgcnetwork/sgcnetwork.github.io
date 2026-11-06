@@ -66,7 +66,9 @@ async function serveDjp(request,u){
  if(!file)file='index.html';
  if(u.pathname==='/robots.txt')return new Response('User-agent: *\nAllow: /\nDisallow: /djp/manage.html\n',{headers:{...headers,'Content-Type':'text/plain'}});
  if(!allowed.has(file))return new Response('Page not found',{status:404,headers});
- try{const response=await fetch(ORIGIN+'/djp/'+file,{signal:AbortSignal.timeout(15000)});
+ // Preserve asset versions so newly published JS/CSS bypass stale origin caches.
+ const version=/\.(js|css)$/.test(file)?u.searchParams.get('v'):null;
+ try{const response=await fetch(ORIGIN+'/djp/'+file+(version?'?v='+encodeURIComponent(version):''),{signal:AbortSignal.timeout(15000)});
  if(!response.ok)return new Response('Website temporarily unavailable',{status:503,headers});
  headers['Content-Type']=file.endsWith('.js')?'text/javascript; charset=utf-8':file.endsWith('.css')?'text/css; charset=utf-8':file.endsWith('.svg')?'image/svg+xml':file.endsWith('.jpg')?'image/jpeg':'text/html; charset=utf-8';
  // Allow only the exact DJP Google tag bootstrap and Google's documented Ads endpoints.
