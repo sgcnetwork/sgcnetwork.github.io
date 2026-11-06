@@ -7,6 +7,20 @@ menu.addEventListener('click',()=>{const open=document.querySelector('nav').clas
 document.querySelectorAll('nav a').forEach(a=>{if(a.pathname===location.pathname&&!a.hash)a.setAttribute('aria-current','page');a.addEventListener('click',()=>{document.querySelector('nav').classList.remove('open');menu.setAttribute('aria-expanded','false');});});
 const form=document.querySelector('#enquiry');
 let enquiryId=crypto.randomUUID();
+// Record a Contact conversion only after the enquiry has been accepted.
+const djpTrackedEnquiries=new Set();
+function djpTrackContactConversion(id){
+ const key='djp_contact_conversion_'+id;
+ if(djpTrackedEnquiries.has(id))return;
+ try{if(sessionStorage.getItem(key))return;}catch{}
+ if(typeof window.gtag!=='function')return;
+ try{
+  window.gtag('event','ads_conversion_Contact_Us_1',{});
+  djpTrackedEnquiries.add(id);
+  try{sessionStorage.setItem(key,'1');}catch{}
+ }catch{} // Measurement must never interrupt an enquiry.
+}
+
 const SERVICE_CATEGORIES={"SA visas":"Visa expediting","Waivers":"Visa expediting","Appeals":"Visa expediting","FBI USA clearance":"Police clearance certificate","ZIM clearance":"Police clearance certificate","DHA documents":"Document expediting","USA visa":"Visa expediting","UK visa":"Visa expediting","Schengen visa":"Visa expediting"};
 if(form){
  const service=new URLSearchParams(location.search).get('service');
@@ -27,6 +41,7 @@ if(form){
   try{
    const r=await fetch(API+'/rest/v1/djp_enquiries',{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json',Prefer:'return=minimal'},body:JSON.stringify(data),signal:AbortSignal.timeout(20000)});
    if(!r.ok)throw new Error('Unable to send');
+   djpTrackContactConversion(enquiryId);
    const refResponse=await fetch(API+'/rest/v1/rpc/djp_public_reference',{method:'POST',headers:{apikey:KEY,'Content-Type':'application/json'},body:JSON.stringify({p_id:enquiryId}),signal:AbortSignal.timeout(10000)});
    const leadRef=refResponse.ok?await refResponse.json():null;
    status.textContent='Enquiry received. Your reference is '+(leadRef||'pending confirmation')+'. DJP can now review your request and contact you using the details provided.';
