@@ -56,7 +56,7 @@ async function serveAlhabib(request, u) {
  }catch{return new Response('Store temporarily unavailable',{status:503,headers})}
 }
 
-// Document Journey Processing at djp.sgcnetwork.co.za, served from SGC hosting.
+// Document Journey Processing: SEO service rendering and sitemap, published 2026-11-06.
 async function serveDjp(request,u){
  const headers={'Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Referrer-Policy':'strict-origin-when-cross-origin','Permissions-Policy':'camera=(), microphone=(), geolocation=()'};
  if(u.protocol!=='https:'){u.protocol='https:';return Response.redirect(u.href,301)}
