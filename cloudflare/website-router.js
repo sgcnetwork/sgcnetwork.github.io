@@ -69,7 +69,8 @@ async function serveDjp(request,u){
  try{const response=await fetch(ORIGIN+'/djp/'+file,{signal:AbortSignal.timeout(15000)});
  if(!response.ok)return new Response('Website temporarily unavailable',{status:503,headers});
  headers['Content-Type']=file.endsWith('.js')?'text/javascript; charset=utf-8':file.endsWith('.css')?'text/css; charset=utf-8':file.endsWith('.svg')?'image/svg+xml':file.endsWith('.jpg')?'image/jpeg':'text/html; charset=utf-8';
- headers['Content-Security-Policy']="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com; img-src 'self'; connect-src https://bxpexanyoyubxeqqlggh.supabase.co; font-src https://fonts.gstatic.com; base-uri 'none'; form-action 'self'; frame-ancestors 'none'";
+ // Allow only the exact DJP Google tag bootstrap and Google's documented Ads endpoints.
+ headers['Content-Security-Policy']="default-src 'self'; script-src 'self' 'sha256-l5uz54M7xNyGdJrRoFv33kdtswlRuoeoSqE6hCrk1+4=' https://www.googletagmanager.com https://www.googleadservices.com https://www.google.com; style-src 'self' https://fonts.googleapis.com; img-src 'self' https://www.googletagmanager.com https://www.googleadservices.com https://googleads.g.doubleclick.net https://pagead2.googlesyndication.com https://www.google.com https://www.google.co.za; connect-src https://bxpexanyoyubxeqqlggh.supabase.co https://www.googletagmanager.com https://www.googleadservices.com https://googleads.g.doubleclick.net https://pagead2.googlesyndication.com https://www.google.com https://www.google.co.za https://ad.doubleclick.net; frame-src https://www.googletagmanager.com; font-src https://fonts.gstatic.com; base-uri 'none'; form-action 'self'; frame-ancestors 'none'";
  return new Response(request.method==='HEAD'?null:response.body,{status:200,headers});
  }catch{return new Response('Website temporarily unavailable',{status:503,headers})}
 }
