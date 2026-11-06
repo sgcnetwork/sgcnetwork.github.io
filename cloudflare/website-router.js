@@ -61,17 +61,25 @@ async function serveDjp(request,u){
  const headers={'Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Referrer-Policy':'strict-origin-when-cross-origin','Permissions-Policy':'camera=(), microphone=(), geolocation=()'};
  if(u.protocol!=='https:'){u.protocol='https:';return Response.redirect(u.href,301)}
  if(!['GET','HEAD'].includes(request.method))return new Response('Method not allowed',{status:405,headers});
- const allowed=new Set(['index.html','visa.html','pcc.html','contact.html','privacy.html','manage.html','app.js','style.css','favicon.svg','journey.jpg']);
+ const allowed=new Set(['index.html','visa.html','pcc.html','contact.html','privacy.html','manage.html','app.js','public.js','style.css','favicon.svg','journey.jpg','sitemap.xml']);
+ const services=new Set(["criminal-record-expungement", "zim-clearance", "china-visa", "cambodia-visa", "mali-visa", "burkina-faso-visa", "dubai-uae-visa", "saudi-arabia-visa", "sworn-translations", "document-apostille", "cameroon-visa", "document-attestation", "sa-visas", "background-checks", "algeria-visa", "fbi-usa-clearance", "flights-travel-assistance", "home-affairs-documents", "taiwan-visa", "tourist-visitor-visas", "appeals", "visa-medical-coordination", "saqa-verification", "dha-documents", "study-visas", "kuwait-visa", "waivers", "schengen-visa", "mozambique-visa", "uk-visa", "work-visas", "turkey-visa", "business-visas", "japan-visa", "canada-visa", "ghana-visa", "hpcsa-document-support", "usa-visa", "umalusi-verification"]);
  let file=u.pathname==='/'?'index.html':u.pathname.replace(/^\/djp\/?/,'').replace(/^\//,'');
  if(!file)file='index.html';
- if(u.pathname==='/robots.txt')return new Response('User-agent: *\nAllow: /\nDisallow: /djp/manage.html\n',{headers:{...headers,'Content-Type':'text/plain'}});
+ if(['index.html'].includes(file)&&u.pathname!=='/'){return Response.redirect(u.origin+'/'+u.search,301)}
+ if(u.pathname==='/robots.txt')return new Response('User-agent: *\nAllow: /\nSitemap: https://djp.sgcnetwork.co.za/sitemap.xml\n',{headers:{...headers,'Content-Type':'text/plain; charset=utf-8'}});
  if(!allowed.has(file))return new Response('Page not found',{status:404,headers});
- // Preserve asset versions so newly published JS/CSS bypass stale origin caches.
+ if(file==='visa.html'&&u.searchParams.has('service')){
+  const service=u.searchParams.get('service');
+  if(service==='police-clearance')return Response.redirect(u.origin+'/djp/pcc.html',301);
+  if(!services.has(service))return new Response('Service not found',{status:404,headers});
+  file='seo/'+service+'.html';
+ }
  const version=/\.(js|css)$/.test(file)?u.searchParams.get('v'):null;
  try{const response=await fetch(ORIGIN+'/djp/'+file+(version?'?v='+encodeURIComponent(version):''),{signal:AbortSignal.timeout(15000)});
  if(!response.ok)return new Response('Website temporarily unavailable',{status:503,headers});
- headers['Content-Type']=file.endsWith('.js')?'text/javascript; charset=utf-8':file.endsWith('.css')?'text/css; charset=utf-8':file.endsWith('.svg')?'image/svg+xml':file.endsWith('.jpg')?'image/jpeg':'text/html; charset=utf-8';
- // Allow only the exact DJP Google tag bootstrap and Google's documented Ads endpoints.
+ headers['Content-Type']=file.endsWith('.js')?'text/javascript; charset=utf-8':file.endsWith('.css')?'text/css; charset=utf-8':file.endsWith('.svg')?'image/svg+xml':file.endsWith('.jpg')?'image/jpeg':file.endsWith('.xml')?'application/xml; charset=utf-8':'text/html; charset=utf-8';
+ if(/\.(js|css|svg|jpg)$/.test(file))headers['Cache-Control']='public, max-age=3600';
+ if(file==='manage.html')headers['X-Robots-Tag']='noindex, nofollow';
  headers['Content-Security-Policy']="default-src 'self'; script-src 'self' 'sha256-l5uz54M7xNyGdJrRoFv33kdtswlRuoeoSqE6hCrk1+4=' https://www.googletagmanager.com https://www.googleadservices.com https://www.google.com; style-src 'self' https://fonts.googleapis.com; img-src 'self' https://www.googletagmanager.com https://www.googleadservices.com https://googleads.g.doubleclick.net https://pagead2.googlesyndication.com https://www.google.com https://www.google.co.za; connect-src https://bxpexanyoyubxeqqlggh.supabase.co https://www.googletagmanager.com https://www.googleadservices.com https://googleads.g.doubleclick.net https://pagead2.googlesyndication.com https://www.google.com https://www.google.co.za https://ad.doubleclick.net; frame-src https://www.googletagmanager.com; font-src https://fonts.gstatic.com; base-uri 'none'; form-action 'self'; frame-ancestors 'none'";
  return new Response(request.method==='HEAD'?null:response.body,{status:200,headers});
  }catch{return new Response('Website temporarily unavailable',{status:503,headers})}
