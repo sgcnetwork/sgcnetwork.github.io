@@ -825,7 +825,7 @@ async function load(){
  heading('Payment history');
  if(legacy.error)host.append(item('Payment history unavailable',legacy.error.message));
  else if(!legacy.data?.length && !tx.data?.length)host.append(item('No payments recorded','Your payment records will appear here.'));
- else {for(const x of legacy.data||[])host.append(item(String(x.payment_type||'Payment'),money(x.amount_zar)+' · '+x.status+' · '+date(x.paid_at||x.created_at)));for(const x of tx.data||[])host.append(item(x.product_name||'Stitch checkout',money(x.amount_zar)+' · '+x.status+' · '+date(x.paid_at||x.created_at)));}
+ else {for(const x of legacy.data||[])host.append(item(String(x.payment_type||'Payment'),money(x.amount_zar)+' · '+x.status+' · '+date(x.paid_at||x.created_at)));for(const x of tx.data||[])host.append(item(x.product_name||'PayFast checkout',money(x.amount_zar)+' · '+x.status+' · '+date(x.paid_at||x.created_at)));}
  }catch(e){host.replaceChildren(item('Unable to load your library',e.message));}
 })();
 </script>

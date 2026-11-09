@@ -17,7 +17,7 @@
 <section class="page-hero"><div class="container">
 <div class="eyebrow">SGC CHECKOUT</div>
 <h1 id="title">Ready to pay.</h1>
-<p id="desc">Your payment will be handled securely through Stitch.</p>
+<p id="desc">Your payment will be handled securely through PayFast.</p>
 <div class="mini-art"></div>
 </div></section>
 
@@ -26,8 +26,8 @@
 <span class="tag">SECURE PAYMENT</span>
 <h2 id="product">SGC Product</h2>
 <div class="product-price" id="price">—</div>
-<p id="checkoutCopy">Sign in to your SGC account, then continue to the secure Stitch checkout.</p>
-<button class="btn dark" id="pay">Continue to Stitch →</button>
+<p id="checkoutCopy">Sign in to your SGC account, then continue to the secure PayFast checkout.</p>
+<button class="btn dark" id="pay">Continue to PayFast →</button>
 <p class="buy-note" id="status">After successful payment, your SGC access will be updated by the connected backend.</p>
 </div></div></section>
 
@@ -36,7 +36,7 @@
 <script src="js/supabase-client.js"></script>
 <script src="script.js"></script>
 <script>
-const FUNCTION_URL='https://bxpexanyoyubxeqqlggh.supabase.co/functions/v1/create-stitch-payment';
+const FUNCTION_URL='https://bxpexanyoyubxeqqlggh.supabase.co/functions/v1/create-payfast-payment';
 const q=new URLSearchParams(location.search);
 const membershipId=q.get('membershipId');
 const productId=q.get('productId');
@@ -82,7 +82,7 @@ const copy=document.getElementById('checkoutCopy');
 if(type==='build'||type==='builder')copy.textContent='Verified payment unlocks one month of access automatically. Automatic debit renewals are not enabled yet; renew with a new payment before access expires.';
 let amountInput=null;
 if(selected?.flexible){
-  copy.textContent='Choose how much you want to pay toward this kit today, then continue to Stitch.';
+  copy.textContent='Choose how much you want to pay toward this kit today, then continue to PayFast.';
   const wrap=document.createElement('div');
   wrap.style.cssText='margin:18px 0;max-width:320px';
   wrap.innerHTML='<label for="laybyAmount" style="display:block;font-weight:700;margin-bottom:7px">Amount to pay today</label><div style="display:flex;align-items:center;background:#fffdf9;border:1px solid #ded5ca;border-radius:14px;padding:0 14px"><strong>R</strong><input id="laybyAmount" type="number" min="1" step="1" value="50" style="width:100%;border:0;background:transparent;padding:14px 10px;font:inherit;outline:none"></div><small style="display:block;margin-top:7px;color:#6d6667">Kit total: R'+selected.price+'. You can make more payments later.</small>';
@@ -91,7 +91,7 @@ if(selected?.flexible){
 btn.onclick=async()=>{
   try{
     await (typeof dynamicReady==='function'?dynamicReady():dynamicReady);
-    if(!selected) throw new Error('This product is not connected to Stitch yet.');
+    if(!selected) throw new Error('This product is not connected to PayFast yet.');
     if(!window.sgcSupabase) throw new Error('SGC account connection is unavailable.');
     const amount=selected.flexible?Number(amountInput?.value):selected.price;
     if(!Number.isFinite(amount)||amount<1) throw new Error('Enter an amount of at least R1.');
@@ -106,12 +106,12 @@ btn.onclick=async()=>{
       return;
     }
     const payerName=(user.user_metadata?.full_name||user.email?.split('@')[0]||'SGC Customer').trim();
-    status.textContent='Connecting to Stitch…';
+    status.textContent='Connecting to PayFast…';
     const response=await fetch(FUNCTION_URL,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token},body:JSON.stringify({amount,payerName:payerName.length>=3?payerName:'SGC Customer',email:user.email,userId:user.id,...(membershipId?{membershipId}:productId?{productId}:{product:selected.product}),productName:selected.name,kitTotal:selected.flexible?selected.price:undefined})});
     const result=await response.json();
     if(!response.ok||!result.success||!result.checkoutUrl) throw new Error(result.error||'Could not start payment.');
     location.href=result.checkoutUrl;
-  }catch(err){console.error(err);status.textContent=err?.message||'Could not start payment. Please try again.';btn.disabled=false;btn.textContent='Continue to Stitch →';}
+  }catch(err){console.error(err);status.textContent=err?.message||'Could not start payment. Please try again.';btn.disabled=false;btn.textContent='Continue to PayFast →';}
 };
 </script>
 
