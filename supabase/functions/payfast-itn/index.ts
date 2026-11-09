@@ -20,16 +20,11 @@ Deno.serve(async req=>{
   if(params.get("merchant_id")!==c.merchant_id)return new Response("Invalid merchant",{status:400});
   const validation=await fetch("https://www.payfast.co.za/eng/query/validate",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded"},body:payload,signal:AbortSignal.timeout(15000)});
   if(!validation.ok||(await validation.text()).trim()!=="VALID")return new Response("Provider validation failed",{status:400});
-  const reference=params.get("m_payment_id");
-  const {data:t,error}=await sb.from("sgc_stitch_transactions").select("id,amount_zar,status,payfast_payment_id").eq("merchant_reference",reference).eq("payment_provider","payfast").single();
-  if(error||!t)return new Response("Unknown checkout",{status:400});
-  const gross=Number(params.get("amount_gross"));
-  if(!Number.isFinite(gross)||Math.round(gross*100)!==Math.round(Number(t.amount_zar)*100))return new Response("Amount mismatch",{status:400});
-  if(params.get("payment_status")!=="COMPLETE")return new Response("OK");
-  const paymentId=params.get("pf_payment_id"); if(!paymentId)return new Response("Missing payment ID",{status:400});
-  if(t.status==="paid")return new Response(t.payfast_payment_id===paymentId?"OK":"Payment conflict",{status:t.payfast_payment_id===paymentId?200:409});
-  const {error:updateError}=await sb.from("sgc_stitch_transactions").update({status:"paid",paid_at:new Date().toISOString(),payfast_payment_id:paymentId,updated_at:new Date().toISOString()}).eq("id",t.id).eq("status","pending");
-  if(updateError)throw Error("Could not activate verified payment");
+  const {error:applyError}=await sb.rpc("sgc_apply_payfast_notification",{
+    p_reference:params.get("m_payment_id"),p_payment_id:params.get("pf_payment_id"),
+    p_token:params.get("token"),p_amount:Number(params.get("amount_gross")),p_status:params.get("payment_status")
+  });
+  if(applyError)throw Error("Could not record verified payment");
   return new Response("OK");
  }catch(e){console.error("PayFast ITN processing failed",e instanceof Error?e.message:"Unknown error");return new Response("Notification temporarily unavailable",{status:500});}
 });

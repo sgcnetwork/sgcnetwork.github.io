@@ -67,7 +67,7 @@ if(dynamicId){
     selected={name:data.name,price:Number(data.price_zar),display:'R'+Number(data.price_zar).toFixed(2)+(data.billing==='monthly'?' / month':' once-off'),dynamic:true};
     document.getElementById('product').textContent=selected.name;
     document.getElementById('price').textContent=selected.display;
-    if(data.billing==='monthly')document.getElementById('checkoutCopy').textContent='Verified payment unlocks one month of access automatically. Automatic debit renewals are not enabled yet; renew with a new payment before access expires.';
+    if(data.billing==='monthly')document.getElementById('checkoutCopy').textContent='Your first payment starts access. PayFast will then charge this amount automatically every month until you cancel. Manage cancellation under Payments; paid access remains available until its end date.';
   };
   document.getElementById('product').textContent='Loading selected product…';
   document.getElementById('price').textContent='Price verified at checkout';
@@ -79,7 +79,7 @@ if(!dynamicId)document.getElementById('price').textContent=selected?.display||'S
 const btn=document.getElementById('pay');
 const status=document.getElementById('status');
 const copy=document.getElementById('checkoutCopy');
-if(type==='build'||type==='builder')copy.textContent='Verified payment unlocks one month of access automatically. Automatic debit renewals are not enabled yet; renew with a new payment before access expires.';
+if(type==='build'||type==='builder')copy.textContent='Your first payment starts access. PayFast will then charge this amount automatically every month until you cancel. Manage cancellation under Payments; paid access remains available until its end date.';
 let amountInput=null;
 if(selected?.flexible){
   copy.textContent='Choose how much you want to pay toward this kit today, then continue to PayFast.';

@@ -234,7 +234,7 @@ function sgcProductDetail(product){
  const pictures=[image.src];const variants=kitVariants.get(product.id)||[];for(const v of variants){if(v.image_url&&!pictures.includes(v.image_url))pictures.push(v.image_url);}
  pictures.forEach((src,i)=>{const b=node('button');b.type='button';b.className=i===0?'active':'';const pic=document.createElement('img');pic.src=src;pic.alt='Product view '+(i+1);b.append(pic);b.onclick=()=>{image.src=src;for(const child of thumbs.children)child.classList.remove('active');b.classList.add('active');};thumbs.append(b);});
  info.append(node('span',sections.find(x=>x[0]===category(product))?.[1]||'SGC Collection','eyebrow'),node('h1',product.name));
- const priceText=node('p',price(product),'sgc-pdp-price');info.append(priceText);
+ const priceText=node('p',price(product),'sgc-pdp-price');info.append(priceText);if(product.billing==='monthly')info.append(node('p','Automatic monthly card subscription through PayFast. Renews at the selected amount until cancelled. Manage cancellation under Payments.','muted'));
  let variant=null;const note=node('p','','sgc-pdp-note');
  if(variants.length){info.append(node('p','Choose an option','sgc-pdp-label'));const options=node('div',undefined,'sgc-pdp-options');for(const v of variants){const b=node('button',v.name);b.type='button';b.onclick=()=>{variant=v;for(const x of options.children)x.classList.remove('active');b.classList.add('active');priceText.textContent='R'+Number(v.price_zar).toFixed(2);if(v.image_url)image.src=v.image_url;note.textContent='';};options.append(b);}info.append(options);}
  info.append(node('p','Quantity','sgc-pdp-label'));const qty=node('input');qty.type='number';qty.min='1';qty.max=product.billing==='monthly'?'1':'100';qty.step='1';qty.value='1';qty.className='sgc-pdp-quantity';qty.setAttribute('aria-label','Quantity');info.append(qty);
@@ -290,7 +290,7 @@ async function showNamedMemberships(){
     }else{card.append(node('p','Benefits will be confirmed by SGC Network.','muted'));}
     const pay=node('button','Pay Now');pay.type='button';
     pay.onclick=()=>{location.assign('payment.html?membershipId='+encodeURIComponent(p.id));};
-    card.append(pay,node('p','Secure checkout via PayFast. Once payment is verified, the features included in your membership unlock automatically.','muted'));
+    card.append(pay,node('p',p.billing==='monthly'?'Automatic monthly card subscription through PayFast. Renews at this amount until you cancel under Payments.':'Secure checkout via PayFast. Once payment is verified, the features included in your membership unlock automatically.','muted'));
     grid.append(card);
   }
   host.append(section);

@@ -35,7 +35,6 @@ const legacyProducts: Record<string, LegacyProduct> = {
   preview: { code: "P", price: 20 },
   "r20-preview": { code: "P", price: 20 },
 
-  "stitch-r1-test": { code: "T", price: 1 },
 
   "business-kit": { code: "K", price: 499 },
   kit: { code: "K", price: 499 },
@@ -66,7 +65,7 @@ async function readJson(response: Response) {
 }
 
 const encode=(v:string)=>encodeURIComponent(v.trim()).replace(/%20/g,"+").replace(/[!'()*]/g,c=>"%"+c.charCodeAt(0).toString(16).toUpperCase());
-const signature=(fields:Record<string,string>,passphrase:string)=>createHash("md5").update(Object.entries(fields).filter(([k,v])=>k!=="signature"&&v!=="").map(([k,v])=>k+"="+encode(v)).join("&")+"&passphrase="+encode(passphrase)).digest("hex");
+const signature=(fields:Record<string,string>,passphrase:string)=>createHash("md5").update(Object.entries(fields).filter(([k,v])=>k!=="signature"&&v!==""&&v!=="0").map(([k,v])=>k+"="+encode(v)).join("&")+"&passphrase="+encode(passphrase)).digest("hex");
 const escapeHtml=(v:string)=>v.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]!));
 async function renderCheckout(req:Request){
  const reference=new URL(req.url).searchParams.get("reference");
@@ -84,6 +83,10 @@ async function renderCheckout(req:Request){
  name_first:String(t.customer_name||"SGC Customer").slice(0,100),
  email_address:String(t.customer_email||""),m_payment_id:reference,
  amount:Number(t.amount_zar).toFixed(2),item_name:String(t.product_name).slice(0,100)};
+ if(t.auto_recurring){
+  if(t.billing!=="monthly"||Number(t.amount_zar)<5)return new Response("Invalid subscription",{status:400});
+  Object.assign(fields,{subscription_type:"1",recurring_amount:Number(t.amount_zar).toFixed(2),frequency:"3",cycles:"0"});
+ }
  fields.signature=signature(fields,c.passphrase);
  return new Response(JSON.stringify({action:"https://www.payfast.co.za/eng/process",fields}),{headers:{...corsHeaders,"Content-Type":"application/json","Cache-Control":"no-store"}});
 
@@ -299,6 +302,25 @@ Deno.serve(async (req) => {
       );
     }
 
+    if(billing==="monthly"){
+      if(!authenticatedUser)return respond({success:false,error:"Please sign in before subscribing."},401);
+      if(finalAmount<5)return respond({success:false,error:"Monthly subscriptions require at least R5."},400);
+      let existingQuery=supabase.from("sgc_payfast_subscriptions").select("id").eq("user_id",authenticatedUser.id).in("status",["active","past_due"]);
+      existingQuery=entitlementKey?existingQuery.eq("entitlement_key",entitlementKey):existingQuery.eq("product_id",selectedId);
+      const {data:existing,error:subscriptionError}=await existingQuery.limit(1);
+      if(subscriptionError)throw Error("Could not check existing subscriptions.");
+      if(existing?.length)return respond({success:false,error:"You already have an automatic subscription for this plan. Manage it under Payments."},409);
+      let pendingQuery=supabase.from("sgc_stitch_transactions").select("id,checkout_url,amount_zar,created_at").eq("user_id",authenticatedUser.id).eq("payment_provider","payfast").eq("auto_recurring",true).eq("status","pending");
+      pendingQuery=entitlementKey?pendingQuery.eq("entitlement_key",entitlementKey):pendingQuery.eq("product_id",selectedId);
+      const {data:pending,error:pendingError}=await pendingQuery.order("created_at",{ascending:false}).limit(1);
+      if(pendingError)throw Error("Could not check pending subscription checkout.");
+      if(pending?.[0]){
+        if(Date.now()-new Date(pending[0].created_at).getTime()<3600000&&Number(pending[0].amount_zar)===finalAmount)return respond({success:true,checkoutUrl:pending[0].checkout_url,amount:finalAmount,billing});
+        const {error:expireError}=await supabase.from("sgc_stitch_transactions").update({status:"cancelled",updated_at:new Date().toISOString()}).eq("id",pending[0].id).eq("status","pending");
+        if(expireError)throw Error("Could not refresh subscription checkout.");
+      }
+    }
+
     const amountInCents = Math.round(
       finalAmount * 100
     );
@@ -360,6 +382,7 @@ Deno.serve(async (req) => {
         .insert({
           merchant_reference: merchantReference,
           payment_provider: "payfast",
+          auto_recurring: billing === "monthly",
           user_id: userId,
           customer_name: payerName,
           customer_email: email || null,
