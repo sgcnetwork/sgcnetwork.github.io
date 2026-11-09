@@ -111,7 +111,7 @@ Deno.serve(async (req) => {
     // Verified CFHP guest payments await manual business acceptance.
     if(typeof merchantReference==="string"&&merchantReference.startsWith("C-")){
       const db=createClient(Deno.env.get("SUPABASE_URL")!,Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
-      const {data:tx,error}=await db.from("sgc_stitch_transactions").select("*").eq("merchant_reference",merchantReference).single();
+      const {data:tx,error}=await db.from("sgc_stitch_transactions").select("*").eq("merchant_reference",merchantReference).eq("payment_provider","stitch").single();
       if(error||!tx||!tx.product_id?.startsWith("cfhp-booking:"))throw Error("No tracked CFHP checkout");
       if(!tx.stitch_payment_id||String(tx.stitch_payment_id)!==String(event.linkId))throw Error("CFHP payment link mismatch");
       const expected=Math.round(Number(tx.amount_zar)*100);
@@ -126,7 +126,7 @@ Deno.serve(async (req) => {
       const url=Deno.env.get("SUPABASE_URL"),key=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
       if(!url||!key)throw new Error("Supabase server credentials missing");
       const db=createClient(url,key);
-      const {data:tx,error:txError}=await db.from("sgc_stitch_transactions").select("*").eq("merchant_reference",merchantReference).single();
+      const {data:tx,error:txError}=await db.from("sgc_stitch_transactions").select("*").eq("merchant_reference",merchantReference).eq("payment_provider","stitch").single();
       if(txError||!tx)throw new Error("No tracked membership checkout");
       if(!tx.user_id)throw new Error("Membership buyer missing");
       if(tx.stitch_payment_id&&String(tx.stitch_payment_id)!==String(event.linkId))throw new Error("Payment link does not match membership checkout");
