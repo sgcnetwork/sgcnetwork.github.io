@@ -132,7 +132,7 @@ async function serveBabm(request,u){
  const headers={'Cache-Control':'no-cache','X-Content-Type-Options':'nosniff','Referrer-Policy':'strict-origin-when-cross-origin'};
  if(!['GET','HEAD'].includes(request.method))return new Response('Method not allowed',{status:405,headers});
  const file=u.pathname==='/'?'index.html':u.pathname.slice(1);
- const files={'index.html':'text/html; charset=utf-8','app.js':'text/javascript; charset=utf-8','manifest.webmanifest':'application/manifest+json; charset=utf-8','icon.svg':'image/svg+xml','sw.js':'text/javascript; charset=utf-8','data/quran-uthmani.json':'application/json; charset=utf-8','data/en.pickthall.json':'application/json; charset=utf-8','data/en.transliteration.json':'application/json; charset=utf-8'};
+ const files={'index.html':'text/html; charset=utf-8','app.js':'text/javascript; charset=utf-8','manifest.webmanifest':'application/manifest+json; charset=utf-8','icon.svg':'image/svg+xml','sw.js':'text/javascript; charset=utf-8','alimah-learning-preview.html':'text/html; charset=utf-8','alim-learning-preview.html':'text/html; charset=utf-8','educator-application.html':'text/html; charset=utf-8','data/quran-uthmani.json':'application/json; charset=utf-8','data/en.pickthall.json':'application/json; charset=utf-8','data/en.transliteration.json':'application/json; charset=utf-8'};
  if(!Object.hasOwn(files,file))return new Response('Page not found',{status:404,headers});
  try{const r=await fetch(ORIGIN+'/babm/'+file,{signal:AbortSignal.timeout(15000)});headers['Content-Type']=files[file];
  return new Response(request.method==='HEAD'?null:r.body,{status:r.status,headers});}catch{return new Response('Website temporarily unavailable',{status:503,headers})}
