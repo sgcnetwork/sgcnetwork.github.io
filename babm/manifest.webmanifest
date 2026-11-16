@@ -1,0 +1,18 @@
+{
+  "name": "Becoming a Better Muslimah",
+  "short_name": "BABM",
+  "description": "Your Qur'an, Muslimah Journal and sisterhood community",
+  "start_url": "/?source=app",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#fff8fb",
+  "theme_color": "#a95179",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
