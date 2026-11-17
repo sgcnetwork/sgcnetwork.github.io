@@ -1,6 +1,6 @@
 const escape = value => String(value ?? '').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 export function brandFor(user, data) {
-  if (data.redirect_to) { try { return new URL(data.redirect_to).hostname === 'babm.sgcnetwork.co.za' ? 'babm' : 'sgc'; } catch {} }
+  if (data.redirect_to) { try { const url=new URL(data.redirect_to);const legacy=(url.hostname==='sgcnetwork.co.za'||url.hostname==='www.sgcnetwork.co.za'||url.hostname==='sgcnetwork.github.io')&&/^\/babm(?:\/|$)/.test(url.pathname);return url.hostname==='babm.sgcnetwork.co.za'||legacy?'babm':'sgc'; } catch {} }
   return user.user_metadata?.brand === 'babm' ? 'babm' : 'sgc';
 }
 const actions = {
@@ -34,7 +34,7 @@ export function buildEmails(event, baseUrl) {
     : [{email:user.email,hash:data.token_hash,code:data.token}];
   return recipients.map(({email,hash,code})=>{
     if(typeof email!=='string'||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))throw Error('Invalid recipient');
-    let redirect=data.redirect_to|| (babm?'https://babm.sgcnetwork.co.za/#journal':'https://sgcnetwork.co.za');
+    let redirect=babm?'https://babm.sgcnetwork.co.za/#journal':(data.redirect_to||'https://sgcnetwork.co.za');
     const url=new URL('/auth/v1/verify',baseUrl);
     let link='';
     if(action&&kind!=='reauthentication'){
