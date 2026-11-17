@@ -3,7 +3,7 @@ const json=(body:unknown,status=200)=>new Response(JSON.stringify(body),{status,
 Deno.serve(async req=>{
   if(req.method!=='POST')return json({error:'Method not allowed'},405);
   const raw=await req.text();if(raw.length>262144)return json({error:'Payload too large'},413);
-  if(!await verifyHook(raw,req.headers,Deno.env.get('AUTH_EMAIL_HOOK_SECRET')))return json({error:'Invalid webhook signature'},401);
+  if(!await verifyHook(raw,req.headers,Deno.env.get('BABM_AUTH_EMAIL_ROUTER_SECRET')))return json({error:'Invalid webhook signature'},401);
   const key=Deno.env.get('RESEND_API_KEY');if(!key)return json({error:{http_code:500,message:'Account email service is not configured'}},500);
   try{
     const emails=buildEmails(JSON.parse(raw),Deno.env.get('SUPABASE_URL'));
