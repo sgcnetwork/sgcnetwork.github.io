@@ -260,7 +260,7 @@ const audioPreferred=read('babm-audio-reciter','ar.alafasy');if([...$('audioReci
 
 // Muslimah Journal: account sessions are isolated from other SGC applications.
 let journalClient=null,journalUser=null,journalRows=[],journalSelected=1,journalDirty=false,journalRevision=0,journalLoading=false;
-const journalReturn='https://babm.sgcnetwork.co.za/#journal';
+const journalReturn='https://babm.sgcnetwork.co.za/';
 const journalRecovery=location.hash.includes('type=recovery');
 function journalMessage(message,error=false){const e=$('journalMessage');e.textContent=message;e.classList.toggle('error',error)}
 let journalKind='life',journalEntryId=null,journalTimer=null,journalSaving=false,journalEditVersion=0;
