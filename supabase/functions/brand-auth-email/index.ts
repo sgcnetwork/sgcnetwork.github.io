@@ -11,6 +11,7 @@ Deno.serve(async req=>{
     console.info('Account email routing',{brand:emails[0].from.startsWith('BABM ')?'babm':'sgc',action:event.email_data.email_action_type,redirectHost});
     const results=await Promise.all(emails.map((email,index)=>fetch('https://api.resend.com/emails',{method:'POST',headers:{Authorization:'Bearer '+key,'Content-Type':'application/json','Idempotency-Key':`auth/${req.headers.get('webhook-id')}/${index}`},body:JSON.stringify(email),signal:AbortSignal.timeout(4000)})));
     if(results.some(r=>!r.ok)){console.error('Account email provider rejected delivery',results.map(r=>r.status));return json({error:{http_code:502,message:'Account email could not be sent. Please try again.'}},502);}
-    console.info('Account email accepted',{count:emails.length});return json({});
+    const deliveries=await Promise.all(results.map(r=>r.json()));
+    console.info('Account email accepted',{count:emails.length,sender:emails[0].from,subject:emails[0].subject,providerIds:deliveries.map(d=>d.id)});return json({});
   }catch{console.error('Account email processing failed');return json({error:{http_code:500,message:'Account email could not be sent. Please try again.'}},500);}
 });
