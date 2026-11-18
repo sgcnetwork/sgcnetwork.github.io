@@ -13,6 +13,7 @@ export default {
   const headers = { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', 'Content-Security-Policy': CSP, 'Referrer-Policy': 'strict-origin-when-cross-origin', 'Permissions-Policy': 'camera=(), microphone=(), geolocation=()' };
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug) || slug.length < 3 || slug.length > 40) return new Response('Website not found', { status: 404, headers });
   if (slug === 'al-habib') return serveAlhabib(request, u);
+  if (slug === 'anwaar-ul-quraan') return serveAnwaar(request, u);
   if (slug === 'babm') return serveBabm(request, u);
   if (slug === 'djp') return serveDjp(request, u);
   if (slug === 'cfhp') return serveCfhp(request, u);
@@ -135,5 +136,16 @@ async function serveBabm(request,u){
  const files={'index.html':'text/html; charset=utf-8','app.js':'text/javascript; charset=utf-8','manifest.webmanifest':'application/manifest+json; charset=utf-8','icon.svg':'image/svg+xml','sw.js':'text/javascript; charset=utf-8','alimah-learning-preview.html':'text/html; charset=utf-8','alim-learning-preview.html':'text/html; charset=utf-8','educator-application.html':'text/html; charset=utf-8','data/quran-uthmani.json':'application/json; charset=utf-8','data/en.pickthall.json':'application/json; charset=utf-8','data/en.transliteration.json':'application/json; charset=utf-8'};
  if(!Object.hasOwn(files,file))return new Response('Page not found',{status:404,headers});
  try{const r=await fetch(ORIGIN+'/babm/'+file,{signal:AbortSignal.timeout(15000)});headers['Content-Type']=files[file];
+ return new Response(request.method==='HEAD'?null:r.body,{status:r.status,headers});}catch{return new Response('Website temporarily unavailable',{status:503,headers})}
+}
+
+async function serveAnwaar(request,u){
+ if(u.protocol!=='https:'){u.protocol='https:';return Response.redirect(u.href,301)}
+ const headers={'Cache-Control':'no-cache','X-Content-Type-Options':'nosniff','Referrer-Policy':'strict-origin-when-cross-origin'};
+ if(!['GET','HEAD'].includes(request.method))return new Response('Method not allowed',{status:405,headers});
+ const file=u.pathname==='/'?'index.html':u.pathname.slice(1);
+ const files={'index.html':'text/html; charset=utf-8','app.js':'text/javascript; charset=utf-8','style.css':'text/css; charset=utf-8','icon.svg':'image/svg+xml','poster.svg':'image/svg+xml'};
+ if(!Object.hasOwn(files,file))return new Response('Page not found',{status:404,headers});
+ try{const r=await fetch(ORIGIN+'/anwaar/'+file,{signal:AbortSignal.timeout(15000)});headers['Content-Type']=files[file];
  return new Response(request.method==='HEAD'?null:r.body,{status:r.status,headers});}catch{return new Response('Website temporarily unavailable',{status:503,headers})}
 }
