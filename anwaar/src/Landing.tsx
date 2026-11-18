@@ -147,7 +147,7 @@ export default function Landing({enter,header}:{enter:(view:string, demo?:boolea
       <span className="anwaar-welcome-divider" aria-hidden="true">✦</span>
       <span>مرحبًا</span>
     </div>
-    <section className="anwaar-hero anwaar-cinema" aria-labelledby="anwaar-title" aria-roledescription="carousel" data-playing={playing} onFocusCapture={event=>{if (!(event.target as HTMLElement).closest('.anwaar-play-toggle')) setPlaying(false)}}>
+    <section className="anwaar-hero anwaar-cinema" aria-labelledby="anwaar-title" aria-roledescription="carousel" data-playing={playing} onFocusCapture={()=>setPlaying(false)}>
       <div className="anwaar-scenes" aria-hidden="true">
         {slides.map((item,index)=><div key={item.label} className={index===slideIndex?'anwaar-scene is-current':'anwaar-scene'}><img src={item.photo} alt="" fetchPriority={index===0?'high':'low'}/></div>)}
       </div>
@@ -168,7 +168,6 @@ export default function Landing({enter,header}:{enter:(view:string, demo?:boolea
           <div className="anwaar-slide-labels">
             {slides.map((item,index)=><button key={item.label} type="button" aria-pressed={index===slideIndex} onClick={()=>selectSlide(index)} aria-label={item.label} title={item.label}><span className="anwaar-scene-dot" aria-hidden="true"/>{index===slideIndex&&playing&&<span className="anwaar-timer" key={slideIndex} aria-hidden="true"/>}</button>)}
           </div>
-          <button type="button" className="anwaar-play-toggle" onClick={()=>setPlaying(value=>!value)}>{playing?'Pause slideshow':'Play slideshow'}</button>
         </div>
       </div>
     </section>

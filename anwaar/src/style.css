@@ -291,11 +291,6 @@ html { scroll-behavior:smooth; }
 .anwaar-slide-labels button[aria-pressed="true"] .anwaar-scene-dot,
 .anwaar-slide-labels button:hover .anwaar-scene-dot { background:#ffe3a6; transform:scale(1.35); }
 .anwaar-slide-labels .anwaar-timer { height:2px; width:24px; left:7px; bottom:7px; border-radius:2px; }
-.anwaar-slider .anwaar-play-toggle {
-  min-height:38px; padding:4px 2px; background:none; border:0; border-radius:0;
-  font-size:11px; font-weight:400; color:#fff2d8; text-decoration:underline; text-underline-offset:4px;
-}
-.anwaar-slider .anwaar-play-toggle:hover { background:none; color:#ffe3a6; }
 .anwaar-mission {
   display:block; background:linear-gradient(155deg,#fcf7eb,#f1e5cd);
 }
