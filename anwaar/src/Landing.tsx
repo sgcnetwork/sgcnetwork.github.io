@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {ArrowRight, ArrowUpRight, BookOpen, CalendarDays, ChevronLeft, ChevronRight, Compass, GraduationCap, Heart, History, LayoutDashboard, MessageCircle, Pause, Play, Quote, Scale, Sparkles, Users, X} from 'lucide-react';
+import {ArrowRight, ArrowUpRight, BookOpen, CalendarDays, ChevronRight, Compass, GraduationCap, Heart, History, LayoutDashboard, MessageCircle, Quote, Scale, Sparkles, Users, X} from 'lucide-react';
 import {subjects} from './model';
 import courtyardPhoto from './madressa-courtyard.webp';
 import classroomPhoto from './madressa-classroom.webp';
@@ -142,16 +142,16 @@ export default function Landing({enter,header}:{enter:(view:string, demo?:boolea
 
   return <main ref={landingRef} className="anwaar-landing" id="madressa">
     <div className="anwaar-scroll-progress" aria-hidden="true"/>
-    <section className="anwaar-hero anwaar-cinema" aria-labelledby="anwaar-title" aria-roledescription="carousel" data-playing={playing} onFocusCapture={event=>{if (!(event.target as HTMLElement).closest('.anwaar-play-toggle')) setPlaying(false)}}>
-      <div className="anwaar-scenes" aria-hidden="true">
-        {slides.map((item,index)=><div key={item.label} className={index===slideIndex?'anwaar-scene is-current':'anwaar-scene'}><img src={item.photo} alt="" fetchPriority={index===0?'high':'low'}/></div>)}
-      </div>
-      <div className="anwaar-cinema-light" aria-hidden="true"/>
     <div className="anwaar-welcome" lang="ar" dir="rtl">
       <span>السلام عليكم</span>
       <span className="anwaar-welcome-divider" aria-hidden="true">✦</span>
       <span>مرحبًا</span>
     </div>
+    <section className="anwaar-hero anwaar-cinema" aria-labelledby="anwaar-title" aria-roledescription="carousel" data-playing={playing} onFocusCapture={event=>{if (!(event.target as HTMLElement).closest('.anwaar-play-toggle')) setPlaying(false)}}>
+      <div className="anwaar-scenes" aria-hidden="true">
+        {slides.map((item,index)=><div key={item.label} className={index===slideIndex?'anwaar-scene is-current':'anwaar-scene'}><img src={item.photo} alt="" fetchPriority={index===0?'high':'low'}/></div>)}
+      </div>
+      <div className="anwaar-cinema-light" aria-hidden="true"/>
       {header}
       <div className="anwaar-cinema-inner">
         <div className="anwaar-cinema-brand">
@@ -168,11 +168,7 @@ export default function Landing({enter,header}:{enter:(view:string, demo?:boolea
           <div className="anwaar-slide-labels">
             {slides.map((item,index)=><button key={item.label} type="button" aria-pressed={index===slideIndex} onClick={()=>selectSlide(index)} aria-label={item.label} title={item.label}><span className="anwaar-scene-dot" aria-hidden="true"/>{index===slideIndex&&playing&&<span className="anwaar-timer" key={slideIndex} aria-hidden="true"/>}</button>)}
           </div>
-          <div className="anwaar-slide-buttons">
-            <button type="button" className="anwaar-slide-arrow" aria-label="Previous slide" onClick={()=>selectSlide(slideIndex-1)}><ChevronLeft size={20}/></button>
-            <button type="button" className="anwaar-slide-arrow anwaar-play-toggle" aria-label={playing?'Pause slideshow':'Play slideshow'} onClick={()=>setPlaying(value=>!value)}>{playing?<Pause size={18}/>:<Play size={18}/>}</button>
-            <button type="button" className="anwaar-slide-arrow" aria-label="Next slide" onClick={()=>selectSlide(slideIndex+1)}><ChevronRight size={20}/></button>
-          </div>
+          <button type="button" className="anwaar-play-toggle" onClick={()=>setPlaying(value=>!value)}>{playing?'Pause slideshow':'Play slideshow'}</button>
         </div>
       </div>
     </section>

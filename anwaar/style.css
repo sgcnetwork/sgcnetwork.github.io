@@ -226,7 +226,7 @@ html { scroll-behavior:smooth; }
 .anwaar-cinema .anwaar-scene { transition:opacity 1.1s ease; }
 .anwaar-cinema .anwaar-scene img { animation-play-state:paused; }
 .anwaar-cinema[data-playing="true"] .anwaar-scene.is-current img { animation-play-state:running; }
-.anwaar-slide-labels,.anwaar-slide-buttons { display:flex; align-items:center; gap:8px; }
+.anwaar-slide-labels { display:flex; align-items:center; gap:8px; }
 .anwaar-slide-labels { flex-wrap:wrap; }
 .anwaar-slide-labels button { position:relative; overflow:hidden; }
 .anwaar-timer {
@@ -260,9 +260,10 @@ html { scroll-behavior:smooth; }
     linear-gradient(90deg,#06231d80,transparent 62%);
 }
 .anwaar-cinema .anwaar-scene img { object-position:center 53%; }
-.anwaar-cinema .anwaar-welcome {
-  position:relative; background:#092c22b0; color:#ffe6ad;
-  padding:5px 5%; font-size:clamp(20px,2.2vw,29px); border-block:0 1px solid #e0be7860;
+.anwaar-landing .anwaar-welcome {
+  position:relative; width:100%; box-sizing:border-box; align-self:stretch;
+  background:linear-gradient(90deg,#0b2b21,#174332,#0b2b21); color:#ffe6ad;
+  padding:3px 5%; font-size:clamp(16px,1.8vw,21px); border-block:0 1px solid #d6b16e;
 }
 .anwaar-home-header {
   position:relative; z-index:3; flex:none; height:auto; min-height:104px; padding:16px var(--content-gutter);
@@ -290,26 +291,45 @@ html { scroll-behavior:smooth; }
 .anwaar-slide-labels button[aria-pressed="true"] .anwaar-scene-dot,
 .anwaar-slide-labels button:hover .anwaar-scene-dot { background:#ffe3a6; transform:scale(1.35); }
 .anwaar-slide-labels .anwaar-timer { height:2px; width:24px; left:7px; bottom:7px; border-radius:2px; }
+.anwaar-slider .anwaar-play-toggle {
+  min-height:38px; padding:4px 2px; background:none; border:0; border-radius:0;
+  font-size:11px; font-weight:400; color:#fff2d8; text-decoration:underline; text-underline-offset:4px;
+}
+.anwaar-slider .anwaar-play-toggle:hover { background:none; color:#ffe3a6; }
 .anwaar-mission {
-  display:block;
-  background:radial-gradient(ellipse at top,#fffaf0,transparent 67%),#f7f0e2;
+  display:block; background:linear-gradient(155deg,#fcf7eb,#f1e5cd);
 }
-.anwaar-philosophy-heading { text-align:center; margin-bottom:30px; }
+.anwaar-philosophy-heading { text-align:center; margin-bottom:clamp(24px,4vw,50px); }
 .anwaar-philosophy-heading .anwaar-kicker { justify-content:center; }
-.anwaar-principles { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:clamp(10px,2vw,22px); }
+.anwaar-philosophy-heading::after {
+  content:"✦"; display:block; width:112px; margin:13px auto 0;
+  color:#8c672e; font-size:15px;
+  background:linear-gradient(#b99656,#b99656) left center/38% 1px no-repeat,
+    linear-gradient(#b99656,#b99656) right center/38% 1px no-repeat;
+}
+.anwaar-principles {
+  display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); overflow:hidden;
+  background:radial-gradient(ellipse at top,#245444,#102f25 75%);
+  border:1px solid #ba9455; border-radius:26px; box-shadow:0 14px 34px #30210f24;
+}
 .anwaar-principle {
-  position:relative; display:block; padding:clamp(18px,3vw,34px); border:1px solid #dbcba7;
-  border-radius:20px; background:#fffbf2; color:#153f31;
-  transition:box-shadow .24s,border-color .24s;
+  position:relative; display:block; padding:clamp(22px,3.5vw,47px);
+  color:#fff8e9; transition:background .24s;
 }
-.anwaar-principle:hover { border-color:#a88749; box-shadow:0 10px 24px #452d1715; }
+.anwaar-principle + .anwaar-principle { border-inline-start:1px solid #e0bb7555; }
+.anwaar-principle:hover,.anwaar-principle:focus-visible { background:#f7ddb319; }
+.anwaar-principle:focus-visible { outline-offset:-4px; }
 .anwaar-principle-icon {
-  display:grid; place-items:center; width:57px; height:57px; margin-bottom:22px;
-  color:#84632c; border:1px solid #d6b77e; border-radius:22px 22px 9px 9px;
-  background:#f6ecd7;
+  display:grid; place-items:center; width:55px; height:61px; margin-bottom:20px;
+  color:#f4d391; border:1px solid #d6b77e88; border-radius:29px 29px 7px 7px;
+  background:#f6ecd710;
 }
-.anwaar-principle p { margin-top:9px; color:#45554b; }
-.anwaar-principle-arrow { position:absolute; top:23px; right:23px; color:#84632c; }
+.anwaar-principle h3 { font-size:clamp(26px,3.3vw,40px); }
+.anwaar-principle p { margin-top:9px; color:#f8ebd3; line-height:1.7; max-width:34ch; }
+.anwaar-principle-arrow {
+  position:absolute; top:24px; right:24px; color:#f4d391; transition:transform .24s;
+}
+.anwaar-principle:hover .anwaar-principle-arrow { transform:translate(3px,-3px); }
 @media(max-width:850px) {
   .anwaar-home-header { min-height:80px; }
   .anwaar-home-header nav.open { background:#123b2d; border-color:#a48148; color:#fff7e8; }
@@ -321,5 +341,6 @@ html { scroll-behavior:smooth; }
     background:linear-gradient(180deg,#07291feb 0%,#08271f61 33%,#08271fdc 71%,#06231df5 100%);
   }
   .anwaar-principles { grid-template-columns:1fr; }
+  .anwaar-principle + .anwaar-principle { border-inline-start:0; border-top:1px solid #e0bb7555; }
   .anwaar-principle-icon { margin-bottom:13px; }
 }
