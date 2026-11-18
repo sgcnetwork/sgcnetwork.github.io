@@ -52,10 +52,6 @@ html { scroll-behavior:smooth; }
 .anwaar-enrol article { border-color:#dfbd7b55; }
 .anwaar-enrol article p { color:#f1e4ce; }
 .anwaar-enrol .anwaar-gold { margin-top:21px; }
-.anwaar-poster { align-self:center; justify-self:center; display:block; width:min(100%,270px); border:1px solid var(--brass); background:var(--deep); padding:8px; border-radius:6px; transition:transform .2s; }
-.anwaar-poster:hover { transform:translateY(-4px); }
-.anwaar-poster img { width:100%; display:block; }
-.anwaar-poster span { padding:9px 3px 2px; display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:12px; }
 .anwaar-hubs { background:#fffaf0; }
 .anwaar-hub-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
 .anwaar-hub-grid button { display:inline-flex; gap:8px; align-items:center; margin-top:14px; padding:5px 0; font-weight:700; color:var(--forest); text-decoration:underline; text-underline-offset:4px; }
@@ -72,4 +68,108 @@ html { scroll-behavior:smooth; }
 @media(prefers-reduced-motion:reduce) {
   html { scroll-behavior:auto; }
   .anwaar-landing *, .anwaar-landing *::before { animation:none!important; transition:none!important; }
+}
+
+/* Landing page composition */
+.anwaar-landing {
+  --content-gutter:max(6%,calc((100% - 1240px) / 2));
+  --parchment:#f4eddf;
+}
+.anwaar-hero {
+  min-height:0;
+  grid-template-columns:minmax(0,1.08fr) minmax(0,1fr);
+  padding:clamp(48px,6vw,94px) var(--content-gutter) clamp(76px,8vw,118px);
+  background:radial-gradient(ellipse at 80% 55%,#2c6049 0,transparent 54%),linear-gradient(135deg,#092a21,#123b2d 70%,#194535);
+}
+.anwaar-hero::before {
+  background-size:58px 58px;
+  mask-image:radial-gradient(ellipse at 90% 45%,black,transparent 71%);
+}
+.anwaar-hero h1 {
+  max-width:9ch;
+  font-size:clamp(52px,6.6vw,103px);
+  line-height:.91;
+  text-wrap:balance;
+}
+.anwaar-hero h1 span {
+  display:block;
+  margin-bottom:9px;
+  font-size:.53em;
+  line-height:1.12;
+  letter-spacing:-.02em;
+}
+.anwaar-arabic { margin:18px 0; }
+.anwaar-hero-copy { animation-name:anwaar-slide; }
+@keyframes anwaar-slide { from { transform:translateY(12px); } }
+.anwaar-visual { max-width:480px; }
+.anwaar-photo { height:clamp(380px,41vw,540px); }
+.anwaar-visual figcaption { font-size:12px; border-radius:14px; padding:12px 15px; }
+.anwaar-spark-small { right:auto; left:-16px; top:31%; font-size:19px; animation-delay:-2s; }
+.anwaar-gold,.anwaar-outline { border-radius:99px; padding-inline:20px; }
+.anwaar-quick-links {
+  position:relative;
+  z-index:1;
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  margin:-34px var(--content-gutter) 0;
+  overflow:hidden;
+  border:1px solid #ddcdae;
+  border-radius:22px;
+  background:#fffaf0;
+  box-shadow:0 9px 25px #37291910;
+}
+.anwaar-quick-links > * {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-height:66px;
+  padding:12px clamp(12px,2vw,26px);
+  text-align:left;
+  font-weight:700;
+  transition:background .2s;
+}
+.anwaar-quick-links > * + * { border-left:1px solid #e4d7bf; }
+.anwaar-quick-links > *:hover { background:#f5ecd9; }
+.anwaar-quick-links svg { color:var(--gold); flex:none; }
+.anwaar-quick-links svg:last-child { margin-left:auto; }
+.anwaar-mission,.anwaar-curriculum,.anwaar-enrol,.anwaar-hubs { padding-inline:var(--content-gutter); }
+.anwaar-mission { background:transparent; grid-template-columns:minmax(0,.86fr) minmax(0,1fr); }
+.anwaar-aims { display:grid; gap:10px; }
+.anwaar-aims article,.anwaar-aims article:first-child { padding:17px 20px; border:1px solid #e7dcc6; border-radius:16px; background:#fffcf5; }
+.anwaar-aims article:nth-child(2) { margin-left:22px; }
+.anwaar-aims article:nth-child(3) { margin-left:44px; }
+.anwaar-curriculum { background:linear-gradient(125deg,#f3e9d6,#faf5e9); }
+.anwaar-subjects { gap:14px; }
+.anwaar-subjects article { padding:23px; border-radius:18px; }
+.anwaar-subjects article:first-child { grid-column:span 2; background:var(--forest); color:#fff7e8; border-color:var(--forest); }
+.anwaar-subjects article:first-child p { color:#f3e6cc; }
+.anwaar-icon { display:grid; place-items:center; width:43px; height:43px; margin-bottom:15px; border-radius:12px; background:#f2e7d0; }
+.anwaar-icon svg { margin:0; }
+.anwaar-subjects article:first-child .anwaar-icon { background:#fff7e81a; }
+.anwaar-subjects article:first-child svg { color:var(--brass); }
+.anwaar-enrol { background:radial-gradient(ellipse at 95% 20%,#295a44,transparent 66%),var(--deep); grid-template-columns:minmax(0,1fr) minmax(0,1fr); }
+.anwaar-enrol-copy > p:not(.anwaar-kicker) { max-width:40ch; margin-top:13px; color:#f1e4ce; }
+.anwaar-class-options { display:grid; gap:13px; }
+.anwaar-class-options article { align-items:center; gap:14px; padding:18px; border:1px solid #dfbd7b66; border-radius:17px; background:#fff7e80c; }
+.anwaar-class-icon { display:grid; place-items:center; flex:none; width:43px; height:43px; border-radius:13px; background:#ead09c1a; }
+.anwaar-class-icon svg { margin:0; }
+.anwaar-hub-grid { gap:16px; }
+.anwaar-hub-grid article { padding:clamp(22px,3vw,36px); border-radius:20px; }
+.anwaar-hub-grid .anwaar-student-card { background:#e9f0e8; border-color:#cbd8c9; }
+.anwaar-hub-grid article button { text-decoration:none; background:#fffdf6; border:1px solid #b9c9b8; padding:8px 13px; border-radius:99px; }
+.anwaar-hub-grid article button:hover { background:#edf2e9; }
+@media(max-width:900px) {
+  .anwaar-subjects article:first-child { grid-column:span 2; }
+  .anwaar-quick-links > * { font-size:12px; }
+}
+@media(max-width:660px) {
+  .anwaar-hero,.anwaar-mission,.anwaar-enrol { grid-template-columns:1fr; }
+  .anwaar-hero { padding-bottom:70px; }
+  .anwaar-hero h1 { font-size:clamp(50px,12vw,75px); }
+  .anwaar-photo { height:clamp(300px,92vw,430px); }
+  .anwaar-quick-links { grid-template-columns:1fr; border-radius:16px; }
+  .anwaar-quick-links > * { min-height:44px; font-size:13px; }
+  .anwaar-quick-links > * + * { border-left:0; border-top:1px solid #e4d7bf; }
+  .anwaar-aims article:nth-child(n) { margin-left:0; }
+  .anwaar-subjects article { padding:15px; }
 }
