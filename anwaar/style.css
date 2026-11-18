@@ -205,3 +205,16 @@ html { scroll-behavior:smooth; }
   .anwaar-scroll-progress { display:none; }
   .anwaar-landing *, .anwaar-landing *::before { animation:none!important; transition:none!important; }
 }
+
+.anwaar-welcome {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:clamp(12px,3vw,28px);
+  padding:12px 5%;
+  color:#ffe2a4;
+  background:radial-gradient(ellipse at top,#245541,#103729 72%);
+  border-block:1px solid #a48148;
+  font:clamp(24px,3vw,36px)/1.5 'Noto Naskh Arabic','Geeza Pro',Tahoma,serif;
+}
+.anwaar-welcome-divider { color:#deb86e; font:12px/1 Georgia,serif; }

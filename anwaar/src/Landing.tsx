@@ -68,6 +68,11 @@ export default function Landing({enter}:{enter:(view:string, demo?:boolean)=>voi
 
   return <main ref={landingRef} className="anwaar-landing" id="madressa">
     <div className="anwaar-scroll-progress" aria-hidden="true"/>
+    <div className="anwaar-welcome" lang="ar" dir="rtl">
+      <span>السلام عليكم</span>
+      <span className="anwaar-welcome-divider" aria-hidden="true">✦</span>
+      <span>مرحبًا</span>
+    </div>
     <section className="anwaar-hero anwaar-cinema" aria-labelledby="anwaar-title" aria-roledescription="carousel">
       <div className="anwaar-scenes" aria-hidden="true">
         {slides.map((item,index)=><div key={item.label} className={index===slideIndex?'anwaar-scene is-current':'anwaar-scene'}><img src={item.photo} alt="" fetchPriority={index===0?'high':'low'}/></div>)}
