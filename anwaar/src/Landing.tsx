@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {ArrowRight, ArrowUpRight, BookOpen, CalendarDays, ChevronLeft, ChevronRight, Compass, GraduationCap, Heart, History, LayoutDashboard, MessageCircle, Pause, Play, Quote, Scale, Sparkles, Users, X} from 'lucide-react';
 import {subjects} from './model';
-import studyPhoto from './quraan-study.webp';
+import courtyardPhoto from './madressa-courtyard.webp';
 import classroomPhoto from './madressa-classroom.webp';
 import libraryPhoto from './madressa-library.webp';
 
@@ -26,7 +26,7 @@ const studyPrompts = [
 ];
 
 const slides = [
-  {label:'Our vision', title:'A lifelong connection with the Quraan.', text:'Madressa Anwaar Ul Quraan helps learners build a lifelong connection with the Quraan and carry Islamic knowledge into everyday life.', photo:studyPhoto, target:'#vision', action:'Discover our vision'},
+  {label:'Our vision', title:'A lifelong connection with the Quraan.', text:'Madressa Anwaar Ul Quraan helps learners build a lifelong connection with the Quraan and carry Islamic knowledge into everyday life.', photo:courtyardPhoto, target:'#vision', action:'Discover our vision'},
   {label:'Our classes', title:'Find your place to learn.', text:'Learn together in Sunday group classes or arrange private lessons in person or online. Adults, children and new Muslims are welcome.', photo:classroomPhoto, target:'#enrolment', action:'Find a class'},
   {label:'Our curriculum', title:'Knowledge for everyday life.', text:'Explore Quraan with Tajweed, Duas, Fiqh, Islamic History, Aqeedah, Hadeeth and Thikr.', photo:libraryPhoto, target:'#curriculum', action:'Explore the curriculum'},
 ];
@@ -35,7 +35,13 @@ const subjectIcons = [BookOpen, Heart, Scale, History, Compass, Quote, Sparkles]
 
 const enquiry = 'https://wa.me/27822114583?text=Assalaamu%20alaykum%2C%20I%20would%20like%20to%20enquire%20about%202027%20registration.';
 
-export default function Landing({enter}:{enter:(view:string, demo?:boolean)=>void}) {
+const principles = [
+  { title:'Knowledge', Icon:BookOpen, link:'#curriculum', subject:'Quraan with Tajweed', text:'Seek knowledge, deepen understanding, and let learning illuminate the path of faith.' },
+  { title:'Faith', Icon:Heart, link:'#curriculum', subject:'Aqeedah', text:'Nurture the heart through sincere worship, purposeful living, and the beautiful example of our Messenger ﷺ.' },
+  { title:'Wisdom', Icon:Users, link:'#enrolment', text:'Together we pray, together we serve, and together we grow — united as one community.' },
+];
+
+export default function Landing({enter,header}:{enter:(view:string, demo?:boolean)=>void; header:React.ReactNode}) {
   const [slideIndex, setSlideIndex] = useState(0);
   const [selectedSubject, setSelectedSubject] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -136,16 +142,17 @@ export default function Landing({enter}:{enter:(view:string, demo?:boolean)=>voi
 
   return <main ref={landingRef} className="anwaar-landing" id="madressa">
     <div className="anwaar-scroll-progress" aria-hidden="true"/>
-    <div className="anwaar-welcome" lang="ar" dir="rtl">
-      <span>السلام عليكم</span>
-      <span className="anwaar-welcome-divider" aria-hidden="true">✦</span>
-      <span>مرحبًا</span>
-    </div>
     <section className="anwaar-hero anwaar-cinema" aria-labelledby="anwaar-title" aria-roledescription="carousel" data-playing={playing} onFocusCapture={event=>{if (!(event.target as HTMLElement).closest('.anwaar-play-toggle')) setPlaying(false)}}>
       <div className="anwaar-scenes" aria-hidden="true">
         {slides.map((item,index)=><div key={item.label} className={index===slideIndex?'anwaar-scene is-current':'anwaar-scene'}><img src={item.photo} alt="" fetchPriority={index===0?'high':'low'}/></div>)}
       </div>
       <div className="anwaar-cinema-light" aria-hidden="true"/>
+    <div className="anwaar-welcome" lang="ar" dir="rtl">
+      <span>السلام عليكم</span>
+      <span className="anwaar-welcome-divider" aria-hidden="true">✦</span>
+      <span>مرحبًا</span>
+    </div>
+      {header}
       <div className="anwaar-cinema-inner">
         <div className="anwaar-cinema-brand">
           <p lang="ar" dir="rtl">أنوار القرآن</p>
@@ -159,7 +166,7 @@ export default function Landing({enter}:{enter:(view:string, demo?:boolean)=>voi
         </div>
         <div className="anwaar-slider" role="group" aria-label="Landing page slides">
           <div className="anwaar-slide-labels">
-            {slides.map((item,index)=><button key={item.label} type="button" aria-pressed={index===slideIndex} onClick={()=>selectSlide(index)}>{item.label}{index===slideIndex&&playing&&<span className="anwaar-timer" key={slideIndex} aria-hidden="true"/>}</button>)}
+            {slides.map((item,index)=><button key={item.label} type="button" aria-pressed={index===slideIndex} onClick={()=>selectSlide(index)} aria-label={item.label} title={item.label}><span className="anwaar-scene-dot" aria-hidden="true"/>{index===slideIndex&&playing&&<span className="anwaar-timer" key={slideIndex} aria-hidden="true"/>}</button>)}
           </div>
           <div className="anwaar-slide-buttons">
             <button type="button" className="anwaar-slide-arrow" aria-label="Previous slide" onClick={()=>selectSlide(slideIndex-1)}><ChevronLeft size={20}/></button>
@@ -177,11 +184,16 @@ export default function Landing({enter}:{enter:(view:string, demo?:boolean)=>voi
     </div>
 
     <section className="anwaar-mission" id="vision" aria-labelledby="vision-title">
-      <div><p className="anwaar-kicker">Our vision &amp; aims</p><h2 id="vision-title">Learn with understanding.<br/><em>Live what you learn.</em></h2></div>
-      <div className="anwaar-aims" data-reveal>
-        <article><BookOpen/><div><h3>Read with confidence</h3><p>Help learners build confidence in reading the Quraan through guided recitation and Tajweed practice.</p></div></article>
-        <article><Compass/><div><h3>Build Islamic foundations</h3><p>Help students understand the beliefs and practices that guide everyday Muslim life.</p></div></article>
-        <article><Heart/><div><h3>Make room for every learner</h3><p>Welcome children, adults and new Muslims, with group and private lessons to support different starting points.</p></div></article>
+      <div className="anwaar-philosophy-heading" data-reveal>
+        <p className="anwaar-kicker">Our vision &amp; aims</p>
+        <h2 id="vision-title">Our Philosophy</h2>
+      </div>
+      <div className="anwaar-principles">
+        {principles.map(({title, Icon, link, subject, text})=><a key={title} className="anwaar-principle" href={link} data-reveal onClick={subject?()=>setSelectedSubject(subjects.indexOf(subject)):undefined}>
+          <span className="anwaar-principle-icon"><Icon size={30} strokeWidth={1.45}/></span>
+          <h3>{title}</h3><p>{text}</p>
+          <ArrowUpRight className="anwaar-principle-arrow" size={18} aria-hidden="true"/>
+        </a>)}
       </div>
     </section>
 
