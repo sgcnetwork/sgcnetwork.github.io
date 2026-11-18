@@ -1,8 +1,9 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {ArrowRight, ArrowUpRight, BookOpen, CalendarDays, ChevronLeft, ChevronRight, Compass, GraduationCap, Heart, History, LayoutDashboard, MessageCircle, Quote, Scale, Sparkles, Users} from 'lucide-react';
+import {ArrowRight, ArrowUpRight, BookOpen, CalendarDays, ChevronLeft, ChevronRight, Compass, GraduationCap, Heart, History, LayoutDashboard, MessageCircle, Pause, Play, Quote, Scale, Sparkles, Users, X} from 'lucide-react';
 import {subjects} from './model';
 import studyPhoto from './quraan-study.webp';
 import classroomPhoto from './madressa-classroom.webp';
+import libraryPhoto from './madressa-library.webp';
 
 const descriptions = [
   'Build confidence in recitation and practise the rules of Tajweed.',
@@ -27,6 +28,7 @@ const studyPrompts = [
 const slides = [
   {label:'Our vision', title:'A lifelong connection with the Quraan.', text:'Madressa Anwaar Ul Quraan helps learners build a lifelong connection with the Quraan and carry Islamic knowledge into everyday life.', photo:studyPhoto, target:'#vision', action:'Discover our vision'},
   {label:'Our classes', title:'Find your place to learn.', text:'Learn together in Sunday group classes or arrange private lessons in person or online. Adults, children and new Muslims are welcome.', photo:classroomPhoto, target:'#enrolment', action:'Find a class'},
+  {label:'Our curriculum', title:'Knowledge for everyday life.', text:'Explore Quraan with Tajweed, Duas, Fiqh, Islamic History, Aqeedah, Hadeeth and Thikr.', photo:libraryPhoto, target:'#curriculum', action:'Explore the curriculum'},
 ];
 
 const subjectIcons = [BookOpen, Heart, Scale, History, Compass, Quote, Sparkles];
@@ -36,6 +38,11 @@ const enquiry = 'https://wa.me/27822114583?text=Assalaamu%20alaykum%2C%20I%20wou
 export default function Landing({enter}:{enter:(view:string, demo?:boolean)=>void}) {
   const [slideIndex, setSlideIndex] = useState(0);
   const [selectedSubject, setSelectedSubject] = useState(0);
+  const [playing, setPlaying] = useState(false);
+  const [noticeOpen, setNoticeOpen] = useState(false);
+  const manuallyOpenedNotice = useRef(false);
+  const noticeButton = useRef<HTMLButtonElement>(null);
+  const noticePanel = useRef<HTMLElement>(null);
   const landingRef = useRef<HTMLElement>(null);
   const subjectButtons = useRef<Array<HTMLButtonElement | null>>([]);
   const slide = slides[slideIndex];
@@ -55,6 +62,67 @@ export default function Landing({enter}:{enter:(view:string, demo?:boolean)=>voi
     return () => observer.disconnect();
   }, []);
 
+  useEffect(() => {
+    const preference = window.matchMedia('(prefers-reduced-motion: reduce)');
+    function updateMotion() { setPlaying(!preference.matches); }
+    updateMotion();
+    preference.addEventListener('change', updateMotion);
+    return () => preference.removeEventListener('change', updateMotion);
+  }, []);
+
+  useEffect(() => {
+    if (!playing) return;
+    let timer: number;
+    function resumeWhenVisible() {
+      window.clearTimeout(timer);
+      if (!document.hidden) timer = window.setTimeout(() => setSlideIndex(index=>(index+1)%slides.length), 8000);
+    }
+    resumeWhenVisible();
+    document.addEventListener('visibilitychange', resumeWhenVisible);
+    return () => {
+      window.clearTimeout(timer);
+      document.removeEventListener('visibilitychange', resumeWhenVisible);
+    };
+  }, [playing, slideIndex]);
+
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem('anwaar-registration-notice')) return;
+    } catch { return; }
+    const timer = window.setTimeout(() => {
+      if (document.hidden || window.scrollY > window.innerHeight) return;
+      try {
+        if (sessionStorage.getItem('anwaar-registration-notice')) return;
+        sessionStorage.setItem('anwaar-registration-notice','seen');
+      } catch { return; }
+      setNoticeOpen(true);
+    }, 4200);
+    return () => window.clearTimeout(timer);
+  }, []);
+
+  function selectSlide(index:number) {
+    setPlaying(false);
+    setSlideIndex((index+slides.length)%slides.length);
+  }
+
+  function openNotice() {
+    manuallyOpenedNotice.current = true;
+    try { sessionStorage.setItem('anwaar-registration-notice','seen'); } catch {}
+    setNoticeOpen(true);
+  }
+
+  useEffect(() => {
+    if (noticeOpen && manuallyOpenedNotice.current) noticePanel.current?.focus();
+  }, [noticeOpen]);
+
+  function closeNotice(restoreFocus = false) {
+    if (restoreFocus && (manuallyOpenedNotice.current || noticePanel.current?.contains(document.activeElement))) {
+      noticeButton.current?.focus();
+    }
+    manuallyOpenedNotice.current = false;
+    setNoticeOpen(false);
+  }
+
   function navigateSubjects(event:React.KeyboardEvent<HTMLDivElement>) {
     const offsets:Record<string,number> = {ArrowRight:1,ArrowDown:1,ArrowLeft:-1,ArrowUp:-1};
     const {key} = event;
@@ -73,7 +141,7 @@ export default function Landing({enter}:{enter:(view:string, demo?:boolean)=>voi
       <span className="anwaar-welcome-divider" aria-hidden="true">✦</span>
       <span>مرحبًا</span>
     </div>
-    <section className="anwaar-hero anwaar-cinema" aria-labelledby="anwaar-title" aria-roledescription="carousel">
+    <section className="anwaar-hero anwaar-cinema" aria-labelledby="anwaar-title" aria-roledescription="carousel" data-playing={playing} onFocusCapture={event=>{if (!(event.target as HTMLElement).closest('.anwaar-play-toggle')) setPlaying(false)}}>
       <div className="anwaar-scenes" aria-hidden="true">
         {slides.map((item,index)=><div key={item.label} className={index===slideIndex?'anwaar-scene is-current':'anwaar-scene'}><img src={item.photo} alt="" fetchPriority={index===0?'high':'low'}/></div>)}
       </div>
@@ -83,16 +151,21 @@ export default function Landing({enter}:{enter:(view:string, demo?:boolean)=>voi
           <p lang="ar" dir="rtl">أنوار القرآن</p>
           <h1 id="anwaar-title">Madressa Anwaar Ul Quraan</h1>
         </div>
-        <span className="anwaar-sr-only" role="status">{slide.label} selected</span>
+        <span className="anwaar-sr-only" aria-live={playing?'off':'polite'}>{slide.label} selected</span>
         <div key={slide.label} className="anwaar-slide-copy">
           <p className="anwaar-cinema-title">{slide.title}</p>
           <p className="anwaar-lede">{slide.text}</p>
           <div className="anwaar-actions"><a className="anwaar-gold" href={slide.target}>{slide.action} <ArrowRight size={17}/></a><button className="anwaar-outline" onClick={()=>enter('student')}>Student hub <ArrowUpRight size={17}/></button></div>
         </div>
         <div className="anwaar-slider" role="group" aria-label="Landing page slides">
-          {slides.map((item,index)=><button key={item.label} type="button" aria-pressed={index===slideIndex} onClick={()=>setSlideIndex(index)}>{item.label}</button>)}
-          <button type="button" className="anwaar-slide-arrow" aria-label="Previous slide" onClick={()=>setSlideIndex(index=>(index+slides.length-1)%slides.length)}><ChevronLeft size={20}/></button>
-          <button type="button" className="anwaar-slide-arrow" aria-label="Next slide" onClick={()=>setSlideIndex(index=>(index+1)%slides.length)}><ChevronRight size={20}/></button>
+          <div className="anwaar-slide-labels">
+            {slides.map((item,index)=><button key={item.label} type="button" aria-pressed={index===slideIndex} onClick={()=>selectSlide(index)}>{item.label}{index===slideIndex&&playing&&<span className="anwaar-timer" key={slideIndex} aria-hidden="true"/>}</button>)}
+          </div>
+          <div className="anwaar-slide-buttons">
+            <button type="button" className="anwaar-slide-arrow" aria-label="Previous slide" onClick={()=>selectSlide(slideIndex-1)}><ChevronLeft size={20}/></button>
+            <button type="button" className="anwaar-slide-arrow anwaar-play-toggle" aria-label={playing?'Pause slideshow':'Play slideshow'} onClick={()=>setPlaying(value=>!value)}>{playing?<Pause size={18}/>:<Play size={18}/>}</button>
+            <button type="button" className="anwaar-slide-arrow" aria-label="Next slide" onClick={()=>selectSlide(slideIndex+1)}><ChevronRight size={20}/></button>
+          </div>
         </div>
       </div>
     </section>
@@ -100,7 +173,7 @@ export default function Landing({enter}:{enter:(view:string, demo?:boolean)=>voi
     <div className="anwaar-quick-links" aria-label="Explore the madressa">
       <a href="#curriculum"><BookOpen size={20}/> Explore the curriculum <ArrowUpRight size={15}/></a>
       <a href="#enrolment"><CalendarDays size={20}/> Find a class <ArrowUpRight size={15}/></a>
-      <button onClick={()=>enter('student')}><GraduationCap size={21}/> Go to the Student Hub <ArrowUpRight size={15}/></button>
+      <button ref={noticeButton} onClick={openNotice}><CalendarDays size={20}/> 2027 registration notice <ArrowUpRight size={15}/></button>
     </div>
 
     <section className="anwaar-mission" id="vision" aria-labelledby="vision-title">
@@ -154,5 +227,12 @@ export default function Landing({enter}:{enter:(view:string, demo?:boolean)=>voi
         <article><LayoutDashboard/><h3>Teacher hub</h3><p>Manage enrolments, class schedules, assessments, attendance and outstanding fees.</p><button onClick={()=>enter('teacher')}>Open teacher hub <ArrowRight size={17}/></button></article>
       </div>
     </section>
+    {noticeOpen&&<aside className="anwaar-notice" ref={noticePanel} aria-labelledby="anwaar-notice-title" tabIndex={-1} onKeyDown={event=>{if(event.key==='Escape') closeNotice(true)}}>
+      <button type="button" className="anwaar-notice-close" aria-label="Close registration notice" onClick={()=>closeNotice(true)}><X size={20}/></button>
+      <p className="anwaar-kicker">Admissions</p>
+      <h2 id="anwaar-notice-title">2027 registration</h2>
+      <p>Explore Sunday group classes and private lessons at Madressa Anwaar Ul Quraan.</p>
+      <a className="anwaar-gold" href="#enrolment" onClick={()=>closeNotice()}>View class options <ArrowRight size={16}/></a>
+    </aside>}
   </main>;
 }
