@@ -13,7 +13,7 @@ export default {
   const headers = { 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff', 'Content-Security-Policy': CSP, 'Referrer-Policy': 'strict-origin-when-cross-origin', 'Permissions-Policy': 'camera=(), microphone=(), geolocation=()' };
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug) || slug.length < 3 || slug.length > 40) return new Response('Website not found', { status: 404, headers });
   if (slug === 'al-habib') return serveAlhabib(request, u);
-  if (slug === 'anwaar-ul-quraan') return serveAnwaar(request, u);
+  if (slug === 'anwaar') return serveAnwaar(request, u);
   if (slug === 'babm') return serveBabm(request, u);
   if (slug === 'djp') return serveDjp(request, u);
   if (slug === 'cfhp') return serveCfhp(request, u);
