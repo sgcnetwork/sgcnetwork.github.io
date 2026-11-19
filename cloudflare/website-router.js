@@ -43,7 +43,7 @@ export default {
 // Al-Habib is served from SGC's repository and SGC Supabase project.
 async function serveAlhabib(request, u) {
  const headers={'Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Referrer-Policy':'strict-origin-when-cross-origin','Permissions-Policy':'camera=(), microphone=(), geolocation=()'};
- const files={'/':'/al-habib/index.html','/index.html':'/al-habib/index.html','/al-habib/app.js':'/al-habib/app.js','/al-habib/style.css':'/al-habib/style.css','/al-habib/favicon.svg':'/al-habib/favicon.svg'};
+ const files={'/':'/al-habib/index.html','/black-friday':'/al-habib/black-friday/index.html','/black-friday/':'/al-habib/black-friday/index.html','/index.html':'/al-habib/index.html','/al-habib/app.js':'/al-habib/app.js','/al-habib/style.css':'/al-habib/style.css','/al-habib/favicon.svg':'/al-habib/favicon.svg'};
  if(u.protocol!=='https:'){u.protocol='https:';return Response.redirect(u.href,301)}
  if(u.pathname==='/manage')return Response.redirect(u.origin+'/#manage',302);
  if(!['GET','HEAD'].includes(request.method))return new Response('Method not allowed',{status:405,headers});
