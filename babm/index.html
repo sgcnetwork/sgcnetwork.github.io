@@ -173,6 +173,11 @@ html.babm-community-route{overscroll-behavior-y:contain}
 .quran-share-dialog textarea{width:100%;min-height:10rem;resize:vertical;font:inherit;line-height:1.6;margin:0 0 12px;color:inherit}
 .quran-share-dialog .community-composebar{flex-wrap:wrap}
 .tafsir-share{margin-top:12px}
+ .tafsir-share-tools{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.tafsir-share-options{display:grid;gap:8px;max-height:42dvh;overflow:auto;overscroll-behavior:contain;margin-bottom:12px}
+.tafsir-share-option{display:flex;align-items:flex-start;gap:10px;padding:10px;border:1px solid #ead5df;border-radius:10px;cursor:pointer;line-height:1.55}
+.tafsir-share-option:has(input:checked){background:#f6e7f0;border-color:#ad6991}
+.tafsir-share-option input{flex:none;width:18px;height:18px;margin:3px 0 0;accent-color:#8d5271}
 .quran-card-picker{width:min(44rem,calc(100% - 1rem));padding:16px}
 .quran-card-preview{position:sticky;top:-16px;z-index:1;background:#fff9fc;padding:10px 0;border-bottom:1px solid #ead5df}
 .quran-card-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
@@ -383,8 +388,8 @@ function openQuranShare(trigger, tafsir){
  dialog.className='community-dialog quran-share-dialog';
  dialog.setAttribute('aria-labelledby','quranShareTitle');
  dialog.innerHTML=`<h2 id="quranShareTitle">${title}</h2>
- ${tafsir?'<p id="quranShareHelp">Highlight the exact lines you want to share. On your phone, press and hold the text to start selecting.</p>':''}
- <textarea readonly aria-label="${tafsir?'Tafseer passage to select from':'Ayah text preview'}"${tafsir?' aria-describedby="quranShareHelp"':''} dir="auto"></textarea>
+ ${tafsir?'<p id="quranShareHelp">Tick the parts you want to share. Untick a part to remove it.</p><div class="tafsir-share-tools"><button type="button" class="smallbtn" data-select-tafsir>Select all</button><button type="button" class="smallbtn" data-clear-tafsir>Clear all</button></div><div class="tafsir-share-options" role="group" aria-label="Tafseer passages" aria-describedby="quranShareHelp" tabindex="0"></div>':
+ '<textarea readonly aria-label="Ayah text preview" dir="auto"></textarea>'}
  <div class="community-composebar">
  <button type="button" class="primary" data-share-text>Share text</button>
  <button type="button" class="smallbtn" data-copy-text>Copy text</button>
@@ -394,13 +399,46 @@ function openQuranShare(trigger, tafsir){
  const preview=dialog.querySelector('textarea');
  const status=dialog.querySelector('[role="status"]');
  const verse=trigger.closest('.ayah');
- preview.value=tafsir?tafsir.querySelector('.tafsir-text').innerText.trim():
-  verse.querySelector('.arabic').textContent+'\n\n'+editions[1].surahs[surah-1].ayahs[ayah-1].text;
+ const passages=[];
+ if(tafsir){
+  const list=dialog.querySelector('.tafsir-share-options');
+  const commentary=tafsir.querySelector('.tafsir-text').innerText.trim();
+  const sentences=typeof Intl.Segmenter==='function'?new Intl.Segmenter('en',{granularity:'sentence'}):null;
+  const parts=commentary.split(/\n+/).flatMap(line=>{
+   line=line.trim();
+   return line.length>240&&sentences?Array.from(sentences.segment(line),part=>part.segment.trim()):[line];
+  }).filter(Boolean);
+  function syncSelection(){
+   const count=passages.filter(part=>part.checkbox.checked).length;
+   status.textContent=count+' of '+passages.length+' parts selected';
+   dialog.querySelectorAll('[data-share-text],[data-copy-text],[data-share-picture]').forEach(button=>button.disabled=!count);
+  }
+  for(const part of parts){
+   const label=document.createElement('label');
+   label.className='tafsir-share-option';
+   const checkbox=document.createElement('input');
+   checkbox.type='checkbox';
+   const text=document.createElement('span');
+   text.dir='auto';
+   text.textContent=part;
+   label.append(checkbox,text);
+   list.append(label);
+   passages.push({checkbox,part});
+  }
+  list.addEventListener('change',syncSelection);
+  function setSelection(checked){
+   passages.forEach(({checkbox})=>checkbox.checked=checked);
+   syncSelection();
+  }
+  dialog.querySelector('[data-select-tafsir]').onclick=()=>setSelection(true);
+  dialog.querySelector('[data-clear-tafsir]').onclick=()=>setSelection(false);
+  syncSelection();
+ }else{
+  preview.value=verse.querySelector('.arabic').textContent+'\n\n'+editions[1].surahs[surah-1].ayahs[ayah-1].text;
+ }
  const credit=tafsir?'Tafsir Ibn Kathir (English, abridged) · Qur’an '+reference:'Qur’an '+reference+' · English translation by Pickthall';
  function selectedText(){
-  const excerpt=tafsir?preview.value.slice(preview.selectionStart,preview.selectionEnd).trim():preview.value;
-  if(!excerpt){status.textContent='Select a passage to share first.';preview.focus();return ''}
-  return excerpt;
+  return tafsir?passages.filter(({checkbox})=>checkbox.checked).map(({part})=>part).join('\n\n'):preview.value;
  }
  function shareText(){
   const excerpt=selectedText();
@@ -408,7 +446,16 @@ function openQuranShare(trigger, tafsir){
  }
  async function copy(text){
   try{await navigator.clipboard.writeText(text);status.textContent='Copied to clipboard.'}
-  catch{status.textContent='Clipboard unavailable. You can select and copy the text above.'}
+  catch{
+   const fallback=document.createElement('textarea');
+   fallback.readOnly=true;
+   fallback.setAttribute('aria-label','Text to copy');
+   fallback.value=text;
+   dialog.querySelector('[aria-label="Text to copy"]')?.remove();
+   status.after(fallback);
+   fallback.select();
+   status.textContent='Clipboard unavailable. Copy from the text box below.';
+  }
  }
  dialog.querySelector('[data-share-text]').onclick=async()=>{
   const text=shareText();
