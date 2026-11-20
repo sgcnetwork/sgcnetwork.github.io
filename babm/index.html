@@ -173,6 +173,16 @@ html.babm-community-route{overscroll-behavior-y:contain}
 .quran-share-dialog textarea{width:100%;min-height:10rem;resize:vertical;font:inherit;line-height:1.6;margin:0 0 12px;color:inherit}
 .quran-share-dialog .community-composebar{flex-wrap:wrap}
 .tafsir-share{margin-top:12px}
+.quran-card-picker{width:min(44rem,calc(100% - 1rem));padding:16px}
+.quran-card-preview{position:sticky;top:-16px;z-index:1;background:#fff9fc;padding:10px 0;border-bottom:1px solid #ead5df}
+.quran-card-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.quran-card-heading h2,.quran-card-preview p{margin:0 0 8px}
+.quran-card-preview>img:not([hidden]){display:block;width:auto;max-width:100%;height:min(34dvh,345px);object-fit:contain;margin:8px auto}
+.quran-card-themes{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x proximity;padding:4px 0 12px}
+.quran-card-themes button{flex:0 0 112px;scroll-snap-align:start;padding:5px;white-space:normal}
+.quran-card-themes button[aria-pressed="true"]{outline:2px solid #8d5271;outline-offset:-2px}
+.quran-card-themes img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:7px;margin-bottom:5px}
+
 </style><link rel="canonical" href="https://babm.sgcnetwork.co.za/"></head><body><header><a class="brand" href="#"><span class="mark">❧</span><span><strong>Becoming a Better Muslimah</strong><small>A HEART TURNING TO ALLAH</small></span></a><nav><a href="#library">The Quran</a><a href="#journal">Muslimah Journal</a><a href="#community">Community</a><button id="journalNavLogin" class="smallbtn" type="button">Sign in</button></nav></header><section class="hero"><div class="eyebrow">Read · Understand · Reflect · Grow</div><h1>A little closer to <em>Allah.</em><br>One ayah at a time.</h1><p>A gentle space for the Muslimah you are becoming.<br>Explore His words, understand their meaning, and make room for reflection.</p><span class="pill">THE NOBLE QURAN &nbsp; · &nbsp; 114 SURAHS</span></section><main class="layout" id="library"><div class="quran-mobile-bar"><button type="button" id="surahMenuToggle" aria-expanded="false" aria-controls="surahSidebar"><span aria-hidden="true">☰</span> Surahs</button><a href="#journal">Journal Quraan <span aria-hidden="true">↗</span></a></div><aside class="sidebar" id="surahSidebar"><button type="button" id="surahMenuClose" aria-label="Close surah menu">×</button><h2>Your Quran companion</h2><span class="muted">Begin wherever your heart needs to.</span><input class="search" id="search" placeholder="Search surah name or number…" aria-label="Search surahs"><div class="surahs" id="surahs"><p>Loading surah library…</p></div><button class="smallbtn sectionlink" id="resume">↗ Continue my last reading</button><button class="smallbtn sectionlink" id="showSaved">♡ My saved ayahs</button><div id="savedList" hidden></div></aside><section class="reader"><div class="intro"><div><div class="eyebrow" id="chapterMeta">The Noble Quran</div><h2 id="chapterName">Preparing your reading…</h2><div class="muted" id="chapterMeaning"></div></div><div class="ar" id="chapterArabic" lang="ar" dir="rtl"></div></div><section class="quran-player" aria-label="Quran recitation player"><div class="quran-player-heading"><span class="eyebrow">Listen to the Qur'an</span><span id="audioStatus" role="status">Choose a reciter and press play</span></div><div class="quran-player-controls"><label for="audioReciter">Reciter <select id="audioReciter"><option value="ar.alafasy">Mishary Rashid Alafasy</option><option value="ar.abdulbasitmurattal">Abdul Basit Abdus Samad</option><option value="ar.husary">Mahmoud Khalil Al-Husary</option><option value="ar.minshawi">Mohamed Siddiq Al-Minshawi</option></select></label><button class="smallbtn" id="audioPrev" type="button" aria-label="Previous ayah">⏮</button><button class="primary" id="audioToggle" type="button">▶ Play</button><button class="smallbtn" id="audioNext" type="button" aria-label="Next ayah">⏭</button><label class="audio-repeat"><input type="checkbox" id="audioRepeat"> Repeat ayah</label></div><div class="quran-player-bottom"><span id="audioNow">Surah 1 · Ayah 1</span><audio id="quranAudio" controls preload="none" aria-label="Quran recitation audio"></audio></div><small>Audio: MP3Quran.net and Al Quran Cloud. Internet required.</small></section><div class="toolbar"><label><input type="checkbox" id="transliteration" checked>Transliteration</label><label><input type="checkbox" id="translation" checked>English meaning</label><label>Text size <select id="fontSize"><option value="28">Small</option><option value="34" selected>Medium</option><option value="42">Large</option></select></label><label>Go to ayah <select id="jump" aria-label="Go to ayah"></select></label></div><aside id="liveReflection" class="live-reflection"><div class="eyebrow">My Qur'an reflection</div><h3>Read. Ponder. Write.</h3><p id="liveVerseLabel">Choose an ayah to reflect on, or begin with this surah.</p><textarea id="liveReflectionText" maxlength="50000" placeholder="Bismillah… What is Allah teaching me through these words?"></textarea><div id="liveReflectionStatus" role="status">Sign in to save your reflections to your progress.</div><button class="primary" id="liveReflectionSave" type="button">Save to my journal</button><a href="#journal">View my journal & progress</a></aside><div id="verses" aria-live="polite"><div class="status">Loading the Quran…</div></div><div class="pagination"><button class="smallbtn" id="prev">← Previous surah</button><button class="primary" id="next">Next surah →</button></div><section class="reflection" id="reflection"><div class="eyebrow">My Muslimah Journal</div><h3>Let this reading stay with you.</h3><p>Keep your reflections in your private journal and return to them whenever you need.</p><a href="#journal" class="primary">Open my journal</a></section></section></main><section id="journalPage" class="journal-page" hidden aria-label="Muslimah Journal"><div class="journal-heading"><div class="eyebrow">A quiet space for your heart</div><h1>My Muslimah <em>Journal</em></h1><p>Your reflections, lessons, and small steps towards Allah.<br>Sign in to keep your entries together and return to them on any device.</p></div><p id="journalMessage" role="status" aria-live="polite"></p><section id="journalAccount" class="journal-account"><div><div class="eyebrow">Your personal space</div><h2 id="journalAuthTitle">Welcome back</h2><p>Keep a reflection for each surah. Your entries are private to your account.</p><div class="journal-tabs"><button type="button" class="smallbtn" data-auth-mode="signin" aria-pressed="true">Sign in</button><button type="button" class="smallbtn" data-auth-mode="signup" aria-pressed="false">Create account</button></div><form id="journalAuthForm"><label>Email address<input id="journalEmail" type="email" autocomplete="email" required></label><label id="journalPasswordLabel">Password<input id="journalPassword" type="password" autocomplete="current-password" required minlength="1"></label><button class="primary" id="journalAuthSubmit" type="submit" disabled>Sign in</button><button class="textbtn" type="button" data-auth-mode="reset">Forgot your password?</button><button class="textbtn" type="button" id="journalResendConfirmation">Resend confirmation email</button></form></div><aside><span class="mark">❧</span><h2>A moment to pause.<br>A place to grow.</h2><p>What has this ayah taught me?<br>What am I grateful for today?<br>What can I put into practice?</p></aside></section><section id="journalPrivate" hidden><div class="journal-accountbar"><span>Signed in as <strong id="accountEmail"></strong></span><button id="journalSignOut" class="smallbtn">Sign out</button></div><form id="journalPasswordForm" hidden class="journal-password"><h2>Choose a new password</h2><label>New password<input type="password" id="journalNewPassword" required minlength="8" autocomplete="new-password"></label><button class="primary" id="journalPasswordSave">Update password</button></form><div class="journal-kinds"><button type="button" class="journal-kind active" data-journal-kind="life">♡ Reflection on Life<small>Hardships, gratitude, du'a & growth</small></button><button type="button" class="journal-kind" data-journal-kind="quran">❧ Reflections on Qur'an<small>Verses, lessons & personal pondering</small></button></div><div class="journal-workspace"><aside class="journal-entries"><div class="eyebrow">Your reflections</div><h2>My entries</h2><button class="smallbtn" id="journalNew">+ New reflection</button><input id="journalSearch" class="search" type="search" placeholder="Search your entries…" aria-label="Search journal entries"><div id="journalEntries"></div><button class="textbtn" id="journalRefresh">Refresh entries</button></aside><section class="journal-compose"><label for="journalTitle">My reflection title</label><input id="journalTitle" placeholder="What is on my heart today?" maxlength="160"><div id="journalQuranFields"><label for="journalSurah">Reflecting on surah</label><select id="journalSurah" aria-label="Journal surah"></select><label for="journalAyah">Ayah (optional)</label><input id="journalAyah" type="number" min="1" max="286" placeholder="Ayah number"></div><h2 id="journalPromptTitle">A gentle space for your heart.</h2><p><span id="journalPrompt">What is weighing on my heart? What am I grateful for? What can I entrust to Allah today?</span></p><textarea id="journal" aria-label="Personal reflection" placeholder="Bismillah. Today I am reflecting on…" maxlength="50000" disabled></textarea><div class="journal-savebar"><button class="primary" id="journalSave">Save reflection</button><button type="button" class="smallbtn" id="journalDelete">Delete entry</button><span id="journalSaveStatus" role="status">Choose a surah and begin.</span></div><small>Personal reflections are separate from scholarly tafseer. Your reflections are private, saved to your account, and can be revisited or edited.</small></section></div></section></section>
 <section id="communityPage" class="community-page" hidden aria-label="Muslimah Community"><section class="babm-expand" id="babmExplore"><div class="eyebrow">Explore your deen · grow together</div><h2>A softer place to land. <em>A stronger place to grow.</em></h2><p class="introtext">You do not need to be a perfect Muslimah to belong here. Learn at your own pace, find sincere sisterhood and choose what nourishes your heart. Our community feed and private journal remain available above and through the menu.</p><div class="babm-hub-tabs"><a href="#babmLearn">Learn Islam</a><a href="#babmArabic">Arabic</a><a href="#babmRamadan">Ramadan</a><a href="#babmGaze">Guard My Gaze</a><a href="#babmHeart">My Heart Needs</a><a href="#babmScholars">Ask a Scholar</a></div><div class="babm-hub-grid"><article class="babm-hub-card"><span class="babm-hub-icon">📖</span><h3>Qur'an & Tafsir</h3><p>Read all 114 surahs, translations and reflections in the existing Qur'an library.</p><a href="#library">Open Qur'an →</a></article><article class="babm-hub-card"><span class="babm-hub-icon">🌷</span><h3>Sisterhood Circles</h3><p>Share reflections, discover groups and encourage one another through the community feed.</p><a href="#community">Explore community →</a></article><article class="babm-hub-card"><span class="babm-hub-icon">📝</span><h3>Private Journal</h3><p>Keep personal reflections securely in your existing account-based Muslimah Journal.</p><a href="#journal">My journal →</a></article><article class="babm-hub-card"><span class="babm-hub-icon">🌙</span><h3>Ramadan Journey</h3><p>Prepare your intentions, plan Qur'an reading and reflect on worship privately.</p><a href="#babmRamadan">Open planner ↓</a></article></div><section class="babm-hub-panel" id="babmLearn"><div class="eyebrow">The learning garden</div><h3>Learn Islam, one lesson at a time</h3><p>Explore authentic Islamic knowledge with clear sources. These are introductory learning pathways; detailed lessons and verified scholarly contributions are being prepared.</p><details><summary>Seerah · The life of the Prophet ﷺ</summary><p>Begin with the early life of the Prophet Muhammad ﷺ, the first revelation, the Hijrah and his example of mercy. Read the Qur'an alongside reliable seerah works and teachers.</p></details><details><summary>Sahabah · The companions</summary><p>Study the courage, sacrifice and knowledge of Abu Bakr, Umar, Uthman, Ali and the many other companions, including the women among the Sahabah.</p></details><details><summary>Muslim women in history</summary><p>Discover Khadijah bint Khuwaylid, Aishah bint Abi Bakr and other influential Muslim women through carefully sourced biographies.</p></details><details><summary>Hadith and everyday fiqh</summary><p>Learn how hadith are authenticated, the importance of context, and why recognised schools of Islamic jurisprudence may differ. Seek qualified guidance for personal rulings.</p></details></section><section class="babm-hub-panel" id="babmArabic"><div class="eyebrow">BABM Arabic Academy · From the first letter</div><h3>Learn the language of the Qur'an 🌷</h3><p>Take your time, dear sister. Begin with the Arabic alphabet, practise the sounds and vowel marks, then build your confidence reading connected letters and familiar Qur'anic words.</p><div class="babm-arabic-stats"><div><strong id="babmArabicDone">0 / 8</strong><small>Lessons completed</small></div><div><strong id="babmArabicScore">—</strong><small>Latest quiz score</small></div><button type="button" class="smallbtn" id="babmArabicReset">Reset my progress</button></div><div class="babm-arabic-lessons" id="babmArabicLessons" role="navigation" aria-label="Arabic course lessons"></div><div class="babm-arabic-workspace"><div class="eyebrow" id="babmArabicStage">Lesson 1 of 8</div><h3 id="babmArabicTitle">Meet the Arabic alphabet</h3><p id="babmArabicDesc"></p><div id="babmArabicPractice"></div><div class="babm-arabic-actions"><button class="smallbtn" type="button" id="babmArabicPrev">← Previous lesson</button><button class="primary" type="button" id="babmArabicComplete">Mark lesson complete ✓</button><button class="smallbtn" type="button" id="babmArabicNext">Next lesson →</button></div><p class="muted" id="babmArabicNote" role="status">Your progress is saved on this device, not shared publicly.</p></div><p class="muted">Pronunciation playback uses your device's Arabic speech voice where available. It is a practice aid, not a substitute for learning tajwid and makharij with a qualified teacher.</p></section><section class="babm-hub-panel babm-ramadan-studio" id="babmRamadan">
 <div class="ramadan-hero"><div class="ramadan-hero-content"><span class="ramadan-kicker">✦ YOUR PRIVATE RAMADAN SPACE</span><div class="ramadan-moon">☾</div><h2>My Ramadan Journey</h2><p class="ramadan-arabic" lang="ar" dir="rtl">اللَّهُمَّ بَلِّغْنَا رَمَضَانَ</p><p class="ramadan-translation">O Allah, allow us to reach Ramadan.</p><p>A gentle place to prepare your heart, nurture your intentions and make room for what matters most.</p><div class="ramadan-hero-actions"><a href="#ramadan-daily">Begin today's intentions ↓</a><a href="#ramadan-reflection">My reflections ↗</a></div></div><div class="ramadan-art" aria-hidden="true"><div class="ramadan-art-ring">☾</div><span>✧</span><span>✦</span><span>✧</span></div></div>
@@ -199,27 +209,170 @@ await new Promise((resolve,reject)=>{const upload=new Upload(file,{endpoint:'htt
 $('search').oninput=()=>editions&&list();$('surahs').onclick=e=>{let b=e.target.closest('[data-surah]');if(b)route(b.dataset.surah,1,true)};$('prev').onclick=()=>route(chapter-1,1,true);$('next').onclick=()=>route(chapter+1,1,true);$('jump').onchange=()=>{let a=$('jump').value;write('babm-last',{chapter,ayah:+a});history.replaceState(null,'',`#${chapter}:${a}`);$('ayah-'+a).scrollIntoView({behavior:'smooth'})};$('transliteration').onchange=visibility;$('translation').onchange=visibility;$('fontSize').onchange=babmApplyReadingSize;$('fontSize').value=read('babm-reading-size','34');if(!$('fontSize').value)$('fontSize').value='34';$('fontSize').onchange();$('resume').onclick=()=>{if(!editions)return;let r=read('babm-last',{chapter:1,ayah:1});route(r.chapter,r.ayah,true)};
 function showSaved(){ $('savedList').innerHTML=saved.length?saved.map(k=>`<a href="#${k}" data-bookmark="${k}">Surah ${esc(k.split(':')[0])} · Ayah ${esc(k.split(':')[1])} ↗</a><br>`).join(''):'Your saved ayahs will appear here.'} $('showSaved').onclick=()=>{$('savedList').hidden=!$('savedList').hidden;showSaved()};$('savedList').onclick=e=>{let b=e.target.closest('[data-bookmark]');if(b){e.preventDefault();route(...b.dataset.bookmark.split(':'),true)}};
 
-$('verses').onclick=async e=>{let b=e.target.closest('[data-save]');if(b){let k=b.dataset.save;saved=saved.includes(k)?saved.filter(x=>x!==k):[...saved,k];let ok=write('babm-saved',saved);b.classList.toggle('saved',saved.includes(k));b.setAttribute('aria-pressed',saved.includes(k));b.textContent=saved.includes(k)?'♥ Saved':'♡ Save';showSaved();if(!ok)toast('Could not save in this browser.');}b=e.target.closest('[data-share]');if(b){openQuranShare(b);return}b=e.target.closest('[data-share-tafsir]');if(b){openQuranShare(b,b.closest('details[data-tafsir]'));return}b=e.target.closest('[data-audio-ayah]');if(b){if(audioIsFull()){audioSetStatus('Abdullah Al-Mousa recording has no verse timestamps. Select another reciter for ayah playback.');return}audioPlayAyah(+b.dataset.audioAyah);return}b=e.target.closest('[data-reflect]');if(b){liveChooseAyah(+b.dataset.reflect);return} b=e.target.closest('[data-copy]');if(b){let i=+b.dataset.copy-1;try{await navigator.clipboard.writeText(editions[0].surahs[chapter-1].ayahs[i].text+'\n'+editions[1].surahs[chapter-1].ayahs[i].text+`\nQuran ${chapter}:${i+1} · Pickthall`);toast('Ayah copied')}catch{toast('Copy unavailable. Select the verse text to copy.')}}};
+$('verses').onclick=async e=>{let b=e.target.closest('[data-save]');if(b){let k=b.dataset.save;saved=saved.includes(k)?saved.filter(x=>x!==k):[...saved,k];let ok=write('babm-saved',saved);b.classList.toggle('saved',saved.includes(k));b.setAttribute('aria-pressed',saved.includes(k));b.textContent=saved.includes(k)?'♥ Saved':'♡ Save';showSaved();if(!ok)toast('Could not save in this browser.');}b=e.target.closest('[data-share]');if(b){openQuranShare(b);return}b=e.target.closest('[data-share-tafsir]');if(b){openQuranShare(b,b.closest('details[data-tafsir]'));return}b=e.target.closest('[data-audio-ayah]');if(b){if(audioIsFull()){audioSetStatus('Abdullah Al-Mousa recording has no verse timestamps. Select another reciter for ayah playback.');return}audioPlayAyah(+b.dataset.audioAyah);return}b=e.target.closest('[data-reflect]');if(b){liveChooseAyah(+b.dataset.reflect);return} b=e.target.closest('[data-copy]');if(b){let i=+b.dataset.copy-1;try{await navigator.clipboard.writeText(editions[0].surahs[chapter-1].ayahs[i].text+'\n'+editions[1].surahs[chapter-1].ayahs[i].text+`\nQuran ${chapter}:${i+1} · Pickthall\nhttps://babm.sgcnetwork.co.za/#${chapter}:${i+1}\n${babmShareCredit}`);toast('Ayah copied')}catch{toast('Copy unavailable. Select the verse text to copy.')}}};
 
 
-function verseLines(ctx,text,maxWidth){const words=String(text).trim().split(/\s+/),lines=[];let line='';for(const word of words){const test=line?line+' '+word:word;if(ctx.measureText(test).width>maxWidth&&line){lines.push(line);line=word}else line=test}if(line)lines.push(line);return lines}
-function roundedRect(ctx,x,y,w,h,r){ctx.beginPath();ctx.roundRect(x,y,w,h,r)}
-async function makeVersePicture(n,theme=babmThemes[0]){const i=n-1,surah=editions[0].surahs[chapter-1],arabic=surah.ayahs[i].text,english=editions[1].surahs[chapter-1].ayahs[i].text;await Promise.race([document.fonts.ready,new Promise(resolve=>setTimeout(resolve,1800))]);const c=document.createElement('canvas'),ctx=c.getContext('2d');c.width=1080;const width=890;ctx.font='46px "Noto Naskh Arabic","Amiri",serif';const arabicLines=verseLines(ctx,arabic,width);ctx.font='35px Georgia,serif';const englishLines=verseLines(ctx,english,width);const arLineHeight=85,enLineHeight=56;c.height=Math.max(1350,500+arabicLines.length*arLineHeight+englishLines.length*enLineHeight);const h=c.height;
-const bg=ctx.createLinearGradient(0,0,1080,h);bg.addColorStop(0,theme.a);bg.addColorStop(1,theme.b);ctx.fillStyle=bg;ctx.fillRect(0,0,1080,h);babmPaintDecor(ctx,h,theme);ctx.strokeStyle='#d6b5c0';ctx.lineWidth=3;roundedRect(ctx,38,38,1004,h-76,34);ctx.stroke();ctx.strokeStyle='#e6cbd3';ctx.lineWidth=2;roundedRect(ctx,58,58,964,h-116,24);ctx.stroke();
-ctx.textAlign='center';ctx.direction='ltr';ctx.fillStyle='#987283';ctx.font='500 25px Georgia,serif';ctx.fillText('BECOMING A BETTER MUSLIMAH',540,154);ctx.fillStyle='#a6808c';ctx.font='56px serif';ctx.fillText('﷽',540,255);ctx.fillStyle='#755764';ctx.font='34px Georgia,serif';ctx.fillText('Surah '+surah.englishName+'  ·  '+chapter+':'+n,540,330);
-ctx.strokeStyle='#d7b9c3';ctx.beginPath();ctx.moveTo(410,374);ctx.lineTo(670,374);ctx.stroke();
-ctx.fillStyle=theme.ink;ctx.direction='rtl';ctx.textAlign='center';ctx.font='46px "Noto Naskh Arabic","Amiri",serif';let y=475;for(const line of arabicLines){ctx.fillText(line,540,y);y+=arLineHeight}
-y+=65;ctx.direction='ltr';ctx.fillStyle=theme.ink;ctx.font='35px Georgia,serif';for(const line of englishLines){ctx.fillText(line,540,y);y+=enLineHeight}
-ctx.fillStyle='#a37c89';ctx.font='26px Georgia,serif';ctx.fillText('Qur’an · English translation of the meanings',540,h-218);ctx.fillStyle='#785665';ctx.font='bold 34px Georgia,serif';ctx.fillText('Becoming a Better Muslimah',540,h-143);ctx.font='27px Georgia,serif';ctx.fillText('babm.sgcnetwork.co.za',540,h-97);
-return new Promise((resolve,reject)=>c.toBlob(blob=>blob?resolve(blob):reject(Error('Could not create image')),'image/png'))}
-const babmThemes=[{"name":"Blush Peonies","a":"#fff0f2","b":"#f1d7df","ink":"#523d48","art":"floral","accent":"#c9879e"},{"name":"Garden Arch","a":"#fff8ef","b":"#e9e5d7","ink":"#554a3e","art":"arch","accent":"#a77f63"},{"name":"Masjid View","a":"#f8d9d9","b":"#e4b6a6","ink":"#503f44","art":"arch","accent":"#c4946d"},{"name":"Lantern Nights","a":"#352b51","b":"#171d3b","ink":"#fff5df","art":"stars","accent":"#d6b878"},{"name":"Elegant Marble","a":"#fff2ef","b":"#e8d4d9","ink":"#56434b","art":"lace","accent":"#d1a1a9"},{"name":"Islamic Geometric","a":"#f5eadf","b":"#dfcbb7","ink":"#504335","art":"lace","accent":"#b69b6f"},{"name":"Sage Botanicals","a":"#f4f8f0","b":"#dce9d8","ink":"#3c5040","art":"leaves","accent":"#8aa681"},{"name":"Lavender Meadow","a":"#f4e8fa","b":"#dccbea","ink":"#51425b","art":"floral","accent":"#a28abb"},{"name":"Vintage Roses","a":"#fff2ea","b":"#f2d7cf","ink":"#5d4041","art":"floral","accent":"#bc798a"},{"name":"Qur’an & Flowers","a":"#f9e4e8","b":"#e8cbd8","ink":"#583e4d","art":"floral","accent":"#a87b8d"},{"name":"Minimal Gold","a":"#fffdf7","b":"#f0e7d8","ink":"#514437","art":"arch","accent":"#bda176"},{"name":"Sky & Clouds","a":"#f7e6f7","b":"#e0c9ed","ink":"#55465c","art":"stars","accent":"#c2a3c9"},{"name":"Midnight Blooms","a":"#301b2c","b":"#190f20","ink":"#fff0e7","art":"floral","accent":"#ba7d9d"},{"name":"Celestial Mosque","a":"#272c50","b":"#11162e","ink":"#fff4d9","art":"stars","accent":"#d7b97c"},{"name":"Gold Arch","a":"#171d28","b":"#080d18","ink":"#fff5dd","art":"arch","accent":"#d4ad66"},{"name":"Nocturne Garden","a":"#132f2b","b":"#071d1b","ink":"#fff9e7","art":"leaves","accent":"#b9a878"},{"name":"Deep Rose","a":"#421728","b":"#210d1a","ink":"#fff1e7","art":"floral","accent":"#c57b8c"},{"name":"Royal Geometric","a":"#15253c","b":"#0a1428","ink":"#fff4dc","art":"lace","accent":"#d4aa68"},{"name":"Sapphire Marble","a":"#243c59","b":"#0b1b30","ink":"#fff8e7","art":"lace","accent":"#c6a36c"},{"name":"Emerald Botanical","a":"#17382d","b":"#09261e","ink":"#fff9e7","art":"leaves","accent":"#b6a46d"},{"name":"Lavender Night","a":"#3b2d56","b":"#17172f","ink":"#fff3e7","art":"floral","accent":"#b9a1d8"},{"name":"Desert Dusk","a":"#5d3441","b":"#2c1d32","ink":"#fff1d8","art":"stars","accent":"#d4a16e"},{"name":"Classic Luxe","a":"#1c1b22","b":"#0b0b12","ink":"#fff5e2","art":"arch","accent":"#d4b16d"},{"name":"Starry Sky","a":"#182c4b","b":"#091529","ink":"#fff7e8","art":"stars","accent":"#d3b982"}];
-function babmPaintDecor(ctx,h,t){if(t.art==='plain')return;ctx.save();ctx.strokeStyle=t.accent;ctx.fillStyle=t.accent;ctx.lineWidth=3;ctx.globalAlpha=.65;
-if(t.art==='floral'||t.art==='leaves'){for(const [x,y,flip] of [[90,95,1],[990,95,-1],[90,h-95,1],[990,h-95,-1]]){ctx.save();ctx.translate(x,y);ctx.scale(flip,y>h/2?-1:1);for(let j=0;j<6;j++){ctx.save();ctx.rotate(j*.45);ctx.beginPath();ctx.moveTo(0,0);ctx.quadraticCurveTo(45,45,105,110);ctx.stroke();for(let k=1;k<=3;k++){ctx.beginPath();ctx.ellipse(22*k,22*k,19,9,.6,0,Math.PI*2);ctx.fill()}ctx.restore()}if(t.art==='floral'){for(let j=0;j<7;j++){ctx.save();ctx.rotate(j*Math.PI*2/7);ctx.beginPath();ctx.ellipse(0,-38,15,28,0,0,Math.PI*2);ctx.fill();ctx.restore()}ctx.fillStyle='#e6c18b';ctx.beginPath();ctx.arc(0,0,13,0,Math.PI*2);ctx.fill()}ctx.restore()}}
-else if(t.art==='arch'){ctx.lineWidth=7;ctx.beginPath();ctx.moveTo(110,h-110);ctx.lineTo(110,500);ctx.bezierCurveTo(110,80,970,80,970,500);ctx.lineTo(970,h-110);ctx.stroke();ctx.lineWidth=2;ctx.strokeRect(74,74,932,h-148)}
-else if(t.art==='stars'){for(let j=0;j<65;j++){const x=90+(j*173)%900,y=80+(j*263)%(h-160);ctx.beginPath();ctx.arc(x,y,1+j%3,0,Math.PI*2);ctx.fill()}ctx.beginPath();ctx.arc(865,175,55,0,Math.PI*2);ctx.fill();ctx.fillStyle=t.a;ctx.beginPath();ctx.arc(890,150,55,0,Math.PI*2);ctx.fill()}
-else if(t.art==='lace'){for(let x=75;x<1005;x+=32)for(const y of [80,h-80]){ctx.beginPath();ctx.arc(x,y,12,0,Math.PI*2);ctx.stroke()}for(let y=110;y<h-110;y+=32)for(const x of [80,1000]){ctx.beginPath();ctx.arc(x,y,12,0,Math.PI*2);ctx.stroke()}}
-ctx.restore()}
-async function babmChooseTheme(n){const dialog=document.createElement('dialog');dialog.style.cssText='width:min(720px,96vw);max-height:94dvh;overflow:auto;border:1px solid #dbc1ca;border-radius:22px;padding:22px;background:#fffaf9;color:#59444e;box-shadow:0 20px 60px #0004';dialog.innerHTML='<div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><h2 style="margin:0">Choose your verse design ✿</h2><button type="button" data-close class="smallbtn">✕</button></div><div style="position:sticky;top:-22px;z-index:3;background:#fffaf9;padding:10px 0 8px;border-bottom:1px solid #e9d6dd"><img data-preview alt="Selected Quran verse picture preview" style="display:block;width:auto;max-width:100%;height:min(36dvh,360px);object-fit:contain;margin:0 auto 5px;border-radius:9px"><p data-status role="status" style="text-align:center;margin:3px 0;font-size:13px">Preparing preview…</p><div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center"><button type="button" class="smallbtn" data-save>Save picture</button><button type="button" class="primary" data-send>Share picture & link ↗</button></div></div><h3 style="margin:16px 0 8px">Light designs</h3><div data-light style="display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:8px 2px 15px"></div><h3 style="margin:12px 0 8px">Dark designs</h3><div data-dark style="display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:8px 2px 15px"></div>';document.body.append(dialog);let selected=0,blob=null,previewUrl=null,serial=0;const preview=dialog.querySelector('[data-preview]'),status=dialog.querySelector('[data-status]');const thumb=(t,i)=>{const canvas=document.createElement('canvas');canvas.width=140;canvas.height=180;const c=canvas.getContext('2d');const g=c.createLinearGradient(0,0,0,180);g.addColorStop(0,t.a);g.addColorStop(1,t.b);c.fillStyle=g;c.fillRect(0,0,140,180);c.save();c.scale(140/1080,180/1350);babmPaintDecor(c,1350,t);c.restore();c.fillStyle=t.ink;c.font='bold 12px Georgia';c.textAlign='center';c.fillText('﷽',70,90);return canvas.toDataURL('image/png')};const tiles=babmThemes.map((t,i)=>'<button type="button" data-theme="'+i+'" aria-pressed="false" style="flex:0 0 124px;scroll-snap-align:start;border:2px solid #dbc0ca;border-radius:12px;background:#fff;padding:5px;cursor:pointer;color:#57434c"><img alt="" src="'+thumb(t,i)+'" style="width:100%;height:145px;object-fit:cover;border-radius:8px"><span style="display:block;font-size:12px;margin-top:5px;font-weight:600">'+t.name+'</span></button>');dialog.querySelector('[data-light]').innerHTML=tiles.slice(0,12).join('');dialog.querySelector('[data-dark]').innerHTML=tiles.slice(12).join('');const refresh=async()=>{const my=++serial;blob=null;status.textContent='Creating picture…';try{const result=await makeVersePicture(n,babmThemes[selected]);if(my!==serial)return;blob=result;if(previewUrl)URL.revokeObjectURL(previewUrl);previewUrl=URL.createObjectURL(blob);preview.src=previewUrl;status.textContent='Ready to share';dialog.querySelectorAll('[data-theme]').forEach(el=>{const active=Number(el.dataset.theme)===selected;el.style.borderColor=active?'#8d5271':'#dbc0ca';el.setAttribute('aria-pressed',String(active))})}catch(e){console.error(e);status.textContent='Could not create picture'}};dialog.onclick=e=>{const btn=e.target.closest('[data-theme]');if(btn){selected=Number(btn.dataset.theme);refresh()}};dialog.querySelector('[data-close]').onclick=()=>dialog.close();dialog.addEventListener('close',()=>{serial++;if(previewUrl)URL.revokeObjectURL(previewUrl);dialog.remove()});const save=()=>{if(!blob){toast('Please wait for your picture.');return}const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='BABM-Quran-'+chapter+'-'+n+'.png';document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),60000)};dialog.querySelector('[data-save]').onclick=save;dialog.querySelector('[data-send]').onclick=async()=>{if(!blob){toast('Please wait for your picture.');return}const file=new File([blob],'BABM-Quran-'+chapter+'-'+n+'.png',{type:'image/png'}),verseUrl='https://babm.sgcnetwork.co.za/#'+chapter+':'+n,message='Read this ayah on Becoming a Better Muslimah 🤍\\n'+verseUrl;try{if(navigator.share&&navigator.canShare?.({files:[file]})){await navigator.share({files:[file],title:'Qur’an '+chapter+':'+n,text:message,url:verseUrl});return}}catch(e){if(e.name==='AbortError')return}save();try{await navigator.clipboard.writeText(message);toast('Picture saved and link copied')}catch{toast('Picture saved. Add the BABM link when sharing.')}};dialog.showModal();refresh()}
+const babmCardThemes=[
+ ['ivory-peonies','Ivory Peonies','light'],
+ ['andalusian-courtyard','Andalusian Courtyard','light'],
+ ['lavender-dusk','Lavender Dusk','light'],
+ ['coastal-morning','Coastal Morning','light'],
+ ['desert-rose','Desert Rose','light'],
+ ['botanical-linen','Botanical Linen','light'],
+ ['pearl-marble','Pearl Marble','light'],
+ ['velvet-plum','Velvet Plum','dark'],
+ ['midnight-observatory','Midnight Observatory','dark'],
+ ['emerald-courtyard','Emerald Courtyard','dark'],
+ ['copper-desert','Copper Desert','dark'],
+ ['rain-on-slate','Rain on Slate','dark'],
+ ['black-lacquer','Black Lacquer','dark'],
+ ['twilight-wisteria','Twilight Wisteria','dark']
+];
+const babmCardAssets='https://sgcnetwork.co.za/babm/share-backgrounds/';
+const babmShareCredit='Powered by SGC Network';
+
+function babmCardLines(ctx,text,width){
+ return text.split(/\r?\n/).flatMap(paragraph=>{
+  const lines=[];
+  let line='';
+  for(const word of paragraph.trim().split(/\s+/)){
+   const next=line?line+' '+word:word;
+   if(line&&ctx.measureText(next).width>width){lines.push(line);line=word}
+   else line=next;
+  }
+  return [...lines,line];
+ });
+}
+
+async function makeQuranShareCard(card,theme){
+ const [slug,,mode]=theme;
+ const background=new Image();
+ background.crossOrigin='anonymous';
+ background.src=babmCardAssets+slug+'.webp';
+ await Promise.all([
+  background.decode(),
+  Promise.race([document.fonts.ready,new Promise(resolve=>setTimeout(resolve,1500))])
+ ]);
+ const canvas=document.createElement('canvas');
+ canvas.width=1080;
+ const ctx=canvas.getContext('2d');
+ const arabicFont='48px "Noto Naskh Arabic","Amiri",serif';
+ const bodyFont='36px Georgia,serif';
+ ctx.font=arabicFont;
+ const arabic=card.arabic?babmCardLines(ctx,card.arabic,760):[];
+ ctx.font=bodyFont;
+ const lines=babmCardLines(ctx,card.body,760);
+ const textHeight=arabic.length*83+(arabic.length?36:0)+lines.length*54;
+ canvas.height=Math.max(1350,textHeight+610);
+ if(canvas.height>8192)throw new Error('Choose a shorter tafseer excerpt to make a picture.');
+ const height=canvas.height;
+ const band=Math.round(background.height*.44);
+ const edge=band*1080/background.width;
+ ctx.drawImage(background,0,0,background.width,band,0,0,1080,edge);
+ ctx.drawImage(background,0,band,background.width,background.height-2*band,0,edge,1080,height-2*edge);
+ ctx.drawImage(background,0,background.height-band,background.width,band,0,height-edge,1080,edge);
+ ctx.fillStyle=mode==='dark'?'#fff5e4':'#30232b';
+ ctx.textAlign='center';
+ ctx.textBaseline='middle';
+ const paint=(text,y,font)=>{ctx.font=font;ctx.fillText(text,540,y,760)};
+ paint('Becoming a Better Muslimah',255,'bold 36px Georgia,serif');
+ paint(card.title,312,'32px Georgia,serif');
+ let y=380+(height-610-textHeight)/2;
+ ctx.direction='rtl';
+ for(const line of arabic){paint(line,y+41,arabicFont);y+=83}
+ ctx.direction='ltr';
+ if(arabic.length)y+=36;
+ for(const line of lines){paint(line,y+27,bodyFont);y+=54}
+ paint(card.credit,height-225,'27px Georgia,serif');
+ paint('babm.sgcnetwork.co.za',height-179,'26px Georgia,serif');
+ paint(babmShareCredit,height-133,'bold 25px Georgia,serif');
+ return new Promise((resolve,reject)=>canvas.toBlob(blob=>blob?resolve(blob):reject(new Error('Could not create picture.')),'image/png'));
+}
+
+function babmChooseTheme(card){
+ const dialog=document.createElement('dialog');
+ dialog.className='community-dialog quran-share-dialog quran-card-picker';
+ dialog.setAttribute('aria-labelledby','quranCardTitle');
+ dialog.innerHTML=`<div class="quran-card-preview">
+ <div class="quran-card-heading"><h2 id="quranCardTitle">Choose a background</h2><button type="button" class="smallbtn" data-close-card>Close</button></div>
+ <img data-card-preview alt="Share card preview" hidden>
+ <p role="status">Preparing preview…</p>
+ <div class="community-composebar"><button type="button" class="smallbtn" data-save-card disabled>Save picture</button><button type="button" class="primary" data-send-card disabled>Share picture</button></div>
+ </div><h3>Light designs</h3><div class="quran-card-themes" data-card-mode="light"></div>
+ <h3>Dark designs</h3><div class="quran-card-themes" data-card-mode="dark"></div>`;
+ for(const [slug,name,mode] of babmCardThemes){
+  const button=document.createElement('button');
+  button.type='button';
+  button.className='smallbtn';
+  button.dataset.cardTheme=slug;
+  button.setAttribute('aria-pressed','false');
+  button.innerHTML=`<img src="${babmCardAssets+slug}.webp" alt="" decoding="async"><span>${name}</span>`;
+  dialog.querySelector('[data-card-mode="'+mode+'"]').append(button);
+ }
+ const preview=dialog.querySelector('[data-card-preview]');
+ const status=dialog.querySelector('[role="status"]');
+ const send=dialog.querySelector('[data-send-card]');
+ const save=dialog.querySelector('[data-save-card]');
+ const filename='BABM-'+card.kind+'-'+card.reference.replace(':','-')+'.png';
+ let version=0,blob=null,previewUrl=null;
+ async function render(theme){
+  const serial=++version;
+  blob=null;
+  send.disabled=save.disabled=true;
+  preview.hidden=true;
+  status.textContent='Preparing preview…';
+  dialog.querySelectorAll('[data-card-theme]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.cardTheme===theme[0])));
+  try{
+   const result=await makeQuranShareCard(card,theme);
+   if(serial!==version)return;
+   blob=result;
+   if(previewUrl)URL.revokeObjectURL(previewUrl);
+   previewUrl=URL.createObjectURL(blob);
+   preview.src=previewUrl;
+   preview.hidden=false;
+   send.disabled=save.disabled=false;
+   status.textContent='Ready to share';
+  }catch(error){if(serial===version)status.textContent=error.message.startsWith('Choose a shorter')?error.message:'Could not load this background. Choose a design to try again.'}
+ }
+ function download(){
+  if(!blob)return;
+  const url=URL.createObjectURL(blob);
+  const link=document.createElement('a');
+  link.href=url;
+  link.download=filename;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),60000);
+ }
+ save.onclick=download;
+ send.onclick=async()=>{
+  if(!blob)return;
+  const files=[new File([blob],filename,{type:'image/png'})];
+  try{
+   if(navigator.share&&navigator.canShare?.({files})){
+    await navigator.share({files,title:card.title,text:card.link+'\n'+babmShareCredit});
+    return;
+   }
+  }catch(error){if(error.name==='AbortError')return}
+  download();
+  status.textContent='Picture saved. Attach it to your message to share.';
+ };
+ dialog.onclick=event=>{
+  const button=event.target.closest('[data-card-theme]');
+  if(button)void render(babmCardThemes.find(theme=>theme[0]===button.dataset.cardTheme));
+ };
+ dialog.querySelector('[data-close-card]').onclick=()=>dialog.close();
+ dialog.addEventListener('close',()=>{
+  version++;
+  if(previewUrl)URL.revokeObjectURL(previewUrl);
+  dialog.remove();
+ },{once:true});
+ document.body.append(dialog);
+ dialog.showModal();
+ void render(babmCardThemes[0]);
+}
+
 function openQuranShare(trigger, tafsir){
  const surah=chapter;
  const ayah=tafsir?Number(tafsir.dataset.tafsir.split(':')[1]):Number(trigger.dataset.share);
@@ -235,7 +388,7 @@ function openQuranShare(trigger, tafsir){
  <div class="community-composebar">
  <button type="button" class="primary" data-share-text>Share text</button>
  <button type="button" class="smallbtn" data-copy-text>Copy text</button>
- ${tafsir?'':'<button type="button" class="smallbtn" data-share-picture>Share picture</button>'}
+ <button type="button" class="smallbtn" data-share-picture>Share picture</button>
  <button type="button" class="smallbtn" data-close-share autofocus>Close</button>
  </div><p role="status"></p>`;
  const preview=dialog.querySelector('textarea');
@@ -244,10 +397,14 @@ function openQuranShare(trigger, tafsir){
  preview.value=tafsir?tafsir.querySelector('.tafsir-text').innerText.trim():
   verse.querySelector('.arabic').textContent+'\n\n'+editions[1].surahs[surah-1].ayahs[ayah-1].text;
  const credit=tafsir?'Tafsir Ibn Kathir (English, abridged) · Qur’an '+reference:'Qur’an '+reference+' · English translation by Pickthall';
- function shareText(){
+ function selectedText(){
   const excerpt=tafsir?preview.value.slice(preview.selectionStart,preview.selectionEnd).trim():preview.value;
   if(!excerpt){status.textContent='Select a passage to share first.';preview.focus();return ''}
-  return (tafsir?'“'+excerpt+'”':excerpt)+'\n\n'+credit+'\n'+link;
+  return excerpt;
+ }
+ function shareText(){
+  const excerpt=selectedText();
+  return excerpt?(tafsir?'“'+excerpt+'”':excerpt)+'\n\n'+credit+'\n'+link+'\n'+babmShareCredit:'';
  }
  async function copy(text){
   try{await navigator.clipboard.writeText(text);status.textContent='Copied to clipboard.'}
@@ -264,7 +421,18 @@ function openQuranShare(trigger, tafsir){
  };
  dialog.querySelector('[data-copy-text]').onclick=()=>{const text=shareText();if(text)void copy(text)};
  const picture=dialog.querySelector('[data-share-picture]');
- if(picture)picture.onclick=()=>{dialog.close();babmChooseTheme(ayah)};
+ picture.onclick=()=>{
+  const excerpt=selectedText();
+  if(!excerpt)return;
+  const card={
+   kind:tafsir?'Tafseer':'Ayah',reference,link,credit,
+   title:tafsir?'Tafseer excerpt · '+reference:'Qur’an '+reference,
+   arabic:tafsir?'':verse.querySelector('.arabic').textContent,
+   body:tafsir?'“'+excerpt+'”':editions[1].surahs[surah-1].ayahs[ayah-1].text
+  };
+  dialog.close();
+  babmChooseTheme(card);
+ };
  dialog.querySelector('[data-close-share]').onclick=()=>dialog.close();
  dialog.addEventListener('close',()=>dialog.remove(),{once:true});
  document.body.append(dialog);
