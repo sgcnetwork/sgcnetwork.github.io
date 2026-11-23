@@ -7,7 +7,9 @@ const list = document.querySelector('#appointment-list');
 const stopEdit = document.querySelector('#stop-edit');
 const mode = document.querySelector('#form-mode');
 const cards = [...document.querySelectorAll('.card[data-service]')];
-const key = 'sgc-salon-demo-v1:' + location.pathname.split('/')[1];
+const salonSlug = location.pathname.split('/')[1];
+const key = 'sgc-salon-demo-v1:' + salonSlug;
+const previousSerahServices = ['Beauty treatments', 'Special-occasion prep', 'Beauty consultations'];
 const formatMoney = new Intl.NumberFormat('en-ZA', {style:'currency',currency:'ZAR',maximumFractionDigits:2});
 const formatDate = new Intl.DateTimeFormat('en-ZA', {dateStyle:'long'});
 const formatLocalDate = new Intl.DateTimeFormat('en-CA', {timeZone:'Africa/Johannesburg',year:'numeric',month:'2-digit',day:'2-digit'});
@@ -32,11 +34,20 @@ function sampleOffer(name, index) {
 
 const menu = new Map(cards.map((card, index) => {
   const name = card.dataset.service;
-  const offer = sampleOffer(name, index);
+  const { minutes, price } = card.dataset;
+  const offer = minutes && price ? { minutes: Number(minutes), price: Number(price) } : sampleOffer(name, index);
   card.querySelector('h3').after(make('p', formatMoney.format(offer.price) + ' · ' + offer.minutes + ' min · Sample', 'sample-price'));
   return [name, offer];
 }));
 service.replaceChildren(new Option('Choose a service', ''), ...[...menu.keys()].map(name => new Option(name)));
+if (salonSlug === 'serahs-beauty-spot') {
+  const existingServices = new Set(loadBookings().map(record => record?.service));
+  previousSerahServices.forEach((name, index) => {
+    if (!existingServices.has(name)) return;
+    menu.set(name, sampleOffer(name, index));
+    service.add(new Option(name + ' (previous demo menu)', name));
+  });
+}
 day.min = today;
 
 function loadBookings() {
