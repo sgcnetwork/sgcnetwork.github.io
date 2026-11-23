@@ -9,7 +9,10 @@ const mode = document.querySelector('#form-mode');
 const cards = [...document.querySelectorAll('.card[data-service]')];
 const salonSlug = location.pathname.split('/')[1];
 const key = 'sgc-salon-demo-v1:' + salonSlug;
-const previousSerahServices = ['Beauty treatments', 'Special-occasion prep', 'Beauty consultations'];
+const previousMenus = {
+  'serahs-beauty-spot': ['Beauty treatments', 'Special-occasion prep', 'Beauty consultations'],
+  'nellys-nails-and-lash-bar': ['Nail sets', 'Lash appointments', 'Nail maintenance']
+};
 const formatMoney = new Intl.NumberFormat('en-ZA', {style:'currency',currency:'ZAR',maximumFractionDigits:2});
 const formatDate = new Intl.DateTimeFormat('en-ZA', {dateStyle:'long'});
 const formatLocalDate = new Intl.DateTimeFormat('en-CA', {timeZone:'Africa/Johannesburg',year:'numeric',month:'2-digit',day:'2-digit'});
@@ -40,9 +43,9 @@ const menu = new Map(cards.map((card, index) => {
   return [name, offer];
 }));
 service.replaceChildren(new Option('Choose a service', ''), ...[...menu.keys()].map(name => new Option(name)));
-if (salonSlug === 'serahs-beauty-spot') {
+if (Object.hasOwn(previousMenus, salonSlug)) {
   const existingServices = new Set(loadBookings().map(record => record?.service));
-  previousSerahServices.forEach((name, index) => {
+  previousMenus[salonSlug].forEach((name, index) => {
     if (!existingServices.has(name)) return;
     menu.set(name, sampleOffer(name, index));
     service.add(new Option(name + ' (previous demo menu)', name));
