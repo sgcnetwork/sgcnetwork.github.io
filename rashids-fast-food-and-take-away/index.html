@@ -1,29 +1,32 @@
 <!doctype html>
 <html lang="en-ZA">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex, nofollow"><meta name="description" content="Browse a sample takeaway menu and try putting together a collection enquiry.">
-<title>Rashid’s Fast Food &amp; Take Away | Website preview by SGC Network</title>
-<link rel="stylesheet" href="../sgc-local-preview-assets/preview.css"><script defer src="../sgc-local-preview-assets/preview.js"></script>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow"><meta name="description" content="A takeaway website concept for Rashid’s in Bosmont, with a sample menu and collection builder.">
+<title>Rashid’s Fast Food &amp; Take Away | SGC Network Preview</title>
+<link rel="stylesheet" href="takeaway.css"><script defer src="takeaway.js"></script>
 </head>
-<body class="takeaway" style="--brand:#732b20;--tint:#fff0d8" data-business="Rashid’s Fast Food &amp; Take Away" data-whatsapp="27723688296">
-<div class="notice">Unofficial website concept by SGC Network</div>
-<header class="wrap"><a class="brand" href="#">Rashid’s Fast Food &amp; Take Away</a><nav aria-label="Main navigation"><a href="#offerings">Menu</a><a class="button outline" href="#enquiry">Collection demo</a></nav></header>
+<body>
+<div class="preview">Website concept by SGC Network</div>
+<header class="shell header"><a class="wordmark" href="#">Rashid’s<span>Fast Food &amp; Take Away</span></a><nav aria-label="Main navigation"><a href="#menu">Menu</a><a href="#location">Find us</a><a class="pill dark" href="#order">Order demo <span id="nav-count" hidden></span></a></nav></header>
 <main>
-<section class="hero wrap">
-<div class="hero-copy"><p class="eyebrow">Bosmont, Johannesburg</p><h1>Takeaway favourites<br><em>in Bosmont.</em></h1><p>Browse a sample takeaway menu and try putting together a collection enquiry.</p><a class="button" href="#offerings">Browse demo menu</a></div>
-<div class="hero-photo" role="img" aria-label="Illustrative fish and chips in a takeaway box" style="--photo:url('https://upload.wikimedia.org/wikipedia/commons/f/f2/Take_away_-_fish_and_chips.jpg');--position:center"></div>
+<section class="hero">
+<div class="shell hero-grid"><div class="hero-copy"><p class="kicker">Bosmont · Johannesburg</p><h1>Fish. Chips.<br>Take it <em>home.</em></h1><p>A neighbourhood takeaway on Olywenhout Street. Browse the sample menu or ask Rashid’s what’s cooking today.</p><div class="actions"><a class="pill gold" href="#menu">View sample menu</a><a class="pill light" href="https://wa.me/27723688296?text=Hi%20Rashid%E2%80%99s%2C%20could%20you%20share%20your%20current%20menu%20and%20collection%20options%2C%20please%3F">Ask on WhatsApp</a></div></div>
+<figure><img src="https://upload.wikimedia.org/wikipedia/commons/f/f2/Take_away_-_fish_and_chips.jpg" alt="Illustrative photo of fish and chips in a takeaway tray" fetchpriority="high"><figcaption>Serving suggestion · illustrative photo</figcaption></figure></div>
 </section>
-<section id="offerings" class="wrap section"><div class="section-heading"><h2>The takeaway menu</h2><p>Sample items and prices for this demo. Ask the shop for its current menu and prices.</p></div>
-<div class="cards"><article class="card"><div class="card-copy"><h3>Fish &amp; chips</h3><p>Battered fish with a side of chips.</p><p class="price">R75</p><button class="button outline" type="button" data-choice="0">Add to demo order</button></div></article><article class="card"><div class="card-copy"><h3>Burger &amp; chips</h3><p>A classic burger with a side of chips.</p><p class="price">R65</p><button class="button outline" type="button" data-choice="1">Add to demo order</button></div></article><article class="card"><div class="card-copy"><h3>Chips to share</h3><p>A larger side for the table.</p><p class="price">R40</p><button class="button outline" type="button" data-choice="2">Add to demo order</button></div></article></div>
-</section>
-<section id="enquiry" class="enquiry"><div class="wrap section enquiry-layout">
-<div><p class="eyebrow">Collection demo</p><h2>Plan your collection</h2><p>Try building an order here. To ask about today’s menu, open a separate WhatsApp enquiry.</p><p>The demo does not place an order or take payment.</p></div>
-<form>
-<div id="basket" aria-live="polite"></div><p id="total"></p><script type="application/json" id="menu-data">[{"name":"Fish & chips","price":75},{"name":"Burger & chips","price":65},{"name":"Chips to share","price":40}]</script>
-<button class="button" type="submit">Preview collection request</button><p id="result" role="status" hidden></p><a class="contact" href="https://wa.me/27723688296?text=Hi%2C%20could%20you%20please%20share%20your%20current%20menu%20and%20collection%20options%3F">Ask the shop on WhatsApp</a>
-</form></div></section>
+<div class="shell menu-grid" id="menu">
+<section aria-labelledby="menu-title"><p class="kicker">The takeaway menu</p><h2 id="menu-title">What are you having?</h2><p class="muted">Sample items and prices. Check with Rashid’s for today’s menu.</p>
+<div class="menu-items"><article class="dish"><div><h3>Fish &amp; chips</h3><p>Battered fish with a side of chips</p></div><div class="dish-action"><strong>R75</strong><button class="add" type="button" data-add="0" aria-label="Add Fish &amp; chips">+ Add</button></div></article>
+<article class="dish"><div><h3>Burger &amp; chips</h3><p>Classic burger served with chips</p></div><div class="dish-action"><strong>R65</strong><button class="add" type="button" data-add="1" aria-label="Add Burger &amp; chips">+ Add</button></div></article>
+<article class="dish"><div><h3>Chips to share</h3><p>A larger portion for the table</p></div><div class="dish-action"><strong>R40</strong><button class="add" type="button" data-add="2" aria-label="Add Chips to share">+ Add</button></div></article></div></section>
+<aside id="order" class="receipt" aria-labelledby="order-title"><p class="kicker">Collection demo</p><h2 id="order-title">Your bag</h2><div id="bag"><p class="muted">Your bag is empty. Add something from the menu.</p></div>
+<div class="total"><span>Sample total</span><strong id="total">R0</strong></div>
+<button class="pill dark full" id="preview-order" type="button" disabled>Preview collection request</button>
+<p id="status" class="sr-only" role="status"></p><div id="summary" hidden><p id="summary-text"></p><a id="order-link" class="pill dark full" href="https://wa.me/27723688296?text=Hi%20Rashid%E2%80%99s%2C%20could%20you%20share%20your%20current%20menu%20and%20collection%20options%2C%20please%3F">Open WhatsApp enquiry</a></div>
+<p class="note">This demo takes no payments. Rashid’s can confirm prices and collection availability on WhatsApp.</p></aside>
+</div>
+<section class="location" id="location"><div class="shell location-inner"><div><p class="kicker">Find Rashid’s</p><h2>See you in Bosmont.</h2><p>21 Olywenhout Street, Bosmont, Johannesburg</p></div><div class="actions"><a class="pill dark" href="https://www.google.com/maps/search/?api=1&amp;query=21%20Olywenhout%20Street%2C%20Bosmont">Get directions</a><a class="pill border" href="https://wa.me/27723688296?text=Hi%20Rashid%E2%80%99s%2C%20could%20you%20share%20your%20current%20menu%20and%20collection%20options%2C%20please%3F">WhatsApp 072 368 8296</a></div></div></section>
 </main>
-<footer class="wrap"><span>Rashid’s Fast Food &amp; Take Away · Bosmont, Johannesburg</span><a href="https://www.google.com/maps/search/?api=1&amp;query=21%20Olywenhout%20Street%2C%20Bosmont">Directions to 21 Olywenhout Street</a><small>Illustrative photo by <a href="https://commons.wikimedia.org/wiki/File:Take_away_-_fish_and_chips.jpg">Lauren Stephan</a>, <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a>, cropped for display.</small><a href="https://sgcnetwork.co.za/">Website concept by SGC Network</a></footer>
-</body>
-</html>
+<footer class="shell footer"><a href="https://sgcnetwork.co.za/">Website concept by SGC Network</a><small>Illustrative photo by <a href="https://commons.wikimedia.org/wiki/File:Take_away_-_fish_and_chips.jpg">Lauren Stephan</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> · cropped for display</small></footer>
+<script id="menu-data" type="application/json">[{"name":"Fish & chips","price":75},{"name":"Burger & chips","price":65},{"name":"Chips to share","price":40}]</script>
+</body></html>
