@@ -1,0 +1,17 @@
+
+[hidden]{display:none!important}
+.booking .pill{margin-top:20px;background:transparent}
+.booking form h3{margin:5px 0 18px;font-size:1.3rem}
+.booking fieldset{border:0;border-top:1px solid var(--line);padding:12px 0 0;margin:0 0 19px;min-width:0}
+.booking legend{padding-right:9px;font-size:.88rem;font-weight:700;color:var(--red)}
+.booking .check{display:flex;align-items:center;gap:9px;margin-top:12px}
+.check input{width:18px;height:18px;accent-color:var(--red);flex:none}
+.booking .fields{margin:0}
+.booking-summary{margin-top:13px;padding:12px 14px;background:var(--pink);font-size:.9rem;white-space:pre-line;border-radius:6px}
+.booking-actions,.appointment-actions{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.booking-actions .pill,.appointment-actions .pill{margin:0;background:transparent}
+.appointments{background:var(--lilac)}
+#appointment-list{display:grid;gap:12px}
+.appointment-card{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;background:var(--cream);border:1px solid var(--line);padding:17px 20px;border-radius:10px}
+.appointment-card p{margin-top:4px;font-size:.88rem}.sample-price{font-size:.86rem;color:var(--red)}
+@media(max-width:420px){.booking .fields{grid-template-columns:1fr}}
