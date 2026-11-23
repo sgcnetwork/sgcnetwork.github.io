@@ -1,14 +1,69 @@
 <!doctype html>
 <html lang="en-ZA">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex, nofollow"><meta name="description" content="An appointment-led studio concept with space for a style consultation before your visit."><title>Apple-Thu Studio | Website preview by SGC Network</title><link rel="stylesheet" href="/salon-preview-assets/glow.css"><script defer src="/salon-preview-assets/interactive.js"></script><link rel="stylesheet" href="/salon-preview-assets/interactive.css"></head>
-<body class="beauty" id="top">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex, nofollow"><meta name="description" content="An appointment-led studio concept with space for a style consultation before your visit."><title>Apple-Thu Studio | Website preview by SGC Network</title><link rel="stylesheet" href="/salon-preview-assets/glow.css"><script defer src="/salon-preview-assets/interactive.js"></script><link rel="stylesheet" href="/salon-preview-assets/interactive.css">
+<style>
+.apple { --red:#64333f; --pink:#f3e6df; --cream:#fffbf6; --lilac:#eee2e7; --ink:#34252b; --line:#64333f38; }
+.apple .hero { gap:clamp(18px,4vw,60px); align-items:center; min-height:0; padding:clamp(24px,4vw,58px) 6%; }
+.apple .hero-copy { padding:clamp(12px,3vw,40px) 0; }
+.apple .hero h1 { font-size:clamp(45px,6.3vw,96px); }
+.apple .studio-image { background-image:url('/serahs-beauty-spot/treatment-studio.png'); background-size:200% 200%; background-repeat:no-repeat; }
+.apple .studio-room { aspect-ratio:1.12; min-height:0; border-radius:48% 48% 18px 18px; background-position:0 0; }
+.apple .section-heading { align-items:center; }
+.apple .cards { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.apple .card { background:#fff; border:1px solid var(--line); border-radius:20px; padding:12px; gap:10px; }
+.apple .card-image { aspect-ratio:1.28; border-radius:12px; }
+.apple .card h3 { font:600 clamp(21px,2.4vw,30px)/1.15 'Playfair Display',Georgia,serif; }
+.apple .card p { margin-bottom:8px; }
+.apple .studio-skin { background-position:100% 0; }
+.apple .studio-nails { background-position:0 100%; }
+.apple .studio-brows { background-position:100% 100%; }
+@media(max-width:750px) {
+  .apple .cards { grid-template-columns:1fr; }
+  .apple .card-image { aspect-ratio:1.55; }
+  .apple .hero { gap:12px; }
+  .apple .section-heading > p { margin-top:8px; }
+}
+</style>
+</head>
+<body class="beauty apple" id="top">
 <div class="preview-bar"><span>Unofficial website concept by SGC Network</span><span>Interactive demo · No real bookings</span></div>
-<div class="announcement">Soweto &nbsp; ✦ &nbsp; Salon appointments</div>
 <header><a class="wordmark" href="#top">Apple-Thu Studio</a><nav aria-label="Main navigation"><a href="#services">Services</a><a class="pill" href="#booking">Booking demo ↗</a></nav></header>
 <main>
-<section class="hero"><div class="hero-copy"><p class="eyebrow">Soweto</p><h1>Give your next beauty look<br><em>a moment.</em></h1><p class="intro">An appointment-led studio concept with space for a style consultation before your visit.</p><a class="action" href="#services">Explore services <span aria-hidden="true">↗</span></a></div><div class="hero-visual photo" role="img" aria-label="Illustrative salon campaign photograph"><div class="stamp" aria-hidden="true">THE SALON<br><em>edit</em>✦</div></div></section>
-<div class="strip" aria-hidden="true">Beauty consultation &nbsp; ✦ &nbsp; Beauty appointments &nbsp; ✦ &nbsp; Occasion prep</div>
-<section class="section" id="services"><div class="section-heading"><div><p class="eyebrow">Apple-Thu Studio</p><h2>The service <em>edit.</em></h2></div><p>Explore a sample menu and choose a service to try the booking flow.</p></div><div class="cards"><a class="card" href="#booking" data-service="Beauty consultation"><div class="card-image photo photo-beauty" aria-hidden="true"><span>↗</span></div><h3>Beauty consultation</h3><span class="pill">Choose service</span></a><a class="card" href="#booking" data-service="Beauty appointments"><div class="card-image photo photo-beauty" aria-hidden="true"><span>↗</span></div><h3>Beauty appointments</h3><span class="pill">Choose service</span></a><a class="card" href="#booking" data-service="Occasion prep"><div class="card-image photo photo-beauty" aria-hidden="true"><span>↗</span></div><h3>Occasion prep</h3><span class="pill">Choose service</span></a></div></section>
+<section class="hero">
+  <div class="hero-copy">
+    <p class="eyebrow">Beauty studio · Soweto</p>
+    <h1>A little time <em>for you.</em></h1>
+    <p class="intro">Plan your next beauty appointment, from a one-on-one consultation to getting ready for a special occasion.</p>
+    <a class="action" href="#services">Explore services</a>
+  </div>
+  <div class="hero-visual studio-image studio-room" role="img" aria-label="Illustrative beauty treatment room with warm light and cream linens"></div>
+</section>
+<section class="section" id="services">
+  <div class="section-heading">
+    <h2>Beauty <em>services.</em></h2>
+    <p>Choose a sample service to try the booking demo.</p>
+  </div>
+  <div class="cards">
+    <a class="card" href="#booking" data-service="Beauty consultation">
+      <div class="card-image studio-image studio-skin" aria-hidden="true"></div>
+      <h3>Beauty consultation</h3>
+      <p>Talk through the look you want and plan your appointment.</p>
+      <span class="pill">Choose consultation</span>
+    </a>
+    <a class="card" href="#booking" data-service="Beauty appointments">
+      <div class="card-image studio-image studio-nails" aria-hidden="true"></div>
+      <h3>Beauty appointments</h3>
+      <p>Set aside time for a beauty treatment or a fresh manicure.</p>
+      <span class="pill">Choose appointment</span>
+    </a>
+    <a class="card" href="#booking" data-service="Occasion prep">
+      <div class="card-image studio-image studio-brows" aria-hidden="true"></div>
+      <h3>Occasion prep</h3>
+      <p>Plan the finishing touches for your next event.</p>
+      <span class="pill">Choose occasion prep</span>
+    </a>
+  </div>
+</section>
 <section class="section booking" id="booking"><div><p class="eyebrow">Interactive booking demo</p><h2>Make time <em>for you.</em></h2><p>Choose a service, see sample availability and try a deposit. The demo uses a fictional appointment calendar and saves bookings in this browser.</p><a class="pill" href="#appointments">My demo bookings ↓</a></div>
 <form id="booking-form"><p class="eyebrow" id="form-mode">New appointment</p><h3>Build your appointment</h3><fieldset><legend>1. Your service</legend><label>Service<select name="service" required></select></label><label class="check"><input type="checkbox" name="addon"> Add a 15-minute consultation · R50</label></fieldset>
 <fieldset><legend>2. Pick a date and time</legend><div class="fields"><label>Date<input type="date" name="day" required></label><label>Available times<select name="time" required></select></label></div></fieldset>
