@@ -28,7 +28,7 @@ function quantityButton(index, change) {
 function update(index, change, fromBag = false) {
   counts[index] = Math.max(0, counts[index] + change);
   render();
-  status.textContent = menu[index].name + " quantity " + counts[index] + ". Sample total " + total.textContent + ".";
+  status.textContent = menu[index].name + " quantity " + counts[index] + ". Menu total " + total.textContent + ".";
   if (fromBag) {
     const next = bag.querySelector('[data-control="' + index + ':' + change + '"]') ||
       document.querySelector('[data-add="' + index + '"]');
@@ -40,7 +40,7 @@ function render() {
   let quantity = 0;
   let subtotal = 0;
   bag.replaceChildren();
-  menu.forEach(({ name, price }, index) => {
+  menu.forEach(({ name, price, offer }, index) => {
     const count = counts[index];
     if (!count) return;
     quantity += count;
@@ -49,6 +49,9 @@ function render() {
     row.className = "bag-row";
     const label = document.createElement("strong");
     label.textContent = name;
+    const group = document.createElement("small");
+    group.textContent = offer;
+    label.append(group);
     const controls = document.createElement("div");
     controls.className = "quantity";
     controls.append(quantityButton(index, -1), document.createTextNode(count), quantityButton(index, 1));
@@ -74,7 +77,7 @@ document.querySelectorAll("[data-add]").forEach(button => {
 });
 
 preview.addEventListener("click", () => {
-  const items = menu.flatMap(({ name }, index) => counts[index] ? [counts[index] + " × " + name] : []);
+  const items = menu.flatMap(({ name, offer }, index) => counts[index] ? [counts[index] + " × " + name + " (" + offer + ")"] : []);
   if (!items.length) return;
   summaryText.textContent = items.join(", ") + ". Ask Rashid’s to confirm current prices and pickup.";
   const message = "Hi Rashid’s, could you confirm availability and current prices for collection? I’m interested in " + items.join(", ") + ". Thank you.";
@@ -88,13 +91,16 @@ checkoutButton.addEventListener("click", () => {
   if (!counts.some(Boolean)) return;
   checkout.returnValue = "";
   checkoutItems.replaceChildren();
-  menu.forEach(({ name, price }, index) => {
+  menu.forEach(({ name, price, offer }, index) => {
     const count = counts[index];
     if (!count) return;
     const line = document.createElement("li");
     const label = document.createElement("span");
     const amount = document.createElement("strong");
     label.textContent = count + " × " + name;
+    const group = document.createElement("small");
+    group.textContent = offer;
+    label.append(group);
     amount.textContent = "R" + count * price;
     line.append(label, amount);
     checkoutItems.append(line);

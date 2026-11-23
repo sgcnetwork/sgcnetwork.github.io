@@ -10,3 +10,8 @@ dialog::backdrop{background:#241915a8}
 .checkout-content h2{font-size:clamp(2rem,6vw,3rem)}
 .checkout-items{padding:0;list-style:none}
 .checkout-items li{display:flex;justify-content:space-between;gap:1rem;padding:.5rem 0;border-bottom:1px solid var(--line)}
+
+.menu-group{margin-top:2rem}
+.menu-group-heading{display:flex;align-items:baseline;justify-content:space-between;gap:.8rem;padding:.6rem .8rem;background:var(--gold);color:var(--deep);border-radius:.5rem}
+.menu-group-heading h3{font-size:1.25rem}.menu-group-heading a{font-weight:750;white-space:nowrap}
+.menu-group .menu-items{margin-top:.25rem;border-top:0}.dish h4{font-size:1rem;margin:0}.bag-row small,.checkout-items small{display:block;color:#63534b;font-weight:500}
