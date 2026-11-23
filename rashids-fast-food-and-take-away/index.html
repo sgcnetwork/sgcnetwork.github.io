@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow"><meta name="description" content="A takeaway website concept for Rashid’s in Bosmont, with a sample menu and collection builder.">
 <title>Rashid’s Fast Food &amp; Take Away | SGC Network Preview</title>
-<link rel="stylesheet" href="takeaway.css"><script defer src="takeaway.js"></script>
+<link rel="stylesheet" href="takeaway.css?v=checkout"><script defer src="takeaway.js?v=checkout"></script>
 </head>
 <body>
 <div class="preview">Website concept by SGC Network</div>
@@ -21,11 +21,27 @@
 <article class="dish"><div><h3>Chips to share</h3><p>A larger portion for the table</p></div><div class="dish-action"><strong>R40</strong><button class="add" type="button" data-add="2" aria-label="Add Chips to share">+ Add</button></div></article></div></section>
 <aside id="order" class="receipt" aria-labelledby="order-title"><p class="kicker">Collection demo</p><h2 id="order-title">Your bag</h2><div id="bag"><p class="muted">Your bag is empty. Add something from the menu.</p></div>
 <div class="total"><span>Sample total</span><strong id="total">R0</strong></div>
-<button class="pill dark full" id="preview-order" type="button" disabled>Preview collection request</button>
+<button class="pill dark full" id="open-checkout" type="button" disabled>Go to checkout</button>
+<button class="pill border full secondary" id="preview-order" type="button" disabled>Preview WhatsApp enquiry</button>
 <p id="status" class="sr-only" role="status"></p><div id="summary" hidden><p id="summary-text"></p><a id="order-link" class="pill dark full" href="https://wa.me/27723688296?text=Hi%20Rashid%E2%80%99s%2C%20could%20you%20share%20your%20current%20menu%20and%20collection%20options%2C%20please%3F">Open WhatsApp enquiry</a></div>
-<p class="note">This demo takes no payments. Rashid’s can confirm prices and collection availability on WhatsApp.</p></aside>
+<p class="note">Sample prices. Online card checkout is a demo. Rashid’s can confirm prices and collection availability on WhatsApp.</p></aside>
 </div>
 <section class="location" id="location"><div class="shell location-inner"><div><p class="kicker">Find Rashid’s</p><h2>See you in Bosmont.</h2><p>21 Olywenhout Street, Bosmont, Johannesburg</p></div><div class="actions"><a class="pill dark" href="https://www.google.com/maps/search/?api=1&amp;query=21%20Olywenhout%20Street%2C%20Bosmont">Get directions</a><a class="pill border" href="https://wa.me/27723688296?text=Hi%20Rashid%E2%80%99s%2C%20could%20you%20share%20your%20current%20menu%20and%20collection%20options%2C%20please%3F">WhatsApp 072 368 8296</a></div></div></section>
+<dialog id="checkout" aria-labelledby="checkout-title">
+<form method="dialog" class="checkout-content">
+<p class="kicker">Collection checkout · Demo</p>
+<h2 id="checkout-title">Pay by card</h2>
+<p class="muted">Collection from 21 Olywenhout Street, Bosmont.</p>
+<ul id="checkout-items" class="checkout-items"></ul>
+<div class="total"><span>Sample total</span><strong id="checkout-total"></strong></div>
+<p class="note">This simulates a card payment. No card details or money are collected.</p>
+<div class="actions"><button class="pill dark" value="simulate" type="submit">Simulate card payment</button><button class="pill border" value="cancel" type="submit">Back to bag</button></div>
+</form>
+</dialog>
+<dialog id="checkout-result" aria-labelledby="checkout-result-title"><form method="dialog" class="checkout-content">
+<p class="kicker">Demo complete</p><h2 id="checkout-result-title">Payment simulated</h2>
+<p id="checkout-confirmation"></p><p>No money was charged and no order was sent.</p>
+<button class="pill dark" type="submit">Back to menu</button></form></dialog>
 </main>
 <footer class="shell footer"><a href="https://sgcnetwork.co.za/">Website concept by SGC Network</a><small>Illustrative photo by <a href="https://commons.wikimedia.org/wiki/File:Take_away_-_fish_and_chips.jpg">Lauren Stephan</a> · <a href="https://creativecommons.org/licenses/by-sa/4.0/">CC BY-SA 4.0</a> · cropped for display</small></footer>
 <script id="menu-data" type="application/json">[{"name":"Fish & chips","price":75},{"name":"Burger & chips","price":65},{"name":"Chips to share","price":40}]</script>

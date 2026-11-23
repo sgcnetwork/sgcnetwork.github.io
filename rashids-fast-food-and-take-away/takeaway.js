@@ -8,6 +8,12 @@ const status = document.querySelector("#status");
 const summary = document.querySelector("#summary");
 const summaryText = document.querySelector("#summary-text");
 const orderLink = document.querySelector("#order-link");
+const checkoutButton = document.querySelector("#open-checkout");
+const checkout = document.querySelector("#checkout");
+const checkoutResult = document.querySelector("#checkout-result");
+const checkoutItems = document.querySelector("#checkout-items");
+const checkoutTotal = document.querySelector("#checkout-total");
+const checkoutConfirmation = document.querySelector("#checkout-confirmation");
 
 function quantityButton(index, change) {
   const button = document.createElement("button");
@@ -59,6 +65,7 @@ function render() {
   badge.textContent = quantity;
   total.textContent = "R" + subtotal;
   preview.disabled = !quantity;
+  checkoutButton.disabled = !quantity;
   summary.hidden = true;
 }
 
@@ -75,4 +82,29 @@ preview.addEventListener("click", () => {
   summary.hidden = false;
   status.textContent = "Collection enquiry ready to preview.";
   orderLink.focus();
+});
+
+checkoutButton.addEventListener("click", () => {
+  if (!counts.some(Boolean)) return;
+  checkout.returnValue = "";
+  checkoutItems.replaceChildren();
+  menu.forEach(({ name, price }, index) => {
+    const count = counts[index];
+    if (!count) return;
+    const line = document.createElement("li");
+    const label = document.createElement("span");
+    const amount = document.createElement("strong");
+    label.textContent = count + " × " + name;
+    amount.textContent = "R" + count * price;
+    line.append(label, amount);
+    checkoutItems.append(line);
+  });
+  checkoutTotal.textContent = total.textContent;
+  checkout.showModal();
+});
+
+checkout.addEventListener("close", () => {
+  if (checkout.returnValue !== "simulate") return;
+  checkoutConfirmation.textContent = "You completed the sample card checkout for " + checkoutTotal.textContent + ".";
+  checkoutResult.showModal();
 });
