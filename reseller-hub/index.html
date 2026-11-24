@@ -4,11 +4,12 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Import from Screenshot | SGC Reseller Hub</title>
-  <link rel="stylesheet" href="hub.css?v=2">
+  <link rel="stylesheet" href="hub.css?v=3">
   <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.js"></script>
   <script defer src="../config.js"></script>
   <script defer src="../supabase-client.js"></script>
-  <script defer src="hub.js?v=2"></script>
+  <script defer src="screenshot-reader.js?v=1"></script>
+  <script defer src="hub.js?v=3"></script>
 </head>
 <body>
   <header class="top">
@@ -35,8 +36,8 @@
       <div id="view"></div>
       <template id="import-template">
         <div class="page-head">
-          <div><h1>Import from Screenshot</h1><p>Upload a supplier screenshot and let AI prepare your product listing.</p></div>
-          <ol class="steps"><li class="active">Upload</li><li>AI Extracts</li><li>Review &amp; Publish</li></ol>
+          <div><h1>Import from Screenshot</h1><p>Upload a supplier screenshot and prepare a product listing in your browser.</p></div>
+          <ol class="steps"><li class="active">Upload</li><li>Read Screenshot</li><li>Review &amp; Publish</li></ol>
         </div>
         <div class="workflow">
           <section class="panel upload">
@@ -50,7 +51,7 @@
             <small id="upload-status" role="status"></small>
           </section>
           <section class="panel processing">
-            <div class="chip" aria-hidden="true">AI</div>
+            <div class="chip" aria-hidden="true">▧</div>
             <h2 class="sr-only">Processing</h2>
             <ul id="processing" aria-live="polite">
               <li>Analyse screenshot</li><li>Detect product photographs</li><li>Extract product images</li><li>Read product details</li><li>Identify variants and offers</li><li>Prepare listing for review</li>

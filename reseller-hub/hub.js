@@ -39,7 +39,7 @@ async function getStore() {
 }
 
 function signIn() {
-  view.innerHTML = `<div class="page-head"><div><h1>Import from Screenshot</h1><p>Upload a supplier screenshot and let AI prepare your product listing.</p></div></div>
+  view.innerHTML = `<div class="page-head"><div><h1>Import from Screenshot</h1><p>Upload a supplier screenshot and prepare a product listing in your browser.</p></div></div>
     <section class="panel narrow"><h2>Sign in to Reseller Hub</h2>
     <form>${field('Email address','email','','type="email" required autocomplete="email"')}
     ${field('Password','password','','type="password" required minlength="6" autocomplete="current-password"')}
@@ -137,6 +137,8 @@ async function importFiles(files) {
   const run = generation;
   const batch = [...files].slice(0, 10);
   const errors = [];
+  let worker;
+  let readerUnavailable = false;
   if (files.length > batch.length) errors.push('A batch accepts up to 10 screenshots.');
   try {
     for (const [index, file] of batch.entries()) {
@@ -154,40 +156,44 @@ async function importFiles(files) {
         if (run !== generation) return;
         screenshot = canvasImage(bitmap, { x: 0, y: 0, width: bitmap.width, height: bitmap.height }, 2000, 3_900_000);
         syncProgress();
-        const { data, error } = await db.functions.invoke('reseller-import', { body: { image: screenshot } });
-        if (error) {
-          const response = await error.context?.json?.().catch(() => null);
-          throw Error(response?.error || 'Could not connect to screenshot extraction.');
+        lastSteps = [0];
+        let text = '';
+        if (!readerUnavailable) {
+          try {
+            worker ||= await screenshotReader.createWorker(message => {
+              if (run !== generation) return;
+              importStatus = `${batch.length === 1 ? '' : `${index + 1}/${batch.length} · `}${message}`;
+              syncProgress();
+            });
+            if (run !== generation) return;
+            const result = await worker.recognize(screenshot);
+            text = result.data.text.trim();
+          } catch {
+            readerUnavailable = true;
+            errors.push('Text reading was unavailable. You can still review the photo and enter details.');
+          }
         }
         if (run !== generation) return;
-        lastSteps = [0];
-        if (data.review.length) errors.push(...data.review);
-        const extracted = data.products.map(product => {
-          const photos = product.photos.map(box => crop(bitmap, box)).filter(Boolean);
-          const offers = [...new Map(product.offers
-            .filter(offer => Number.isInteger(offer.quantity) && offer.quantity >= 1 && offer.quantity <= 1000)
-            .map(offer => [offer.quantity, { ...offer, selling_cents: null }])).values()].slice(0, 20);
-          return {
-            ...product, id: crypto.randomUUID(), name: publicText(product.name), description: publicText(product.description),
-            photos, image: photos[0] || '', stock: 0, delivery: 'Delivery and collection',
-            offers: offers.length ? offers : [{ quantity: 1, supplier_cents: null, selling_cents: null }],
-          };
+        const product = screenshotReader.details(text);
+        if (!text) product.review.push('No readable text was found. Enter the product details and check the photo.');
+        const photos = screenshotReader.photoRegions(bitmap).map(box => crop(bitmap, box)).filter(Boolean);
+        if (photos.length) lastSteps.push(1,2);
+        if (text) lastSteps.push(3);
+        if (product.sizes.length || product.colours.length || product.offers.some(offer => offer.supplier_cents != null)) lastSteps.push(4);
+        lastSteps.push(5);
+        if (photos.length > 1) product.review.push('Several photo areas were found. Choose the photo for this listing and confirm that the details match.');
+        if (!drafts.length) selected = 0;
+        drafts.push({
+          ...product, photos, sourceFile: file, id: crypto.randomUUID(), image: photos[0] || '',
+          stock: 0, delivery: 'Delivery and collection',
         });
-        if (extracted.length) {
-          const foundPhoto = extracted.some(product => product.photos.length);
-          lastSteps = foundPhoto ? [0,1,2,3,4,5] : [0,3,4];
-          if (!drafts.length) selected = 0;
-          drafts.push(...extracted);
-          if (route() === 'import') renderDrafts();
-        } else if (!data.review.length) {
-          errors.push('No product could be identified. Try the original supplier photo or a clearer screenshot.');
-        }
+        if (route() === 'import' && view.querySelector('#review')) renderDrafts();
       } catch (error) {
         errors.push(`${file.name} — ${error.message}`);
-        if (/awaiting activation|allowance reached|pilot limit/i.test(error.message)) break;
       } finally { bitmap?.close(); }
     }
   } finally {
+    await worker?.terminate().catch(() => {});
     if (run === generation) {
       importing = false;
       importStatus = errors.join(' ') || (drafts.length ? 'Review your extracted listings.' : '');
@@ -253,7 +259,8 @@ function editProduct(target, product, onSave, importingProduct = false) {
     <div class="review-grid"><div><div data-cover>${image(product.image, product.name)}</div>
     ${photos.length > 1 ? `<div class="thumbnails">${photos.map((photo, i) => `<button type="button" data-photo="${i}" aria-label="Use photo ${i + 1}">${image(photo,'')}</button>`).join('')}</div>` : ''}
     ${importingProduct ? '' : '<label class="field">Replace photo<input type="file" name="replacement" accept="image/png,image/jpeg,image/webp"></label>'}
-    ${product.image || !importingProduct ? '' : '<p class="message">A reliable product photo could not be extracted. Upload a clearer screenshot to publish this product.</p>'}
+    ${product.sourceFile ? '<button type="button" class="secondary" data-adjust>Adjust photo crop</button><div data-crop-editor hidden></div>' : ''}
+    ${product.image || !importingProduct ? '' : '<p class="message" data-photo-warning>Choose the product area with Adjust photo crop before publishing.</p>'}
     ${(product.review || []).map(message => `<p class="message">${esc(message)}</p>`).join('')}</div><div>
     ${field('Product name','name',product.name,'maxlength="120" required')}
     <label class="field">Description<textarea name="description" maxlength="1500" required>${esc(product.description)}</textarea></label>
@@ -301,7 +308,9 @@ function editProduct(target, product, onSave, importingProduct = false) {
   form.addEventListener('click', event => {
     const button = event.target.closest('button');
     if (!button) return;
-    if (button.hasAttribute('data-add') && product.offers.length < 20) {
+    if (button.hasAttribute('data-adjust')) {
+      adjustPhoto(target, product).catch(fail);
+    } else if (button.hasAttribute('data-add') && product.offers.length < 20) {
       product.offers.push({ quantity: null, selling_cents: null, supplier_cents: null });
       renderOffers();
       offers.lastElementChild.querySelector('input').focus();
@@ -310,7 +319,7 @@ function editProduct(target, product, onSave, importingProduct = false) {
       renderOffers();
     } else if (button.hasAttribute('data-photo')) {
       product.image = photos[Number(button.dataset.photo)];
-      target.querySelector('[data-cover]').innerHTML = image(product.image, product.name);
+      updateCover(target, product);
     }
   });
   renderOffers();
@@ -334,6 +343,82 @@ function editProduct(target, product, onSave, importingProduct = false) {
     if (error) throw error;
     await onSave();
   });
+}
+
+function updateCover(target, product) {
+  target.querySelector('[data-cover]').innerHTML = image(product.image, product.name);
+  target.querySelector('[data-photo-warning]')?.remove();
+  target.querySelector('.publish').disabled = false;
+}
+
+async function adjustPhoto(target, product) {
+  const editor = target.querySelector('[data-crop-editor]');
+  if (!editor.hidden) {
+    editor.hidden = true;
+    return;
+  }
+  const original = await createImageBitmap(product.sourceFile);
+  let preview;
+  try {
+    preview = canvasImage(original, { x: 0, y: 0, width: original.width, height: original.height }, 1200, 940000);
+  } finally {
+    original.close();
+  }
+  editor.hidden = false;
+  editor.innerHTML = `<p>Drag a box around the product photo, or enter crop edges as percentages.</p>
+    <div class="crop-preview"><img src="${preview}" alt="Supplier screenshot for cropping" draggable="false"><span aria-hidden="true"></span></div>
+    <div class="crop-fields">${[['left',0],['top',0],['right',100],['bottom',100]].map(([edge,value]) =>
+      `<label class="field">${edge}<input type="number" value="${value}" data-edge="${edge}"></label>`).join('')}</div>
+    <button type="button" class="secondary" data-apply-crop>Apply crop</button>`;
+  const frame = editor.querySelector('.crop-preview');
+  const selection = frame.querySelector('span');
+  const fields = [...editor.querySelectorAll('[data-edge]')];
+  const readBox = () => Object.fromEntries(fields.map(input => [input.dataset.edge, Number(input.value)]));
+  function showBox() {
+    const {left, top, right, bottom} = readBox();
+    selection.style.inset = `${top}% ${100 - right}% ${100 - bottom}% ${left}%`;
+  }
+  function point(event) {
+    const bounds = frame.getBoundingClientRect();
+    const percent = x => Math.round(Math.max(0, Math.min(1, x)) * 100);
+    return [percent((event.clientX - bounds.left) / bounds.width), percent((event.clientY - bounds.top) / bounds.height)];
+  }
+  let start;
+  frame.onpointerdown = event => {
+    if (!event.isPrimary || event.button !== 0) return;
+    start = point(event);
+    frame.setPointerCapture(event.pointerId);
+  };
+  frame.onpointermove = event => {
+    if (!start || !event.isPrimary) return;
+    const [x,y] = point(event);
+    const [sx,sy] = start;
+    const edges = [Math.min(x,sx), Math.min(y,sy), Math.max(x,sx), Math.max(y,sy)];
+    fields.forEach((input,index) => { input.value = edges[index]; });
+    showBox();
+  };
+  frame.onpointerup = frame.onpointercancel = () => { start = null; };
+  fields.forEach(input => { input.oninput = showBox; });
+  editor.querySelector('[data-apply-crop]').onclick = async event => {
+    const button = event.currentTarget;
+    try {
+      tell();
+      button.disabled = true;
+      const bitmap = await createImageBitmap(product.sourceFile);
+      try {
+        const box = Object.fromEntries(Object.entries(readBox()).map(([edge,value]) => [edge, Math.round(value * 10)]));
+        const photo = crop(bitmap, box);
+        if (!photo) throw Error('Select a larger product photo area.');
+        product.image = photo;
+      } finally {
+        bitmap.close();
+      }
+      updateCover(target, product);
+      editor.hidden = true;
+    } catch (error) { fail(error); }
+    finally { button.disabled = false; }
+  };
+  showBox();
 }
 
 async function getProducts(owner, privateView) {
