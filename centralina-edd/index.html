@@ -15,9 +15,27 @@
 @media(max-width:850px){.nav{align-items:flex-start;flex-direction:column;padding-block:.7rem 1rem}.links{gap:.75rem 1rem}.band .wrap,.split{grid-template-columns:1fr}.grid{grid-template-columns:repeat(2,1fr)}.wrap{padding-inline:24px}.heading{align-items:flex-start;flex-direction:column}.hero::before{background:linear-gradient(90deg,#201d4ff5,#23225385)}}
 @media(max-width:530px){.grid,.quick .wrap{grid-template-columns:1fr}.quick a:first-child{border-radius:7px 7px 0 0}.quick a:last-child{border-radius:0 0 7px 7px}.quick a{padding:.7rem .9rem}.footerline{display:block}.footerline>div+div{margin-top:1rem}.notice{font-size:.72rem}.links a{font-size:.84rem}.stats{gap:1rem 1.45rem}}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+
+/* Motion and editorial layout */
+:root{--stage:#18163c;--cyan:#9ceef0}
+body{overflow-x:clip}.notice .wrap{min-height:25px}.nav{min-height:82px}.brand img{height:52px}.links a{position:relative}.links a::after{content:'';position:absolute;inset:auto 0 -5px;height:2px;background:var(--teal);transform:scaleX(0);transform-origin:left;transition:transform .22s}.links a:hover::after,.links a:focus-visible::after{transform:scaleX(1)}
+.hero{background:var(--stage);min-height:clamp(560px,76svh,790px);display:grid;align-items:center}.hero img{inset:-8% 0;width:100%;height:116%;object-position:62% 52%;transform:translateY(var(--hero-shift,0px)) scale(1.02)}.hero::before{background:linear-gradient(90deg,#1a1749 0%,#201b4ddd 34%,#201b4d25 100%),linear-gradient(0deg,#141435ba,transparent 70%)}.hero .wrap{width:100%;padding-block:80px 100px}.hero .eyebrow{display:flex;align-items:center;gap:.65rem}.hero .eyebrow::before{content:'';width:8px;height:8px;background:var(--cyan);border-radius:50%;box-shadow:0 0 14px var(--cyan)}.hero h1{font-size:clamp(3.5rem,8.35vw,8rem);line-height:.94;letter-spacing:-.082em;margin-bottom:1.8rem}.hero h1 span{display:block}.hero h1 em{display:block;color:var(--cyan)}.hero p:not(.eyebrow){max-width:475px}.hero .actions{gap:.8rem}.button{transition:background .25s,transform .25s,box-shadow .25s}.button:hover{transform:translateY(-3px);box-shadow:0 10px 22px #161a3424}
+.hero-index{position:absolute;right:max(38px,calc((100% - 1174px)/2));bottom:91px;max-width:196px;padding:15px 17px;background:#1c1b4aac;border:1px solid #d6ffff63;backdrop-filter:blur(12px);border-radius:12px;color:#f4f7ff}.hero-index strong{display:block;font:700 2.3rem/.95 Montserrat,sans-serif;color:var(--cyan);letter-spacing:-.06em}.hero-index a{font-size:.78rem;text-decoration:none}.hero-index a:hover{text-decoration:underline}
+.quick{margin-top:-42px}.quick .wrap{gap:8px}.quick a,.quick a:first-child,.quick a:last-child{border-radius:11px;padding:1.35rem;box-shadow:0 12px 26px #21184028;transition:transform .25s,box-shadow .25s}.quick a:hover{transform:translateY(-6px);box-shadow:0 16px 32px #21184040}.quick a span{display:grid;place-items:center;width:31px;height:31px;border-radius:50%;border:1px solid #ffffff65;transition:transform .25s}.quick a:hover span{transform:rotate(12deg)}
+.section{padding-block:clamp(4rem,8vw,7.3rem)}.section h2{max-width:780px}.eyebrow{letter-spacing:.19em}.card{border:1px solid var(--line);border-radius:15px;box-shadow:0 6px 22px #2d29630b;transition:box-shadow .3s,transform .3s,border-color .3s}.card:hover,.card:focus-within{transform:translateY(-6px);box-shadow:0 18px 34px #2d296322;border-color:#8cc5ce}.card .label{border-radius:50px}.strategy-cards .card{background:linear-gradient(155deg,#edf8f8 0%,#fff 68%);min-height:205px;position:relative;overflow:hidden}.strategy-cards .card:nth-child(2){background:linear-gradient(155deg,#f0edf9,#fff 70%)}.strategy-cards .card:nth-child(3){background:linear-gradient(155deg,#e8f2f8,#fff 70%)}.strategy-cards .card h3,.strategy-cards .card p{max-width:95%}.strategy-cards .card::after{content:'';position:absolute;inset:auto -70px -80px auto;width:150px;height:150px;border:1px solid #2b839330;border-radius:50%;box-shadow:0 0 0 18px #2b839310,0 0 0 38px #2b839308;pointer-events:none}
+.stats{gap:clamp(1.4rem,6vw,6rem);padding-block:1.6rem .4rem}.stats strong{font-size:clamp(2.1rem,4vw,3.5rem)}.band{position:relative;isolation:isolate;overflow:hidden}.band::before{content:'';position:absolute;z-index:-1;width:440px;height:440px;right:-145px;top:-180px;border-radius:50%;border:1px solid #9ceef045;box-shadow:0 0 0 35px #9ceef019,0 0 0 75px #9ceef013,0 0 0 115px #9ceef00e}.county{border-radius:16px;box-shadow:0 18px 40px #0d142944}.county-list{display:flex;gap:.42rem;flex-wrap:wrap;margin:.9rem 0}.county-list button{border:1px solid #d6e6ee;background:#f0f7fa;border-radius:20px;padding:.25rem .65rem;color:#233456;font-size:.8rem;font-weight:700;transition:background .2s,color .2s}.county-list button[aria-pressed=true]{background:var(--purple);color:white;border-color:var(--purple)}.filters button{transition:background .2s,border-color .2s,color .2s}.filters button:hover{border-color:var(--teal)}
+.news .card img{height:200px;transition:transform .45s ease}.news .card:hover img,.news .card:focus-within img{transform:scale(1.045)}.panel{border-radius:14px}.footer{background:var(--stage)}
+.reading-progress{position:fixed;inset:0 0 auto;height:3px;z-index:20;background:#79d9df;transform:scaleX(var(--reading,0));transform-origin:left;pointer-events:none}
+@keyframes enter{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+@keyframes project-enter{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:no-preference){.hero .eyebrow,.hero h1,.hero p:not(.eyebrow),.hero .actions,.hero-index{animation:enter .72s ease-out both}.hero h1{animation-delay:.08s}.hero p:not(.eyebrow){animation-delay:.16s}.hero .actions,.hero-index{animation-delay:.24s}.motion-ready .reveal{opacity:0;translate:0 24px;transition:opacity .58s ease,translate .58s ease;transition-delay:var(--reveal-delay,0ms)}.motion-ready .reveal.visible,.motion-ready .reveal:focus-within{opacity:1;translate:0 0}.project-enter{animation:project-enter .34s ease-out both}}
+@media(max-width:920px){.hero-index{display:none}.hero{min-height:565px}.hero img{object-position:65% center}.hero::before{background:linear-gradient(90deg,#1c184de8,#211b5277),linear-gradient(0deg,#141435a0,transparent)}}
+@media(max-width:530px){.hero{min-height:0}.hero .wrap{padding-block:66px 80px}.hero h1{font-size:clamp(2.85rem,13.2vw,4.1rem)}.hero p:not(.eyebrow){font-size:1rem}.hero .actions .button{padding:.62rem .75rem;font-size:.86rem}.quick{margin-top:-29px}.quick .wrap{gap:5px}.quick a,.quick a:first-child,.quick a:last-child{border-radius:7px;padding:.58rem .8rem}.quick a span{width:25px;height:25px}.nav{min-height:auto}.news .card img{height:180px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation:none!important;transition:none!important}.hero img{transform:none}}
 </style>
 </head>
 <body>
+<div class="reading-progress" aria-hidden="true"></div>
 <a class="skip" href="#main">Skip to content</a>
 <div class="notice"><div class="wrap"><span>Independent redevelopment concept by SGC Network</span><button type="button" id="open-editor">Staff editor demo ↗</button></div></div>
 <header class="wrap nav">
@@ -27,15 +45,16 @@
 <main id="main">
 <section class="hero" aria-labelledby="hero-title">
 <img src="https://centralinaedd.org/wp-content/uploads/2023/05/CEDD_Hero.jpg" alt="" fetchpriority="high">
-<div class="wrap"><p class="eyebrow">Greater Charlotte · North Carolina</p><h1 id="hero-title">Creating prosperity<br><em>for all.</em></h1><p>Across nine counties in the greater Charlotte region, Centralina EDD works with local governments, businesses and regional partners to plan for economic growth and strengthen resilience.</p><div class="actions"><a class="button light" href="#strategy">Explore the regional strategy <span aria-hidden="true">↗</span></a><a class="button outline" href="#projects">See projects</a></div></div>
+<div class="wrap"><p class="eyebrow">Greater Charlotte · North Carolina</p><h1 id="hero-title"><span>Creating prosperity</span><em>for all.</em></h1><p>Across nine counties in the greater Charlotte region, Centralina EDD works with local governments, businesses and regional partners to plan for economic growth and strengthen resilience.</p><div class="actions"><a class="button light" href="#strategy">Explore the regional strategy <span aria-hidden="true">↗</span></a><a class="button outline" href="#projects">See projects</a></div></div>
+<div class="hero-index"><strong>9</strong><a href="#data">Counties across Greater Charlotte ↗</a></div>
 </section>
 <div class="quick"><div class="wrap"><a href="#data">Find your county profile <span aria-hidden="true">↗</span></a><a href="#services">Get grant assistance <span aria-hidden="true">↗</span></a><a href="#about">Find board materials <span aria-hidden="true">↗</span></a></div></div>
-<section class="section wrap" id="strategy"><p class="eyebrow">2023–2028 Comprehensive Economic Development Strategy</p><div class="heading"><h2>From strategy to action</h2><a class="textlink" href="https://centralinaedd.org/economic-strategy/">View the plan and public materials ↗</a></div><p class="intro">Prosperity for All is the region’s five-year economic development strategy. It guides investment and coordination across three priorities, with progress tracked through the CEDS annual report.</p><div class="grid">
+<section class="section wrap" id="strategy"><p class="eyebrow">2023–2028 Comprehensive Economic Development Strategy</p><div class="heading"><h2>From strategy to action</h2><a class="textlink" href="https://centralinaedd.org/economic-strategy/">View the plan and public materials ↗</a></div><p class="intro">Prosperity for All is the region’s five-year economic development strategy. It guides investment and coordination across three priorities, with progress tracked through the CEDS annual report.</p><div class="grid strategy-cards">
 <article class="card"><span class="label">Economic opportunity</span><h3>Expand access to opportunity</h3><p>Connect workforce, education and business development priorities to regional action.</p></article>
 <article class="card"><span class="label">Infrastructure</span><h3>Plan for regional growth</h3><p>Coordinate investment in the infrastructure communities and employers rely on.</p></article>
 <article class="card"><span class="label">Resilience</span><h3>Prepare for disruptions</h3><p>Build the regional partnerships and planning capacity that support long-term recovery.</p></article>
 </div><div class="stats"><div><strong>3</strong><span>Strategy goals</span></div><div><strong>15</strong><span>Recommendations</span></div><div><strong>58</strong><span>Near-term actions</span></div></div><p style="margin-top:1.25rem"><a class="textlink" href="https://centralinaedd.org/2026-ceds-report/">Read the 2026 CEDS Annual Progress Report ↗</a></p></section>
-<section class="section band" id="data"><div class="wrap"><div><p class="eyebrow">Data & research</p><h2>Prosperity Profiles</h2><p>Explore economic resilience, mobility and community conditions across Centralina’s nine counties. Use the district’s data and methodology to inform local planning.</p><a class="button light" href="https://centralinaedd.org/regional-economic-conditions/">Open the official data hub ↗</a></div><div class="county"><h3>Find a county</h3><label for="county">County</label><select id="county"><option>Anson</option><option>Cabarrus</option><option>Gaston</option><option>Iredell</option><option>Lincoln</option><option selected>Mecklenburg</option><option>Rowan</option><option>Stanly</option><option>Union</option></select><p id="county-help" class="status" aria-live="polite"></p><a class="button" href="https://centralinaedd.org/regional-economic-conditions/">Continue to Prosperity Profiles ↗</a></div></div></section>
+<section class="section band" id="data"><div class="wrap"><div><p class="eyebrow">Data & research</p><h2>Prosperity Profiles</h2><p>Explore economic resilience, mobility and community conditions across Centralina’s nine counties. Use the district’s data and methodology to inform local planning.</p><a class="button light" href="https://centralinaedd.org/regional-economic-conditions/">Open the official data hub ↗</a></div><div class="county"><h3>Find a county</h3><label for="county">County</label><select id="county"><option>Anson</option><option>Cabarrus</option><option>Gaston</option><option>Iredell</option><option>Lincoln</option><option selected>Mecklenburg</option><option>Rowan</option><option>Stanly</option><option>Union</option></select><div class="county-list" role="group" aria-label="Quick county selection" hidden></div><p id="county-help" class="status" aria-live="polite"></p><a class="button" href="https://centralinaedd.org/regional-economic-conditions/">Continue to Prosperity Profiles ↗</a></div></div></section>
 <section class="section wrap" id="projects"><p class="eyebrow">Projects & initiatives</p><h2>Regional work in progress</h2><p class="intro">Explore recovery, resilience and research initiatives through their official project pages.</p><div class="filters" role="group" aria-label="Filter initiatives"><button type="button" data-filter="all" aria-pressed="true">All initiatives</button><button type="button" data-filter="resilience" aria-pressed="false">Resilience</button><button type="button" data-filter="research" aria-pressed="false">Research</button></div><div class="grid">
 <article class="card" data-category="resilience"><span class="label">Resilience</span><h3>Regional Resilience Collaborative</h3><p>Resources and partnerships that help local governments plan for hazards and prepare for recovery.</p><a class="textlink" href="https://centralina.org/regional-collaboration/resilience/">Explore the collaborative ↗</a></article>
 <article class="card" data-category="resilience"><span class="label">Resilience</span><h3>EDA Helene Disaster Grant</h3><p>The grant supports Built to Last, a two-year initiative examining the infrastructure that employers and communities depend on.</p><a class="textlink" href="https://centralinaedd.org/centralina-edd-receives-400000-eda-award-to-strengthen-regional-economic-readiness/">Read about Built to Last ↗</a></article>
@@ -54,8 +73,26 @@ const county = document.querySelector('#county');
 function showCounty() {
   document.querySelector('#county-help').textContent = 'On the official data hub, choose ' + county.value + ' to see its profile.';
 }
-county.addEventListener('change', showCounty);
-showCounty();
+const countyList = document.querySelector('.county-list');
+for (const option of county.options) {
+  const button = document.createElement('button');
+  button.type = 'button';
+  button.textContent = option.value;
+  button.addEventListener('click', () => {
+    county.value = option.value;
+    updateCounty();
+  });
+  countyList.append(button);
+}
+function updateCounty() {
+  showCounty();
+  for (const button of countyList.children) {
+    button.setAttribute('aria-pressed', String(button.textContent === county.value));
+  }
+}
+countyList.hidden = false;
+county.addEventListener('change', updateCounty);
+updateCounty();
 
 const filters = document.querySelectorAll('[data-filter]');
 const projectCards = document.querySelectorAll('[data-category]');
@@ -63,7 +100,9 @@ for (const filter of filters) {
   filter.addEventListener('click', () => {
     for (const option of filters) option.setAttribute('aria-pressed', String(option === filter));
     for (const card of projectCards) {
+      const wasHidden = card.hidden;
       card.hidden = filter.dataset.filter !== 'all' && card.dataset.category !== filter.dataset.filter;
+      card.classList.toggle('project-enter', wasHidden && !card.hidden);
     }
   });
 }
@@ -118,6 +157,46 @@ document.querySelector('#reset-editor').addEventListener('click', () => {
     status.textContent = 'Sample restored for this visit.';
   }
 });
+
+const motion = window.matchMedia('(prefers-reduced-motion: no-preference)');
+if (motion.matches && 'IntersectionObserver' in window) {
+  const revealObserver = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      entry.target.classList.add('visible');
+      revealObserver.unobserve(entry.target);
+    }
+  }, { threshold: 0.06 });
+
+  const revealItems = document.querySelectorAll('.section h2, .section .intro, .section .card, .county, .panel, .stats');
+  for (const item of revealItems) {
+    if (item.getBoundingClientRect().top < window.innerHeight) continue;
+    const column = item.matches('.card') ? Array.from(item.parentElement.children).indexOf(item) : 0;
+    item.style.setProperty('--reveal-delay', Math.min(column, 2) * 65 + 'ms');
+    item.classList.add('reveal');
+    revealObserver.observe(item);
+  }
+  document.documentElement.classList.add('motion-ready');
+}
+
+const hero = document.querySelector('.hero');
+let framePending = false;
+function updateScroll() {
+  const available = document.documentElement.scrollHeight - window.innerHeight;
+  const position = Math.max(0, window.scrollY);
+  document.documentElement.style.setProperty('--reading', available > 0 ? Math.min(position / available, 1) : 0);
+  hero.style.setProperty('--hero-shift', motion.matches ? Math.min(position * .15, 58) + 'px' : '0px');
+  framePending = false;
+}
+function queueScrollUpdate() {
+  if (framePending) return;
+  framePending = true;
+  requestAnimationFrame(updateScroll);
+}
+window.addEventListener('scroll', queueScrollUpdate, { passive: true });
+window.addEventListener('resize', queueScrollUpdate);
+motion.addEventListener('change', queueScrollUpdate);
+queueScrollUpdate();
 </script>
 </body>
 </html>
