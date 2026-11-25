@@ -88,7 +88,7 @@ function leadEditor(l) {
   if(!editable.includes(l.stage)) editable.push(l.stage);
   return '<form id="lead-edit"><div class="fields">'+Object.entries(leadFields).map(([key,label])=>'<label>'+label+(key==='notes'?'<textarea name="notes">'+esc(l.notes)+'</textarea>':input(key,l[key],key==='follow_up'?'date':key==='email'?'email':'text')).replace('name="name"','name="name" readonly')+'</label>').join('')+
     '<label>Stage'+select('stage',editable,l.stage)+'</label><label>Product'+select('product',[['','Select product'],...products.map(p=>[p.id,p.name])],l.product)+'</label>'+
-    (admin()?'<label>Assigned consultant'+select('assignee',[['','Unassigned'],...team.filter(t=>t.active).map(t=>[t.id,t.name])],l.assignee)+'</label>':'')+'</div><small class="muted">Fields save when you leave them.</small></form>';
+    '</div><small class="muted">Fields save when you leave them.</small></form>';
 }
 function privacy(l) {
   return '<details><summary>Consent and contact preferences</summary><p><a target="_blank" rel="noopener" href="/privacy.html">SGC Network privacy notice ↗</a></p>'+
@@ -131,11 +131,18 @@ function agreement(l) {
   return '<details><summary>Customer agreement and payment</summary><p>'+esc(a.package)+' · '+money(a.amount_cents)+' '+esc(a.frequency)+' · Joining fee '+money(a.joining_cents)+'</p><p>Customer reference '+esc(a.reference)+'</p><p>'+esc(a.agreed_terms)+'</p><p>PayGate checkout awaits merchant setup.</p>'+
     (admin()?verify+records.map(p=>'<p>'+esc(p.reference)+' · '+money(p.amount_cents)+' · '+esc(p.status)+'</p>').join('')+reverse:'')+'</details>';
 }
+function assignment(l) {
+  if(!admin())return '';
+  const options=[['','Return to shared queue'],...team.filter(t=>t.active||t.id===l.assignee).map(t=>[t.id,t.name+(t.active?'':' (suspended)')])];
+  return '<hr><form id="assignment"><label>Lead assignment'+select('assignee',options,l.assignee||'')+
+    '</label><button>Approve assignment change</button></form>';
+}
 function leadWorkspace() {
   const l=lead();
-  if(!l) return '<h1>Lead Generation</h1><p>No leads are assigned to your workspace.</p>'+(admin()?'<button data-page="Administrator">Manage leads</button>':'');
-  return '<h1>Lead Generation</h1><div class="actions panel"><label>Customer'+select('lead',leads.map(item=>[item.id,item.name]),l.id)+'</label><button data-next>Next Lead →</button></div>'+
-    '<div class="split"><section class="panel"><h2>'+esc(l.name)+'</h2>'+leadEditor(l)+privacy(l)+agreement(l)+
+  const pick=admin()?'':'<button class="primary" data-claim>Pick a new lead →</button>';
+  if(!l) return '<h1>Lead Generation</h1><p>No leads are assigned to your workspace.</p>'+(admin()?'<button data-page="Administrator">Manage leads</button>':pick);
+  return '<h1>Lead Generation</h1><div class="actions panel"><label>Customer'+select('lead',leads.map(item=>[item.id,item.name]),l.id)+'</label><button data-next>Next assigned lead →</button>'+pick+'</div>'+
+    '<div class="split"><section class="panel"><h2>'+esc(l.name)+'</h2>'+leadEditor(l)+assignment(l)+privacy(l)+agreement(l)+
     '<details><summary>Contact history</summary><div class="timeline">'+history.map(item=>'<p><b>'+esc(item.channel)+' · '+esc(item.status)+'</b> · '+esc(item.recorded_at.slice(0,10))+'<br>'+esc(item.detail)+'</p>').join('')+'</div></details></section>'+
     '<section class="panel"><div class="actions">'+['Call','Email','WhatsApp'].map(item=>'<button data-channel="'+item+'" aria-pressed="'+(channel===item)+'">'+item+'</button>').join('')+'</div><hr>'+
     (l.opted_out?'<p>This business has opted out of contact.</p>':channel==='Call'?call(l):composer(l))+
@@ -158,7 +165,7 @@ function commissionPage() {
   return '<h1>Commissions</h1><div class="metrics">'+['Pending','Approved','Paid','Reversed'].map(status=>'<article class="panel"><strong>'+money((totals[status]||[]).reduce((a,c)=>a+c.amount_cents,0))+'</strong>'+status+'</article>').join('')+'</div><section class="panel"><h2>Monthly commission</h2><div class="chart">'+months.map(([month,amount])=>'<div><small>'+money(amount)+'</small><i style="height:'+Math.max(4,Math.round(100*amount/max))+'px"></i><small>'+month+'</small></div>').join('')+'</div></section><div class="panel table"><table><thead><tr><th>Customer</th><th>Date</th><th>Amount</th><th>Status</th></tr></thead><tbody>'+commissions.map(c=>'<tr><td>'+esc(leads.find(l=>l.id===c.lead)?.name||'Customer')+'</td><td>'+esc(c.paid_at.slice(0,10))+'</td><td>'+money(c.amount_cents)+'</td><td>'+esc(c.status)+(admin()&&['Pending','Approved'].includes(c.status)?' <button data-commission="'+c.id+'" data-status="'+(c.status==='Pending'?'Approved':'Paid')+'">'+(c.status==='Pending'?'Approve':'Record payout')+'</button>':'')+'</td></tr>').join('')+'</tbody></table></div>';
 }
 function adminPage() {
-  return '<h1>Administrator</h1><section class="panel"><h2>Lead allocation</h2><form id="new-lead"><div class="fields">'+Object.entries(leadFields).slice(0,10).map(([key,label])=>'<label>'+label+input(key,'',key==='email'?'email':'text',key==='name'||key==='source')+'</label>').join('')+'</div><button class="primary">Add lead</button></form><hr><label>Upload CSV with name and source headers<input type="file" name="csv" accept=".csv,text/csv"></label><button data-export>Export leads</button></section>'+
+  return '<h1>Administrator</h1><section class="panel"><h2>Lead allocation</h2><p>New uploads go into the shared queue. When a consultant picks a lead, it is assigned to them. Use Lead Generation to approve a reassignment or return a lead to the queue.</p><form id="new-lead"><div class="fields">'+Object.entries(leadFields).slice(0,10).map(([key,label])=>'<label>'+label+input(key,'',key==='email'?'email':'text',key==='name'||key==='source')+'</label>').join('')+'</div><button class="primary">Add lead</button></form><hr><label>Upload CSV with name and source headers<input type="file" name="csv" accept=".csv,text/csv"></label><button data-export>Export leads</button></section>'+
     '<section class="panel"><h2>Consultants</h2><form id="enrol"><div class="fields"><label>Consultant name'+input('display_name','','text',true)+'</label><label>Confirmed work account email'+input('work_email','','email',true)+'</label></div><button>Enrol existing work account</button></form><hr>'+team.map(t=>'<form class="panel" data-team="'+t.id+'"><div class="fields"><label>Name'+input('name',t.name,'text',true)+'</label><label>Sender'+input('sender',t.sender,'email',t.role!=='admin')+'</label><label>Access'+select('active',[['true','Active'],['false','Suspended']],String(t.active))+'</label></div><p>'+esc(t.role)+' · '+leads.filter(l=>l.assignee===t.id).length+' assigned leads</p><button>Update account</button></form>').join('')+'</section>'+
     '<section class="panel"><h2>Catalogue management</h2>'+products.map(p=>'<details><summary>'+esc(p.name)+'</summary><form data-product="'+esc(p.id)+'" class="fields">'+['name','price','pitch','industries','features','preview','image'].map(key=>'<label>'+key+input(key,p[key],'text',true)+'</label>').join('')+'<button>Update product</button></form></details>').join('')+'</section>'+
     (rates?'<section class="panel"><h2>Commission rates</h2><form id="rates"><div class="fields">'+[['first_bps','First monthly payment'],['repeat_bps','Following 11 monthly payments'],['project_bps','Once-off project']].map(([key,label])=>'<label>'+label+' (%)<input name="'+key+'" type="number" required min="0" max="100" step="0.01" value="'+(rates[key]/100)+'"></label>').join('')+'</div><button>Update rates</button></form></section>':'')+
@@ -204,6 +211,7 @@ document.addEventListener('click', event=>{
   if(!button)return;
   const data=button.dataset;
   if(!Object.keys(data).length)return;
+  if('claim' in data)button.disabled=true;
   run(async()=>{
     if('signout' in data){
       try{await request('/auth/v1/logout','POST');}
@@ -213,6 +221,15 @@ document.addEventListener('click', event=>{
     if(data.commission){await patch('commissions',data.commission,{status:data.status});await reload();}
     if(data.page) {page=data.page;if(page==='Lead Generation'&&!lead()&&leads.length)await loadLead(leads[0].id);}
     if(data.lead){await loadLead(data.lead);page='Lead Generation';}
+    if('claim' in data){
+      try{
+        const id=await rpc('claim_lead',{});
+        await reload();
+        const selected=id||lead()?.id||leads[0]?.id;
+        if(selected)await loadLead(selected);
+        report(id?'Lead assigned to you.':'No leads are available in the shared queue.');
+      }finally{button.disabled=false;}
+    }
     if('next' in data)await loadLead(leads[(leads.findIndex(l=>l.id===activeLead)+1)%leads.length].id);
     if(data.channel)channel=data.channel;
     if('callNext' in data)callStep++;
@@ -269,6 +286,12 @@ document.addEventListener('submit', event=>{
         if(!member)throw new Error('This account has no active Sales Studio access.');
         await reload();
       } catch(error) { token=account=member=null;throw error; }
+    }
+    if(form.id==='assignment'){
+      const l=lead();
+      const assignee=values.assignee||null;
+      if(assignee===l.assignee)return;
+      await rpc('assign_lead',{lead_id:l.id,expected_assignee:l.assignee,consultant_id:assignee});
     }
     if(form.id==='new-lead')await insert('leads',values);
     if(form.id==='enrol')await rpc('enrol_consultant',values);
