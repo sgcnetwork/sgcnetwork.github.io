@@ -55,10 +55,11 @@ const patch = (table,id,body) => request('/rest/v1/sales_'+table+'?id=eq.'+encod
 const insert = (table,body) => request('/rest/v1/sales_'+table,'POST',body);
 const rpc = (name,body) => request('/rest/v1/rpc/sales_'+name,'POST',body);
 let agreements=[], payments=[], rates, outreach;
+let exampleSales=5;
 async function reload() {
   [products,leads,commissions,previews,team,audit,agreements,payments,rates,outreach] = await Promise.all([
     rows('products','order=name'),rows('leads','order=created_at.desc'),rows('commissions','order=paid_at.desc'),
-    rows('previews','order=requested_at.desc'),admin()?rows('team','order=name'):[],admin()?rows('audit','order=occurred_at.desc&limit=100'):[],rows('terms'),admin()?rows('payments','order=verified_at.desc'):[],admin()?rows('rates').then(r=>r[0]):null,rows('outreach_settings','select=enabled,bcc&id=eq.1').then(r=>r[0])
+    rows('previews','order=requested_at.desc'),admin()?rows('team','order=name'):[],admin()?rows('audit','order=occurred_at.desc&limit=100'):[],rows('terms'),admin()?rows('payments','order=verified_at.desc'):[],rows('rates').then(r=>r[0]),rows('outreach_settings','select=enabled,bcc&id=eq.1').then(r=>r[0])
   ]);
 }
 async function loadLead(id) {
@@ -75,8 +76,28 @@ function report(message) {
 function login() {
   app.innerHTML='<section class="hero panel"><div class="intro"><h1>Sales Studio</h1><p>Manage leads, prepare client previews and track your commissions.</p></div><form id="login" class="panel login"><h2>Sign in</h2><label>Work account email'+input('email','','email',true)+'</label><label>Password'+input('password','','password',true)+'</label><button class="primary">Sign in</button></form></section>';
 }
+function cataloguePrice(label) {
+  const match=label.trim().match(/^(From\s+)?R\s*([\d,]+(?:\.\d{1,2})?)\s*(?:\/\s*month(?: in existing sales catalogue)?|(once[- ]off|one[- ]time))$/i);
+  if(!match)return null;
+  const cents=Math.round(Number(match[2].replaceAll(',',''))*100);
+  if(!Number.isSafeInteger(cents)||cents<=0)return null;
+  return {cents,starting:!!match[1],monthly:!match[3]};
+}
+function catalogueCommission(p) {
+  if(!rates)return '';
+  const price=cataloguePrice(p.price);
+  if(!price)return '<p class="muted">Commission depends on the agreed price and billing terms.</p>';
+  const first=Math.round(price.cents*(price.monthly?rates.first_bps:rates.project_bps)/10000);
+  const recurring=price.monthly?Math.round(price.cents*rates.repeat_bps/10000):0;
+  const line=(label,cents)=>'<div><dt>'+label+'</dt><dd>'+money(cents)+'</dd></div>';
+  return '<section class="product-earnings"><h4>Your commission'+(price.starting?' at starting price':'')+'</h4><dl>'+
+    line(price.monthly?'First successful payment':'Successful project payment',first)+
+    (price.monthly?line('Per payment for the next 11 months',recurring)+line('Potential per sale over 12 payments',first+11*recurring):'')+
+    line(exampleSales+' '+(exampleSales===1?'sale':'sales')+' paid this month',first*exampleSales)+'</dl></section>';
+}
 function catalogue() {
-  return '<div class="catalogue">'+products.map(p=>'<article class="panel"><img alt="" loading="lazy" src="'+esc(safeLink(p.image))+'"><div class="body"><h3>'+esc(p.name)+'</h3><p><b>'+esc(p.price)+'</b></p><p>'+esc(p.pitch)+'</p><p class="muted">'+esc(p.industries)+' · '+esc(p.features)+'</p><a target="_blank" rel="noopener" href="'+esc(safeLink(p.preview))+'">See example ↗</a></div></article>').join('')+'</div>';
+  const projection=rates?'<div class="panel earnings-controls"><div><h3>Estimate your commission</h3><p>Choose how many new sales receive their first payment this month. Estimates use current commission rates and exclude joining fees.</p><p class="muted">'+(rates.first_bps/100)+'% first monthly payment · '+(rates.repeat_bps/100)+'% each of the next 11 monthly payments · '+(rates.project_bps/100)+'% eligible once-off projects</p></div><label>New paid sales'+select('exampleSales',[1,3,5,10,15,20].map(n=>[String(n),String(n)]),String(exampleSales))+'</label></div>':'';
+  return projection+'<div class="catalogue">'+products.map(p=>'<article class="panel"><img alt="" loading="lazy" src="'+esc(safeLink(p.image))+'"><div class="body"><h3>'+esc(p.name)+'</h3><p><span class="muted">Customer price</span><br><b>'+esc(p.price)+'</b></p>'+catalogueCommission(p)+'<p>'+esc(p.pitch)+'</p><p class="muted">'+esc(p.industries)+' · '+esc(p.features)+'</p><a target="_blank" rel="noopener" href="'+esc(safeLink(p.preview))+'">See example ↗</a></div></article>').join('')+'</div>';
 }
 function dashboard() {
   const earned = commissions.filter(c=>['Approved','Paid'].includes(c.status)).reduce((sum,c)=>sum+c.amount_cents,0);
@@ -264,6 +285,12 @@ document.addEventListener('change', event=>{
       }
       await reload();render();
       report(saved+' imported. '+failed.length+' skipped. '+failed.slice(0,3).join(' · '));
+    }
+    if(el.name==='exampleSales'){
+      exampleSales=Number(el.value);
+      render();
+      app.querySelector('[name=exampleSales]')?.focus();
+      return;
     }
     if(el.name==='lead'){await loadLead(el.value);render();}
     const filterName={industry:'industry',productFilter:'product',follow_up:'follow_up',stageFilter:'stage',template:'template'}[el.name];
